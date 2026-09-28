@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    touch-action: pan-y;
+    overscroll-behavior-x: none;
+  }
+
+  body {
+    width: 100%;
+    max-width: 100vw;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
+    font-family: var(--font-system);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
+    background-color: #f8f9fa;
+  }
+
+  html.dark body {
+    background-color: #0b0f17;
+  }
+
+  #root {
+    width: 100%;
+    max-width: 100vw;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-20px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(105vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.confetti-particle {
+  position: fixed;
+  top: -20px;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 9999;
+  animation: confetti-fall 2.5s cubic-bezier(0.2, 0.8, 0.4, 1) forwards;
+}
+
+@keyframes toast-shrink {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+.animate-toast-progress {
+  animation: toast-shrink 4.5s linear forwards;
+}

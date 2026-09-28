@@ -1,0 +1,2625 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Công Việc">
+  <meta name="theme-color" content="#ffffff">
+  <title>Công Việc - Tối Giản, Mobile & Offline</title>
+  <style>
+    /* ============================================================
+       APPLE & THINGS CORE DESIGN - TỐI GIẢN, GỌN GÀNG, SẮT NÉT
+       ============================================================ */
+    :root {
+      --bg: #f8f9fa;
+      --card-bg: #ffffff;
+      --text-main: #212529;
+      --text-muted: #868e96;
+      --border: rgba(0, 0, 0, 0.08);
+      --border-subtle: rgba(0, 0, 0, 0.04);
+      --apple-blue: #0071e3;
+      --apple-green: #34c759;
+      --apple-orange: #fd7e14;
+      --radius: 12px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      width: 100%;
+      max-width: 100vw;
+      overflow-x: hidden;
+      overflow-y: scroll;
+      scrollbar-gutter: stable;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+      touch-action: pan-y;
+      overscroll-behavior-x: none;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-main);
+      width: 100%;
+      max-width: 100vw;
+      min-height: 100vh;
+      overflow-x: hidden;
+      overscroll-behavior-x: none;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+      font-variant-numeric: tabular-nums;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      text-rendering: optimizeLegibility;
+    }
+
+    /* Top bar */
+    .top-bar {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      padding-top: env(safe-area-inset-top, 0px);
+      overflow: hidden;
+    }
+
+    .top-content {
+      max-width: 640px;
+      width: 100%;
+      margin: 0 auto;
+      height: 48px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .brand-icon {
+      width: 22px;
+      height: 22px;
+      background: #1d1d1f;
+      color: white;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: nowrap;
+    }
+
+    .btn-toggle-stats {
+      font-size: 12px;
+      padding: 4px 9px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: var(--text-main);
+      cursor: pointer;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .btn-toggle-stats.active {
+      background: #1d1d1f;
+      color: #ffffff;
+      border-color: #1d1d1f;
+    }
+
+    .icon-btn-header {
+      background: transparent;
+      border: none;
+      padding: 6px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .icon-btn-header:hover {
+      background: rgba(0,0,0,0.05);
+      color: var(--text-main);
+    }
+
+    @media (max-width: 600px) {
+      .hide-mobile {
+        display: none !important;
+      }
+    }
+
+    /* Container */
+    .container {
+      max-width: 640px;
+      width: 100%;
+      padding: 16px 16px 88px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-x: hidden;
+      min-width: 0;
+      box-sizing: border-box;
+    }
+
+    /* Bảng tổng quan */
+    .stats-panel {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      display: none;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      text-align: center;
+    }
+
+    .stats-panel.open {
+      display: grid;
+    }
+
+    .stat-box {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 8px 4px;
+    }
+
+    .stat-title {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .stat-num {
+      font-size: 16px;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    /* Ô thêm dự án */
+    .add-project-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .input-main {
+      flex: 1;
+      height: 36px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 12px;
+      font-size: 13px;
+      outline: none;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+
+    .input-main:focus {
+      border-color: #1d1d1f;
+    }
+
+    .btn-main, .btn-primary {
+      height: 32px;
+      padding: 0 13px;
+      background: #0f172a;
+      color: white;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .btn-main:hover, .btn-primary:hover {
+      background: #1e293b;
+    }
+
+    .btn-main:active, .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      height: 32px;
+      padding: 0 12px;
+      background: #ffffff;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .btn-secondary:hover {
+      background: #f8fafc;
+      color: #0f172a;
+      border-color: #94a3b8;
+    }
+
+    .btn-secondary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-danger {
+      height: 32px;
+      padding: 0 13px;
+      background: #dc2626;
+      color: white;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn-danger:hover {
+      background: #b91c1c;
+    }
+
+    /* Filter tab */
+    .filter-tabs {
+      display: flex;
+      gap: 4px;
+      background: rgba(0, 0, 0, 0.05);
+      padding: 3px;
+      border-radius: 8px;
+      width: fit-content;
+    }
+
+    .filter-tab {
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .filter-tab.active {
+      background: white;
+      color: var(--text-main);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Tiêu điểm ghim */
+    .pinned-box {
+      background: #fef8ee;
+      border: 1px solid #fde68a;
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .pinned-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #92400e;
+    }
+
+    .pinned-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 10px;
+      background: #ffffff;
+      border: 1px solid #fef3c7;
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+      flex-wrap: nowrap !important;
+      width: 100%;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    .pinned-item.done {
+      opacity: 0.6;
+    }
+
+    .pinned-item.done .task-name {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .project-badge {
+      font-size: 10px;
+      background: #f1f3f5;
+      color: #495057;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: auto;
+      white-space: nowrap;
+      max-width: 90px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-shrink: 0;
+    }
+
+    /* Thẻ dự án */
+    .project-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+      overflow: hidden;
+    }
+
+    .project-header {
+      height: 44px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+      flex-wrap: nowrap;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    .project-header:hover {
+      background: rgba(0, 0, 0, 0.015);
+    }
+
+    .project-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--apple-blue);
+      flex-shrink: 0;
+    }
+
+    .project-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .project-count {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .project-right {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex-shrink: 0;
+      flex-wrap: nowrap;
+    }
+
+    .tasks-list {
+      padding: 6px 14px 12px;
+      border-top: 1px solid var(--border-subtle);
+      background: #fafbfc;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .tasks-list.open {
+      display: flex;
+    }
+
+    /* Hàng công việc thiết kế chuẩn: Tiêu đề thoáng, link bấm được */
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 10px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: background 0.15s, opacity 0.15s;
+      position: relative;
+      flex-wrap: nowrap !important;
+      width: 100%;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    .task-item.done {
+      background: rgba(255, 255, 255, 0.6);
+      border-color: var(--border-subtle);
+    }
+
+    .task-item.done .task-name {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .drag-handle {
+      cursor: grab;
+      color: #ced4da;
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .circle-check {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1.5px solid #ced4da;
+      background: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+      transition: all 0.15s;
+    }
+
+    .circle-check.checked {
+      background: var(--apple-green);
+      border-color: var(--apple-green);
+      color: white;
+    }
+
+    .circle-check.checked::after {
+      content: '✓';
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .task-content-box {
+      flex: 1;
+      min-width: 0;
+      padding-right: 4px;
+    }
+
+    .task-name {
+      font-size: 13px;
+      line-height: 1.45;
+      color: var(--text-main);
+      cursor: pointer;
+      word-break: break-word;
+    }
+
+    .task-name.clamped {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Link click được */
+    .task-url-link {
+      color: var(--apple-blue);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      max-width: 140px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: bottom;
+    }
+
+    .task-meta-line {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .pin-badge-inline {
+      color: #b45309;
+      background: #fef3c7;
+      border: 1px solid #fde68a;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .task-status-btn {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      outline: none;
+      background: #f8f9fa;
+      color: var(--text-muted);
+      cursor: pointer;
+      flex-shrink: 0;
+      font-weight: 500;
+    }
+
+    .task-status-btn.doing {
+      color: #b45309;
+      background: #fef3c7;
+      border-color: #fde68a;
+      font-weight: 600;
+    }
+
+    .task-status-btn.done {
+      color: #15803d;
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+
+    .btn-icon {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #adb5bd;
+      padding: 4px;
+      border-radius: 4px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-icon:hover {
+      color: var(--text-main);
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    .task-action-row {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      flex-shrink: 0;
+      flex-wrap: nowrap;
+    }
+
+    .desktop-task-actions {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .mobile-task-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #868e96;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .mobile-task-menu-btn:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: var(--text-main);
+    }
+
+    .input-add-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .task-input-inline {
+      flex: 1;
+      height: 36px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 10px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .task-input-inline:focus {
+      border-color: #1d1d1f;
+    }
+
+    .btn-batch-add {
+      height: 36px;
+      padding: 0 10px;
+      background: #f1f3f5;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      color: #495057;
+      white-space: nowrap;
+    }
+
+    .btn-batch-add:hover {
+      background: #e9ecef;
+      color: #1d1d1f;
+    }
+
+    /* Subtask Best Practice System */
+    .subtask-container {
+      margin-left: 28px;
+      padding-left: 10px;
+      border-left: 2px solid #e9ecef;
+      margin-bottom: 8px;
+      margin-top: 4px;
+    }
+
+    .subtask-badge-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10.5px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: #f8f9fa;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-weight: 500;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .subtask-badge-btn:hover {
+      background: #e9ecef;
+      color: var(--text-main);
+    }
+
+    .subtask-badge-btn.active {
+      background: #e0f2fe;
+      border-color: #bae6fd;
+      color: #0369a1;
+      font-weight: 600;
+    }
+
+    .subtask-badge-btn.open {
+      background: #212529;
+      border-color: #212529;
+      color: white;
+    }
+
+    .subtask-filter-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding-bottom: 4px;
+      margin-bottom: 4px;
+      border-bottom: 1px solid #f1f3f5;
+    }
+
+    .subtask-filter-tab {
+      background: none;
+      border: none;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+
+    .subtask-filter-tab:hover {
+      background: #f1f3f5;
+      color: var(--text-main);
+    }
+
+    .subtask-filter-tab.active {
+      background: #212529;
+      color: white;
+      font-weight: 600;
+    }
+
+    .subtask-completed-accordion {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 8px;
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    .subtask-completed-accordion:hover {
+      background: #f1f3f5;
+      color: var(--text-main);
+    }
+
+    .subtask-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 4px;
+      font-size: 12px;
+      color: #495057;
+      border-radius: 4px;
+      width: 100%;
+      box-sizing: border-box;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .subtask-row span.subtask-title {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      word-break: break-word;
+    }
+
+    .subtask-row:hover {
+      background: rgba(0, 0, 0, 0.02);
+    }
+
+    .subtask-row.done span {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .sub-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1px solid #ced4da;
+      background: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .sub-dot.checked {
+      background: var(--apple-green);
+      border-color: var(--apple-green);
+      color: white;
+    }
+
+    .sub-dot.checked::after {
+      content: '✓';
+      font-size: 8px;
+    }
+
+    .subtask-del-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #ced4da;
+      font-size: 11px;
+      padding: 2px 4px;
+      margin-left: auto;
+      border-radius: 3px;
+    }
+
+    .subtask-del-btn:hover {
+      color: #e03131;
+      background: #fff5f5;
+    }
+
+    .subtask-add-inline {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      margin-top: 6px;
+      width: 100%;
+    }
+
+    .subtask-add-input {
+      flex: 1;
+      height: 28px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0 8px;
+      font-size: 11.5px;
+      outline: none;
+      background: white;
+    }
+
+    .subtask-add-input:focus {
+      border-color: #212529;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 24px;
+      line-height: 1.8;
+    }
+
+    .footer a {
+      color: var(--text-main);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    /* Toast */
+    .toast-box {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1d1d1f;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+      z-index: 60;
+      display: none;
+      animation: fadeIn 0.15s ease-out;
+    }
+
+    .toast-box.show {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, 6px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    /* MOBILE FAB */
+    .mobile-fab {
+      position: fixed;
+      bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+      right: 16px;
+      height: 38px;
+      padding: 0 14px;
+      border-radius: 9999px;
+      background: #0f172a;
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      z-index: 40;
+      transition: transform 0.1s ease;
+      user-select: none;
+    }
+
+    .mobile-fab:active {
+      transform: scale(0.96);
+    }
+
+    /* Modals - Chuẩn Design System (Linear / Apple Sheets) */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 16px;
+      animation: modalFadeIn 0.12s ease-out;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-card {
+      background: #ffffff;
+      border-radius: 16px;
+      max-width: 440px;
+      width: calc(100vw - 32px);
+      padding: 0;
+      border: 1px solid rgba(226, 232, 240, 0.85);
+      box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.12), 0 8px 12px -6px rgba(15, 23, 42, 0.08);
+      max-height: 85vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: modalZoomIn 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+      box-sizing: border-box;
+    }
+
+    @keyframes modalZoomIn {
+      from { opacity: 0; transform: scale(0.97); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-header {
+      padding: 12px 18px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .modal-icon-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: #f1f5f9;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 13px;
+    }
+
+    .modal-title-wrap {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #0f172a;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin: 0;
+    }
+
+    .modal-subtitle {
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 400;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin: 1px 0 0 0;
+    }
+
+    .btn-close-modal {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      color: #94a3b8;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+
+    .btn-close-modal:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    .modal-body {
+      padding: 16px 18px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      font-size: 12px;
+      color: #475569;
+      line-height: 1.6;
+      word-break: break-word;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .modal-footer {
+      padding: 10px 18px;
+      background: rgba(248, 250, 252, 0.7);
+      border-top: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .guide-section {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .guide-title {
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 4px;
+      font-size: 12.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* RESPONSIVE MOBILE CHUẨN */
+    @media (max-width: 640px) {
+      .mobile-fab {
+        display: flex;
+      }
+      .container {
+        padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+      }
+      .input-main, .task-input-inline, select, textarea {
+        font-size: 16px !important; /* Ngăn iOS Safari tự zoom */
+      }
+      .drag-handle {
+        display: none !important;
+      }
+      .desktop-task-actions {
+        display: none !important;
+      }
+      .mobile-task-menu-btn {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+      }
+      .project-right .btn-icon:first-child {
+        display: none !important;
+      }
+      .toast-box {
+        bottom: 80px;
+      }
+      .bottom-sheet-mobile {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        max-width: 100% !important;
+        border-radius: 20px 20px 0 0 !important;
+        padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+      }
+    }
+
+    /* Undo Floating Snackbar */
+    .undo-snackbar {
+      position: fixed;
+      bottom: 84px;
+      left: 16px;
+      right: 16px;
+      max-width: 440px;
+      margin: 0 auto;
+      background: #1c1c1e;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 16px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @media (min-width: 640px) {
+      .undo-snackbar {
+        bottom: 24px;
+      }
+    }
+    .undo-snackbar.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .undo-content {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 1;
+    }
+    .undo-text {
+      font-size: 13px;
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: #f1f3f5;
+    }
+    .undo-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .btn-undo {
+      background: #f59e0b;
+      color: #111;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: background 0.15s;
+    }
+    .btn-undo:hover {
+      background: #fbbf24;
+    }
+    .btn-undo-close {
+      background: none;
+      border: none;
+      color: #888;
+      cursor: pointer;
+      font-size: 13px;
+      padding: 4px 6px;
+      border-radius: 6px;
+    }
+    .btn-undo-close:hover {
+      color: #fff;
+    }
+    .undo-kbd {
+      font-size: 10px;
+      opacity: 0.8;
+      font-weight: normal;
+    }
+    @media (max-width: 600px) {
+      .undo-kbd { display: none; }
+    }
+
+    /* Focus Mode Banner */
+    .focus-banner {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(251, 191, 36, 0.18));
+      border: 1px solid #fde68a;
+      border-radius: 12px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .focus-banner-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .focus-badge-icon {
+      width: 28px;
+      height: 28px;
+      background: #f59e0b;
+      color: #000;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .focus-banner-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #78350f;
+    }
+    .focus-banner-sub {
+      font-size: 11px;
+      color: #92400e;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .btn-focus-exit {
+      background: #fff;
+      border: 1px solid #fde68a;
+      color: #78350f;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Input ẩn để import JSON -->
+  <input type="file" id="fileJsonInput" accept=".json" style="display: none;" onchange="handleImportJson(event)">
+
+  <header class="top-bar">
+    <div class="top-content">
+      <div class="brand">
+        <div class="brand-icon">✓</div>
+        <span>Công Việc</span>
+        <span id="streakTag" style="font-size: 11px; color: var(--apple-orange); font-weight: 500;">· 1d</span>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn-header" onclick="toggleFocusMode()" id="btnFocus" title="Chế độ Tập trung (Phím tắt: F hoặc Esc)">
+          🎯
+        </button>
+        <button class="icon-btn-header" onclick="toggleMute()" id="btnMute" title="Bật/tắt âm thanh">
+          🔊
+        </button>
+        <button class="btn-toggle-stats" id="btnStats" onclick="toggleStats()">📊 Tổng quan</button>
+        <button class="icon-btn-header" onclick="openMobileGuideModal()" title="Dùng trên điện thoại">
+          📱
+        </button>
+        <button class="icon-btn-header" onclick="openBackupModal()" title="Sao lưu / Khôi phục dữ liệu">
+          💾
+        </button>
+        <button class="icon-btn-header" onclick="openGuideModal()" title="Cách chạy offline trên mọi máy">
+          ❓
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Bảng tổng quan -->
+    <div class="stats-panel" id="statsPanel">
+      <div class="stat-box">
+        <div class="stat-title">Dự án</div>
+        <div class="stat-num" id="sProj">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-title">Tổng việc</div>
+        <div class="stat-num" id="sTasks">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-title" style="color: var(--apple-orange);">Đang làm</div>
+        <div class="stat-num" style="color: var(--apple-orange);" id="sDoing">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-title" style="color: var(--apple-green);">Đã xong</div>
+        <div class="stat-num" style="color: var(--apple-green);" id="sDone">0</div>
+      </div>
+    </div>
+
+    <!-- Ô thêm dự án -->
+    <div class="add-project-row">
+      <input 
+        type="text" 
+        id="inputProject" 
+        class="input-main" 
+        placeholder="+ Thêm dự án mới... (Nhấn Enter)"
+        onkeydown="if(event.key === 'Enter') addProject()"
+      >
+      <button class="btn-main" onclick="addProject()">Thêm</button>
+    </div>
+
+    <!-- Bộ lọc -->
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="setFilter('all', this)">Tất cả</button>
+      <button class="filter-tab" onclick="setFilter('doing', this)">Đang làm</button>
+      <button class="filter-tab" onclick="setFilter('completed', this)">Đã xong</button>
+    </div>
+
+    <!-- KHỐI TIÊU ĐIỂM GHIM ƯU TIÊN -->
+    <div id="pinnedContainer" style="display: none;"></div>
+
+    <!-- Danh sách dự án & task -->
+    <div id="projectList" style="display: flex; flex-direction: column; gap: 10px;"></div>
+
+    <div class="footer">
+      Tối giản như checklist · Dữ liệu máy nào lưu máy đó (localStorage)
+      <br>
+      <a onclick="openMobileGuideModal()" style="color: var(--apple-blue); font-weight: 500;">📱 Dùng trên điện thoại (PWA)</a> · 
+      <a onclick="openGuideModal()">Chạy offline trên mọi máy</a> · 
+      <a onclick="openBackupModal()">Sao lưu JSON</a>
+    </div>
+  </main>
+
+  <!-- Nút Floating Thêm Nhanh Trên Mobile -->
+  <button class="mobile-fab" onclick="openMobileAddModal()" title="Thêm việc mới">
+    <span>＋</span>
+    <span>Thêm việc</span>
+  </button>
+
+  <!-- Toast Box -->
+  <div class="toast-box" id="toastBox">Đã thực hiện!</div>
+
+  <!-- Floating Undo Snackbar (Hoàn tác 4.5s) -->
+  <div class="undo-snackbar" id="undoSnackbar">
+    <div class="undo-content">
+      <span style="font-size: 14px;">🗑️</span>
+      <span class="undo-text" id="undoMessage">Đã xóa công việc</span>
+    </div>
+    <div class="undo-actions">
+      <button class="btn-undo" onclick="executeUndo()">↺ Hoàn tác <span class="undo-kbd">(Ctrl+Z)</span></button>
+      <button class="btn-undo-close" onclick="dismissUndo()" title="Đóng (Esc)">✕</button>
+    </div>
+  </div>
+
+  <!-- Modal Hộp Thoại Xác Nhận Chuẩn (AlertDialog) -->
+  <div class="modal-overlay" id="confirmModal" onclick="if(event.target===this) closeConfirmModal()">
+    <div class="modal-card" style="max-width: 400px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+          <div class="modal-icon-badge" id="confirmIcon">⚠️</div>
+          <div class="modal-title-wrap">
+            <h3 class="modal-title" id="confirmTitle">Xác nhận</h3>
+          </div>
+        </div>
+        <button class="btn-close-modal" onclick="closeConfirmModal()" title="Đóng (Esc)" aria-label="Đóng">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="confirmMessage" style="font-size: 12px; color: #64748b; line-height: 1.6;">Bạn có chắc muốn thực hiện?</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeConfirmModal()">Hủy</button>
+        <button id="confirmOkBtn" class="btn-primary" onclick="executeConfirm()">Xác nhận</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Thêm Việc Nhanh Trên Mobile -->
+  <div class="modal-overlay" id="mobileAddModal" onclick="if(event.target===this) closeMobileAddModal()">
+    <div class="modal-card" style="max-width: 420px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+          <div class="modal-icon-badge">＋</div>
+          <div class="modal-title-wrap">
+            <h3 class="modal-title">Thêm Việc Nhanh</h3>
+            <p class="modal-subtitle">Tạo việc mới hoặc dán kèm liên kết web</p>
+          </div>
+        </div>
+        <button class="btn-close-modal" onclick="closeMobileAddModal()" title="Đóng (Esc)" aria-label="Đóng">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
+        <div>
+          <label style="font-size: 11px; font-weight: 500; color: #64748b; display:block; margin-bottom: 4px;">Dự án mục tiêu:</label>
+          <select id="mobileSelectProject" class="input-main" style="width: 100%; height: 32px; font-size: 12px;"></select>
+        </div>
+        <div>
+          <label style="font-size: 11px; font-weight: 500; color: #64748b; display:block; margin-bottom: 4px;">Nội dung công việc (kèm link nếu có):</label>
+          <textarea id="mobileTaskTitle" class="input-main" placeholder="Gõ tên việc hoặc dán link https://..." style="width: 100%; height: 75px; padding: 8px; font-size: 12px; resize:none;"></textarea>
+        </div>
+        <label style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; cursor: pointer;">
+          <input type="checkbox" id="mobileTaskPinned" style="accent-color: #f59e0b; width: 14px; height: 14px;">
+          <div>
+            <div style="font-size: 11.5px; font-weight: 600; color: #92400e;">📌 Ghim lên Tiêu điểm ưu tiên</div>
+            <div style="font-size: 10.5px; color: #b45309;">Hiển thị ngay đầu trang khi mở app</div>
+          </div>
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeMobileAddModal()">Hủy</button>
+        <button class="btn-primary" onclick="submitMobileTask()">Tạo việc ngay</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Tùy Chọn Task Cho Mobile -->
+  <div class="modal-overlay" id="taskMenuModal" onclick="if(event.target===this) closeTaskMenuModal()">
+    <div class="modal-card" style="max-width: 400px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+          <div class="modal-icon-badge">⚙️</div>
+          <div class="modal-title-wrap">
+            <h3 class="modal-title" id="taskMenuTitle">Tùy chọn công việc</h3>
+            <p class="modal-subtitle">Thao tác nhanh cho việc được chọn</p>
+          </div>
+        </div>
+        <button class="btn-close-modal" onclick="closeTaskMenuModal()" title="Đóng (Esc)" aria-label="Đóng">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px;">
+        <button class="btn-secondary" style="width:100%; justify-content: flex-start; height: 32px; padding: 0 10px; font-size: 12px;" onclick="handleMenuCopy()">📋 Sao chép nội dung việc</button>
+        <button class="btn-secondary" style="width:100%; justify-content: flex-start; height: 32px; padding: 0 10px; font-size: 12px;" onclick="handleMenuPin()">📌 <span id="menuPinText">Ghim lên Tiêu điểm</span></button>
+        <button class="btn-secondary" style="width:100%; justify-content: flex-start; height: 32px; padding: 0 10px; font-size: 12px;" onclick="handleMenuAddSub()">＋ Thêm bước nhỏ</button>
+        <button class="btn-danger" style="width:100%; justify-content: flex-start; height: 32px; padding: 0 10px; font-size: 12px;" onclick="handleMenuDelete()">🗑️ Xóa công việc này</button>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeTaskMenuModal()">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Dán Hàng Loạt (Batch Paste) -->
+  <div class="modal-overlay" id="batchPasteModal" onclick="if(event.target===this) closeBatchModal()">
+    <div class="modal-card" style="max-width: 460px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+          <div class="modal-icon-badge">📋</div>
+          <div class="modal-title-wrap">
+            <h3 class="modal-title" id="batchModalTitle">Dán Nhanh Danh Sách Việc</h3>
+            <p class="modal-subtitle">Mỗi dòng một việc · Hỗ trợ dán kèm link web</p>
+          </div>
+        </div>
+        <button class="btn-close-modal" onclick="closeBatchModal()" title="Đóng (Esc)" aria-label="Đóng">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 11.5px; color: #64748b; margin-bottom: 8px;">
+          Dán danh sách công việc (mỗi dòng 1 việc) từ Notion, ChatGPT, Notes:
+        </p>
+        <textarea id="batchTextarea" class="input-main" style="width:100%; height:130px; font-family: monospace; font-size: 12px; padding: 10px; line-height: 1.5; resize: none;" placeholder="- Xem kênh https://youtube.com/@gmtk&#10;- Lên kế hoạch&#10;- Quay video"></textarea>
+        <div style="font-size: 11px; color: #94a3b8; margin-top: 6px;">
+          💡 Tự động lọc các ký hiệu đầu dòng (1., -, •, [ ]) và giữ nguyên link web.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeBatchModal()">Hủy</button>
+        <button class="btn-primary" onclick="submitBatchTasks()">Thêm tất cả</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Hướng dẫn dùng trên Mobile (iOS / Android) -->
+  <div class="modal-overlay" id="mobileGuideModal" onclick="if(event.target===this) closeMobileGuideModal()">
+    <div class="modal-card" style="max-width: 460px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+          <div class="modal-icon-badge">📱</div>
+          <div class="modal-title-wrap">
+            <h3 class="modal-title">Dùng Trên Điện Thoại</h3>
+            <p class="modal-subtitle">Cài đặt web app toàn màn hình · Chạy offline 100%</p>
+          </div>
+        </div>
+        <button class="btn-close-modal" onclick="closeMobileGuideModal()" title="Đóng (Esc)" aria-label="Đóng">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="guide-section">
+          <div class="guide-title">🍎 1. Trên iPhone / iPad (Safari)</div>
+          <p style="margin: 3px 0;">1. Mở file HTML hoặc link bằng trình duyệt <strong>Safari</strong>.</p>
+          <p style="margin: 3px 0;">2. Chạm nút <strong>Chia sẻ (Share)</strong> ở thanh dưới (hình ô vuông có mũi tên trỏ lên).</p>
+          <p style="margin: 3px 0;">3. Chọn <strong>"Thêm vào Màn hình chính" (Add to Home Screen)</strong>.</p>
+          <p style="color: #15803d; font-weight: 600; margin-top: 5px; font-size: 11px;">✓ App sẽ mở toàn màn hình, không thanh URL, chạy 100% offline!</p>
+        </div>
+        <div class="guide-section">
+          <div class="guide-title">🤖 2. Trên Android (Chrome / Brave / Samsung)</div>
+          <p style="margin: 3px 0;">1. Mở link bằng <strong>Chrome</strong>.</p>
+          <p style="margin: 3px 0;">2. Chạm menu <strong>3 chấm (⋮)</strong> góc phải trên.</p>
+          <p style="margin: 3px 0;">3. Chọn <strong>"Cài đặt ứng dụng" (Install App)</strong> hoặc "Thêm vào MH chính".</p>
+          <p style="color: #15803d; font-weight: 600; margin-top: 5px; font-size: 11px;">✓ Hoạt động y hệt ứng dụng tải từ CH Play!</p>
+        </div>
+        <div class="guide-section">
+          <div class="guide-title">📁 3. Gửi file qua điện thoại dùng ngay</div>
+          <p style="margin: 3px 0;">AirDrop file này sang iPhone, hoặc gửi qua Telegram/Zalo dạng file đính kèm. Mở bằng trình duyệt là dùng vĩnh viễn, dữ liệu lưu riêng trên máy.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" onclick="closeMobileGuideModal()">Đã hiểu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Hướng dẫn chạy offline trên mọi máy -->
+  <div class="modal-overlay" id="guideModal" onclick="if(event.target===this) closeGuideModal()">
+    <div class="modal-card" style="max-width: 460px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+          <div class="modal-icon-badge">📖</div>
+          <div class="modal-title-wrap">
+            <h3 class="modal-title">Hướng Dẫn Sử Dụng</h3>
+            <p class="modal-subtitle">Tối giản · Chạy offline 100% · Dữ liệu máy nào lưu máy đó</p>
+          </div>
+        </div>
+        <button class="btn-close-modal" onclick="closeGuideModal()" title="Đóng (Esc)" aria-label="Đóng">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="guide-section">
+          <div class="guide-title">01. Chạy trên bất kỳ máy nào (100% Offline)</div>
+          <p style="margin: 2px 0;">Chỉ cần lưu file vào USB, máy tính bàn, laptop (Windows, Mac, Linux) hay điện thoại. Nhấp đúp chuột là mở bằng trình duyệt dùng ngay lập tức, không cần cài đặt phần mềm nào.</p>
+        </div>
+        <div class="guide-section">
+          <div class="guide-title">02. Cơ chế "Máy nào lưu máy đó"</div>
+          <p style="margin: 2px 0;">Sử dụng <strong>localStorage</strong> của trình duyệt. Dữ liệu được lưu thẳng vào máy tính bạn, không gửi lên bất kỳ máy chủ nào. Đóng tab hay khởi động lại đều còn nguyên.</p>
+        </div>
+        <div class="guide-section">
+          <div class="guide-title">03. Ghim việc ưu tiên & Chế độ tập trung (F)</div>
+          <p style="margin: 2px 0;">Bấm <strong>📌</strong> để ghim lên "Tiêu điểm" đầu trang. Bấm biểu tượng <strong>🎯</strong> trên thanh tiêu đề để bật chế độ tập trung chống ngợp.</p>
+        </div>
+        <div class="guide-section">
+          <div class="guide-title">04. Chuyển dữ liệu giữa các máy khi cần</div>
+          <p style="margin: 2px 0;">Bấm nút 💾 trên thanh tiêu đề để xuất file <code>.json</code>. Mang file đó sang máy khác bấm "Khôi phục" là toàn bộ dữ liệu chuyển qua ngay lập tức.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" onclick="closeGuideModal()">Đã hiểu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Sao lưu & Khôi phục JSON -->
+  <div class="modal-overlay" id="backupModal" onclick="if(event.target===this) closeBackupModal()">
+    <div class="modal-card" style="max-width: 420px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+          <div class="modal-icon-badge">💾</div>
+          <div class="modal-title-wrap">
+            <h3 class="modal-title">Sao Lưu & Khôi Phục Dữ Liệu</h3>
+            <p class="modal-subtitle">Quản lý an toàn dữ liệu trên máy bạn</p>
+          </div>
+        </div>
+        <button class="btn-close-modal" onclick="closeBackupModal()" title="Đóng (Esc)" aria-label="Đóng">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 11.5px; color: #64748b; margin-bottom: 12px;">
+          Xuất file sao lưu để cất giữ an toàn hoặc chuyển dữ liệu sang máy tính khác.
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="padding: 12px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+            <div>
+              <div style="font-size: 12px; font-weight: 600; color: #0f172a;">📥 Xuất file sao lưu (.json)</div>
+              <div style="font-size: 11px; color: #64748b;">Tải về bản sao lưu để cất giữ an toàn</div>
+            </div>
+            <button class="btn-primary" onclick="exportJson()">Tải về</button>
+          </div>
+          <div style="padding: 12px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+            <div>
+              <div style="font-size: 12px; font-weight: 600; color: #0f172a;">📤 Khôi phục từ file (.json)</div>
+              <div style="font-size: 11px; color: #64748b;">Nhập lại dữ liệu từ file sao lưu trước đó</div>
+            </div>
+            <button class="btn-secondary" onclick="triggerImportJson()">Chọn file</button>
+          </div>
+        </div>
+        <div style="margin-top: 14px; text-align: center; font-size: 11.5px; color: #94a3b8;">
+          Dữ liệu mẫu: <a onclick="confirmResetSample()" style="color: #475569; text-decoration: underline; cursor: pointer; font-weight: 500;">Khôi phục dữ liệu mẫu ban đầu</a>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" onclick="closeBackupModal()">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'SOLO_CORE_TASKS_V4';
+    const DEFAULT_DATA = [
+      {
+        id: 'p1',
+        name: 'Làm Game Kiếm Tiền YouTube',
+        isExpanded: true,
+        tasks: [
+          {
+            id: 't1',
+            title: 'Research kênh game lớn https://youtube.com/@gmtk',
+            status: 'done',
+            isPinned: false,
+            subtasks: [
+              { id: 's1', title: 'Xem các video phân tích cơ chế game', completed: true },
+              { id: 's2', title: 'Ghi chú cách kiếm tiền & tài trợ', completed: true },
+              { id: 's3', title: 'Tổng hợp ý tưởng vào Notion https://notion.so', completed: true }
+            ]
+          },
+          {
+            id: 't2',
+            title: 'Chọn thể loại game hot (check https://steamdb.info)',
+            status: 'doing',
+            isPinned: true,
+            subtasks: [
+              { id: 's4', title: 'Liệt kê 20 game hot', completed: true },
+              { id: 's5', title: 'Đánh giá độ khó / view', completed: false },
+              { id: 's6', title: 'Chốt 1 game khả thi', completed: false }
+            ]
+          },
+          { id: 't3', title: 'Bắt tay code gameplay (docs https://unity.com)', status: 'todo', isPinned: false, subtasks: [] },
+          { id: 't4', title: 'Làm video demo đầu tiên', status: 'todo', isPinned: false, subtasks: [] },
+          { id: 't5', title: 'Upload + SEO YouTube', status: 'todo', isPinned: false, subtasks: [] },
+          { id: 't6', title: 'Theo dõi doanh thu tuần đầu', status: 'todo', isPinned: false, subtasks: [] }
+        ]
+      },
+      {
+        id: 'p2',
+        name: 'Kênh TikTok triệu view',
+        isExpanded: false,
+        tasks: [
+          { id: 'tk1', title: 'Lên 10 kịch bản video ngắn', status: 'done', isPinned: false, subtasks: [] },
+          { id: 'tk2', title: 'Quay và dựng 5 video mẫu bằng CapCut', status: 'doing', isPinned: false, subtasks: [] },
+          { id: 'tk3', title: 'Đăng đều 1 video mỗi ngày vào 19h', status: 'todo', isPinned: false, subtasks: [] }
+        ]
+      }
+    ];
+
+    function loadProjects() {
+      try {
+        const s = localStorage.getItem(STORAGE_KEY);
+        if (s) return JSON.parse(s);
+      } catch (e) {}
+      return DEFAULT_DATA;
+    }
+
+    function saveProjects(data) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch (e) {}
+      render();
+    }
+
+    let projects = loadProjects();
+    let currentFilter = 'all';
+    let isMuted = localStorage.getItem('SOLO_MUTED_V1') === 'true';
+    let activeBatchProjectId = null;
+    let toastTimeout = null;
+    let undoAction = null;
+    let undoTimeout = null;
+    let isFocusMode = false;
+
+    function triggerUndo(msg, fn) {
+      if (undoTimeout) clearTimeout(undoTimeout);
+      undoAction = fn;
+      const el = document.getElementById('undoSnackbar');
+      const text = document.getElementById('undoMessage');
+      if (el && text) {
+        text.innerText = msg;
+        el.classList.add('show');
+        undoTimeout = setTimeout(() => {
+          dismissUndo();
+        }, 4500);
+      }
+    }
+
+    function executeUndo() {
+      if (undoAction) {
+        undoAction();
+        undoAction = null;
+        showToast('Đã khôi phục thành công!');
+      }
+      dismissUndo();
+    }
+
+    function dismissUndo() {
+      if (undoTimeout) clearTimeout(undoTimeout);
+      undoAction = null;
+      const el = document.getElementById('undoSnackbar');
+      if (el) el.classList.remove('show');
+    }
+
+    function toggleFocusMode() {
+      isFocusMode = !isFocusMode;
+      const btn = document.getElementById('btnFocus');
+      if (btn) {
+        if (isFocusMode) {
+          btn.style.background = '#f59e0b';
+          btn.style.color = '#000';
+          btn.style.borderColor = '#f59e0b';
+          showToast('Đã bật Chế độ Tập trung!');
+        } else {
+          btn.style.background = '';
+          btn.style.color = '';
+          btn.style.borderColor = '';
+          showToast('Đã thoát Chế độ Tập trung');
+        }
+      }
+      render();
+    }
+
+    // Phím tắt bàn phím toàn diện (Esc, Ctrl+Z, /, f/F)
+    window.addEventListener('keydown', (e) => {
+      const activeEl = document.activeElement;
+      const isInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+
+      if (e.key === 'Escape') {
+        closeConfirmModal();
+        if (isFocusMode) { toggleFocusMode(); return; }
+        closeGuideModal();
+        closeBackupModal();
+        closeMobileGuideModal();
+        closeBatchModal();
+        closeMobileAddModal();
+        closeTaskMenuModal();
+        dismissUndo();
+        if (isInput) activeEl.blur();
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
+        if (undoAction) {
+          e.preventDefault();
+          executeUndo();
+        }
+      }
+
+      if (e.key === '/' && !isInput && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        const inputProj = document.getElementById('inputProject');
+        if (inputProj) inputProj.focus();
+      }
+
+      if ((e.key === 'f' || e.key === 'F') && !isInput && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        toggleFocusMode();
+      }
+    });
+
+    function showToast(msg) {
+      const el = document.getElementById('toastBox');
+      el.innerText = msg;
+      el.classList.add('show');
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => el.classList.remove('show'), 2000);
+    }
+
+    // Tự động phân tích và biến URL thành link click được
+    function formatLinks(text) {
+      if (!text) return '';
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      return text.replace(urlRegex, function(url) {
+        let display = url;
+        try {
+          const u = new URL(url);
+          const host = u.hostname.replace(/^www\./, '');
+          const path = u.pathname === '/' || !u.pathname ? '' : (u.pathname.length > 8 ? u.pathname.slice(0, 8) + '…' : u.pathname);
+          display = host + path;
+        } catch(e) {
+          display = url.length > 18 ? url.slice(0, 18) + '…' : url;
+        }
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="task-url-link" onclick="event.stopPropagation()" title="${url}"><span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:140px; display:inline-block;">${display}</span> ↗</a>`;
+      });
+    }
+
+    // Tách dòng văn bản được paste thành nhiều task sạch
+    function parseLines(raw) {
+      return raw.split(/\r?\n/)
+        .map(l => l.replace(/^[\s*\-•\d.)\][]+/, '').trim())
+        .filter(l => l.length > 0);
+    }
+
+    function playTone() {
+      if (isMuted) return;
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1174.66, ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.06, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+      } catch (e) {}
+    }
+
+    function toggleMute() {
+      isMuted = !isMuted;
+      localStorage.setItem('SOLO_MUTED_V1', String(isMuted));
+      document.getElementById('btnMute').innerText = isMuted ? '🔇' : '🔊';
+    }
+
+    function toggleStats() {
+      const panel = document.getElementById('statsPanel');
+      const btn = document.getElementById('btnStats');
+      panel.classList.toggle('open');
+      btn.classList.toggle('active');
+    }
+
+    function openGuideModal() { document.getElementById('guideModal').classList.add('open'); }
+    function closeGuideModal() { document.getElementById('guideModal').classList.remove('open'); }
+    function openBackupModal() { document.getElementById('backupModal').classList.add('open'); }
+    function closeBackupModal() { document.getElementById('backupModal').classList.remove('open'); }
+    function openMobileGuideModal() { document.getElementById('mobileGuideModal').classList.add('open'); }
+    function closeMobileGuideModal() { document.getElementById('mobileGuideModal').classList.remove('open'); }
+
+    let pendingConfirmAction = null;
+
+    function showConfirmModal(title, msg, onConfirm, okText = 'Xác nhận', isDanger = false) {
+      document.getElementById('confirmTitle').innerText = title;
+      document.getElementById('confirmMessage').innerText = msg;
+      const okBtn = document.getElementById('confirmOkBtn');
+      okBtn.innerText = okText;
+      okBtn.className = isDanger ? 'btn-danger' : 'btn-primary';
+      const icon = document.getElementById('confirmIcon');
+      icon.innerText = isDanger ? '🗑️' : '⚠️';
+      icon.style.background = isDanger ? '#fee2e2' : '#fef3c7';
+      icon.style.color = isDanger ? '#dc2626' : '#d97706';
+      pendingConfirmAction = onConfirm;
+      document.getElementById('confirmModal').classList.add('open');
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('confirmModal').classList.remove('open');
+      pendingConfirmAction = null;
+    }
+
+    function executeConfirm() {
+      if (pendingConfirmAction) pendingConfirmAction();
+      closeConfirmModal();
+    }
+
+    function confirmResetSample() {
+      showConfirmModal(
+        'Khôi phục dữ liệu mẫu ban đầu?',
+        'Thao tác này sẽ đặt lại danh sách công việc và dự án về trạng thái mẫu ban đầu.',
+        () => {
+          projects = JSON.parse(JSON.stringify(DEFAULT_DATA));
+          saveProjects(projects);
+          render();
+          showToast('Đã khôi phục dữ liệu mẫu!');
+          closeBackupModal();
+        },
+        'Khôi phục mẫu',
+        false
+      );
+    }
+
+    function openBatchModal(pId, pName) {
+      activeBatchProjectId = pId;
+      document.getElementById('batchModalTitle').innerText = `📋 Dán việc vào "${pName}"`;
+      document.getElementById('batchTextarea').value = '';
+      document.getElementById('batchPasteModal').classList.add('open');
+      setTimeout(() => document.getElementById('batchTextarea').focus(), 150);
+    }
+    function closeBatchModal() {
+      document.getElementById('batchPasteModal').classList.remove('open');
+      activeBatchProjectId = null;
+    }
+
+    function submitBatchTasks() {
+      if (!activeBatchProjectId) return;
+      const text = document.getElementById('batchTextarea').value;
+      const lines = parseLines(text);
+      if (lines.length === 0) return;
+
+      const p = projects.find(item => item.id === activeBatchProjectId);
+      if (p) {
+        p.isExpanded = true;
+        lines.forEach(l => {
+          p.tasks.push({ id: 't_' + Math.random().toString(36).slice(2, 8), title: l, status: 'todo', isPinned: false, subtasks: [] });
+        });
+        saveProjects(projects);
+        showToast(`Đã thêm ${lines.length} công việc!`);
+      }
+      closeBatchModal();
+    }
+
+    function openMobileAddModal() {
+      const select = document.getElementById('mobileSelectProject');
+      select.innerHTML = projects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+      document.getElementById('mobileTaskTitle').value = '';
+      document.getElementById('mobileTaskPinned').checked = false;
+      document.getElementById('mobileAddModal').classList.add('open');
+      setTimeout(() => document.getElementById('mobileTaskTitle').focus(), 150);
+    }
+    function closeMobileAddModal() { document.getElementById('mobileAddModal').classList.remove('open'); }
+
+    function submitMobileTask() {
+      const pId = document.getElementById('mobileSelectProject').value;
+      const raw = document.getElementById('mobileTaskTitle').value.trim();
+      const isPinned = document.getElementById('mobileTaskPinned').checked;
+      if (!raw || !pId) return;
+
+      const p = projects.find(item => item.id === pId);
+      if (p) {
+        p.isExpanded = true;
+        if (raw.includes('\n')) {
+          const lines = parseLines(raw);
+          lines.forEach((l, idx) => {
+            p.tasks.push({ id: 't_' + Date.now() + '_' + idx, title: l, status: 'todo', isPinned: idx === 0 ? isPinned : false, subtasks: [] });
+          });
+          showToast(`Đã tạo ${lines.length} việc!`);
+        } else {
+          p.tasks.push({ id: 't_' + Date.now(), title: raw, status: 'todo', isPinned, subtasks: [] });
+          showToast('Đã thêm công việc!');
+        }
+        saveProjects(projects);
+      }
+      closeMobileAddModal();
+    }
+
+    function copyProjectMarkdown(pId) {
+      const p = projects.find(item => item.id === pId);
+      if (!p) return;
+      const lines = [`# 📁 ${p.name}`];
+      p.tasks.forEach(t => {
+        const mark = t.status === 'done' ? '[x]' : '[ ]';
+        const pin = t.isPinned ? ' (Ưu tiên)' : '';
+        lines.push(`- ${mark} ${t.title}${pin}`);
+        if (t.subtasks) {
+          t.subtasks.forEach(s => lines.push(`  - ${s.completed ? '[x]' : '[ ]'} ${s.title}`));
+        }
+      });
+      navigator.clipboard.writeText(lines.join('\n'));
+      showToast(`Đã sao chép checklist "${p.name}"!`);
+    }
+
+    function copyTaskText(text) {
+      navigator.clipboard.writeText(text);
+      showToast('Đã sao chép công việc!');
+    }
+
+    function exportJson() {
+      const blob = new Blob([JSON.stringify(projects, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `cong-viec-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+    }
+
+    function triggerImportJson() {
+      document.getElementById('fileJsonInput').click();
+    }
+
+    function handleImportJson(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            projects = parsed;
+            saveProjects(projects);
+            showToast('Khôi phục dữ liệu thành công!');
+            closeBackupModal();
+          }
+        } catch (err) { alert('File JSON không hợp lệ!'); }
+      };
+      reader.readAsText(file);
+      e.target.value = '';
+    }
+
+    function addProject() {
+      const input = document.getElementById('inputProject');
+      const val = input.value.trim();
+      if (!val) return;
+      projects.unshift({ id: 'p_' + Date.now(), name: val, isExpanded: true, tasks: [] });
+      input.value = '';
+      saveProjects(projects);
+      showToast(`Đã tạo dự án "${val}"!`);
+    }
+
+    function deleteProject(id, e) {
+      if (e) e.stopPropagation();
+      const projIndex = projects.findIndex(p => p.id === id);
+      const projToDelete = projects[projIndex];
+      if (!projToDelete) return;
+
+      projects = projects.filter(p => p.id !== id);
+      saveProjects(projects);
+      triggerUndo(`Đã xóa dự án "${projToDelete.name}"`, () => {
+        projects.splice(projIndex, 0, projToDelete);
+        saveProjects(projects);
+      });
+    }
+
+    function toggleExpand(id) {
+      const p = projects.find(item => item.id === id);
+      if (p) {
+        p.isExpanded = !p.isExpanded;
+        saveProjects(projects);
+      }
+    }
+
+    function addTask(pId) {
+      const input = document.getElementById('tInput_' + pId);
+      const val = input.value.trim();
+      if (!val) return;
+      const p = projects.find(item => item.id === pId);
+      if (!p) return;
+
+      if (val.includes('\n')) {
+        const lines = parseLines(val);
+        lines.forEach(l => {
+          p.tasks.push({ id: 't_' + Math.random().toString(36).slice(2, 8), title: l, status: 'todo', isPinned: false, subtasks: [] });
+        });
+        showToast(`Đã thêm ${lines.length} việc!`);
+      } else {
+        p.tasks.push({ id: 't_' + Date.now(), title: val, status: 'todo', isPinned: false, subtasks: [] });
+        showToast('Đã thêm việc!');
+      }
+
+      input.value = '';
+      saveProjects(projects);
+    }
+
+    function handleInlinePaste(pId, e) {
+      const pasteText = e.clipboardData.getData('text');
+      if (pasteText && pasteText.includes('\n')) {
+        e.preventDefault();
+        const lines = parseLines(pasteText);
+        if (lines.length > 0) {
+          const p = projects.find(item => item.id === pId);
+          if (p) {
+            lines.forEach(l => {
+              p.tasks.push({ id: 't_' + Math.random().toString(36).slice(2, 8), title: l, status: 'todo', isPinned: false, subtasks: [] });
+            });
+            saveProjects(projects);
+            showToast(`Đã dán nhanh ${lines.length} công việc!`);
+          }
+        }
+      }
+    }
+
+    function toggleTask(pId, tId) {
+      const p = projects.find(item => item.id === pId);
+      if (!p) return;
+      const t = p.tasks.find(item => item.id === tId);
+      if (!t) return;
+      const isDone = t.status !== 'done';
+      t.status = isDone ? 'done' : 'todo';
+      if (isDone) {
+        if (t.subtasks) t.subtasks.forEach(s => s.completed = true);
+        playTone();
+      }
+      saveProjects(projects);
+    }
+
+    function togglePin(pId, tId) {
+      const p = projects.find(item => item.id === pId);
+      if (!p) return;
+      const t = p.tasks.find(item => item.id === tId);
+      if (!t) return;
+      t.isPinned = !t.isPinned;
+      saveProjects(projects);
+      showToast('Đã cập nhật ghim ưu tiên!');
+    }
+
+    function cycleStatus(pId, tId) {
+      const p = projects.find(item => item.id === pId);
+      if (!p) return;
+      const t = p.tasks.find(item => item.id === tId);
+      if (!t) return;
+      const next = t.status === 'todo' ? 'doing' : (t.status === 'doing' ? 'done' : 'todo');
+      t.status = next;
+      if (next === 'done') playTone();
+      saveProjects(projects);
+    }
+
+    function deleteTask(pId, tId) {
+      const p = projects.find(item => item.id === pId);
+      if (!p) return;
+      const taskIndex = p.tasks.findIndex(t => t.id === tId);
+      const taskToDelete = p.tasks[taskIndex];
+      if (!taskToDelete) return;
+
+      p.tasks = p.tasks.filter(t => t.id !== tId);
+      saveProjects(projects);
+      triggerUndo(`Đã xóa "${taskToDelete.title.slice(0, 22)}..."`, () => {
+        const pr = projects.find(item => item.id === pId);
+        if (pr) {
+          pr.tasks.splice(taskIndex, 0, taskToDelete);
+          saveProjects(projects);
+        }
+      });
+    }
+
+    // Modal tùy chọn task trên Mobile
+    let currentMenuProjId = null;
+    let currentMenuTaskId = null;
+
+    function openTaskMenuModal(pId, tId) {
+      currentMenuProjId = pId;
+      currentMenuTaskId = tId;
+      const p = projects.find(item => item.id === pId);
+      const t = p ? p.tasks.find(item => item.id === tId) : null;
+      if (!t) return;
+      document.getElementById('taskMenuTitle').innerText = t.title;
+      document.getElementById('menuPinText').innerText = t.isPinned ? 'Bỏ ghim khỏi Tiêu điểm' : 'Ghim lên Tiêu điểm ưu tiên';
+      document.getElementById('taskMenuModal').classList.add('open');
+    }
+
+    function closeTaskMenuModal() {
+      document.getElementById('taskMenuModal').classList.remove('open');
+      currentMenuProjId = null;
+      currentMenuTaskId = null;
+    }
+
+    function handleMenuCopy() {
+      if (!currentMenuProjId || !currentMenuTaskId) return;
+      const p = projects.find(item => item.id === currentMenuProjId);
+      const t = p ? p.tasks.find(item => item.id === currentMenuTaskId) : null;
+      if (t) copyTaskText(t.title);
+      closeTaskMenuModal();
+    }
+
+    function handleMenuPin() {
+      if (!currentMenuProjId || !currentMenuTaskId) return;
+      togglePin(currentMenuProjId, currentMenuTaskId);
+      closeTaskMenuModal();
+    }
+
+    function handleMenuAddSub() {
+      if (!currentMenuProjId || !currentMenuTaskId) return;
+      const pId = currentMenuProjId;
+      const tId = currentMenuTaskId;
+      closeTaskMenuModal();
+      addSubtaskPrompt(pId, tId);
+    }
+
+    function handleMenuDelete() {
+      if (!currentMenuProjId || !currentMenuTaskId) return;
+      deleteTask(currentMenuProjId, currentMenuTaskId);
+      closeTaskMenuModal();
+    }
+
+    function moveTask(pId, idx, delta) {
+      const p = projects.find(item => item.id === pId);
+      if (!p) return;
+      const target = idx + delta;
+      if (target < 0 || target >= p.tasks.length) return;
+      const [moved] = p.tasks.splice(idx, 1);
+      p.tasks.splice(target, 0, moved);
+      saveProjects(projects);
+    }
+
+    // Quản lý việc con chuẩn UX Asana / Todoist / Linear
+    const expandedSubtasks = {};
+    const showCompletedSubtasks = {};
+    const subtaskFilterMap = {};
+
+    function toggleTaskSubtasks(pId, tId, e) {
+      if (e) e.stopPropagation();
+      expandedSubtasks[tId] = !expandedSubtasks[tId];
+      render();
+    }
+
+    function toggleShowCompletedSubtasks(pId, tId, e) {
+      if (e) e.stopPropagation();
+      showCompletedSubtasks[tId] = !showCompletedSubtasks[tId];
+      render();
+    }
+
+    function setSubFilter(tId, filter, e) {
+      if (e) e.stopPropagation();
+      subtaskFilterMap[tId] = filter;
+      render();
+    }
+
+    function deleteSub(pId, tId, sId) {
+      const p = projects.find(item => item.id === pId);
+      if (!p) return;
+      const t = p.tasks.find(item => item.id === tId);
+      if (!t || !t.subtasks) return;
+      const subIndex = t.subtasks.findIndex(s => s.id === sId);
+      const subToDelete = t.subtasks[subIndex];
+
+      t.subtasks = t.subtasks.filter(s => s.id !== sId);
+      saveProjects(projects);
+      if (subToDelete) {
+        triggerUndo(`Đã xóa bước "${subToDelete.title.slice(0, 18)}..."`, () => {
+          const pr = projects.find(item => item.id === pId);
+          const tr = pr?.tasks.find(item => item.id === tId);
+          if (tr) {
+            if (!tr.subtasks) tr.subtasks = [];
+            tr.subtasks.splice(subIndex, 0, subToDelete);
+            saveProjects(projects);
+          }
+        });
+      }
+    }
+
+    function addInlineSubtask(pId, tId) {
+      const input = document.getElementById(`subInput_${tId}`);
+      if (!input) return;
+      const val = input.value.trim();
+      if (!val) return;
+      const p = projects.find(item => item.id === pId);
+      if (!p) return;
+      const t = p.tasks.find(item => item.id === tId);
+      if (!t) return;
+      if (!t.subtasks) t.subtasks = [];
+      t.subtasks.push({ id: 's_' + Date.now(), title: val, completed: false });
+      expandedSubtasks[tId] = true;
+      saveProjects(projects);
+      showToast('Đã thêm việc con!');
+    }
+
+    function addSubtaskPrompt(pId, tId) {
+      expandedSubtasks[tId] = true;
+      render();
+      setTimeout(() => {
+        const inp = document.getElementById(`subInput_${tId}`);
+        if (inp) inp.focus();
+      }, 50);
+    }
+
+    function toggleSub(pId, tId, sId) {
+      const p = projects.find(item => item.id === pId);
+      if (!p) return;
+      const t = p.tasks.find(item => item.id === tId);
+      if (!t || !t.subtasks) return;
+      const s = t.subtasks.find(item => item.id === sId);
+      if (!s) return;
+      s.completed = !s.completed;
+      if (s.completed) playTone();
+      if (t.subtasks.every(item => item.completed)) t.status = 'done';
+      saveProjects(projects);
+    }
+
+    function setFilter(type, btn) {
+      currentFilter = type;
+      document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    }
+
+    function render() {
+      // 1. Render Pinned tasks
+      const pinnedList = [];
+      projects.forEach(p => {
+        p.tasks.forEach(t => {
+          if (t.isPinned) pinnedList.push({ task: t, project: p });
+        });
+      });
+
+      const pinEl = document.getElementById('pinnedContainer');
+      if (pinnedList.length > 0) {
+        pinEl.style.display = 'block';
+        pinEl.innerHTML = `
+          <div class="pinned-box">
+            <div class="pinned-header">
+              <span>📌 Tiêu điểm ưu tiên hôm nay (${pinnedList.length})</span>
+              <span style="font-weight:normal; font-size:11px;">Tập trung làm trước</span>
+            </div>
+            ${pinnedList.map(({ task, project }) => {
+              const isDone = task.status === 'done';
+              const isDoing = task.status === 'doing';
+              return `
+                <div class="pinned-item ${isDone ? 'done' : ''}">
+                  <button class="circle-check ${isDone ? 'checked' : ''}" onclick="toggleTask('${project.id}', '${task.id}')"></button>
+                  <div class="task-content-box">
+                    <div class="task-name clamped" onclick="this.classList.toggle('clamped')" title="Bấm để xem trọn vẹn hoặc thu gọn">${formatLinks(task.title)}</div>
+                    <div class="task-meta-line">
+                      <span style="max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">📁 ${project.name}</span>
+                    </div>
+                  </div>
+                  <button 
+                    class="task-status-btn ${isDoing ? 'doing' : (isDone ? 'done' : '')}"
+                    onclick="cycleStatus('${project.id}', '${task.id}')"
+                    title="Bấm để đổi trạng thái"
+                  >
+                    ${isDone ? 'Xong' : (isDoing ? 'Đang làm' : 'Chờ')}
+                  </button>
+                  <button class="btn-icon" title="Bỏ ghim" onclick="togglePin('${project.id}', '${task.id}')">📌</button>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      } else {
+        pinEl.style.display = 'none';
+      }
+
+      // 2. Render Project list
+      const listEl = document.getElementById('projectList');
+      listEl.innerHTML = '';
+
+      if (isFocusMode) {
+        const pendingCount = projects.reduce((acc, p) => acc + p.tasks.filter((t) => t.status !== 'done').length, 0);
+        const focusDiv = document.createElement('div');
+        focusDiv.className = 'focus-banner';
+        focusDiv.innerHTML = `
+          <div class="focus-banner-left">
+            <div class="focus-badge-icon">🎯</div>
+            <div style="min-width:0;">
+              <div class="focus-banner-title">Chế độ Tập trung (Zen Mode) · ${pendingCount} việc còn dở</div>
+              <div class="focus-banner-sub">Đã ẩn toàn bộ việc hoàn thành · Chỉ tập trung việc đang làm</div>
+            </div>
+          </div>
+          <button class="btn-focus-exit" onclick="toggleFocusMode()">Thoát (Esc)</button>
+        `;
+        listEl.appendChild(focusDiv);
+      }
+
+      let totalTasks = 0;
+      let totalDone = 0;
+      let totalDoing = 0;
+
+      projects.forEach(p => {
+        totalTasks += p.tasks.length;
+        p.tasks.forEach(t => {
+          if (t.status === 'done') totalDone++;
+          if (t.status === 'doing') totalDoing++;
+        });
+      });
+
+      document.getElementById('sProj').innerText = projects.length;
+      document.getElementById('sTasks').innerText = totalTasks;
+      document.getElementById('sDoing').innerText = totalDoing;
+      document.getElementById('sDone').innerText = totalDone;
+
+      const filtered = projects.filter(p => {
+        const total = p.tasks.length;
+        const done = p.tasks.filter(t => t.status === 'done').length;
+        const isDone = total > 0 && done === total;
+        if (isFocusMode || currentFilter === 'doing') return p.tasks.some(t => t.status === 'doing') || !isDone;
+        if (currentFilter === 'completed') return isDone;
+        return true;
+      });
+
+      filtered.forEach(p => {
+        const countDone = p.tasks.filter(t => t.status === 'done').length;
+        const visibleTasks = p.tasks.filter(t => {
+          if (isFocusMode || currentFilter === 'doing') return t.status !== 'done';
+          if (currentFilter === 'completed') return t.status === 'done';
+          return true;
+        });
+
+        const card = document.createElement('div');
+        card.className = 'project-card';
+        card.innerHTML = `
+          <div class="project-header" onclick="toggleExpand('${p.id}')">
+            <div class="project-left">
+              <div class="dot"></div>
+              <div class="project-title" style="max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.name}</div>
+              <span class="project-count">· ${countDone}/${p.tasks.length}</span>
+            </div>
+            <div class="project-right" onclick="event.stopPropagation()">
+              <button class="btn-icon" title="Sao chép toàn bộ checklist" onclick="copyProjectMarkdown('${p.id}')">📋</button>
+              <button class="btn-icon" title="Dán nhiều việc" onclick="openBatchModal('${p.id}', '${p.name}')">📥</button>
+              <button class="btn-icon" title="Xóa dự án" onclick="deleteProject('${p.id}', event)">✕</button>
+              <button class="btn-icon" onclick="toggleExpand('${p.id}')">${p.isExpanded ? '▾' : '▸'}</button>
+            </div>
+          </div>
+
+          <div class="tasks-list ${p.isExpanded ? 'open' : ''}">
+            ${visibleTasks.length === 0 ? `
+              <div style="text-align:center; padding:12px; font-size:12px; color:#868e96;">
+                ${isFocusMode ? '✓ Đã hoàn thành toàn bộ việc trong dự án này!' : (currentFilter === 'doing' ? 'Không có việc nào đang làm trong dự án này.' : (currentFilter === 'completed' ? 'Chưa có việc nào hoàn thành.' : 'Chưa có việc nào.'))}
+              </div>
+            ` : visibleTasks.map((t, idx) => {
+              const isDone = t.status === 'done';
+              const isDoing = t.status === 'doing';
+              const subs = t.subtasks || [];
+              const totalSubs = subs.length;
+              const activeSubs = subs.filter(s => !s.completed);
+              const doneSubs = subs.filter(s => s.completed);
+              const isSubOpen = !!expandedSubtasks[t.id];
+              const isCompletedOpen = !!showCompletedSubtasks[t.id];
+              const filterMode = subtaskFilterMap[t.id] || 'active';
+
+              return `
+                <div class="task-item ${isDone ? 'done' : ''}">
+                  <svg class="drag-handle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" title="6 chấm">
+                    <circle cx="9" cy="12" r="1"></circle>
+                    <circle cx="9" cy="5" r="1"></circle>
+                    <circle cx="9" cy="19" r="1"></circle>
+                    <circle cx="15" cy="12" r="1"></circle>
+                    <circle cx="15" cy="5" r="1"></circle>
+                    <circle cx="15" cy="19" r="1"></circle>
+                  </svg>
+                  <button class="circle-check ${isDone ? 'checked' : ''}" onclick="toggleTask('${p.id}', '${t.id}')"></button>
+                  
+                  <div class="task-content-box">
+                    <div class="task-name clamped" onclick="this.classList.toggle('clamped')" title="Bấm để xem trọn vẹn hoặc thu gọn">${formatLinks(t.title)}</div>
+                    <div class="task-meta-line">
+                      ${t.isPinned ? `<span class="pin-badge-inline">📌 Ưu tiên</span>` : ''}
+                      ${totalSubs > 0 ? `
+                        <button class="subtask-badge-btn ${isSubOpen ? 'open' : (activeSubs.length > 0 ? 'active' : '')}" onclick="toggleTaskSubtasks('${p.id}', '${t.id}', event)" title="Bấm để mở/thu gọn danh sách việc con">
+                          ${isSubOpen ? '▾' : '▸'} ${activeSubs.length > 0 ? `${activeSubs.length} cần làm · ${doneSubs.length}/${totalSubs} xong` : `${totalSubs}/${totalSubs} xong ✓`}
+                        </button>
+                      ` : ''}
+                    </div>
+                  </div>
+
+                  <div class="task-action-row">
+                    <button 
+                      class="task-status-btn ${isDoing ? 'doing' : (isDone ? 'done' : '')}"
+                      onclick="cycleStatus('${p.id}', '${t.id}')"
+                      title="Chạm để đổi trạng thái"
+                    >
+                      ${isDone ? 'Xong' : (isDoing ? 'Đang làm' : 'Chờ')}
+                    </button>
+                    <div class="desktop-task-actions">
+                      <button class="btn-icon" title="Sao chép việc" onclick="copyTaskText('${t.title.replace(/'/g, "\\'")}')">📋</button>
+                      <button class="btn-icon ${t.isPinned ? 'pinned' : ''}" title="${t.isPinned ? 'Bỏ ghim' : 'Ghim lên đầu'}" onclick="togglePin('${p.id}', '${t.id}')">📌</button>
+                      <button class="btn-icon" title="Thêm bước nhỏ" onclick="addSubtaskPrompt('${p.id}', '${t.id}')">＋</button>
+                      <button class="btn-icon" title="Xóa" onclick="deleteTask('${p.id}', '${t.id}')">✕</button>
+                    </div>
+                    <button class="mobile-task-menu-btn" title="Tùy chọn" onclick="openTaskMenuModal('${p.id}', '${t.id}')">···</button>
+                  </div>
+                </div>
+
+                ${isSubOpen && totalSubs > 0 ? `
+                  <div class="subtask-container">
+                    ${totalSubs >= 3 ? `
+                      <div class="subtask-filter-bar">
+                        <div style="display:flex; align-items:center; gap:4px; font-size:11px; color:var(--text-muted);">
+                          <b style="color:var(--text-main);">${doneSubs.length}/${totalSubs}</b>
+                          <span style="font-size:10px;">(${Math.round((doneSubs.length / totalSubs) * 100)}%)</span>
+                        </div>
+                        <div style="display:flex; gap:2px;">
+                          <button class="subtask-filter-tab ${filterMode === 'active' ? 'active' : ''}" onclick="setSubFilter('${t.id}', 'active', event)">Cần làm (${activeSubs.length})</button>
+                          <button class="subtask-filter-tab ${filterMode === 'all' ? 'active' : ''}" onclick="setSubFilter('${t.id}', 'all', event)">Tất cả (${totalSubs})</button>
+                          <button class="subtask-filter-tab ${filterMode === 'completed' ? 'active' : ''}" onclick="setSubFilter('${t.id}', 'completed', event)">Đã xong (${doneSubs.length})</button>
+                        </div>
+                      </div>
+                    ` : ''}
+
+                    ${(filterMode === 'active' || filterMode === 'all') ? `
+                      <div style="display:flex; flex-direction:column; gap:2px;">
+                        ${activeSubs.length === 0 && totalSubs > 0 && filterMode === 'active' ? `
+                          <div style="font-size:11px; color:#15803d; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; padding:3px 8px; margin-bottom:4px;">
+                            ✓ Đã hoàn thành toàn bộ ${totalSubs} bước!
+                          </div>
+                        ` : activeSubs.map(s => `
+                          <div class="subtask-row">
+                            <button class="sub-dot" onclick="toggleSub('${p.id}', '${t.id}', '${s.id}')" title="Đánh dấu đã xong"></button>
+                            <span class="subtask-title" onclick="this.style.whiteSpace = this.style.whiteSpace === 'normal' ? 'nowrap' : 'normal'" title="${s.title}">${formatLinks(s.title)}</span>
+                            <button class="subtask-del-btn" onclick="deleteSub('${p.id}', '${t.id}', '${s.id}')" title="Xóa">✕</button>
+                          </div>
+                        `).join('')}
+                      </div>
+                    ` : ''}
+
+                    ${filterMode === 'active' && doneSubs.length > 0 && activeSubs.length > 0 ? `
+                      <div>
+                        <button class="subtask-completed-accordion" onclick="toggleShowCompletedSubtasks('${p.id}', '${t.id}', event)">
+                          <span>✓ Đã hoàn thành (${doneSubs.length})</span>
+                          <span style="font-size:10px;">${isCompletedOpen ? '▾ Ẩn' : '▸ Xem chi tiết'}</span>
+                        </button>
+                        ${isCompletedOpen ? `
+                          <div style="margin-top:4px; display:flex; flex-direction:column; gap:2px;">
+                            ${doneSubs.map(s => `
+                              <div class="subtask-row done">
+                                <button class="sub-dot checked" onclick="toggleSub('${p.id}', '${t.id}', '${s.id}')" title="Đánh dấu chưa xong"></button>
+                                <span class="subtask-title" onclick="this.style.whiteSpace = this.style.whiteSpace === 'normal' ? 'nowrap' : 'normal'" title="${s.title}">${formatLinks(s.title)}</span>
+                                <button class="subtask-del-btn" onclick="deleteSub('${p.id}', '${t.id}', '${s.id}')" title="Xóa">✕</button>
+                              </div>
+                            `).join('')}
+                          </div>
+                        ` : ''}
+                      </div>
+                    ` : ''}
+
+                    ${filterMode === 'all' && doneSubs.length > 0 ? `
+                      <div style="margin-top:6px; padding-top:4px; border-top:1px dashed #e9ecef; display:flex; flex-direction:column; gap:2px;">
+                        <div style="font-size:10px; font-weight:600; color:#adb5bd; text-transform:uppercase; margin-bottom:2px;">Đã xong (${doneSubs.length})</div>
+                        ${doneSubs.map(s => `
+                          <div class="subtask-row done">
+                            <button class="sub-dot checked" onclick="toggleSub('${p.id}', '${t.id}', '${s.id}')" title="Đánh dấu chưa xong"></button>
+                            <span class="subtask-title" onclick="this.style.whiteSpace = this.style.whiteSpace === 'normal' ? 'nowrap' : 'normal'" title="${s.title}">${formatLinks(s.title)}</span>
+                            <button class="subtask-del-btn" onclick="deleteSub('${p.id}', '${t.id}', '${s.id}')" title="Xóa">✕</button>
+                          </div>
+                        `).join('')}
+                      </div>
+                    ` : ''}
+
+                    ${filterMode === 'completed' ? `
+                      <div style="display:flex; flex-direction:column; gap:2px;">
+                        ${doneSubs.length === 0 ? `<div style="font-size:11px; color:#adb5bd; font-style:italic;">Chưa có bước nào hoàn thành.</div>` : doneSubs.map(s => `
+                          <div class="subtask-row done">
+                            <button class="sub-dot checked" onclick="toggleSub('${p.id}', '${t.id}', '${s.id}')" title="Đánh dấu chưa xong"></button>
+                            <span class="subtask-title" onclick="this.style.whiteSpace = this.style.whiteSpace === 'normal' ? 'nowrap' : 'normal'" title="${s.title}">${formatLinks(s.title)}</span>
+                            <button class="subtask-del-btn" onclick="deleteSub('${p.id}', '${t.id}', '${s.id}')" title="Xóa">✕</button>
+                          </div>
+                        `).join('')}
+                      </div>
+                    ` : ''}
+
+                    <div class="subtask-add-inline">
+                      <input type="text" id="subInput_${t.id}" class="subtask-add-input" placeholder="+ Thêm việc con (Enter)..." onkeydown="if(event.key === 'Enter') addInlineSubtask('${p.id}', '${t.id}')">
+                      <button class="subtask-filter-tab" style="background:#f1f3f5; font-weight:500; height:28px; padding:0 8px;" onclick="addInlineSubtask('${p.id}', '${t.id}')">Thêm</button>
+                    </div>
+                  </div>
+                ` : ''}
+              `;
+            }).join('')}
+
+            <div class="input-add-row">
+              <input 
+                type="text" 
+                id="tInput_${p.id}" 
+                class="task-input-inline" 
+                placeholder="+ Thêm việc (hoặc dán danh sách việc kèm link)..." 
+                onkeydown="if(event.key === 'Enter') addTask('${p.id}')"
+                onpaste="handleInlinePaste('${p.id}', event)"
+              >
+              <button class="btn-batch-add" onclick="openBatchModal('${p.id}', '${p.name}')" title="Dán nhiều việc cùng lúc">
+                📋 Dán nhiều
+              </button>
+            </div>
+          </div>
+        `;
+        listEl.appendChild(card);
+      });
+    }
+
+    document.getElementById('btnMute').innerText = isMuted ? '🔇' : '🔊';
+    render();
+  </script>
+</body>
+</html>

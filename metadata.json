@@ -1,0 +1,6 @@
+{
+  "name": "Quản Lý Công Việc Cá Nhân",
+  "description": "Ứng dụng quản lý dự án và công việc cá nhân tối giản, trực quan, hỗ trợ checklist, tiến độ tự động, sub-task và lưu trữ offline.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

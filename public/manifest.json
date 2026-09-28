@@ -1,0 +1,17 @@
+{
+  "name": "Công Việc - Quản Lý Cá Nhân",
+  "short_name": "Công Việc",
+  "description": "Ứng dụng quản lý công việc và dự án cá nhân tối giản, chạy 100% offline.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%231d1d1f'/><path d='M30 52 L44 66 L72 36' stroke='%2334c759' stroke-width='10' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
