@@ -2,6 +2,7 @@
   "name": "solo-tasks-manager",
   "private": true,
   "version": "1.0.0",
+  "homepage": "https://ais-pre-y4t5vvs2eiwpvtculhjqzi-954854445689.asia-southeast1.run.app",
   "description": "Ứng dụng quản lý công việc và dự án cá nhân tối giản, Notion-style subtasks, Linear status, Activity Heatmap nhịp độ làm việc, 100% offline local-first.",
   "type": "module",
   "scripts": {
