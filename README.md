@@ -1,138 +1,211 @@
-# 🎯 Solo Tasks - Minimalist Personal Project & Task Manager
+# Solo Tasks Manager
 
-> **Ứng dụng quản lý công việc và dự án cá nhân tối giản, hiệu suất cao, 100% Local-First & Hoạt động Offline.**  
-> Kết hợp tinh hoa thiết kế của **Notion** (Cây việc con đa tầng đệ quy), **Linear** (Chu trình trạng thái tinh gọn), **Apple Reminders** (Typography & Zero-pill discipline) cùng **Bản đồ nhịp độ năng suất & Khoe thành tích làm việc**.
+A minimal, local-first task manager designed for deep work, recursive planning, and fast execution. It blends Notion-style nested subtasks, Linear-like status flow, and a calm Apple-inspired UI into a single browser-based workflow.
 
----
+<p align="center">
+  <img src="./docs/assets/desktop-home.png" alt="Solo Tasks Manager desktop dashboard" width="1200" />
+</p>
 
-## ✨ Điểm Nổi Bật (Key Features)
+## Why this project
 
-### 1. 🌲 Việc Con Vô Hạn Tầng (Notion-style Infinite Subtask Tree)
-- **Phân rã công việc đa cấp**: Chia nhỏ mục tiêu lớn thành các giai đoạn, mỗi giai đoạn chứa các việc nhỏ và các bước thực thi lồng nhau không giới hạn.
-- **Kéo thả sắp xếp việc con độc lập**: Hỗ trợ kéo thả reorder việc con mượt mà, cô lập ngữ cảnh kéo thả, không xung đột với việc cha.
-- **Chỉnh sửa trực tiếp 1 chạm (Click-to-Edit)**: Nhấp trực tiếp vào bất kỳ tiêu đề việc hoặc việc con để chỉnh sửa ngay lập tức, không cần icon thừa.
-- **Tính toán tiến độ tự động**: Tự động tính tỷ lệ hoàn thành (Bubble Up Rollup & Cascade Down).
+This repo is built around a simple idea: productivity tools should be calm, zero-friction, and durable. Instead of forcing users into heavy cloud-based project platforms, the app keeps everything local, respects fast interaction, and helps break large goals into small actionable work units.
 
-### 2. 📊 Bản Đồ Nhịp Độ Năng Suất & Nhật Ký Việc Đã Xong (Productivity Rhythm & Log)
-- **Bản đồ nhiệt độ làm việc (Rhythm Heatmap)**:
-  - `0 việc`: Ô trung tính không màu.
-  - `1 việc`: Xanh nhẹ (`level 1`).
-  - `2 việc`: Xanh vừa (`level 2`).
-  - `3 việc`: Xanh sáng (`level 3`).
-  - `4+ việc`: Xanh đậm (`level 4`).
-- **Bảng danh sách công việc đã hoàn thành**:
-  - Xem bảng chi tiết tất cả việc đã làm, phân loại theo ngày, tuần này, tháng này.
-  - Lọc việc theo ngày tương ứng chỉ bằng 1 chạm trên bản đồ nhịp độ.
-- **Theo dõi chuỗi ngày liên tục (Streak)** và kỷ lục ngày hoàn thành nhiều việc nhất.
+### Core principles
 
-### 3. 🚀 Khoe Thành Tích & Chia Sẻ Năng Suất (Share & Flex Card)
-- **Tạo thẻ ảnh Flex thành tích tự động**: Thiết kế tối giản, sang trọng, tổng hợp số việc đã hoàn thành trong tuần/tháng, chuỗi ngày streak và danh sách việc tiêu biểu.
-- **Xuất ảnh PNG 2x Retina & Sao chép nhanh**: 1-click tải ảnh thẻ về máy hoặc sao chép thẳng vào Clipboard để dán ngay vào Zalo, Facebook, Slack, Discord.
-- **Nội dung bài viết ngắn**: Tự động sinh văn bản tóm tắt sẵn sàng đăng mạng xã hội.
-
-### 4. ⚡ Trạng Thái Tinh Gọn (Linear-style Status Flow)
-- Chuyển đổi trạng thái 1-click qua 3 nấc: **Chờ làm** (`todo`) ➔ **Đang làm** (`doing`) ➔ **Đã xong** (`done`).
-- Phím tắt bàn phím tiện lợi, thanh điều hướng nhanh.
-
-### 5. 🔒 Quyền Riêng Tư & Hoạt Động Offline (100% Local-First)
-- Toàn bộ dữ liệu được lưu cục bộ trên trình duyệt (`LocalStorage`).
-- **Sao lưu & Phục hồi JSON**: Xuất/nhập dữ liệu chỉ trong 1 giây.
-- **Xuất tệp HTML Offline**: Tải file HTML duy nhất chạy hoàn toàn độc lập mà không cần máy chủ hay internet.
-- Hỗ trợ PWA (Progressive Web App), cài đặt lên màn hình chính điện thoại (iOS & Android).
-
-### 6. 🎨 Giao Diện Tối Giản Chuẩn Apple HIG & Chống "AI Slop"
-- Hỗ trợ chế độ Sáng / Tối / Tự động theo hệ thống (`Light`, `Dark`, `System`).
-- Âm thanh chúc mừng nhẹ nhàng (Web Audio Synth Chime) và hiệu ứng pháo hoa khi hoàn thành toàn bộ dự án.
-- Chế độ tập trung (Focus Mode): Ẩn toàn bộ việc đã xong để tập trung 100% vào việc còn dở.
+- Local-first by default: state persists in browser storage and remains usable offline.
+- Recursive task decomposition: big goals become nested work trees that can expand indefinitely.
+- Fast feedback loop: status changes, completion flows, and keyboard actions stay lightweight.
+- Design discipline: clear hierarchy, restrained motion, readable typography, and strong focus mode.
 
 ---
 
-## 🛠️ Công Nghệ Sử Dụng (Tech Stack)
+## Product overview
 
-| Công nghệ | Phiên bản | Vai trò |
-| :--- | :--- | :--- |
-| **React** | `v19` | Thư viện UI hiện đại, hiệu năng cao |
-| **TypeScript** | `v5.7+` | Kiểm soát kiểu tĩnh chặt chẽ |
-| **Tailwind CSS** | `v4` | Hệ thống styling Atomic CSS thế hệ mới |
-| **Vite** | `v6` | Bộ công cụ build & dev server siêu tốc |
-| **Lucide React** | `v0.546+` | Bộ icon SVG tối giản, thanh mảnh |
+### What the app helps with
+
+- Manage personal projects and workstreams in one place.
+- Break work down into nested subtasks without losing context.
+- Track progress with linear lifecycle states: to do → doing → done.
+- Monitor completed work and consistency through streaks and rhythm heatmaps.
+- Export/import backups safely from local browser storage.
+- Install as a PWA and use it as an offline app-like system.
 
 ---
 
-## 🚀 Khởi Chạy Nhanh (Quick Start)
+## Main screens
 
-### Yêu cầu môi trường
-- **Node.js**: phiên bản `>= 18.0.0`
-- **npm** hoặc **bun** / **pnpm** / **yarn**
+### 1) Project dashboard
 
-### Cài đặt và chạy ứng dụng
+The main board shows a compact operational view with task progress, focus controls, and the primary work surface.
+
+<p align="center">
+  <img src="./docs/assets/desktop-home.png" alt="Project dashboard overview" width="1100" />
+</p>
+
+### 2) Mobile workflow
+
+The mobile layout preserves the same task workflow while optimizing interaction for thumb-friendly, single-column usage.
+
+<p align="center">
+  <img src="./docs/assets/mobile-home.png" alt="Mobile workflow screenshot" width="420" />
+</p>
+
+### 3) Product rhythm and task flow
+
+The app combines deep planning, status transitions, and a calm visual system to keep work visible without overwhelming the user.
+
+<p align="center">
+  <img src="./docs/assets/desktop-home.png" alt="Daily task flow screenshot" width="1100" />
+</p>
+
+---
+
+## Feature set
+
+### Task management
+
+- Create projects and tasks quickly.
+- Mark work by status: todo, doing, done.
+- Expand and collapse task branches for cleaner focus.
+- Edit inline with minimal friction.
+- Keep work recursive and easy to reason about.
+
+### Productivity layer
+
+- Completion streak tracking.
+- Activity rhythm / heatmap view.
+- Per-day summary and task history.
+- Focus mode to hide finished items and reduce distractions.
+
+### Data safety and offline experience
+
+- Local persistence with browser storage.
+- JSON backup export/import.
+- Offline HTML export for standalone usage.
+- PWA support for install-on-home-screen workflows.
+
+### UX and polish
+
+- Calm dark/light/system themes.
+- Keyboard shortcuts for speed.
+- Portal-based menus and modals to avoid stacking-context issues.
+- Gentle reward moments with sound/chime and celebration feedback.
+
+---
+
+## Tech stack
+
+| Layer | Choice | Why it fits |
+| --- | --- | --- |
+| UI library | React 19 | Fast composition and modern component patterns |
+| Language | TypeScript | Safer refactors and clearer contracts |
+| Build tool | Vite | Fast developer experience and simple production builds |
+| Styling | Tailwind CSS v4 | Utility-first system for crisp UI implementation |
+| Icons | Lucide React | Clean, lightweight SVG icon set |
+| Persistence | LocalStorage | Keeps the app local-first and offline-friendly |
+| Packaging model | Vite + PWA-friendly static app | Simple deployment and app-like UX |
+
+---
+
+## Architecture summary
+
+The project follows a clean separation of concerns:
+
+- State and task operations are centralized in the task manager logic.
+- Recursive task behavior is isolated to tree utilities and invariants.
+- UI surfaces are intentionally slim and composable.
+- Modal and menu overlays are rendered through a portal strategy to avoid clipping issues.
+
+This keeps the codebase easier to reason about and more maintainable over time.
+
+---
+
+## Project structure
+
+```text
+.
+├── docs/
+│   ├── architecture/
+│   ├── design-system/
+│   ├── development/
+│   ├── guides/
+│   └── standards/
+├── public/
+├── src/
+│   ├── components/
+│   ├── features/
+│   ├── hooks/
+│   ├── types/
+│   ├── utils/
+│   ├── App.tsx
+│   ├── main.tsx
+│   └── index.css
+├── ARCHITECTURE.md
+├── LICENSE
+├── README.md
+├── index.html
+├── metadata.json
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
+└── .gitignore
+```
+
+---
+
+## Quick start
+
+### Requirements
+
+- Node.js 18+
+- npm
+
+### Install and run
 
 ```bash
-# 1. Clone repository
-git clone https://github.com/your-username/solo-tasks-manager.git
-cd solo-tasks-manager
-
-# 2. Cài đặt các gói phụ thuộc
-npm install
-
-# 3. Chạy môi trường phát triển (Development)
+npm install --legacy-peer-deps
 npm run dev
+```
 
-# 4. Kiểm tra kiểu và linter
+Then open:
+
+```text
+http://localhost:3000/
+```
+
+### Useful commands
+
+```bash
 npm run lint
-
-# 5. Build bản Production
 npm run build
 ```
 
 ---
 
-## ⌨️ Phím Tắt Tiện Dụng (Keyboard Shortcuts)
+## Documentation
 
-| Phím tắt | Thao tác |
-| :--- | :--- |
-| `/` | Mở nhanh ô tìm kiếm công việc |
-| `Alt` + `F` | Bật / tắt chế độ Tập trung (Focus Mode) |
-| `Alt` + `T` | Đổi giao diện Sáng / Tối / Hệ thống |
-| `Alt` + `B` | Mở hộp thoại Sao lưu & Phục hồi dữ liệu |
-| `Alt` + `N` | Thêm công việc mới nhanh (trên Mobile) |
-| `Escape` | Đóng menu, đóng modal hoặc hủy chỉnh sửa |
-| `Enter` | Lưu tiêu đề đang chỉnh sửa inline |
+For deeper project context, see:
+
+- [ARCHITECTURE.md](./ARCHITECTURE.md)
+- [docs/development/getting-started.md](./docs/development/getting-started.md)
+- [docs/guides/user-guide.md](./docs/guides/user-guide.md)
+- [docs/architecture/system-overview.md](./docs/architecture/system-overview.md)
 
 ---
 
-## 📁 Cấu Trúc Dự Án (Project Structure)
+## Standards and engineering practices
 
-```text
-├── public/                 # Tệp tĩnh, Web Manifest, standalone HTML
-├── docs/                   # Thư viện tài liệu kỹ thuật chi tiết
-├── src/
-│   ├── components/         # Các thành phần dùng chung (Header, Footer, Menu, UI)
-│   ├── features/
-│   │   ├── analytics/      # Bản đồ nhịp độ (Activity Heatmap) & thống kê số liệu
-│   │   ├── focus/          # Chế độ tập trung Focus Banner
-│   │   ├── modals/         # Hộp thoại hướng dẫn, sao lưu, feedback
-│   │   └── tasks/          # Quản lý dự án, TaskItem, SubTaskRow, Drag&Drop
-│   ├── hooks/              # Custom React hooks (theme, keyboard shortcuts)
-│   ├── types/              # Định nghĩa kiểu dữ liệu TypeScript
-│   ├── utils/              # Tiện ích âm thanh, haptic, clipboard
-│   ├── App.tsx             # Giao diện chính của ứng dụng
-│   └── main.tsx            # Entry point của React
-├── ARCHITECTURE.md         # Sổ tay kiến trúc hệ thống chuyên sâu
-└── package.json
-```
+This repo is structured with engineering discipline in mind:
+
+- Clear module boundaries.
+- Type-safe contracts.
+- Local-first persistence model.
+- Documentation-first handoff.
+- Conventional Git commit conventions.
+- Small, reviewable UI modules.
 
 ---
 
-## 📖 Tài Liệu Chi Tiết (Full Documentation)
+## License
 
-Để tìm hiểu sâu hơn về kiến trúc giải thuật và quy chuẩn phát triển:
-- [Sổ tay kiến trúc hệ thống (`ARCHITECTURE.md`)](./ARCHITECTURE.md)
-- [Cẩm nang người dùng & hướng dẫn chi tiết (`docs/guides/user-guide.md`)](./docs/guides/user-guide.md)
-- [Quy chuẩn kích thước tệp $\le$ 300 dòng (`docs/standards/file-size-and-modularity.md`)](./docs/standards/file-size-and-modularity.md)
-
----
-
-## 📄 Bản Quyền (License)
-
-Dự án phát hành theo giấy phép [MIT License](./LICENSE). Hoàn toàn tự do sử dụng cho mục đích cá nhân và thương mại.
+This project is licensed under the MIT License. See [LICENSE](./LICENSE).
