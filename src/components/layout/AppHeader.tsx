@@ -78,11 +78,15 @@ export function AppHeader({
       <div className="max-w-2xl mx-auto px-3 sm:px-4 h-11 sm:h-12 flex items-center justify-between flex-nowrap gap-1.5 sm:gap-2 w-full">
         {/* Logo and title */}
         <div className="flex items-center gap-2 shrink-0 min-w-0">
-          <div className="w-5.5 h-5.5 rounded-md bg-[#1d1d1f] dark:bg-white flex items-center justify-center text-white dark:text-slate-900 shrink-0 shadow-2xs">
-            <Check className="w-3.5 h-3.5 shrink-0" strokeWidth={2.5} aria-hidden="true" />
+          <div className="w-5.5 h-5.5 rounded-md overflow-hidden bg-[#1d1d1f] dark:bg-white flex items-center justify-center shrink-0 shadow-2xs ring-1 ring-slate-200/70 dark:ring-slate-700/80">
+            <img
+              src="/stride-tasks-icon.svg"
+              alt="Stride Tasks"
+              className="w-full h-full object-cover"
+            />
           </div>
           <span className="font-semibold text-[13px] sm:text-[13.5px] tracking-tight text-slate-900 dark:text-slate-100 truncate">
-            Công Việc
+            Stride Tasks
           </span>
           <span className="text-[11px] sm:text-[11.5px] text-slate-400 dark:text-slate-500 font-normal shrink-0 tabular-nums">
             · {totalDone}/{totalTasks}
