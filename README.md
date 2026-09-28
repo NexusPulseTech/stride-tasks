@@ -135,13 +135,3 @@ For technical specifications and internal guidelines:
 ## License
 
 Distributed under the `MIT License`. Open source and free for personal and commercial usage.
-
----
-
-### Website on GitHub
-
-When checking the repo metadata via the GitHub API, the `homepage` field is still empty. To make the project look polished and accessible, add this link in the repository's GitHub **About** section under **Website**:
-
-```text
-https://ais-pre-y4t5vvs2eiwpvtculhjqzi-954854445689.asia-southeast1.run.app
-```
