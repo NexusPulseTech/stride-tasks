@@ -1,0 +1,48 @@
+name: Desktop Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-tauri:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install frontend dependencies
+        run: npm install
+
+      - name: Build web app
+        run: npm run build
+
+      - name: Build Tauri desktop app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: .
+          tagName: ${{ github.ref_name || format('desktop-v{0}', github.run_number) }}
+          releaseName: "Stride Tasks ${{ github.ref_name || format('desktop-v{0}', github.run_number) }}"
+          releaseBody: |
+            Stride Tasks desktop release.
+
+            Includes the Windows installer package for testing and distribution.
+          includeUpdaterJson: true
+          prerelease: false

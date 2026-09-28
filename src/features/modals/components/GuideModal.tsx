@@ -85,10 +85,13 @@ export function GuideModal({ isOpen, onClose }: GuideModalProps) {
           <div className="p-3 bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 rounded-xl space-y-1">
             <div className="font-semibold text-slate-900 dark:text-slate-100 text-[12px] flex items-center gap-1.5">
               <span className="font-mono text-slate-500 dark:text-slate-400 text-[11px]">03.</span>
-              <span>Dữ liệu lưu ở đâu?</span>
+              <span>Dữ liệu lưu ở đâu? Có an toàn không?</span>
             </div>
             <p className="text-slate-600 dark:text-slate-300">
-              Dữ liệu được lưu trong bộ nhớ máy (LocalStorage) của trình duyệt. Bạn có thể bấm nút <strong>Sao lưu dữ liệu</strong> ở thanh trên để tải file JSON cất giữ hoặc chuyển sang máy khác.
+              Dữ liệu được lưu trực tiếp vào <strong>ổ cứng / chip nhớ</strong> của thiết bị bạn (thông qua phân vùng bảo mật LocalStorage của trình duyệt). Không có máy chủ, không thu thập dữ liệu cá nhân, hoạt động vĩnh viễn khi tắt mạng.
+            </p>
+            <p className="text-[11.5px] text-slate-500 dark:text-slate-400 pt-0.5">
+              Bạn có thể bấm <strong>Sao lưu dữ liệu</strong> ở thanh trên để tải file JSON dự phòng hoặc đồng bộ sang máy khác.
             </p>
           </div>
 
