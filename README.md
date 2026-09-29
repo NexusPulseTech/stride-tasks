@@ -1,7 +1,7 @@
 # Stride Tasks
 
 <p align="left">
-  <img src="https://img.shields.io/badge/Release-v1.0.0-emerald?style=flat-square" alt="Release v1.0.0" />
+  <img src="https://img.shields.io/badge/Release-v1.0.1-emerald?style=flat-square" alt="Release v1.0.1" />
   <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License MIT" />
   <img src="https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react&logoColor=black" alt="React 19" />
   <img src="https://img.shields.io/badge/TypeScript-5.7+-3178c6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
@@ -118,6 +118,11 @@ npm run lint
 # Build production bundle
 npm run build
 ```
+
+### Desktop App for Windows (.exe)
+
+- [Download Stride Tasks v1.0.1 for Windows (.exe)](https://github.com/NexusPulseTech/stride-tasks/releases/download/v1.0.1/Stride.Tasks_1.0.0_x64-setup.exe)
+- [View all Releases and MSI Installers](https://github.com/NexusPulseTech/stride-tasks/releases/tag/v1.0.1)
 
 ---
 
