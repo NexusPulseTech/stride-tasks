@@ -32,6 +32,11 @@ jobs:
       - name: Build web app
         run: npm run build
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
       - name: Build Tauri desktop app
         uses: tauri-apps/tauri-action@v0
         env:
