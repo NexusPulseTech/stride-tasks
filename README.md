@@ -121,8 +121,8 @@ npm run build
 
 ### Desktop App for Windows (.exe)
 
-- [Download Stride Tasks v1.0.1 for Windows (.exe)](https://github.com/NexusPulseTech/stride-tasks/releases/download/v1.0.1/Stride.Tasks_1.0.0_x64-setup.exe)
-- [View all Releases and MSI Installers](https://github.com/NexusPulseTech/stride-tasks/releases/tag/v1.0.1)
+- [Download Stride Tasks v1.0.2 for Windows (.exe)](https://github.com/NexusPulseTech/stride-tasks/releases/download/v1.0.2/Stride.Tasks_1.0.1_x64-setup.exe)
+- [View all Releases and MSI Installers](https://github.com/NexusPulseTech/stride-tasks/releases/tag/v1.0.2)
 
 ---
 
