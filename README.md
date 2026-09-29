@@ -11,7 +11,7 @@
 
 A minimal, local-first task and project manager engineered for deep work, recursive planning, and fast execution. It blends Notion-style nested subtasks, Linear-like status flow, and an Apple-inspired typography system into a browser-based workflow.
 
-[**Explore Live Demo**](https://ais-pre-y4t5vvs2eiwpvtculhjqzi-954854445689.asia-southeast1.run.app) · [**Report Issue**](https://github.com/PhuccNguyen/stride-tasks/issues/new) · [**Architecture Documentation**](./ARCHITECTURE.md)
+[**Explore Live Demo**](https://nexuspulsetech.github.io/stride-tasks/) · [**Report Issue**](https://github.com/PhuccNguyen/stride-tasks/issues/new) · [**Architecture Documentation**](./ARCHITECTURE.md)
 
 ---
 
