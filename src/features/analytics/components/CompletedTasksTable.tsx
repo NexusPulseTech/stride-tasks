@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, X } from 'lucide-react';
+import { Search, X, Trash2, RotateCcw } from 'lucide-react';
 import {
   CompletedTaskItem,
   TimeFilterRange,
@@ -12,6 +12,9 @@ interface CompletedTasksTableProps {
   selectedDateFormatted?: string;
   onClearDateFilter: () => void;
   onOpenShareModal: () => void;
+  onDeleteLog?: (logId: string) => void;
+  onClearAllLogs?: () => void;
+  onResetSeed?: () => void;
 }
 
 export function CompletedTasksTable({
@@ -19,9 +22,13 @@ export function CompletedTasksTable({
   selectedDateKey,
   selectedDateFormatted,
   onClearDateFilter,
+  onDeleteLog,
+  onClearAllLogs,
+  onResetSeed,
 }: CompletedTasksTableProps) {
   const [range, setRange] = useState<TimeFilterRange>(selectedDateKey ? 'date' : 'all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isConfirmClearOpen, setIsConfirmClearOpen] = useState(false);
 
   // Tự động chuyển bộ lọc khi người dùng click vào một ngày trên Heatmap
   React.useEffect(() => {
@@ -111,27 +118,82 @@ export function CompletedTasksTable({
           )}
         </div>
 
-        {/* Ô tìm kiếm đơn giản */}
-        <div className="relative sm:w-48">
-          <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Lọc việc đã xong..."
-            className="w-full h-7 pl-7.5 pr-6 bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/80 rounded-md text-xs text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-slate-400 dark:focus:border-slate-500"
-          />
-          {searchQuery && (
+        {/* Cụm công cụ bên phải: Tìm kiếm & Xóa sạch */}
+        <div className="flex items-center gap-1.5">
+          {/* Ô tìm kiếm đơn giản */}
+          <div className="relative sm:w-44">
+            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Lọc việc đã xong..."
+              className="w-full h-7 pl-7.5 pr-6 bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/80 rounded-md text-xs text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-slate-400 dark:focus:border-slate-500"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+
+          {/* Nút xóa sạch toàn bộ lịch sử */}
+          {onClearAllLogs && completedTasks.length > 0 && (
             <button
               type="button"
-              onClick={() => setSearchQuery('')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+              onClick={() => setIsConfirmClearOpen(true)}
+              className="h-7 px-2 border border-slate-200 dark:border-slate-800 hover:border-rose-300 dark:hover:border-rose-900 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 rounded-md text-[11px] font-medium transition-colors cursor-pointer shrink-0 flex items-center gap-1"
+              title="Xóa toàn bộ lịch sử hoàn thành"
             >
-              <X className="w-3 h-3" />
+              <Trash2 className="w-3 h-3" />
+              <span className="hidden md:inline">Dọn sạch</span>
+            </button>
+          )}
+
+          {/* Nút khôi phục dữ liệu mẫu */}
+          {onResetSeed && completedTasks.length === 0 && (
+            <button
+              type="button"
+              onClick={onResetSeed}
+              className="h-7 px-2 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-md text-[11px] font-medium transition-colors cursor-pointer shrink-0 flex items-center gap-1"
+              title="Nạp lại dữ liệu mẫu ban đầu"
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>Khôi phục mẫu</span>
             </button>
           )}
         </div>
       </div>
+
+      {/* Hộp thoại xác nhận dọn sạch */}
+      {isConfirmClearOpen && (
+        <div className="p-3 bg-rose-50/70 dark:bg-rose-950/20 border border-rose-200/80 dark:border-rose-900/50 rounded-lg flex items-center justify-between gap-3 text-xs text-rose-800 dark:text-rose-300 animate-in fade-in duration-150">
+          <span>Bạn có chắc chắn muốn xóa toàn bộ {completedTasks.length} bản ghi lịch sử này?</span>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                if (onClearAllLogs) onClearAllLogs();
+                setIsConfirmClearOpen(false);
+              }}
+              className="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded font-medium cursor-pointer"
+            >
+              Xác nhận xóa
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsConfirmClearOpen(false)}
+              className="px-2.5 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 rounded cursor-pointer"
+            >
+              Hủy
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Thông báo ngày đang chọn */}
       {selectedDateKey && range === 'date' && (
@@ -149,7 +211,7 @@ export function CompletedTasksTable({
         </div>
       )}
 
-      {/* Bảng dữ liệu sạch: Không chấm màu rải rác, không icon check lặp lại mỗi hàng */}
+      {/* Bảng dữ liệu sạch: Có nút xóa từng dòng */}
       <div className="border border-slate-200/80 dark:border-slate-800 rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
@@ -157,13 +219,18 @@ export function CompletedTasksTable({
               <tr className="border-b border-slate-200/80 dark:border-slate-800 text-[11px] font-medium text-slate-400 dark:text-slate-500 bg-slate-50/50 dark:bg-slate-800/20">
                 <th className="py-2 px-3 font-medium">Công việc</th>
                 <th className="py-2 px-3 font-medium w-36 hidden sm:table-cell">Dự án</th>
-                <th className="py-2 px-3 font-medium w-32 text-right">Thời gian</th>
+                <th className="py-2 px-3 font-medium w-28 text-right">Thời gian</th>
+                {onDeleteLog && (
+                  <th className="py-2 px-2 font-medium w-10 text-center" aria-label="Thao tác">
+                    <span className="sr-only">Thao tác</span>
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-sans">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="py-8 text-center text-slate-400 dark:text-slate-500">
+                  <td colSpan={onDeleteLog ? 4 : 3} className="py-8 text-center text-slate-400 dark:text-slate-500">
                     Không có công việc nào trong khoảng thời gian này.
                   </td>
                 </tr>
@@ -171,7 +238,7 @@ export function CompletedTasksTable({
                 filtered.map((item) => (
                   <tr
                     key={item.id}
-                    className="hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors"
+                    className="group hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors"
                   >
                     {/* Tên việc */}
                     <td className="py-2 px-3 text-slate-800 dark:text-slate-200">
@@ -200,6 +267,21 @@ export function CompletedTasksTable({
                     <td className="py-2 px-3 text-right text-slate-400 dark:text-slate-500 text-[11.5px] font-mono tabular-nums whitespace-nowrap">
                       {item.formattedDate}
                     </td>
+
+                    {/* Nút xóa từng dòng */}
+                    {onDeleteLog && (
+                      <td className="py-2 px-2 text-center whitespace-nowrap">
+                        <button
+                          type="button"
+                          onClick={() => onDeleteLog(item.id)}
+                          className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 rounded transition-all cursor-pointer"
+                          title="Xóa mục này khỏi lịch sử"
+                          aria-label={`Xóa mục ${item.title}`}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))
               )}

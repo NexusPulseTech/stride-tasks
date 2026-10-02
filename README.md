@@ -1,142 +1,149 @@
 # Stride Tasks
 
 <p align="left">
-  <img src="https://img.shields.io/badge/Release-v1.0.1-emerald?style=flat-square" alt="Release v1.0.1" />
+  <img src="https://img.shields.io/badge/Release-v1.0.3-emerald?style=flat-square" alt="Release v1.0.3" />
   <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License MIT" />
   <img src="https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react&logoColor=black" alt="React 19" />
   <img src="https://img.shields.io/badge/TypeScript-5.7+-3178c6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/TailwindCSS-v4-38bdf8?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS v4" />
-  <img src="https://img.shields.io/badge/Local--First-100%25%20Offline-success?style=flat-square" alt="Local-First" />
+  <img src="https://img.shields.io/badge/Architecture-Local--First-success?style=flat-square" alt="Local-First" />
 </p>
 
-A minimal, local-first task and project manager engineered for deep work, recursive planning, and fast execution. It blends Notion-style nested subtasks, Linear-like status flow, and an Apple-inspired typography system into a browser-based workflow.
+> **Ứng dụng quản lý công việc và dự án cá nhân tối giản, 100% Local-First và hoạt động Offline.**
+> Xây dựng theo nguyên lý thiết kế tối giản: cấu trúc việc con đệ quy (Recursive Subtask Tree), chu trình trạng thái dứt khoát (Linear Status Flow), bản đồ nhịp độ hoàn thành (Activity Rhythm Heatmap) và xuất báo cáo năng suất độ nét cao.
 
-[**Explore Live Demo**](https://nexuspulsetech.github.io/stride-tasks/) · [**Report Issue**](https://github.com/PhuccNguyen/stride-tasks/issues/new) · [**Architecture Documentation**](./ARCHITECTURE.md)
-
----
-
-<p align="center">
-  <img src="./docs/assets/desktop-home.png" alt="Stride Tasks desktop dashboard overview" width="1100" />
-</p>
+[Web App](https://nexuspulsetech.github.io/stride-tasks/) · [Windows Desktop Release v1.0.3](https://github.com/NexusPulseTech/stride-tasks/releases/tag/v1.0.3)
 
 ---
 
-## Why Stride Tasks
+## Tính Năng Chính (Core Features)
 
-Productivity software should be calm, zero-friction, and durable. Instead of forcing solo builders into heavy cloud platforms with subscription lock-in, Stride Tasks keeps all computation and storage strictly local, eliminates input latency, and structures ambitious milestones into actionable recursive work units.
+### 1. Cấu Trúc Cây Việc Con Đệ Quy (Infinite Subtasks)
+- **Phân rã đa tầng**: Hỗ trợ chia nhỏ mục tiêu thành các giai đoạn và đầu việc con lồng nhau không giới hạn.
+- **Kéo thả độc lập**: Kéo thả sắp xếp thứ tự công việc con mượt mà với ngữ cảnh độc lập, không xung đột với công việc cha.
+- **Chỉnh sửa trực tiếp (Inline Editing)**: Nhấp trực tiếp vào tiêu đề để đổi tên nhanh chóng, hỗ trợ phím tắt Enter để lưu và Escape để hủy.
+- **Tính toán tiến độ tự động**: Đồng bộ tỷ lệ phần trăm hoàn thành theo mô hình hai chiều (Rollup và Cascade).
 
-### Core Principles
+### 2. Bản Đồ Nhịp Độ & Lịch Sử Hoàn Thành (Activity Rhythm & Completion Log)
+- **Biểu đồ nhịp độ (Rhythm Heatmap)**:
+  - Phản ánh mật độ công việc hoàn thành theo ngày với 5 mức trực quan.
+  - Phân tích chuỗi ngày duy trì liên tục (Current Streak) và kỷ lục ngày năng suất cao nhất.
+- **Bảng nhật ký chi tiết**:
+  - Tự động ghi nhận thời gian và dự án khi công việc được đánh dấu hoàn thành.
+  - Bộ lọc thời gian: Tất cả, Hôm nay, Tuần này, Tháng này hoặc lọc chính xác theo ngày chọn trên Heatmap.
 
-- **Local-First by Default**: State persists strictly in browser storage (`localStorage`) and operates offline indefinitely.
-- **Recursive Task Decomposition**: Large milestones expand into nested subtask trees with independent ordering.
-- **Deterministic State Loop**: Clear status transitions (`todo` -> `doing` -> `done`) with instantaneous visual feedback.
-- **Design Restraint**: Anti-slop visual discipline, zero unnecessary pills, clean typography, and a focused interface.
+### 3. Chia Sẻ Báo Cáo Năng Suất (Productivity Share Card)
+- **Xuất ảnh thẻ tổng kết**: Kết xuất thẻ thống kê số lượng công việc đã hoàn thành, tỷ lệ đạt được và chuỗi ngày streak ở độ phân giải 2x Retina (PNG).
+- **Sao chép tức thì**: Hỗ trợ đưa ảnh trực tiếp vào Clipboard để dán vào tài liệu hoặc kênh trao đổi nội bộ.
+- **Bản tóm tắt văn bản**: Tạo bản tóm tắt nhanh dạng Markdown/Plain text để chia sẻ tiến độ định kỳ.
 
----
+### 4. Chu Trình Trạng Thái Tinh Gọn (Status Workflow)
+- **3 Trạng thái dứt khoát**: Chờ làm (`todo`) ➔ Đang làm (`doing`) ➔ Đã xong (`done`).
+- **Thao tác 1 chạm**: Chuyển trạng thái linh hoạt với chỉ báo màu sắc chuẩn mực.
 
-## Main Surfaces
+### 5. Kiến Trúc Cục Bộ & Quyền Riêng Tư (Local-First & Offline)
+- **Lưu trữ an toàn trên thiết bị**: Toàn bộ dữ liệu được lưu trên `localStorage` của trình duyệt, không gửi dữ liệu ra máy chủ bên ngoài.
+- **Sao lưu và phục hồi JSON**: Xuất và nhập toàn bộ trạng thái hệ thống chỉ với một tệp tin.
+- **Xuất bản dạng HTML đơn lẻ**: Tải tệp HTML độc lập để chạy mà không cần kết nối mạng hay cài đặt phần mềm phụ trợ.
+- **Hỗ trợ PWA**: Có thể cài đặt trực tiếp lên thiết bị di động (iOS / Android) và máy tính để bàn.
 
-### 1. Desktop Operational Dashboard
-Compact operational view providing immediate access to project streams, subtask trees, and focus controls.
-
-<p align="center">
-  <img src="./docs/assets/desktop-home.png" alt="Desktop Operational Dashboard" width="1100" />
-</p>
-
-### 2. Mobile Responsive Workflow
-Optimized single-column interaction engineered for thumb-friendly management on mobile viewports and PWA home-screen installations.
-
-<p align="center">
-  <img src="./docs/assets/mobile-home.png" alt="Mobile Workflow Interface" width="400" />
-</p>
-
----
-
-## Feature Matrix
-
-### Task & Project Management
-- Multi-project management with custom color indexing.
-- Infinite recursive subtask tree with independent drag-and-drop reordering.
-- Inline title editing with keyboard navigation (`Enter` to save, `Escape` to cancel).
-- Dynamic progress calculation with two-way rollup and cascade completion.
-
-### Activity Rhythm & Productivity Tracking
-- Daily productivity heatmap tracking completion density across rolling weeks.
-- Streak counter and record metrics for sustained work cadence.
-- Filterable completion log (All, Today, This Week, This Month, or by Heatmap date).
-- High-resolution (2x Retina PNG) card export and plain-text summaries for progress sharing.
-
-### Privacy, Persistence & Offline Reliability
-- Zero telemetry, zero external trackers, and zero server-side dependencies.
-- One-click JSON backup export and schema-validated restore.
-- Single-file standalone HTML export for offline portability.
-- Progressive Web App (PWA) manifest support for native installation.
+### 6. Giao Diện Tối Giản & Chuẩn Mực Thiết Kế
+- **Hệ thống màu sắc & Typography**: Tuân thủ nguyên tắc thị giác nghiêm ngặt, loại bỏ hoàn toàn các thành phần trang trí thừa thãi.
+- **Header responsive tối giản**: Hiển thị gọn trên desktop và thiết bị di động, loại bỏ các biểu tượng trang trí không cần thiết.
+- **Đa ngôn ngữ**: Chuyển đổi giao diện giữa Tiếng Việt và English.
+- **Lịch sử hoàn thành**: Quản lý bản ghi lịch sử, bao gồm chỉnh sửa và xóa.
+- **Bố cục ổn định**: Tránh dịch chuyển giao diện khi nội dung hoặc ngôn ngữ thay đổi.
+- **Chế độ hiển thị**: Hỗ trợ Sáng (Light), Tối (Dark) và Tự động theo hệ điều hành (System).
+- **Chế độ tập trung (Focus Mode)**: Lọc ẩn các mục đã hoàn thành để tối ưu hóa không gian làm việc cho các đầu việc ưu tiên.
 
 ---
 
-## Tech Stack
+## Ngăn Xếp Công Nghệ (Tech Stack)
 
-| Layer | Technology | Specification / Justification |
+| Công nghệ | Phiên bản | Mục đích sử dụng |
 | :--- | :--- | :--- |
-| **Framework** | React 19 | High-performance component composition |
-| **Language** | TypeScript 5.7+ | Strict type checking and reliable refactoring |
-| **Build Tool** | Vite 6 | Sub-second HMR and optimized production bundles |
-| **Styling** | Tailwind CSS v4 | Utility-first architecture with modern CSS features |
-| **Iconography** | Lucide React | Minimalist, consistent SVG icons |
-| **Storage** | Browser LocalStorage | Zero-latency, client-side data persistence |
+| **React** | `19` | Thư viện UI nền tảng |
+| **TypeScript** | `7.0+` | Hệ thống kiểm soát kiểu tĩnh nghiêm ngặt |
+| **Tailwind CSS** | `4` | Khung styling Atomic CSS hiệu năng cao |
+| **Vite** | `8` | Công cụ đóng gói và máy chủ phát triển |
+| **Lucide React** | `0.546+` | Hệ thống biểu tượng đồ họa tối giản |
 
 ---
 
-## Quick Start
+## Cài Đặt & Khởi Chạy (Getting Started)
 
-### Prerequisites
-- Node.js `>= 18.0.0`
-- Package manager: `npm`, `pnpm`, or `bun`
+### Yêu cầu hệ thống
+- **Node.js**: Phiên bản `>= 18.0.0`
+- **npm**, **pnpm**, **yarn** hoặc **bun**
 
-### Installation
+### Các bước thực hiện
 
 ```bash
-# 1. Clone repository
-git clone https://github.com/PhuccNguyen/stride-tasks.git
+# 1. Sao chép mã nguồn về máy
+git clone https://github.com/NexusPulseTech/stride-tasks.git
 cd stride-tasks
 
-# 2. Install dependencies
-npm install
+# 2. Cài đặt các gói phụ thuộc
+npm install --legacy-peer-deps
 
-# 3. Start local development server
+# 3. Khởi chạy máy chủ phát triển
 npm run dev
-```
 
-Application will run locally at: http://localhost:3000/
-
-### Build & Verification Commands
-
-```bash
-# Validate TypeScript contracts
+# 4. Kiểm tra kiểu dữ liệu và cú pháp
 npm run lint
 
-# Build production bundle
+# 5. Đóng gói bản phát hành sản phẩm
 npm run build
 ```
 
-### Desktop App for Windows (.exe)
+---
 
-- [Download Stride Tasks v1.0.2 for Windows (.exe)](https://github.com/NexusPulseTech/stride-tasks/releases/download/v1.0.2/Stride.Tasks_1.0.1_x64-setup.exe)
-- [View all Releases and MSI Installers](https://github.com/NexusPulseTech/stride-tasks/releases/tag/v1.0.2)
+## Danh Mục Phím Tắt (Keyboard Shortcuts)
+
+| Phím tắt | Chức năng thực hiện |
+| :--- | :--- |
+| `/` | Mở nhanh ô tìm kiếm công việc |
+| `Alt` + `F` | Bật / tắt Chế độ tập trung (Focus Mode) |
+| `Alt` + `T` | Chuyển đổi giao diện (Sáng / Tối / Tự động) |
+| `Alt` + `B` | Mở hộp thoại Sao lưu & Phục hồi dữ liệu |
+| `Alt` + `N` | Thêm công việc mới nhanh (giao diện di động) |
+| `Escape` | Đóng menu, đóng modal hoặc hủy chỉnh sửa tiêu đề |
+| `Enter` | Xác nhận và lưu tiêu đề đang chỉnh sửa |
 
 ---
 
-## Documentation
+## Cấu Trúc Thư Mục (Project Structure)
 
-For technical specifications and internal guidelines:
-
-- [ARCHITECTURE.md](./ARCHITECTURE.md)
-- [docs/development/getting-started.md](./docs/development/getting-started.md)
-- [docs/guides/user-guide.md](./docs/guides/user-guide.md)
-- [docs/architecture/system-overview.md](./docs/architecture/system-overview.md)
+```text
+├── public/                 # Tệp tĩnh, Web Manifest, standalone HTML
+├── docs/                   # Thư mục tài liệu kiến trúc và hướng dẫn
+├── src/
+│   ├── components/         # Các thành phần giao diện dùng chung (Header, Footer, UI)
+│   ├── features/
+│   │   ├── analytics/      # Bản đồ nhịp độ (Activity Heatmap) & thống kê số liệu
+│   │   ├── focus/          # Chế độ tập trung (Focus Banner)
+│   │   ├── modals/         # Hộp thoại hướng dẫn, sao lưu, phản hồi
+│   │   └── tasks/          # Cây công việc, việc con, kéo thả, thao tác CRUD
+│   ├── hooks/              # Custom hooks (Theme, phím tắt, tương tác)
+│   ├── types/              # Định nghĩa kiểu dữ liệu TypeScript
+│   ├── utils/              # Tiện ích âm thanh, haptic feedback, clipboard
+│   ├── App.tsx             # Giao diện chính của ứng dụng
+│   └── main.tsx            # Điểm khởi chạy React DOM
+├── ARCHITECTURE.md         # Tài liệu kiến trúc hệ thống
+└── package.json            # Cấu hình dự án và danh sách phụ thuộc
+```
 
 ---
 
-## License
+## Tài Liệu Kỹ Thuật (Documentation)
 
-Distributed under the `MIT License`. Open source and free for personal and commercial usage.
+Tham khảo thêm các tài liệu thiết kế chi tiết:
+- [Sổ tay kiến trúc hệ thống (`ARCHITECTURE.md`)](./ARCHITECTURE.md)
+- [Cẩm nang sử dụng chi tiết (`docs/guides/user-guide.md`)](./docs/guides/user-guide.md)
+- [Quy chuẩn mô đun hóa mã nguồn (`docs/standards/file-size-and-modularity.md`)](./docs/standards/file-size-and-modularity.md)
+
+---
+
+## Bản Quyền (License)
+
+Dự án được phân phối theo giấy phép [MIT License](./LICENSE). Hoàn toàn tự do sử dụng cho mục đích cá nhân và thương mại.

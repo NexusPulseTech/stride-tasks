@@ -171,6 +171,34 @@ export function useActivityLog() {
     });
   }, []);
 
+  // Xóa một dòng log cụ thể khỏi lịch sử hoàn thành
+  const deleteActivityLog = useCallback((logId: string) => {
+    setCompletedLogs((prev) => {
+      const updated = prev.filter((item) => item.id !== logId);
+      try {
+        localStorage.setItem(COMPLETED_LOGS_KEY, JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+  }, []);
+
+  // Xóa sạch toàn bộ lịch sử hoàn thành (Clear all logs)
+  const clearAllActivityLogs = useCallback(() => {
+    setCompletedLogs([]);
+    try {
+      localStorage.setItem(COMPLETED_LOGS_KEY, JSON.stringify([]));
+    } catch (e) {}
+  }, []);
+
+  // Khôi phục lại dữ liệu mẫu nếu cần
+  const resetSeedActivityLogs = useCallback(() => {
+    const seed = generateInitialSeedLogs();
+    setCompletedLogs(seed);
+    try {
+      localStorage.setItem(COMPLETED_LOGS_KEY, JSON.stringify(seed));
+    } catch (e) {}
+  }, []);
+
   // Tính toán bản đồ nhịp độ (Heatmap Map) trực tiếp từ danh sách log hoàn thành thực tế
   const activityMap = useMemo(() => {
     const map: Record<string, number> = {};
@@ -235,6 +263,9 @@ export function useActivityLog() {
     totalCompleted,
     recordTaskCompletion,
     removeTaskCompletion,
+    deleteActivityLog,
+    clearAllActivityLogs,
+    resetSeedActivityLogs,
     saveLogs,
   };
 }

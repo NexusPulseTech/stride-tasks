@@ -1,8 +1,9 @@
-export { ConfirmDialog } from './components/ConfirmDialog';
-export { BatchPasteModal } from './components/BatchPasteModal';
-export { MobileAddModal } from './components/MobileAddModal';
-export { MobileGuideModal } from './components/MobileGuideModal';
-export { GuideModal } from './components/GuideModal';
-export { BackupModal } from './components/BackupModal';
-export { FeedbackModal } from './components/FeedbackModal';
-export { ModalsContainer } from './components/ModalsContainer';
+export * from './components/ConfirmDialog';
+export * from './components/BatchPasteModal';
+export * from './components/MobileAddModal';
+export * from './components/MobileGuideModal';
+export * from './components/GuideModal';
+export * from './components/BackupModal';
+export * from './components/FeedbackModal';
+export * from './components/ViewSettingsModal';
+export * from './components/ModalsContainer';

@@ -104,6 +104,16 @@ export function AppFooter({
         >
           Góp ý & Báo lỗi
         </button>
+        <span aria-hidden="true">·</span>
+        <a
+          href="https://github.com/PhuccNguyen/stride-tasks"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer font-medium text-slate-600 dark:text-slate-300"
+          title="Xem mã nguồn dự án trên GitHub"
+        >
+          GitHub Repo
+        </a>
       </div>
     </footer>
   );

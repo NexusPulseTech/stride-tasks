@@ -17,6 +17,9 @@ interface StatsPanelProps {
   currentStreak: number;
   totalCompleted: number;
   showToast?: (msg: string) => void;
+  onDeleteLog?: (logId: string) => void;
+  onClearAllLogs?: () => void;
+  onResetSeed?: () => void;
 }
 
 export function StatsPanel({
@@ -29,6 +32,9 @@ export function StatsPanel({
   currentStreak,
   totalCompleted,
   showToast = () => {},
+  onDeleteLog,
+  onClearAllLogs,
+  onResetSeed,
 }: StatsPanelProps) {
   const [selectedDay, setSelectedDay] = useState<HeatmapDay | null>(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -130,6 +136,9 @@ export function StatsPanel({
         selectedDateFormatted={selectedDay?.formattedDate}
         onClearDateFilter={() => setSelectedDay(null)}
         onOpenShareModal={() => setIsShareModalOpen(true)}
+        onDeleteLog={onDeleteLog}
+        onClearAllLogs={onClearAllLogs}
+        onResetSeed={onResetSeed}
       />
 
       {/* Modal chia sẻ thành tích */}
