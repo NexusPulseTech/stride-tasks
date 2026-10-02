@@ -6,7 +6,9 @@ import { MobileGuideModal } from './MobileGuideModal';
 import { GuideModal } from './GuideModal';
 import { BackupModal } from './BackupModal';
 import { FeedbackModal } from './FeedbackModal';
+import { ViewSettingsModal } from './ViewSettingsModal';
 import { Project, ConfirmDialogState, MobileGuideTab } from '../../../types';
+import { ViewPreferences } from '../../../hooks/useViewPreferences';
 
 export interface ModalsContainerProps {
   confirmDialog: ConfirmDialogState | null;
@@ -39,6 +41,12 @@ export interface ModalsContainerProps {
   onResetSampleBackup: () => void;
   showFeedbackModal: boolean;
   onCloseFeedbackModal: () => void;
+  showViewSettingsModal: boolean;
+  onCloseViewSettingsModal: () => void;
+  viewPreferences: ViewPreferences;
+  onUpdateViewPreference: (key: keyof ViewPreferences, value: any) => void;
+  onToggleZenMode: () => void;
+  onResetViewPreferences: () => void;
   totalTasksCount: number;
   showToast: (msg: string) => void;
 }
@@ -74,6 +82,12 @@ export function ModalsContainer({
   onResetSampleBackup,
   showFeedbackModal,
   onCloseFeedbackModal,
+  showViewSettingsModal,
+  onCloseViewSettingsModal,
+  viewPreferences,
+  onUpdateViewPreference,
+  onToggleZenMode,
+  onResetViewPreferences,
   totalTasksCount,
   showToast,
 }: ModalsContainerProps) {
@@ -125,6 +139,15 @@ export function ModalsContainer({
         projectsCount={projects.length}
         totalTasksCount={totalTasksCount}
         showToast={showToast}
+      />
+
+      <ViewSettingsModal
+        isOpen={showViewSettingsModal}
+        onClose={onCloseViewSettingsModal}
+        preferences={viewPreferences}
+        onUpdatePreference={onUpdateViewPreference}
+        onToggleZenMode={onToggleZenMode}
+        onResetPreferences={onResetViewPreferences}
       />
     </>
   );

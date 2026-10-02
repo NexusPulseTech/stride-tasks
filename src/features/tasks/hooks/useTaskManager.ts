@@ -3,7 +3,9 @@ import { Project, Task, FilterType, MobileGuideTab, ConfirmDialogState } from '.
 import { INITIAL_PROJECTS } from '../../../constants';
 import { triggerHaptic, playChime } from '../../../utils';
 import { parsePastedTasks } from '../utils/batchParser';
+import { matchTaskDeep } from '../utils/searchHelper';
 import { useCelebrationAndStreak } from './useCelebrationAndStreak';
+import { useSmartReminder } from './useSmartReminder';
 import { useTaskCRUD } from './useTaskCRUD';
 import { useSubtaskOperations } from './useSubtaskOperations';
 import { useTaskDnd } from './useTaskDnd';
@@ -31,6 +33,7 @@ export function useTaskManager() {
   const [mobileSelectedProjId, setMobileSelectedProjId] = useState('');
   const [mobileTaskPinned, setMobileTaskPinned] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [showViewSettingsModal, setShowViewSettingsModal] = useState(false);
 
   const desktopSearchRef = useRef<HTMLInputElement | null>(null);
   const mobileSearchRef = useRef<HTMLInputElement | null>(null);
@@ -55,6 +58,14 @@ export function useTaskManager() {
       }
     },
   });
+
+  // Smart Reminder kết nối trực tiếp với crud.projects
+  const reminder = useSmartReminder({
+    projects: crud.projects,
+    isMuted: celebration.isMuted,
+    showToast: celebration.showToast,
+  });
+
   const subtasks = useSubtaskOperations({
     projects: crud.projects,
     setProjects: crud.setProjects,
@@ -207,20 +218,28 @@ export function useTaskManager() {
   const percentTotal = totalTasks > 0 ? Math.round((totalDone / totalTasks) * 100) : 0;
   const uncompletedCount = totalTasks - totalDone;
 
-  const filteredProjects = crud.projects.filter((p) => {
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      const matchP = p.name.toLowerCase().includes(q);
-      const matchT = p.tasks.some((t) => t.title.toLowerCase().includes(q));
-      if (!matchP && !matchT) return false;
-    }
-    const total = p.tasks.length;
-    const done = p.tasks.filter((t) => t.status === 'done').length;
-    const isCompleted = total > 0 && done === total;
-    if (filter === 'doing') return p.tasks.some((t) => t.status === 'doing') || !isCompleted;
-    if (filter === 'completed') return isCompleted;
-    return true;
-  });
+  const filteredProjects = crud.projects
+    .filter((p) => {
+      if (search.trim()) {
+        const q = search.toLowerCase();
+        const matchP = p.name.toLowerCase().includes(q);
+        const matchT = p.tasks.some((t) => matchTaskDeep(t, q));
+        if (!matchP && !matchT) return false;
+      }
+      const total = p.tasks.length;
+      const done = p.tasks.filter((t) => t.status === 'done').length;
+      const isCompleted = total > 0 && done === total;
+      if (filter === 'doing') return p.tasks.some((t) => t.status === 'doing') || !isCompleted;
+      if (filter === 'completed') return isCompleted;
+      return true;
+    })
+    .map((p) => {
+      // Khi đang tìm kiếm: Tự động mở rộng (auto-expand) dự án nếu có kết quả khớp
+      if (search.trim()) {
+        return { ...p, isExpanded: true };
+      }
+      return p;
+    });
 
   const pinnedTasks = crud.projects.flatMap((p) =>
     p.tasks.filter((t) => t.isPinned).map((t) => ({ task: t, project: p }))
@@ -232,6 +251,9 @@ export function useTaskManager() {
     ...dnd,
     ...celebration,
     ...activity,
+    reminder,
+    showViewSettingsModal,
+    setShowViewSettingsModal,
     showStats,
     setShowStats,
     filter,

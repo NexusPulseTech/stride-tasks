@@ -1,6 +1,8 @@
 import React from 'react';
 import { ExternalLink } from 'lucide-react';
 import { Project, SubTask } from '../../../types';
+import { HighlightedText } from '../../../components/ui/HighlightedText';
+
 export function formatSubtasksToMarkdown(subtasks: SubTask[], indentLevel = 1): string[] {
   const lines: string[] = [];
   const indent = '  '.repeat(indentLevel);
@@ -27,7 +29,15 @@ export function exportProjectToMarkdown(project: Project): string {
   return md;
 }
 
-export function FormattedTaskText({ text, isDone }: { text: string; isDone: boolean }) {
+export function FormattedTaskText({
+  text,
+  isDone,
+  highlight = '',
+}: {
+  text: string;
+  isDone: boolean;
+  highlight?: string;
+}) {
   if (!text) return null;
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   const parts = text.split(urlRegex);
@@ -67,7 +77,7 @@ export function FormattedTaskText({ text, isDone }: { text: string; isDone: bool
             </a>
           );
         }
-        return <span key={index}>{part}</span>;
+        return <HighlightedText key={index} text={part} highlight={highlight} />;
       })}
     </span>
   );

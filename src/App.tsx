@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTheme, useKeyboardShortcuts } from './hooks';
+import { useViewPreferences } from './hooks/useViewPreferences';
 import { AppHeader, AppFooter, MobileFab } from './components/layout';
 import { ToastNotification, UndoSnackbar, ConfettiEffect } from './components/feedback';
 import {
@@ -7,6 +8,7 @@ import {
   ActionBar,
   PinnedSection,
   ProjectCard,
+  ReminderBanner,
   useTaskManager,
 } from './features/tasks';
 import { FocusBanner } from './features/focus';
@@ -17,6 +19,7 @@ import { triggerHaptic } from './utils';
 export default function App() {
   const manager = useTaskManager();
   const theme = useTheme();
+  const viewPref = useViewPreferences();
 
   useKeyboardShortcuts({
     isFocusMode: manager.isFocusMode,
@@ -53,13 +56,16 @@ export default function App() {
         streak={manager.streak}
         isFocusMode={manager.isFocusMode}
         onToggleFocusMode={() => manager.setIsFocusMode(!manager.isFocusMode)}
-        reminderEnabled={manager.reminderEnabled}
-        onToggleReminder={manager.toggleReminder}
+        reminderEnabled={manager.reminder.reminderEnabled}
+        onToggleReminder={manager.reminder.toggleReminder}
         showStats={manager.showStats}
         onToggleStats={() => manager.setShowStats(!manager.showStats)}
         onOpenBackupModal={() => manager.setShowBackupModal(true)}
         onOpenMobileGuideModal={() => manager.setShowMobileGuideModal(true)}
         onOpenFeedback={() => manager.setShowFeedbackModal(true)}
+        onOpenViewSettings={() => manager.setShowViewSettingsModal(true)}
+        viewPreferences={viewPref.preferences}
+        onToggleZenMode={viewPref.toggleZenMode}
         isMuted={manager.isMuted}
         onToggleMute={manager.toggleMute}
         onOpenGuideModal={() => manager.setShowGuideModal(true)}
@@ -70,24 +76,43 @@ export default function App() {
 
       {/* Nội dung tập trung Core */}
       <main className="max-w-2xl w-full mx-auto px-3.5 sm:px-4 py-4 pb-24 sm:pb-10 space-y-3.5 overflow-x-hidden min-w-0">
-        <StatsPanel
-          isOpen={manager.showStats}
-          onClose={() => manager.setShowStats(false)}
-          completedLogs={manager.completedLogs}
-          activityMap={manager.activityMap}
-          todayCount={manager.todayCount}
-          weekCount={manager.weekCount}
-          currentStreak={manager.currentStreak}
-          totalCompleted={manager.totalCompleted}
-          showToast={manager.showToast}
-        />
+        {/* Bản đồ nhịp độ (Heatmap & Bảng xóa/sửa lịch sử) */}
+        {viewPref.preferences.showStatsPanel && !viewPref.preferences.zenMode && (
+          <StatsPanel
+            isOpen={manager.showStats}
+            onClose={() => manager.setShowStats(false)}
+            completedLogs={manager.completedLogs}
+            activityMap={manager.activityMap}
+            todayCount={manager.todayCount}
+            weekCount={manager.weekCount}
+            currentStreak={manager.currentStreak}
+            totalCompleted={manager.totalCompleted}
+            showToast={manager.showToast}
+            onDeleteLog={(id) => {
+              manager.deleteActivityLog(id);
+              manager.showToast('Đã xóa bản ghi lịch sử');
+            }}
+            onClearAllLogs={() => {
+              manager.clearAllActivityLogs();
+              manager.showToast('Đã dọn sạch toàn bộ lịch sử hoàn thành');
+            }}
+            onResetSeed={() => {
+              manager.resetSeedActivityLogs();
+              manager.showToast('Đã khôi phục dữ liệu mẫu lịch sử');
+            }}
+          />
+        )}
 
-        <AddProjectBar
-          projectName={manager.newProjectName}
-          onChange={manager.setNewProjectName}
-          onSubmit={manager.handleAddProject}
-        />
+        {/* Thanh thêm dự án nhanh (ẩn được theo setting) */}
+        {viewPref.preferences.showAddProjectBar && !viewPref.preferences.zenMode && (
+          <AddProjectBar
+            projectName={manager.newProjectName}
+            onChange={manager.setNewProjectName}
+            onSubmit={manager.handleAddProject}
+          />
+        )}
 
+        {/* Thanh lọc & tìm kiếm */}
         <ActionBar
           filter={manager.filter}
           onFilterChange={manager.setFilter}
@@ -106,6 +131,7 @@ export default function App() {
           onResetSample={manager.resetSample}
           desktopSearchRef={manager.desktopSearchRef}
           mobileSearchRef={manager.mobileSearchRef}
+          showFilterTabs={viewPref.preferences.showFilterTabs && !viewPref.preferences.zenMode}
         />
 
         <FocusBanner
@@ -134,9 +160,8 @@ export default function App() {
             manager.filteredProjects.map((p) => {
               const visibleTasks = p.tasks.filter((t) => {
                 if (manager.search.trim()) {
-                  const q = manager.search.toLowerCase();
-                  const match = t.title.toLowerCase().includes(q) || (t.subtasks && t.subtasks.some((s) => s.title.toLowerCase().includes(q)));
-                  if (!match) return false;
+                  // Đã lọc deep bằng matchTaskDeep ở useTaskManager
+                  return true;
                 }
                 if (manager.isFocusMode || manager.filter === 'doing') return t.status !== 'done';
                 if (manager.filter === 'completed') return t.status === 'done';
@@ -224,6 +249,12 @@ export default function App() {
         }}
       />
 
+      {/* Thông báo nhắc việc liên tục trong ứng dụng */}
+      <ReminderBanner
+        banner={manager.reminder.inAppBanner}
+        onDismiss={manager.reminder.dismissBanner}
+      />
+
       <ToastNotification message={manager.toast} isVisible={Boolean(manager.toast && !manager.undoState)} />
       <UndoSnackbar undoState={manager.undoState} onDismiss={() => manager.setUndoState(null)} />
       {manager.showConfetti && <ConfettiEffect />}
@@ -259,6 +290,12 @@ export default function App() {
         onResetSampleBackup={manager.resetSample}
         showFeedbackModal={manager.showFeedbackModal}
         onCloseFeedbackModal={() => manager.setShowFeedbackModal(false)}
+        showViewSettingsModal={manager.showViewSettingsModal}
+        onCloseViewSettingsModal={() => manager.setShowViewSettingsModal(false)}
+        viewPreferences={viewPref.preferences}
+        onUpdateViewPreference={viewPref.updatePreference}
+        onToggleZenMode={viewPref.toggleZenMode}
+        onResetViewPreferences={viewPref.resetPreferences}
         totalTasksCount={manager.totalTasks}
         showToast={manager.showToast}
       />

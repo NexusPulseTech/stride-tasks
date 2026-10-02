@@ -98,6 +98,28 @@ export function BackupModal({
             </button>
           </div>
 
+          {/* Download Full Source Code for GitHub */}
+          <div className="p-3 bg-slate-100/80 dark:bg-slate-800/60 border border-slate-300/80 dark:border-slate-700/80 rounded-xl flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-xs font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+                <Download className="w-3.5 h-3.5 shrink-0 text-slate-800 dark:text-slate-200" strokeWidth={1.5} aria-hidden="true" />
+                <span>Tải toàn bộ mã nguồn (.ZIP)</span>
+              </div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                Đầy đủ code sạch (React, TS, Vite) để đưa lên GitHub cá nhân
+              </p>
+            </div>
+            <a
+              href="/solo-tasks-manager.zip"
+              download="solo-tasks-manager.zip"
+              className="h-7.5 px-3 bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-white text-white dark:text-slate-950 text-xs font-medium rounded-lg flex items-center gap-1.5 cursor-pointer transition-all shadow-xs active:scale-[0.98] shrink-0 no-underline"
+              aria-label="Tải file zip mã nguồn"
+            >
+              <Download className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
+              <span>Tải ZIP</span>
+            </a>
+          </div>
+
           <div className="pt-1 flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-500">
             <span>Dữ liệu mẫu ban đầu:</span>
             <button

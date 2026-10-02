@@ -70,7 +70,7 @@ export function FeedbackModal({
     triggerHaptic();
     const issueTitle = encodeURIComponent(`[${activeTab === 'bug' ? 'Bug' : 'Feedback'}] ${title.trim() || 'Phản hồi người dùng'}`);
     const issueBody = encodeURIComponent(getFullReportText());
-    const githubUrl = `https://github.com/issues/new?title=${issueTitle}&body=${issueBody}`;
+    const githubUrl = `https://github.com/PhuccNguyen/stride-tasks/issues/new?title=${issueTitle}&body=${issueBody}`;
     window.open(githubUrl, '_blank', 'noopener,noreferrer');
     showToast('Đang mở trang tạo GitHub Issue...');
   };
