@@ -37,7 +37,6 @@ export interface Translations {
     soundLabel: string;
     backupLabel: string;
     downloadHtmlLabel: string;
-    downloadSourceZipLabel: string;
     guideLabel: string;
     mobileGuideLabel: string;
     feedbackLabel: string;

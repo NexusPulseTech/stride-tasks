@@ -14,6 +14,11 @@
 
 [Web App](https://nexuspulsetech.github.io/stride-tasks/) · [Windows Desktop Release v1.0.3](https://github.com/NexusPulseTech/stride-tasks/releases/tag/v1.0.3)
 
+### Windows Installers
+
+- [Download Windows Desktop App (.exe)](https://github.com/NexusPulseTech/stride-tasks/releases/download/v1.0.3/Stride.Tasks_1.0.3_x64-setup.exe)
+- [Download Windows Installer (.msi)](https://github.com/NexusPulseTech/stride-tasks/releases/download/v1.0.3/Stride.Tasks_1.0.3_x64_en-US.msi)
+
 ---
 
 ## Tính Năng Chính (Core Features)

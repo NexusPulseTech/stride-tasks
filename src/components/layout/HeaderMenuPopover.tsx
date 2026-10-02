@@ -289,20 +289,6 @@ export function HeaderMenuPopover({
             <span>{t.header.downloadHtmlLabel}</span>
           </button>
 
-          {/* Download Source Code Zip */}
-          <a
-            href="./stride-tasks-source.zip"
-            download="stride-tasks-source.zip"
-            onClick={onClose}
-            className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg hover:bg-slate-100/80 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200 transition-colors text-left cursor-pointer no-underline"
-          >
-            <span className="flex items-center gap-2">
-              <Download className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>{t.header.downloadSourceZipLabel}</span>
-            </span>
-            <span className="text-[10px] text-slate-400 font-mono">ZIP</span>
-          </a>
-
           {/* User Guide */}
           <button
             type="button"

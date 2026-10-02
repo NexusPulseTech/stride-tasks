@@ -37,7 +37,6 @@ export const en: Translations = {
     soundLabel: 'Celebration Sound',
     backupLabel: 'Backup & Restore (JSON)',
     downloadHtmlLabel: 'Download Offline Single HTML',
-    downloadSourceZipLabel: 'Download Full Source (.zip)',
     guideLabel: 'User Guide',
     mobileGuideLabel: 'Mobile PWA Guide',
     feedbackLabel: 'Feedback & Bug Report',
