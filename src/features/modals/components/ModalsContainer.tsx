@@ -7,7 +7,7 @@ import { GuideModal } from './GuideModal';
 import { BackupModal } from './BackupModal';
 import { FeedbackModal } from './FeedbackModal';
 import { ViewSettingsModal } from './ViewSettingsModal';
-import { Project, ConfirmDialogState, MobileGuideTab } from '../../../types';
+import { AutoBackupData, Project, ConfirmDialogState, MobileGuideTab } from '../../../types';
 import { ViewPreferences } from '../../../hooks/useViewPreferences';
 
 export interface ModalsContainerProps {
@@ -39,12 +39,7 @@ export interface ModalsContainerProps {
   onExportBackup: () => void;
   onTriggerImportBackup: () => void;
   onResetSampleBackup: () => void;
-  autoBackupData?: {
-    timestamp: string;
-    projectCount: number;
-    taskCount: number;
-    projects: Project[];
-  } | null;
+  autoBackupData?: AutoBackupData | null;
   onRestoreAutoBackup?: () => void;
   onClearAllData?: () => void;
   showFeedbackModal: boolean;

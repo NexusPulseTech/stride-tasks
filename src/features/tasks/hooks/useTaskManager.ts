@@ -1,6 +1,16 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Project, Task, FilterType, MobileGuideTab, ConfirmDialogState } from '../../../types';
-import { INITIAL_PROJECTS } from '../../../constants';
+import {
+  AutoBackupData,
+  CompletedItemLog,
+  Project,
+  Task,
+  FilterType,
+  MobileGuideTab,
+  ConfirmDialogState,
+  StatusDefinition,
+  StrideBackupPayload,
+} from '../../../types';
+import { APP_VERSION, INITIAL_PROJECTS } from '../../../constants';
 import { triggerHaptic, playChime } from '../../../utils';
 import { parsePastedTasks } from '../utils/batchParser';
 import { matchTaskDeep } from '../utils/searchHelper';
@@ -37,12 +47,7 @@ export function useTaskManager() {
   const [showViewSettingsModal, setShowViewSettingsModal] = useState(false);
 
   // Auto-backup data state
-  const [autoBackupData, setAutoBackupData] = useState<{
-    timestamp: string;
-    projectCount: number;
-    taskCount: number;
-    projects: Project[];
-  } | null>(() => {
+  const [autoBackupData, setAutoBackupData] = useState<AutoBackupData | null>(() => {
     try {
       const saved = localStorage.getItem(STRIDE_AUTO_BACKUP_KEY);
       if (saved) return JSON.parse(saved);
@@ -75,7 +80,7 @@ export function useTaskManager() {
     },
   });
 
-  // Refresh auto-backup whenever modal or projects change
+  // Keep one recovery snapshot synchronized with projects, completion history, and custom statuses.
   const refreshAutoBackup = useCallback(() => {
     try {
       const saved = localStorage.getItem(STRIDE_AUTO_BACKUP_KEY);
@@ -88,8 +93,24 @@ export function useTaskManager() {
   }, []);
 
   useEffect(() => {
-    refreshAutoBackup();
-  }, [crud.projects, refreshAutoBackup]);
+    try {
+      const isTemplate = JSON.stringify(crud.projects) === JSON.stringify(INITIAL_PROJECTS);
+      if (isTemplate || crud.projects.length === 0) return;
+
+      const taskCount = crud.projects.reduce((total, project) => total + (project.tasks?.length || 0), 0);
+      const snapshot: AutoBackupData = {
+        timestamp: new Date().toISOString(),
+        projectCount: crud.projects.length,
+        taskCount,
+        historyCount: activity.completedLogs.length,
+        projects: crud.projects,
+        completedLogs: activity.completedLogs,
+        customStatuses: statusManager.statuses.filter((status) => status.isCustom),
+      };
+      localStorage.setItem(STRIDE_AUTO_BACKUP_KEY, JSON.stringify(snapshot));
+      setAutoBackupData(snapshot);
+    } catch (e) {}
+  }, [crud.projects, activity.completedLogs, statusManager.statuses]);
 
   // Smart Reminder kết nối trực tiếp với crud.projects
   const reminder = useSmartReminder({
@@ -228,6 +249,12 @@ export function useTaskManager() {
       isDestructive: false,
       onConfirm: () => {
         crud.setProjects(autoBackupData.projects);
+        if (Array.isArray(autoBackupData.completedLogs)) {
+          activity.saveLogs(autoBackupData.completedLogs);
+        }
+        if (Array.isArray(autoBackupData.customStatuses)) {
+          statusManager.restoreCustomStatuses(autoBackupData.customStatuses);
+        }
         celebration.showToast('Đã khôi phục dữ liệu từ bản tự động thành công!');
         setConfirmDialog(null);
         setShowBackupModal(false);
@@ -247,6 +274,7 @@ export function useTaskManager() {
       isDestructive: true,
       onConfirm: () => {
         crud.setProjects([]);
+        activity.clearAllActivityLogs();
         celebration.showToast('Đã xóa toàn bộ dữ liệu!');
         setConfirmDialog(null);
         setShowBackupModal(false);
@@ -265,15 +293,33 @@ export function useTaskManager() {
   };
 
   const exportDataJson = () => {
-    const dataStr = JSON.stringify(crud.projects, null, 2);
+    const taskCount = crud.projects.reduce((total, project) => total + (project.tasks?.length || 0), 0);
+    const payload: StrideBackupPayload = {
+      version: APP_VERSION,
+      schemaVersion: 2,
+      appName: 'Stride Tasks',
+      exportedAt: new Date().toISOString(),
+      summary: {
+        projectCount: crud.projects.length,
+        taskCount,
+        historyLogCount: activity.completedLogs.length,
+        streakCount: activity.currentStreak,
+      },
+      data: {
+        projects: crud.projects,
+        completedLogs: activity.completedLogs,
+        customStatuses: statusManager.statuses.filter((status) => status.isCustom),
+      },
+    };
+    const dataStr = JSON.stringify(payload, null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `stride-tasks-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `stride-tasks-full-backup-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    celebration.showToast('Đã xuất file sao lưu .JSON!');
+    celebration.showToast('Đã xuất file sao lưu toàn diện (.JSON)!');
   };
 
   // 4. Nhập file JSON sao lưu (Luôn Confirm trước khi đè dữ liệu)
@@ -283,32 +329,74 @@ export function useTaskManager() {
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
-        const parsed = JSON.parse(event.target?.result as string);
-        if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].tasks) {
-          const taskCount = parsed.reduce((acc, p) => acc + (p.tasks ? p.tasks.length : 0), 0);
-          setConfirmDialog({
-            isOpen: true,
-            title: 'Khôi phục dữ liệu từ tệp sao lưu JSON?',
-            message: `Tệp sao lưu chứa ${parsed.length} dự án và ${taskCount} công việc. Thao tác này sẽ thay thế dữ liệu hiện tại bằng dữ liệu trong tệp sao lưu. Bạn có muốn tiếp tục?`,
-            confirmText: 'Khôi phục tệp này',
-            cancelText: 'Hủy',
-            isDestructive: true,
-            onConfirm: () => {
-              crud.setProjects(parsed);
-              celebration.showToast('Đã khôi phục dữ liệu thành công!');
-              setConfirmDialog(null);
-              setShowBackupModal(false);
-            },
-          });
-        } else {
-          celebration.showToast('File JSON không hợp lệ hoặc sai định dạng!');
+        const parsed: unknown = JSON.parse(event.target?.result as string);
+        const parsedRecord =
+          parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+            ? (parsed as Record<string, unknown>)
+            : null;
+        const snapshotData =
+          parsedRecord?.data && typeof parsedRecord.data === 'object' && !Array.isArray(parsedRecord.data)
+            ? (parsedRecord.data as Record<string, unknown>)
+            : null;
+        let incomingProjects: Project[] | null = null;
+        let incomingLogs: CompletedItemLog[] | null = null;
+        let incomingCustomStatuses: StatusDefinition[] | null = null;
+        let hasFullSnapshot = false;
+
+        if (snapshotData && Array.isArray(snapshotData.projects)) {
+          incomingProjects = snapshotData.projects as Project[];
+          incomingLogs = Array.isArray(snapshotData.completedLogs)
+            ? (snapshotData.completedLogs as CompletedItemLog[])
+            : null;
+          incomingCustomStatuses = Array.isArray(snapshotData.customStatuses)
+            ? (snapshotData.customStatuses as StatusDefinition[])
+            : null;
+          hasFullSnapshot = true;
+        } else if (
+          Array.isArray(parsed) &&
+          parsed.every((project) => project && typeof project === 'object' && Array.isArray(project.tasks))
+        ) {
+          incomingProjects = parsed as Project[];
+        } else if (parsedRecord && Array.isArray(parsedRecord.projects)) {
+          incomingProjects = parsedRecord.projects as Project[];
+          incomingLogs = Array.isArray(parsedRecord.completedLogs)
+            ? (parsedRecord.completedLogs as CompletedItemLog[])
+            : null;
+          incomingCustomStatuses = Array.isArray(parsedRecord.customStatuses)
+            ? (parsedRecord.customStatuses as StatusDefinition[])
+            : null;
+          hasFullSnapshot = incomingLogs !== null || incomingCustomStatuses !== null;
         }
+
+        if (!incomingProjects) {
+          celebration.showToast('File JSON không hợp lệ hoặc sai định dạng!');
+          return;
+        }
+
+        const taskCount = incomingProjects.reduce((acc, project) => acc + (project.tasks?.length || 0), 0);
+        const historyCount = incomingLogs?.length || 0;
+        setConfirmDialog({
+          isOpen: true,
+          title: 'Khôi phục dữ liệu từ tệp sao lưu JSON?',
+          message: hasFullSnapshot
+            ? `Tệp snapshot chứa ${incomingProjects.length} dự án, ${taskCount} công việc, ${historyCount} mục lịch sử Heatmap và ${(incomingCustomStatuses || []).length} trạng thái tùy chỉnh. Dữ liệu snapshot sẽ thay thế dữ liệu tương ứng hiện tại. Bạn có muốn tiếp tục?`
+            : `Tệp sao lưu cũ chứa ${incomingProjects.length} dự án và ${taskCount} công việc. Lịch sử Heatmap và trạng thái tùy chỉnh hiện tại sẽ được giữ nguyên. Bạn có muốn tiếp tục?`,
+          confirmText: 'Khôi phục tệp này',
+          cancelText: 'Hủy',
+          isDestructive: true,
+          onConfirm: () => {
+            crud.setProjects(incomingProjects!);
+            if (incomingLogs) activity.saveLogs(incomingLogs);
+            if (incomingCustomStatuses) statusManager.restoreCustomStatuses(incomingCustomStatuses);
+            celebration.showToast('Đã khôi phục dữ liệu sao lưu thành công!');
+            setConfirmDialog(null);
+            setShowBackupModal(false);
+          },
+        });
       } catch (err) {
         celebration.showToast('Lỗi đọc file JSON!');
       }
     };
-    reader.readAsText(file);
-    e.target.value = '';
   };
 
   // 5. Xóa dự án (Confirm nếu dự án có công việc bên trong)

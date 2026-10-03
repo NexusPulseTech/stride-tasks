@@ -65,6 +65,17 @@ export function useStatusManager() {
     setStatuses((prev) => prev.filter((s) => s.id !== id || !s.isCustom));
   }, []);
 
+  const restoreCustomStatuses = useCallback((customList: StatusDefinition[]) => {
+    if (!Array.isArray(customList)) return;
+    const validCustom = customList
+      .filter((status) => status?.id && status.label && !DEFAULT_STATUSES.some((item) => item.id === status.id))
+      .map((status) => ({ ...status, isCustom: true }));
+    setStatuses([...DEFAULT_STATUSES, ...validCustom]);
+    try {
+      localStorage.setItem(STRIDE_CUSTOM_STATUSES_KEY, JSON.stringify(validCustom));
+    } catch (e) {}
+  }, []);
+
   const getStatus = useCallback(
     (id?: string): StatusDefinition => {
       if (!id) return DEFAULT_STATUSES[0];
@@ -85,6 +96,7 @@ export function useStatusManager() {
     statuses,
     addCustomStatus,
     deleteCustomStatus,
+    restoreCustomStatuses,
     getStatus,
   };
 }

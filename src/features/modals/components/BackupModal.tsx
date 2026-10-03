@@ -1,14 +1,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { Upload, Download, X, ShieldCheck, RotateCcw, Trash2 } from 'lucide-react';
-import { Project } from '../../../types';
-
-interface AutoBackupData {
-  timestamp: string;
-  projectCount: number;
-  taskCount: number;
-  projects: Project[];
-}
+import { AutoBackupData } from '../../../types';
 
 interface BackupModalProps {
   isOpen: boolean;
@@ -119,10 +112,10 @@ export function BackupModal({
             <div className="min-w-0">
               <div className="text-xs font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                 <Download className="w-3.5 h-3.5 shrink-0 text-slate-700 dark:text-slate-300" strokeWidth={1.5} aria-hidden="true" />
-                <span>Xuất file dữ liệu (.JSON)</span>
+                <span>Xuất bản sao lưu toàn diện (.JSON)</span>
               </div>
               <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
-                Lưu file sao lưu về máy để lưu trữ hoặc chuyển sang máy khác
+                Bao gồm dự án, việc con, lịch sử Heatmap và trạng thái tùy chỉnh
               </p>
             </div>
             <button

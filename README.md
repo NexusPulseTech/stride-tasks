@@ -1,7 +1,7 @@
 # Stride Tasks
 
 <p align="left">
-  <img src="https://img.shields.io/badge/Release-v1.0.3-emerald?style=flat-square" alt="Release v1.0.3" />
+  <img src="https://img.shields.io/badge/Release-v1.0.5-emerald?style=flat-square" alt="Release v1.0.5" />
   <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License MIT" />
   <img src="https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react&logoColor=black" alt="React 19" />
   <img src="https://img.shields.io/badge/TypeScript-5.7+-3178c6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
@@ -12,12 +12,12 @@
 > **Ứng dụng quản lý công việc và dự án cá nhân tối giản, 100% Local-First và hoạt động Offline.**
 > Xây dựng theo nguyên lý thiết kế tối giản: cấu trúc việc con đệ quy (Recursive Subtask Tree), chu trình trạng thái dứt khoát (Linear Status Flow), bản đồ nhịp độ hoàn thành (Activity Rhythm Heatmap) và xuất báo cáo năng suất độ nét cao.
 
-[Web App](https://nexuspulsetech.github.io/stride-tasks/) · [Windows Desktop Release v1.0.3](https://github.com/NexusPulseTech/stride-tasks/releases/tag/v1.0.3)
+[Web App](https://nexuspulsetech.github.io/stride-tasks/) · [Windows Desktop Release v1.0.5](https://github.com/NexusPulseTech/stride-tasks/releases/tag/v1.0.5)
 
 ### Windows Installers
 
-- [Download Windows Desktop App (.exe)](https://github.com/NexusPulseTech/stride-tasks/releases/download/v1.0.3/Stride.Tasks_1.0.3_x64-setup.exe)
-- [Download Windows Installer (.msi)](https://github.com/NexusPulseTech/stride-tasks/releases/download/v1.0.3/Stride.Tasks_1.0.3_x64_en-US.msi)
+- [Download Windows Desktop App (.exe)](https://github.com/NexusPulseTech/stride-tasks/releases/download/v1.0.5/Stride.Tasks_1.0.5_x64-setup.exe)
+- [Download Windows Installer (.msi)](https://github.com/NexusPulseTech/stride-tasks/releases/download/v1.0.5/Stride.Tasks_1.0.5_x64_en-US.msi)
 
 ---
 
@@ -48,7 +48,7 @@
 
 ### 5. Kiến Trúc Cục Bộ & Quyền Riêng Tư (Local-First & Offline)
 - **Lưu trữ an toàn trên thiết bị**: Toàn bộ dữ liệu được lưu trên `localStorage` của trình duyệt, không gửi dữ liệu ra máy chủ bên ngoài.
-- **Sao lưu và phục hồi JSON**: Xuất và nhập toàn bộ trạng thái hệ thống chỉ với một tệp tin.
+- **Sao lưu snapshot toàn diện**: JSON schema v2 lưu dự án, việc con, lịch sử Heatmap/Streak và trạng thái tùy chỉnh; vẫn hỗ trợ nhập tệp dự án JSON cũ.
 - **Xuất bản dạng HTML đơn lẻ**: Tải tệp HTML độc lập để chạy mà không cần kết nối mạng hay cài đặt phần mềm phụ trợ.
 - **Hỗ trợ PWA**: Có thể cài đặt trực tiếp lên thiết bị di động (iOS / Android) và máy tính để bàn.
 

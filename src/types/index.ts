@@ -6,6 +6,18 @@ export interface StatusDefinition {
   isCustom?: boolean;
 }
 
+export interface CompletedItemLog {
+  id: string;
+  taskId: string;
+  taskTitle: string;
+  projectId: string;
+  projectName: string;
+  completedAt: string;
+  dateKey: string;
+  subtasksCompleted?: number;
+  subtasksTotal?: number;
+}
+
 export interface SubTask {
   id: string;
   title: string;
@@ -41,6 +53,35 @@ export interface ConfirmDialogState {
   cancelText?: string;
   isDestructive?: boolean;
   onConfirm: () => void;
+}
+
+export interface AutoBackupData {
+  timestamp: string;
+  projectCount: number;
+  taskCount: number;
+  historyCount?: number;
+  projects: Project[];
+  completedLogs?: CompletedItemLog[];
+  customStatuses?: StatusDefinition[];
+}
+
+export interface StrideBackupPayload {
+  version: string;
+  schemaVersion: number;
+  appName: string;
+  exportedAt: string;
+  summary: {
+    projectCount: number;
+    taskCount: number;
+    historyLogCount: number;
+    streakCount?: number;
+  };
+  data: {
+    projects: Project[];
+    completedLogs?: CompletedItemLog[];
+    customStatuses?: StatusDefinition[];
+    streak?: { count: number; lastDate?: string } | number;
+  };
 }
 
 export interface UndoAction {

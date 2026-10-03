@@ -37,20 +37,6 @@ export function useTaskCRUD({
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
-      // Tự động sao lưu dữ liệu mới của user (trừ dữ liệu template ban đầu)
-      const isTemplate = JSON.stringify(projects) === JSON.stringify(INITIAL_PROJECTS);
-      if (!isTemplate && projects.length > 0) {
-        const totalTasksCount = projects.reduce((acc, p) => acc + (p.tasks ? p.tasks.length : 0), 0);
-        localStorage.setItem(
-          STRIDE_AUTO_BACKUP_KEY,
-          JSON.stringify({
-            timestamp: new Date().toISOString(),
-            projectCount: projects.length,
-            taskCount: totalTasksCount,
-            projects,
-          })
-        );
-      }
     } catch (e) {}
   }, [projects]);
 

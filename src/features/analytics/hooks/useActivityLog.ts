@@ -1,17 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { COMPLETED_LOGS_KEY } from '../../../constants';
+import { CompletedItemLog } from '../../../types';
 
-export interface CompletedItemLog {
-  id: string;
-  taskId: string;
-  taskTitle: string;
-  projectId: string;
-  projectName: string;
-  completedAt: string; // ISO 8601 string
-  dateKey: string;     // YYYY-MM-DD
-  subtasksCompleted?: number;
-  subtasksTotal?: number;
-}
+export type { CompletedItemLog } from '../../../types';
 
 export function getTodayKey(): string {
   const d = new Date();
