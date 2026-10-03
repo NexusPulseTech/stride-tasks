@@ -3,8 +3,10 @@ import { Project, Task } from '../../../types';
 import { STORAGE_KEY, INITIAL_PROJECTS } from '../../../constants';
 import { triggerHaptic } from '../../../utils';
 import { parsePastedTasks } from '../utils/batchParser';
-import { cascadeSubtaskCompleted } from '../utils/subtaskTree';
+import { cascadeSubtaskCompleted, updateSubtaskStatusInTree, determineTaskStatusFromSubtasks } from '../utils/subtaskTree';
 import { exportProjectToMarkdown } from '../utils/formatters';
+
+export const STRIDE_AUTO_BACKUP_KEY = 'STRIDE_AUTO_BACKUP_DATA';
 
 interface TaskCRUDDeps {
   showToast: (msg: string) => void;
@@ -35,6 +37,20 @@ export function useTaskCRUD({
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+      // Tự động sao lưu dữ liệu mới của user (trừ dữ liệu template ban đầu)
+      const isTemplate = JSON.stringify(projects) === JSON.stringify(INITIAL_PROJECTS);
+      if (!isTemplate && projects.length > 0) {
+        const totalTasksCount = projects.reduce((acc, p) => acc + (p.tasks ? p.tasks.length : 0), 0);
+        localStorage.setItem(
+          STRIDE_AUTO_BACKUP_KEY,
+          JSON.stringify({
+            timestamp: new Date().toISOString(),
+            projectCount: projects.length,
+            taskCount: totalTasksCount,
+            projects,
+          })
+        );
+      }
     } catch (e) {}
   }, [projects]);
 
@@ -173,29 +189,87 @@ export function useTaskCRUD({
     }
   };
 
-  const changeStatus = (projId: string, taskId: string, status: 'todo' | 'doing' | 'done') => {
+  const changeStatus = (
+    projId: string,
+    taskId: string,
+    status: string,
+    isDoneCategory: boolean = status === 'done'
+  ) => {
     triggerHaptic();
     setProjects((prev) =>
-      prev.map((p) => p.id !== projId ? p : {
-        ...p,
-        tasks: p.tasks.map((t) => t.id !== taskId ? t : {
-          ...t,
-          status,
-          completedAt: status === 'done' ? (t.completedAt || new Date().toISOString()) : undefined,
-          subtasks: status === 'done' ? t.subtasks.map((s) => cascadeSubtaskCompleted(s, true)) : t.subtasks,
-        }),
-      })
+      prev.map((p) =>
+        p.id !== projId
+          ? p
+          : {
+              ...p,
+              tasks: p.tasks.map((t) => {
+                if (t.id !== taskId) return t;
+
+                let nextSubs = t.subtasks;
+                if (isDoneCategory) {
+                  // Khi chuyển sang Đã xong: Hoàn thành toàn bộ các bước con
+                  nextSubs = t.subtasks.map((s) => cascadeSubtaskCompleted(s, true));
+                } else if (status === 'todo') {
+                  // Khi chuyển về Chờ: Đưa tất cả bước con về chưa hoàn thành
+                  nextSubs = t.subtasks.map((s) => cascadeSubtaskCompleted(s, false));
+                } else if (t.status === 'done' && !isDoneCategory) {
+                  // Đang từ Đã xong chuyển sang Đang làm/Duyệt/Nghẽn/Custom:
+                  // Mở lại các việc con để không bị tự động bọt khí ép ngược về done
+                  nextSubs = t.subtasks.map((s) => cascadeSubtaskCompleted(s, false));
+                }
+
+                return {
+                  ...t,
+                  status,
+                  completedAt: isDoneCategory ? t.completedAt || new Date().toISOString() : undefined,
+                  subtasks: nextSubs,
+                };
+              }),
+            }
+      )
     );
 
     const targetProject = projects.find((item) => item.id === projId);
     const targetTask = targetProject?.tasks.find((item) => item.id === taskId);
 
-    if (status === 'done') {
+    if (isDoneCategory) {
       checkProjectCompletion(projId, taskId);
-      onTaskDone?.(true, targetTask ? { ...targetTask, status: 'done' } : undefined, targetProject);
+      onTaskDone?.(true, targetTask ? { ...targetTask, status } : undefined, targetProject);
     } else {
       onTaskDone?.(false, targetTask, targetProject);
     }
+  };
+
+  const changeSubtaskStatus = (
+    projId: string,
+    taskId: string,
+    subId: string,
+    status: string,
+    isDoneCategory: boolean = status === 'done'
+  ) => {
+    triggerHaptic();
+    setProjects((prev) =>
+      prev.map((p) => {
+        if (p.id !== projId) return p;
+        return {
+          ...p,
+          tasks: p.tasks.map((t) => {
+            if (t.id !== taskId) return t;
+            const updatedSubs = updateSubtaskStatusInTree(t.subtasks, subId, status, isDoneCategory);
+            const nextTaskStatus = determineTaskStatusFromSubtasks(
+              t.status === 'done' || isDoneCategory ? (t.status === 'done' ? 'done' : 'doing') : t.status,
+              updatedSubs
+            );
+            return {
+              ...t,
+              status: nextTaskStatus,
+              subtasks: updatedSubs,
+              completedAt: nextTaskStatus === 'done' ? t.completedAt || new Date().toISOString() : undefined,
+            };
+          }),
+        };
+      })
+    );
   };
 
   const handleDeleteTask = (projId: string, taskId: string) => {
@@ -272,6 +346,7 @@ export function useTaskCRUD({
     handleAddTask,
     toggleTaskDone,
     changeStatus,
+    changeSubtaskStatus,
     handleDeleteTask,
     handleEditTaskTitle,
     moveTask,

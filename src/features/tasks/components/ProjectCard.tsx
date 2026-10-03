@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { Plus } from 'lucide-react';
-import { Project, Task } from '../../../types';
+import { Project, Task, StatusDefinition } from '../../../types';
 import { TaskItem } from './TaskItem';
 import { ProjectCardHeader } from './ProjectCardHeader';
 
@@ -27,7 +27,11 @@ export interface ProjectCardProps {
   expandedTaskId: string | null;
   onToggleExpandTask: (id: string | null) => void;
   onToggleTaskDone: (projId: string, taskId: string, done: boolean) => void;
-  onChangeStatus: (projId: string, taskId: string, status: 'todo' | 'doing' | 'done') => void;
+  onChangeStatus: (projId: string, taskId: string, status: string, isDoneCategory?: boolean) => void;
+  statuses?: StatusDefinition[];
+  onAddCustomStatus?: (label: string, category: 'todo' | 'doing' | 'done', color: string) => StatusDefinition | null;
+  onDeleteCustomStatus?: (statusId: string) => void;
+  onChangeSubtaskStatus?: (projId: string, taskId: string, subId: string, status: string, isDoneCategory?: boolean) => void;
   activeMenuTaskId: string | null;
   onSetActiveMenuTaskId: (id: string | null) => void;
   onCopyTask: (title: string) => void;
@@ -98,6 +102,10 @@ export function ProjectCard({
   onToggleExpandTask,
   onToggleTaskDone,
   onChangeStatus,
+  statuses = [],
+  onAddCustomStatus = () => null,
+  onDeleteCustomStatus = () => {},
+  onChangeSubtaskStatus,
   activeMenuTaskId,
   onSetActiveMenuTaskId,
   onCopyTask,
@@ -197,6 +205,10 @@ export function ProjectCard({
                   onToggleExpandTask={onToggleExpandTask}
                   onToggleTaskDone={onToggleTaskDone}
                   onChangeStatus={onChangeStatus}
+                  statuses={statuses}
+                  onAddCustomStatus={onAddCustomStatus}
+                  onDeleteCustomStatus={onDeleteCustomStatus}
+                  onChangeSubtaskStatus={onChangeSubtaskStatus}
                   activeMenuTaskId={activeMenuTaskId}
                   onSetActiveMenuTaskId={onSetActiveMenuTaskId}
                   onCopyTask={onCopyTask}

@@ -6,6 +6,7 @@ export const MUTED_KEY = 'SOLO_MUTED_V1';
 export const REMINDER_KEY = 'SOLO_REMINDER_V1';
 export const ACTIVITY_KEY = 'SOLO_CHECKLIST_ACTIVITY_LOG_V1';
 export const COMPLETED_LOGS_KEY = 'SOLO_COMPLETED_LOGS_V2';
+export const APP_VERSION = '1.0.4';
 
 export const INITIAL_PROJECTS: Project[] = [
   {

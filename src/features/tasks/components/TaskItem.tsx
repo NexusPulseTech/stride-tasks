@@ -22,6 +22,7 @@ export function TaskItem({
   onDragStart, onDragOver, onDrop, onDragEnd,
   expandedTaskId, onToggleExpandTask,
   onToggleTaskDone, onChangeStatus,
+  statuses, onAddCustomStatus, onDeleteCustomStatus, onChangeSubtaskStatus,
   activeMenuTaskId, onSetActiveMenuTaskId,
   onCopyTask, onTogglePinTask, onOpenAddSubtask,
   onMoveTask, onDeleteTask,
@@ -232,11 +233,32 @@ export function TaskItem({
           </div>
         </div>
 
-        {/* Nút trạng thái (Chờ / Làm / Xong) - Chuẩn phong cách Linear */}
+        {/* Nút thêm nhanh việc con & Nút trạng thái & Menu */}
         <div className="shrink-0 flex items-center gap-1 flex-nowrap">
+          {/* Nút thêm nhanh việc con trực tiếp - Không cần vào 3 chấm */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenAddSubtask(task.id);
+            }}
+            className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer shrink-0 transition-colors"
+            title="Thêm nhanh việc con (+)"
+            aria-label="Thêm việc con"
+          >
+            <Plus className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+          </button>
+
           <TaskStatusButton
             status={task.status}
-            onChangeStatus={(next) => onChangeStatus(projectId, task.id, next)}
+            statuses={statuses}
+            onChangeStatus={(next) => {
+              const def = statuses.find((s) => s.id === next);
+              const isDoneCat = def?.category === 'done' || next === 'done';
+              onChangeStatus(projectId, task.id, next, isDoneCat);
+            }}
+            onAddCustomStatus={onAddCustomStatus}
+            onDeleteCustomStatus={onDeleteCustomStatus}
           />
 
           {/* Menu tùy chọn (···) */}
@@ -289,6 +311,10 @@ export function TaskItem({
             newSubTaskTitle={newSubTaskTitle} onNewSubTaskTitleChange={onNewSubTaskTitleChange}
             onAddSubTask={onAddSubTask} onCloseInput={onCloseSubtaskInput} onEditSubtaskTitle={onEditSubtaskTitle}
             onReorderSubtask={onReorderSubtask}
+            statuses={statuses}
+            onAddCustomStatus={onAddCustomStatus}
+            onDeleteCustomStatus={onDeleteCustomStatus}
+            onChangeSubtaskStatus={onChangeSubtaskStatus}
           />
         </div>
       )}

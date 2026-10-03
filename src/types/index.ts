@@ -1,14 +1,23 @@
+export interface StatusDefinition {
+  id: string;
+  label: string;
+  category: 'todo' | 'doing' | 'done';
+  color: string;
+  isCustom?: boolean;
+}
+
 export interface SubTask {
   id: string;
   title: string;
   completed: boolean;
+  status?: string;
   subtasks?: SubTask[]; // Đệ quy: Cho phép subtask chứa N tầng subtask con bên trong
 }
 
 export interface Task {
   id: string;
   title: string;
-  status: 'todo' | 'doing' | 'done';
+  status: string;
   deadline?: string;
   notes?: string;
   subtasks: SubTask[];

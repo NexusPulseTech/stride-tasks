@@ -1,5 +1,5 @@
 import React from 'react';
-import { Task } from '../../types';
+import { Task, StatusDefinition } from '../../types';
 
 export interface TaskItemProps {
   projectId: string;
@@ -16,7 +16,11 @@ export interface TaskItemProps {
   expandedTaskId: string | null;
   onToggleExpandTask: (id: string | null) => void;
   onToggleTaskDone: (projId: string, taskId: string, done: boolean) => void;
-  onChangeStatus: (projId: string, taskId: string, status: 'todo' | 'doing' | 'done') => void;
+  onChangeStatus: (projId: string, taskId: string, status: string, isDoneCategory?: boolean) => void;
+  statuses: StatusDefinition[];
+  onAddCustomStatus: (label: string, category: 'todo' | 'doing' | 'done', color: string) => StatusDefinition | null;
+  onDeleteCustomStatus: (statusId: string) => void;
+  onChangeSubtaskStatus?: (projId: string, taskId: string, subId: string, status: string, isDoneCategory?: boolean) => void;
   activeMenuTaskId: string | null;
   onSetActiveMenuTaskId: (id: string | null) => void;
   onCopyTask: (title: string) => void;

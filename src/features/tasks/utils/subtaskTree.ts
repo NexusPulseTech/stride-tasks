@@ -228,12 +228,13 @@ export function deleteNestedSubtask(
 
 /**
  * Xác định trạng thái tự động của Task gốc dựa trên cây subtasks
- * (Linear / ClickUp Best Practice)
+ * (Linear / ClickUp Best Practice: Tự động hoàn thành khi 100% con xong,
+ * thoát khỏi done khi có con chưa xong, và giữ nguyên trạng thái đặc thù như review/blocked/custom)
  */
 export function determineTaskStatusFromSubtasks(
-  currentStatus: 'todo' | 'doing' | 'done',
+  currentStatus: string,
   subtasks: SubTask[]
-): 'todo' | 'doing' | 'done' {
+): string {
   if (!subtasks || subtasks.length === 0) {
     return currentStatus;
   }
@@ -254,17 +255,17 @@ export function determineTaskStatusFromSubtasks(
     return 'done';
   }
 
-  // Nếu có ít nhất 1 bước hoàn thành nhưng chưa xong hết:
-  if (doneLeafs > 0) {
+  // Nếu trước đó đang là 'done' và giờ có bước chưa xong:
+  if (currentStatus === 'done') {
+    return doneLeafs > 0 ? 'doing' : 'todo';
+  }
+
+  // Nếu đang là 'todo' nhưng đã có ít nhất 1 việc con hoàn thành:
+  if (currentStatus === 'todo' && doneLeafs > 0) {
     return 'doing';
   }
 
-  // Nếu không có bước nào hoàn thành:
-  // Nếu trước đó đang là 'done', bắt buộc chuyển về 'todo' hoặc 'doing'
-  if (currentStatus === 'done') {
-    return 'todo';
-  }
-
+  // Giữ nguyên trạng thái hiện tại (bao gồm review, blocked, testing, paused, custom)
   return currentStatus;
 }
 
@@ -284,6 +285,39 @@ export function updateSubtaskTitleInTree(
       return {
         ...item,
         subtasks: updateSubtaskTitleInTree(item.subtasks, subId, newTitle),
+      };
+    }
+    return item;
+  });
+}
+/**
+ * Cập nhật trạng thái của một bước con (Subtask) ở bất kỳ tầng đệ quy nào (bậc 1, bậc 2, bậc 3...)
+ */
+export function updateSubtaskStatusInTree(
+  subtasks: SubTask[],
+  subId: string,
+  newStatus: string,
+  isDoneCategory: boolean
+): SubTask[] {
+  return subtasks.map((item) => {
+    if (item.id === subId) {
+      const updatedItem = {
+        ...item,
+        status: newStatus,
+        completed: isDoneCategory,
+      };
+      if (isDoneCategory && item.subtasks) {
+        return cascadeSubtaskCompleted(updatedItem, true);
+      }
+      return updatedItem;
+    }
+    if (item.subtasks && item.subtasks.length > 0) {
+      const updatedChildren = updateSubtaskStatusInTree(item.subtasks, subId, newStatus, isDoneCategory);
+      const allDone = updatedChildren.length > 0 && updatedChildren.every((c) => c.completed);
+      return {
+        ...item,
+        completed: allDone,
+        subtasks: updatedChildren,
       };
     }
     return item;

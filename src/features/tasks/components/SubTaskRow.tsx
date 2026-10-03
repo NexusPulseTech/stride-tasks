@@ -1,10 +1,11 @@
 import React, { useRef, useState } from 'react';
 import { Check, ChevronRight, Plus, MoreHorizontal, GripVertical } from 'lucide-react';
-import { SubTask } from '../../../types';
+import { SubTask, StatusDefinition } from '../../../types';
 import { FormattedTaskText } from '../utils/formatters';
 import { countLeafSubtasks } from '../utils/subtaskTree';
 import { SubTaskInlineForm } from './SubTaskInlineForm';
 import { SubTaskMoreMenu } from './SubTaskMoreMenu';
+import { TaskStatusButton } from './TaskStatusButton';
 
 export interface SubTaskRowProps {
   sub: SubTask; depth: number; projectId: string; taskId: string;
@@ -17,6 +18,10 @@ export interface SubTaskRowProps {
   onSetAddingChildToSubId: (subId: string | null) => void;
   filterMode: 'active' | 'all' | 'completed';
   onEditSubtaskTitle?: (projId: string, taskId: string, subId: string, newTitle: string) => void;
+  statuses?: StatusDefinition[];
+  onAddCustomStatus?: (label: string, category: 'todo' | 'doing' | 'done', color: string) => StatusDefinition | null;
+  onDeleteCustomStatus?: (statusId: string) => void;
+  onChangeSubtaskStatus?: (projId: string, taskId: string, subId: string, status: string, isDoneCategory: boolean) => void;
   isDragging?: boolean; isOver?: boolean; dragOverPosition?: 'top' | 'bottom' | null;
   onSubDragStart?: (e: React.DragEvent, subId: string) => void;
   onSubDragOver?: (e: React.DragEvent, subId: string) => void;
@@ -32,6 +37,10 @@ export function SubTaskRow({
   expandedNodes, onToggleExpandNode,
   addingChildToSubId, onSetAddingChildToSubId,
   filterMode, onEditSubtaskTitle,
+  statuses = [],
+  onAddCustomStatus = () => null,
+  onDeleteCustomStatus = () => {},
+  onChangeSubtaskStatus,
   isDragging = false, isOver = false, dragOverPosition = null,
   onSubDragStart, onSubDragOver, onSubDrop, onSubDragEnd,
   draggedSubId = null, dragOverSub = null,
@@ -182,18 +191,35 @@ export function SubTaskRow({
           </span>
         )}
 
-        <div className="flex items-center gap-0.5 shrink-0 opacity-80 sm:opacity-0 group-hover/sub:opacity-100 transition-opacity">
+        {/* Status Button cho việc con ở MỌI CẤP ĐỘ (Level 1, Level 2, Level 3+) */}
+        <div className="shrink-0 flex items-center">
+          <TaskStatusButton
+            status={sub.status || (sub.completed ? 'done' : 'todo')}
+            statuses={statuses}
+            onChangeStatus={(nextStatus) => {
+              const def = statuses.find((s) => s.id === nextStatus);
+              const isDoneCat = def?.category === 'done' || nextStatus === 'done';
+              onChangeSubtaskStatus?.(projectId, taskId, sub.id, nextStatus, isDoneCat);
+            }}
+            onAddCustomStatus={onAddCustomStatus}
+            onDeleteCustomStatus={onDeleteCustomStatus}
+            size="sm"
+          />
+        </div>
+
+        <div className="flex items-center gap-0.5 shrink-0">
           <button
             type="button"
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               onSetAddingChildToSubId(isAddingChild ? null : sub.id);
               if (!isAddingChild) onToggleExpandNode(sub.id, true);
             }}
-            className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-200/70 dark:hover:bg-slate-700 rounded cursor-pointer shrink-0 transition-colors"
-            title="Thêm việc con cho mục này"
+            className="p-1 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-200/70 dark:hover:bg-slate-700 rounded cursor-pointer shrink-0 transition-colors"
+            title="Thêm nhanh việc con (+)"
             aria-label="Thêm việc con"
           >
-            <Plus className="w-3 h-3 shrink-0" strokeWidth={2} aria-hidden="true" />
+            <Plus className="w-3.5 h-3.5 shrink-0" strokeWidth={2} aria-hidden="true" />
           </button>
 
           <button
@@ -261,6 +287,10 @@ export function SubTaskRow({
               onToggleExpandNode={onToggleExpandNode} addingChildToSubId={addingChildToSubId}
               onSetAddingChildToSubId={onSetAddingChildToSubId} filterMode={filterMode}
               onEditSubtaskTitle={onEditSubtaskTitle}
+              statuses={statuses}
+              onAddCustomStatus={onAddCustomStatus}
+              onDeleteCustomStatus={onDeleteCustomStatus}
+              onChangeSubtaskStatus={onChangeSubtaskStatus}
               isDragging={draggedSubId === child.id}
               isOver={dragOverSub?.subId === child.id}
               dragOverPosition={dragOverSub?.subId === child.id ? dragOverSub.position : null}

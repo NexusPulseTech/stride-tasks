@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
-import { Task } from '../../../types';
+import { Task, StatusDefinition } from '../../../types';
 import { countLeafSubtasks } from '../utils/subtaskTree';
 import { SubTaskRow } from './SubTaskRow';
 
@@ -17,6 +17,10 @@ export interface SubtaskListProps {
   onToggleExpandedSubTaskId: (id: string | null) => void;
   onToggleSubTask: (projId: string, taskId: string, subId: string, completed: boolean) => void;
   onDeleteSubTask: (projId: string, taskId: string, subId: string) => void;
+  statuses?: StatusDefinition[];
+  onAddCustomStatus?: (label: string, category: 'todo' | 'doing' | 'done', color: string) => StatusDefinition | null;
+  onDeleteCustomStatus?: (statusId: string) => void;
+  onChangeSubtaskStatus?: (projId: string, taskId: string, subId: string, status: string, isDoneCategory: boolean) => void;
   isInputActive: boolean;
   newSubTaskTitle: string;
   onNewSubTaskTitleChange: (val: string) => void;
@@ -49,6 +53,10 @@ export function SubtaskList({
   onFilterModeChange,
   onToggleSubTask,
   onDeleteSubTask,
+  statuses = [],
+  onAddCustomStatus = () => null,
+  onDeleteCustomStatus = () => {},
+  onChangeSubtaskStatus,
   isInputActive,
   newSubTaskTitle,
   onNewSubTaskTitleChange,
@@ -204,6 +212,10 @@ export function SubtaskList({
             onSetAddingChildToSubId={setAddingChildToSubId}
             filterMode={filterMode}
             onEditSubtaskTitle={onEditSubtaskTitle}
+            statuses={statuses}
+            onAddCustomStatus={onAddCustomStatus}
+            onDeleteCustomStatus={onDeleteCustomStatus}
+            onChangeSubtaskStatus={onChangeSubtaskStatus}
             isDragging={draggedSubId === sub.id}
             isOver={dragOverSub?.subId === sub.id}
             dragOverPosition={dragOverSub?.subId === sub.id ? dragOverSub.position : null}

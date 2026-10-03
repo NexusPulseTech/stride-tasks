@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Project, Task, FilterType, MobileGuideTab, ConfirmDialogState } from '../../../types';
 import { INITIAL_PROJECTS } from '../../../constants';
 import { triggerHaptic, playChime } from '../../../utils';
@@ -6,9 +6,10 @@ import { parsePastedTasks } from '../utils/batchParser';
 import { matchTaskDeep } from '../utils/searchHelper';
 import { useCelebrationAndStreak } from './useCelebrationAndStreak';
 import { useSmartReminder } from './useSmartReminder';
-import { useTaskCRUD } from './useTaskCRUD';
+import { useTaskCRUD, STRIDE_AUTO_BACKUP_KEY } from './useTaskCRUD';
 import { useSubtaskOperations } from './useSubtaskOperations';
 import { useTaskDnd } from './useTaskDnd';
+import { useStatusManager } from './useStatusManager';
 import { useActivityLog } from '../../analytics';
 
 export function useTaskManager() {
@@ -35,11 +36,26 @@ export function useTaskManager() {
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showViewSettingsModal, setShowViewSettingsModal] = useState(false);
 
+  // Auto-backup data state
+  const [autoBackupData, setAutoBackupData] = useState<{
+    timestamp: string;
+    projectCount: number;
+    taskCount: number;
+    projects: Project[];
+  } | null>(() => {
+    try {
+      const saved = localStorage.getItem(STRIDE_AUTO_BACKUP_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return null;
+  });
+
   const desktopSearchRef = useRef<HTMLInputElement | null>(null);
   const mobileSearchRef = useRef<HTMLInputElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Composed Sub-Hooks
+  const statusManager = useStatusManager();
   const activity = useActivityLog();
   const celebration = useCelebrationAndStreak([]);
   const crud = useTaskCRUD({
@@ -58,6 +74,22 @@ export function useTaskManager() {
       }
     },
   });
+
+  // Refresh auto-backup whenever modal or projects change
+  const refreshAutoBackup = useCallback(() => {
+    try {
+      const saved = localStorage.getItem(STRIDE_AUTO_BACKUP_KEY);
+      if (saved) {
+        setAutoBackupData(JSON.parse(saved));
+      } else {
+        setAutoBackupData(null);
+      }
+    } catch (e) {}
+  }, []);
+
+  useEffect(() => {
+    refreshAutoBackup();
+  }, [crud.projects, refreshAutoBackup]);
 
   // Smart Reminder kết nối trực tiếp với crud.projects
   const reminder = useSmartReminder({
@@ -104,7 +136,11 @@ export function useTaskManager() {
       subtasks: [],
     }));
     crud.setProjects((prev) =>
-      prev.map((p) => p.id === batchPasteProject.id ? { ...p, isExpanded: true, tasks: [...p.tasks, ...newTasks] } : p)
+      prev.map((p) =>
+        p.id === batchPasteProject.id
+          ? { ...p, isExpanded: true, tasks: [...p.tasks, ...newTasks] }
+          : p
+      )
     );
     celebration.showToast(`Đã thêm ${lines.length} công việc vào "${batchPasteProject.name}"!`);
     setBatchPasteProject(null);
@@ -115,7 +151,8 @@ export function useTaskManager() {
     e.preventDefault();
     const raw = mobileTaskTitle.trim();
     if (!raw) return;
-    const targetProjId = mobileSelectedProjId || (crud.projects.length > 0 ? crud.projects[0].id : '');
+    const targetProjId =
+      mobileSelectedProjId || (crud.projects.length > 0 ? crud.projects[0].id : '');
     if (!targetProjId) return;
 
     triggerHaptic();
@@ -129,13 +166,25 @@ export function useTaskManager() {
         subtasks: [],
       }));
       crud.setProjects((prev) =>
-        prev.map((p) => p.id === targetProjId ? { ...p, isExpanded: true, tasks: [...p.tasks, ...newTasks] } : p)
+        prev.map((p) =>
+          p.id === targetProjId
+            ? { ...p, isExpanded: true, tasks: [...p.tasks, ...newTasks] }
+            : p
+        )
       );
       celebration.showToast(`Đã tạo ${lines.length} việc mới!`);
     } else {
-      const newTask: Task = { id: 't_' + Date.now(), title: raw, status: 'todo', isPinned: mobileTaskPinned, subtasks: [] };
+      const newTask: Task = {
+        id: 't_' + Date.now(),
+        title: raw,
+        status: 'todo',
+        isPinned: mobileTaskPinned,
+        subtasks: [],
+      };
       crud.setProjects((prev) =>
-        prev.map((p) => p.id === targetProjId ? { ...p, isExpanded: true, tasks: [...p.tasks, newTask] } : p)
+        prev.map((p) =>
+          p.id === targetProjId ? { ...p, isExpanded: true, tasks: [...p.tasks, newTask] } : p
+        )
       );
       celebration.showToast('Đã thêm công việc!');
     }
@@ -144,18 +193,63 @@ export function useTaskManager() {
     setShowMobileAddModal(false);
   };
 
+  // 1. Khôi phục dữ liệu mẫu ban đầu (Luôn Confirm)
   const resetSample = () => {
     setConfirmDialog({
       isOpen: true,
       title: 'Khôi phục dữ liệu mẫu ban đầu?',
-      message: 'Thao tác này sẽ thiết lập lại các danh mục dự án và công việc về trạng thái mẫu ban đầu.',
-      confirmText: 'Khôi phục',
+      message:
+        'Thao tác này sẽ thiết lập lại các danh mục dự án và công việc về trạng thái mẫu ban đầu. Toàn bộ công việc bạn đã tạo thêm sẽ bị thay thế. Hãy nhớ tải bản sao lưu .JSON trước nếu cần!',
+      confirmText: 'Khôi phục mẫu',
+      cancelText: 'Hủy',
+      isDestructive: true,
+      onConfirm: () => {
+        crud.setProjects(JSON.parse(JSON.stringify(INITIAL_PROJECTS)));
+        celebration.showToast('Đã khôi phục dữ liệu mẫu thành công!');
+        setConfirmDialog(null);
+        setShowBackupModal(false);
+      },
+    });
+  };
+
+  // 2. Khôi phục từ bản tự động sao lưu của User (Luôn Confirm)
+  const restoreAutoBackup = () => {
+    if (!autoBackupData || !autoBackupData.projects || autoBackupData.projects.length === 0) {
+      celebration.showToast('Chưa có bản sao lưu tự động nào!');
+      return;
+    }
+    const formattedDate = new Date(autoBackupData.timestamp).toLocaleString('vi-VN');
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Khôi phục từ bản tự động sao lưu?',
+      message: `Hệ thống sẽ khôi phục dữ liệu đã tự động lưu lúc ${formattedDate} (${autoBackupData.projectCount} danh mục, ${autoBackupData.taskCount} công việc). Dữ liệu hiện tại sẽ được thay thế bằng bản sao lưu này. Bạn có muốn tiếp tục?`,
+      confirmText: 'Khôi phục bản này',
       cancelText: 'Hủy',
       isDestructive: false,
       onConfirm: () => {
-        crud.setProjects(JSON.parse(JSON.stringify(INITIAL_PROJECTS)));
-        celebration.showToast('Đã khôi phục dữ liệu mẫu!');
+        crud.setProjects(autoBackupData.projects);
+        celebration.showToast('Đã khôi phục dữ liệu từ bản tự động thành công!');
         setConfirmDialog(null);
+        setShowBackupModal(false);
+      },
+    });
+  };
+
+  // 3. Xóa toàn bộ dữ liệu (Luôn Confirm)
+  const clearAllData = () => {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Xóa toàn bộ dự án và công việc?',
+      message:
+        'Thao tác này sẽ xóa sạch tất cả danh mục và công việc hiện có, đưa ứng dụng về trang làm việc trống hoàn toàn. Bạn có chắc chắn muốn xóa?',
+      confirmText: 'Xóa tất cả',
+      cancelText: 'Hủy',
+      isDestructive: true,
+      onConfirm: () => {
+        crud.setProjects([]);
+        celebration.showToast('Đã xóa toàn bộ dữ liệu!');
+        setConfirmDialog(null);
+        setShowBackupModal(false);
       },
     });
   };
@@ -176,12 +270,13 @@ export function useTaskManager() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `cong-viec-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `stride-tasks-backup-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    celebration.showToast('Đã xuất file sao lưu!');
+    celebration.showToast('Đã xuất file sao lưu .JSON!');
   };
 
+  // 4. Nhập file JSON sao lưu (Luôn Confirm trước khi đè dữ liệu)
   const importDataJson = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -190,11 +285,23 @@ export function useTaskManager() {
       try {
         const parsed = JSON.parse(event.target?.result as string);
         if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].tasks) {
-          crud.setProjects(parsed);
-          celebration.showToast('Đã khôi phục dữ liệu thành công!');
-          setShowBackupModal(false);
+          const taskCount = parsed.reduce((acc, p) => acc + (p.tasks ? p.tasks.length : 0), 0);
+          setConfirmDialog({
+            isOpen: true,
+            title: 'Khôi phục dữ liệu từ tệp sao lưu JSON?',
+            message: `Tệp sao lưu chứa ${parsed.length} dự án và ${taskCount} công việc. Thao tác này sẽ thay thế dữ liệu hiện tại bằng dữ liệu trong tệp sao lưu. Bạn có muốn tiếp tục?`,
+            confirmText: 'Khôi phục tệp này',
+            cancelText: 'Hủy',
+            isDestructive: true,
+            onConfirm: () => {
+              crud.setProjects(parsed);
+              celebration.showToast('Đã khôi phục dữ liệu thành công!');
+              setConfirmDialog(null);
+              setShowBackupModal(false);
+            },
+          });
         } else {
-          celebration.showToast('File JSON không hợp lệ!');
+          celebration.showToast('File JSON không hợp lệ hoặc sai định dạng!');
         }
       } catch (err) {
         celebration.showToast('Lỗi đọc file JSON!');
@@ -202,6 +309,30 @@ export function useTaskManager() {
     };
     reader.readAsText(file);
     e.target.value = '';
+  };
+
+  // 5. Xóa dự án (Confirm nếu dự án có công việc bên trong)
+  const handleDeleteProject = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const projToDelete = crud.projects.find((p) => p.id === id);
+    if (!projToDelete) return;
+
+    if (projToDelete.tasks && projToDelete.tasks.length > 0) {
+      setConfirmDialog({
+        isOpen: true,
+        title: `Xóa dự án "${projToDelete.name}"?`,
+        message: `Dự án này đang có ${projToDelete.tasks.length} công việc bên trong. Thao tác xóa sẽ loại bỏ toàn bộ các công việc này. Bạn có chắc chắn muốn xóa không?`,
+        confirmText: 'Xóa dự án',
+        cancelText: 'Hủy',
+        isDestructive: true,
+        onConfirm: () => {
+          crud.handleDeleteProject(id, e);
+          setConfirmDialog(null);
+        },
+      });
+    } else {
+      crud.handleDeleteProject(id, e);
+    }
   };
 
   let totalTasks = 0;
@@ -252,6 +383,18 @@ export function useTaskManager() {
     ...celebration,
     ...activity,
     reminder,
+    // Status management
+    statuses: statusManager.statuses,
+    addCustomStatus: statusManager.addCustomStatus,
+    deleteCustomStatus: statusManager.deleteCustomStatus,
+    getStatus: statusManager.getStatus,
+    // Auto backup & confirmations
+    autoBackupData,
+    refreshAutoBackup,
+    restoreAutoBackup,
+    clearAllData,
+    handleDeleteProject,
+    // Modals & UI
     showViewSettingsModal,
     setShowViewSettingsModal,
     showStats,

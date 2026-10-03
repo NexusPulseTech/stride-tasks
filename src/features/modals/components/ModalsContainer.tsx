@@ -39,6 +39,14 @@ export interface ModalsContainerProps {
   onExportBackup: () => void;
   onTriggerImportBackup: () => void;
   onResetSampleBackup: () => void;
+  autoBackupData?: {
+    timestamp: string;
+    projectCount: number;
+    taskCount: number;
+    projects: Project[];
+  } | null;
+  onRestoreAutoBackup?: () => void;
+  onClearAllData?: () => void;
   showFeedbackModal: boolean;
   onCloseFeedbackModal: () => void;
   showViewSettingsModal: boolean;
@@ -80,6 +88,9 @@ export function ModalsContainer({
   onExportBackup,
   onTriggerImportBackup,
   onResetSampleBackup,
+  autoBackupData,
+  onRestoreAutoBackup,
+  onClearAllData,
   showFeedbackModal,
   onCloseFeedbackModal,
   showViewSettingsModal,
@@ -131,6 +142,9 @@ export function ModalsContainer({
         onExport={onExportBackup}
         onTriggerImport={onTriggerImportBackup}
         onResetSample={onResetSampleBackup}
+        autoBackupData={autoBackupData}
+        onRestoreAutoBackup={onRestoreAutoBackup}
+        onClearAllData={onClearAllData}
       />
 
       <FeedbackModal

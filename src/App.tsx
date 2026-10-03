@@ -200,6 +200,10 @@ export default function App() {
                   onToggleExpandTask={manager.setExpandedTaskId}
                   onToggleTaskDone={manager.toggleTaskDone}
                   onChangeStatus={manager.changeStatus}
+                  statuses={manager.statuses}
+                  onAddCustomStatus={manager.addCustomStatus}
+                  onDeleteCustomStatus={manager.deleteCustomStatus}
+                  onChangeSubtaskStatus={manager.changeSubtaskStatus}
                   activeMenuTaskId={manager.activeMenuTaskId}
                   onSetActiveMenuTaskId={manager.setActiveMenuTaskId}
                   onCopyTask={manager.copyTaskToClipboard}
@@ -288,6 +292,9 @@ export default function App() {
         onExportBackup={manager.exportDataJson}
         onTriggerImportBackup={() => manager.fileInputRef.current?.click()}
         onResetSampleBackup={manager.resetSample}
+        autoBackupData={manager.autoBackupData}
+        onRestoreAutoBackup={manager.restoreAutoBackup}
+        onClearAllData={manager.clearAllData}
         showFeedbackModal={manager.showFeedbackModal}
         onCloseFeedbackModal={() => manager.setShowFeedbackModal(false)}
         showViewSettingsModal={manager.showViewSettingsModal}
