@@ -6,7 +6,8 @@ export { PinnedSection } from './components/PinnedSection';
 export { ActionBar } from './components/ActionBar';
 export { ReminderBanner } from './components/ReminderBanner';
 export { useTaskManager } from './hooks/useTaskManager';
-export { parsePastedTasks } from './utils/batchParser';
+export { parsePastedTasks, parsePastedHierarchy, parsePastedSubtasks } from './utils/batchParser';
+export { getStatusCategory, isDoingStatus, isDoneStatus, countSubtaskLeaves } from './utils/statusCategory';
 export { FormattedTaskText, formatSubtasksToMarkdown } from './utils/formatters';
 export { matchTaskDeep, matchSubtaskRecursive } from './utils/searchHelper';
 export {

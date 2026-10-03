@@ -1,11 +1,12 @@
 import React, { useRef, useState } from 'react';
-import { Check, ChevronRight, Plus, MoreHorizontal, GripVertical } from 'lucide-react';
+import { Check, ChevronRight, Plus, MoreHorizontal, GripVertical, ClipboardPaste } from 'lucide-react';
 import { SubTask, StatusDefinition } from '../../../types';
 import { FormattedTaskText } from '../utils/formatters';
-import { countLeafSubtasks } from '../utils/subtaskTree';
+import { countSubtaskLeaves } from '../utils/statusCategory';
 import { SubTaskInlineForm } from './SubTaskInlineForm';
 import { SubTaskMoreMenu } from './SubTaskMoreMenu';
 import { TaskStatusButton } from './TaskStatusButton';
+import { isDoneStatus } from '../utils/statusCategory';
 
 export interface SubTaskRowProps {
   sub: SubTask; depth: number; projectId: string; taskId: string;
@@ -22,6 +23,7 @@ export interface SubTaskRowProps {
   onAddCustomStatus?: (label: string, category: 'todo' | 'doing' | 'done', color: string) => StatusDefinition | null;
   onDeleteCustomStatus?: (statusId: string) => void;
   onChangeSubtaskStatus?: (projId: string, taskId: string, subId: string, status: string, isDoneCategory: boolean) => void;
+  onOpenBatchPasteForTask?: (projId: string, taskId: string, parentSubId?: string | null, targetTitle?: string) => void;
   isDragging?: boolean; isOver?: boolean; dragOverPosition?: 'top' | 'bottom' | null;
   onSubDragStart?: (e: React.DragEvent, subId: string) => void;
   onSubDragOver?: (e: React.DragEvent, subId: string) => void;
@@ -41,6 +43,7 @@ export function SubTaskRow({
   onAddCustomStatus = () => null,
   onDeleteCustomStatus = () => {},
   onChangeSubtaskStatus,
+  onOpenBatchPasteForTask,
   isDragging = false, isOver = false, dragOverPosition = null,
   onSubDragStart, onSubDragOver, onSubDrop, onSubDragEnd,
   draggedSubId = null, dragOverSub = null,
@@ -53,8 +56,25 @@ export function SubTaskRow({
 
   const hasChildren = !!(sub.subtasks && sub.subtasks.length > 0);
   const isNodeExpanded = expandedNodes[sub.id] ?? true;
-  const leafStats = countLeafSubtasks(sub);
+  const leafStats = countSubtaskLeaves(sub, statuses);
   const isAddingChild = addingChildToSubId === sub.id;
+  const isSubDone = sub.completed || (sub.status ? isDoneStatus(sub.status, statuses) : false);
+
+  const handleQuickPaste = async () => {
+    try {
+      if (navigator.clipboard?.readText) {
+        const clipboardText = await navigator.clipboard.readText();
+        if (clipboardText.trim()) {
+          onAddSubTask(projectId, taskId, clipboardText, sub.id);
+          onToggleExpandNode(sub.id, true);
+          return;
+        }
+      }
+    } catch (error) {
+      // Clipboard access may be unavailable outside a secure user gesture.
+    }
+    onOpenBatchPasteForTask?.(projectId, taskId, sub.id, sub.title);
+  };
 
   const handleAddChildSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,8 +93,8 @@ export function SubTaskRow({
     setIsEditing(false);
   };
 
-  if (filterMode === 'completed' && !sub.completed && (!hasChildren || leafStats.completed === 0)) return null;
-  if (filterMode === 'active' && sub.completed && (!hasChildren || leafStats.completed === leafStats.total)) return null;
+  if (filterMode === 'completed' && !isSubDone && (!hasChildren || leafStats.completed === 0)) return null;
+  if (filterMode === 'active' && isSubDone && (!hasChildren || leafStats.completed === leafStats.total)) return null;
 
   return (
     <div data-subtask-row="true" className="space-y-0.5">
@@ -125,19 +145,19 @@ export function SubTaskRow({
 
         <button
           type="button"
-          onClick={() => onToggleSubTask(projectId, taskId, sub.id, !sub.completed)}
+          onClick={() => onToggleSubTask(projectId, taskId, sub.id, !isSubDone)}
           className="shrink-0 cursor-pointer p-0.5 -m-0.5 rounded-full"
-          title={sub.completed ? 'Đánh dấu chưa xong' : 'Đánh dấu đã xong'}
-          aria-label={sub.completed ? 'Đánh dấu chưa xong' : 'Đánh dấu đã xong'}
+          title={isSubDone ? 'Đánh dấu chưa xong' : 'Đánh dấu đã xong'}
+          aria-label={isSubDone ? 'Đánh dấu chưa xong' : 'Đánh dấu đã xong'}
         >
           <div
             className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center transition-colors ${
-              sub.completed
+              isSubDone
                 ? 'bg-[#34c759] border-[#34c759] text-white'
                 : 'border-slate-300 dark:border-slate-600 hover:border-slate-500 dark:hover:border-slate-400 bg-white dark:bg-[#161b22]'
             }`}
           >
-            {sub.completed && <Check className="w-2 h-2 shrink-0 stroke-[2.5]" aria-hidden="true" />}
+            {isSubDone && <Check className="w-2 h-2 shrink-0 stroke-[2.5]" aria-hidden="true" />}
           </div>
         </button>
 
@@ -165,11 +185,11 @@ export function SubTaskRow({
                 setIsEditing(true);
               }}
               className={`text-[12px] leading-tight cursor-text select-text font-normal truncate hover:text-slate-900 dark:hover:text-white transition-colors ${
-                sub.completed ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-200'
+                isSubDone ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-200'
               }`}
               title="Chạm hoặc nhấp chuột để sửa tên việc con"
             >
-              <FormattedTaskText text={sub.title} isDone={sub.completed} />
+              <FormattedTaskText text={sub.title} isDone={isSubDone} />
             </div>
           )}
         </div>
@@ -194,7 +214,7 @@ export function SubTaskRow({
         {/* Status Button cho việc con ở MỌI CẤP ĐỘ (Level 1, Level 2, Level 3+) */}
         <div className="shrink-0 flex items-center">
           <TaskStatusButton
-            status={sub.status || (sub.completed ? 'done' : 'todo')}
+            status={sub.completed ? 'done' : sub.status || 'todo'}
             statuses={statuses}
             onChangeStatus={(nextStatus) => {
               const def = statuses.find((s) => s.id === nextStatus);
@@ -223,6 +243,16 @@ export function SubTaskRow({
           </button>
 
           <button
+            type="button"
+            onClick={handleQuickPaste}
+            className="p-1 text-slate-400 hover:text-slate-800 dark:text-slate-500 dark:hover:text-slate-100 hover:bg-slate-200/70 dark:hover:bg-slate-700 rounded cursor-pointer shrink-0 transition-colors"
+            title={`Dán nhanh việc con vào "${sub.title}"`}
+            aria-label="Dán nhanh việc con"
+          >
+            <ClipboardPaste className="w-3 h-3" />
+          </button>
+
+          <button
             ref={subMenuButtonRef}
             type="button"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -242,6 +272,7 @@ export function SubTaskRow({
               onToggleExpandNode(sub.id, true);
               setIsMenuOpen(false);
             }}
+            onBatchPasteChild={handleQuickPaste}
             onStartEditTitle={() => {
               setEditTitle(sub.title);
               setIsEditing(true);
@@ -273,6 +304,17 @@ export function SubTaskRow({
             onSetAddingChildToSubId(null);
             setInlineTitle('');
           }}
+          onPaste={(e) => {
+            const text = e.clipboardData.getData('text');
+            if (text.includes('\n')) {
+              e.preventDefault();
+              onAddSubTask(projectId, taskId, text, sub.id);
+              setInlineTitle('');
+              onSetAddingChildToSubId(null);
+              onToggleExpandNode(sub.id, true);
+            }
+          }}
+          onQuickPaste={handleQuickPaste}
         />
       )}
 
@@ -291,6 +333,7 @@ export function SubTaskRow({
               onAddCustomStatus={onAddCustomStatus}
               onDeleteCustomStatus={onDeleteCustomStatus}
               onChangeSubtaskStatus={onChangeSubtaskStatus}
+              onOpenBatchPasteForTask={onOpenBatchPasteForTask}
               isDragging={draggedSubId === child.id}
               isOver={dragOverSub?.subId === child.id}
               dragOverPosition={dragOverSub?.subId === child.id ? dragOverSub.position : null}

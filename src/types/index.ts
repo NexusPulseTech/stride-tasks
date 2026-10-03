@@ -84,6 +84,16 @@ export interface StrideBackupPayload {
   };
 }
 
+export interface BatchPasteTarget {
+  type: 'project' | 'task' | 'subtask';
+  projectId: string;
+  projectName: string;
+  taskId?: string;
+  taskTitle?: string;
+  parentSubId?: string;
+  subTitle?: string;
+}
+
 export interface UndoAction {
   id: string;
   message: string;

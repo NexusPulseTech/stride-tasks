@@ -7,12 +7,15 @@ import {
   FilterType,
   MobileGuideTab,
   ConfirmDialogState,
+  BatchPasteTarget,
   StatusDefinition,
+  SubTask,
   StrideBackupPayload,
 } from '../../../types';
 import { APP_VERSION, INITIAL_PROJECTS } from '../../../constants';
 import { triggerHaptic, playChime } from '../../../utils';
-import { parsePastedTasks } from '../utils/batchParser';
+import { parsePastedTasks, parsePastedSubtasks } from '../utils/batchParser';
+import { isDoneStatus, isDoingStatus } from '../utils/statusCategory';
 import { matchTaskDeep } from '../utils/searchHelper';
 import { useCelebrationAndStreak } from './useCelebrationAndStreak';
 import { useSmartReminder } from './useSmartReminder';
@@ -33,6 +36,7 @@ export function useTaskManager() {
 
   // Modals state
   const [batchPasteProject, setBatchPasteProject] = useState<Project | null>(null);
+  const [batchPasteTarget, setBatchPasteTarget] = useState<BatchPasteTarget | null>(null);
   const [batchPasteText, setBatchPasteText] = useState('');
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [showBackupModal, setShowBackupModal] = useState(false);
@@ -146,25 +150,64 @@ export function useTaskManager() {
     return () => window.removeEventListener('click', handleGlobalClick);
   }, []);
 
+  const openBatchPasteForProject = (project: Project) => {
+    setBatchPasteProject(project);
+    setBatchPasteTarget({ type: 'project', projectId: project.id, projectName: project.name });
+    setBatchPasteText('');
+  };
+
+  const openBatchPasteForTask = (project: Project, task: Task, parentSubId?: string, subTitle?: string) => {
+    setBatchPasteProject(project);
+    setBatchPasteTarget({
+      type: parentSubId ? 'subtask' : 'task',
+      projectId: project.id,
+      projectName: project.name,
+      taskId: task.id,
+      taskTitle: task.title,
+      parentSubId,
+      subTitle,
+    });
+    setBatchPasteText('');
+  };
+
   const handleExecuteBatchPaste = () => {
-    if (!batchPasteProject) return;
-    const lines = parsePastedTasks(batchPasteText);
-    if (lines.length === 0) return;
-    const newTasks: Task[] = lines.map((title) => ({
-      id: 't_' + Math.random().toString(36).slice(2, 9),
-      title,
-      status: 'todo',
-      subtasks: [],
-    }));
-    crud.setProjects((prev) =>
-      prev.map((p) =>
-        p.id === batchPasteProject.id
-          ? { ...p, isExpanded: true, tasks: [...p.tasks, ...newTasks] }
-          : p
-      )
-    );
-    celebration.showToast(`Đã thêm ${lines.length} công việc vào "${batchPasteProject.name}"!`);
+    const target = batchPasteTarget || (batchPasteProject ? {
+      type: 'project' as const,
+      projectId: batchPasteProject.id,
+      projectName: batchPasteProject.name,
+    } : null);
+    if (!target) return;
+
+    const parsedTree = parsePastedSubtasks(batchPasteText);
+    if (parsedTree.length === 0) return;
+
+    if (target.type === 'project') {
+      const convertNode = (node: SubTask, forceDone = false): SubTask => {
+        const completed = forceDone || node.completed;
+        return {
+          ...node,
+          completed,
+          status: completed ? 'done' : node.status || 'todo',
+          subtasks: (node.subtasks || []).map((child) => convertNode(child, completed)),
+        };
+      };
+      const newTasks: Task[] = parsedTree.map((root) => ({
+        id: 't_' + Math.random().toString(36).slice(2, 9),
+        title: root.title,
+        status: root.completed ? 'done' : 'todo',
+        completedAt: root.completed ? new Date().toISOString() : undefined,
+        subtasks: (root.subtasks || []).map((child) => convertNode(child, root.completed)),
+      }));
+      crud.setProjects((prev) => prev.map((project) => project.id === target.projectId
+        ? { ...project, isExpanded: true, tasks: [...project.tasks, ...newTasks] }
+        : project));
+      celebration.showToast(`Đã thêm ${newTasks.length} công việc vào "${target.projectName}"!`);
+    } else if (target.taskId) {
+      subtasks.handleAddSubTask(target.projectId, target.taskId, batchPasteText, target.parentSubId ?? null);
+    }
+
     setBatchPasteProject(null);
+    setBatchPasteTarget(null);
     setBatchPasteText('');
   };
 
@@ -429,8 +472,8 @@ export function useTaskManager() {
   crud.projects.forEach((p) => {
     totalTasks += p.tasks.length;
     p.tasks.forEach((t) => {
-      if (t.status === 'done') totalDone++;
-      if (t.status === 'doing') totalDoing++;
+      if (isDoneStatus(t.status, statusManager.statuses)) totalDone++;
+      if (isDoingStatus(t.status, statusManager.statuses)) totalDoing++;
     });
   });
 
@@ -445,11 +488,8 @@ export function useTaskManager() {
         const matchT = p.tasks.some((t) => matchTaskDeep(t, q));
         if (!matchP && !matchT) return false;
       }
-      const total = p.tasks.length;
-      const done = p.tasks.filter((t) => t.status === 'done').length;
-      const isCompleted = total > 0 && done === total;
-      if (filter === 'doing') return p.tasks.some((t) => t.status === 'doing') || !isCompleted;
-      if (filter === 'completed') return isCompleted;
+      if (filter === 'doing') return p.tasks.some((task) => isDoingStatus(task.status, statusManager.statuses));
+      if (filter === 'completed') return p.tasks.some((task) => isDoneStatus(task.status, statusManager.statuses));
       return true;
     })
     .map((p) => {
@@ -499,6 +539,10 @@ export function useTaskManager() {
     setActiveMenuTaskId,
     batchPasteProject,
     setBatchPasteProject,
+    batchPasteTarget,
+    setBatchPasteTarget,
+    openBatchPasteForProject,
+    openBatchPasteForTask,
     batchPasteText,
     setBatchPasteText,
     showGuideModal,

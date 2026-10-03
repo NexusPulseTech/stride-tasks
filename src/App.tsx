@@ -15,6 +15,7 @@ import { FocusBanner } from './features/focus';
 import { StatsPanel } from './features/analytics';
 import { ModalsContainer } from './features/modals';
 import { triggerHaptic } from './utils';
+import { isDoneStatus, isDoingStatus } from './features/tasks/utils/statusCategory';
 
 export default function App() {
   const manager = useTaskManager();
@@ -36,6 +37,8 @@ export default function App() {
     setActiveMenuTaskId: manager.setActiveMenuTaskId,
     batchPasteProject: manager.batchPasteProject,
     setBatchPasteProject: manager.setBatchPasteProject,
+    batchPasteTarget: manager.batchPasteTarget,
+    setBatchPasteTarget: manager.setBatchPasteTarget,
     search: manager.search,
     setSearch: manager.setSearch,
     setMobileSearchOpen: manager.setMobileSearchOpen,
@@ -163,8 +166,8 @@ export default function App() {
                   // Đã lọc deep bằng matchTaskDeep ở useTaskManager
                   return true;
                 }
-                if (manager.isFocusMode || manager.filter === 'doing') return t.status !== 'done';
-                if (manager.filter === 'completed') return t.status === 'done';
+                if (manager.isFocusMode || manager.filter === 'doing') return isDoingStatus(t.status, manager.statuses);
+                if (manager.filter === 'completed') return isDoneStatus(t.status, manager.statuses);
                 return true;
               });
 
@@ -178,9 +181,13 @@ export default function App() {
                   isFocusMode={manager.isFocusMode}
                   onToggleExpand={manager.toggleExpand}
                   onCopyProjectAsMarkdown={manager.copyProjectAsMarkdown}
-                  onOpenBatchPaste={(project) => {
-                    manager.setBatchPasteProject(project);
-                    manager.setBatchPasteText('');
+                  onOpenBatchPaste={manager.openBatchPasteForProject}
+                  onOpenBatchPasteForTask={(projId, taskId, parentSubId, targetTitle) => {
+                    const targetProject = manager.projects.find((project) => project.id === projId);
+                    const targetTask = targetProject?.tasks.find((task) => task.id === taskId);
+                    if (targetProject && targetTask) {
+                      manager.openBatchPasteForTask(targetProject, targetTask, parentSubId ?? undefined, targetTitle);
+                    }
                   }}
                   onDeleteProject={manager.handleDeleteProject}
                   onEditProjectName={manager.handleEditProjectName}
@@ -267,9 +274,13 @@ export default function App() {
         confirmDialog={manager.confirmDialog}
         onCloseConfirmDialog={() => manager.setConfirmDialog(null)}
         batchPasteProject={manager.batchPasteProject}
+        batchPasteTarget={manager.batchPasteTarget}
         batchPasteText={manager.batchPasteText}
         onBatchPasteTextChange={manager.setBatchPasteText}
-        onCloseBatchPaste={() => manager.setBatchPasteProject(null)}
+        onCloseBatchPaste={() => {
+          manager.setBatchPasteProject(null);
+          manager.setBatchPasteTarget(null);
+        }}
         onExecuteBatchPaste={manager.handleExecuteBatchPaste}
         showMobileAddModal={manager.showMobileAddModal}
         projects={manager.projects}

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Project, Task, SubTask } from '../../../types';
-import { parsePastedTasks } from '../utils/batchParser';
+import { parsePastedSubtasks } from '../utils/batchParser';
 import {
   toggleSubtaskInTree,
   addNestedSubtask,
@@ -90,7 +90,7 @@ export function useSubtaskOperations({
 
     triggerHaptic();
 
-    const titles = text.includes('\n') ? parsePastedTasks(text) : [text];
+    const additions = parsePastedSubtasks(text);
     setProjects((prev) =>
       prev.map((p) => {
         if (p.id !== projId) return p;
@@ -99,13 +99,7 @@ export function useSubtaskOperations({
           tasks: p.tasks.map((t) => {
             if (t.id !== taskId) return t;
             let currentSubs = t.subtasks;
-            titles.forEach((title) => {
-              const newSub: SubTask = {
-                id: 's_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9),
-                title,
-                completed: false,
-                subtasks: [],
-              };
+            additions.forEach((newSub) => {
               currentSubs = addNestedSubtask(currentSubs, parentSubId ?? null, newSub);
             });
             const nextStatus = determineTaskStatusFromSubtasks(t.status, currentSubs);
@@ -116,7 +110,7 @@ export function useSubtaskOperations({
     );
     setExpandedSubtasks((prev) => ({ ...prev, [taskId]: true }));
     if (textParam === undefined) setSubInputs((prev) => ({ ...prev, [taskId]: '' }));
-    showToast(titles.length > 1 ? `Đã thêm ${titles.length} việc con!` : parentSubId ? 'Đã thêm việc con mới!' : 'Đã thêm việc con!');
+    showToast(additions.length > 1 ? `Đã thêm ${additions.length} việc con!` : parentSubId ? 'Đã thêm việc con mới!' : 'Đã thêm việc con!');
   };
 
   const toggleSubTask = (projId: string, taskId: string, subId: string, isChecked: boolean) => {

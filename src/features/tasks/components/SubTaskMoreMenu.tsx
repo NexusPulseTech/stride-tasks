@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, Pencil, Copy, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Copy, Trash2, ClipboardPaste } from 'lucide-react';
 import { PortalMenu } from '../../../components/ui/PortalMenu';
 
 interface SubTaskMoreMenuProps {
@@ -10,6 +10,7 @@ interface SubTaskMoreMenuProps {
   onStartEditTitle: () => void;
   onCopyTitle: () => void;
   onDelete: () => void;
+  onBatchPasteChild?: () => void;
 }
 
 export function SubTaskMoreMenu({
@@ -20,6 +21,7 @@ export function SubTaskMoreMenu({
   onStartEditTitle,
   onCopyTitle,
   onDelete,
+  onBatchPasteChild,
 }: SubTaskMoreMenuProps) {
   return (
     <PortalMenu isOpen={isOpen} onClose={onClose} triggerRef={triggerRef} widthClass="w-40">
@@ -31,6 +33,17 @@ export function SubTaskMoreMenu({
         <Plus className="w-3.5 h-3.5 shrink-0 text-slate-400" strokeWidth={1.75} aria-hidden="true" />
         <span>Thêm việc con</span>
       </button>
+
+      {onBatchPasteChild && (
+        <button
+          type="button"
+          onClick={onBatchPasteChild}
+          className="w-full text-left px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2 cursor-pointer transition-colors"
+        >
+          <ClipboardPaste className="w-3.5 h-3.5 shrink-0 text-slate-400" strokeWidth={1.5} aria-hidden="true" />
+          <span>Dán danh sách việc con</span>
+        </button>
+      )}
 
       <button
         type="button"

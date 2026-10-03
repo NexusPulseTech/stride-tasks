@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { CornerDownRight } from 'lucide-react';
+import { ClipboardPaste, CornerDownRight } from 'lucide-react';
 
 interface SubTaskInlineFormProps {
   parentTitle: string;
@@ -7,6 +7,8 @@ interface SubTaskInlineFormProps {
   onChange: (val: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   onCancel: () => void;
+  onPaste?: (e: React.ClipboardEvent<HTMLInputElement>) => void;
+  onQuickPaste?: () => void;
 }
 
 export function SubTaskInlineForm({
@@ -15,6 +17,8 @@ export function SubTaskInlineForm({
   onChange,
   onSubmit,
   onCancel,
+  onPaste,
+  onQuickPaste,
 }: SubTaskInlineFormProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -33,6 +37,7 @@ export function SubTaskInlineForm({
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onPaste={onPaste}
         onKeyDown={(e) => {
           if (e.key === 'Escape') onCancel();
         }}
@@ -46,6 +51,17 @@ export function SubTaskInlineForm({
       >
         Lưu
       </button>
+      {onQuickPaste && (
+        <button
+          type="button"
+          onClick={onQuickPaste}
+          className="h-6.5 px-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md text-[10.5px] cursor-pointer shrink-0 transition-colors flex items-center gap-1"
+          title="Dán nhanh danh sách việc con từ Clipboard"
+        >
+          <ClipboardPaste className="w-3 h-3" />
+          <span className="hidden sm:inline">Dán</span>
+        </button>
+      )}
       <button
         type="button"
         onClick={onCancel}

@@ -66,6 +66,7 @@ export function cascadeSubtaskCompleted(sub: SubTask, completed: boolean): SubTa
   return {
     ...sub,
     completed,
+    status: completed ? 'done' : 'todo',
     subtasks: sub.subtasks
       ? sub.subtasks.map((child) => cascadeSubtaskCompleted(child, completed))
       : undefined,
@@ -163,8 +164,7 @@ export function addNestedSubtask(
         const nextSubs = [...existingSubs, newSub];
         return {
           ...item,
-          // Vì thêm 1 bước con chưa xong (completed: false), nên cha không thể còn là completed = true
-          completed: false,
+          completed: nextSubs.length > 0 && nextSubs.every((child) => child.completed),
           subtasks: nextSubs,
         };
       }

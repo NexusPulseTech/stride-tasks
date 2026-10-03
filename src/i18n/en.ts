@@ -47,7 +47,7 @@ export const en: Translations = {
     clearSearch: 'Clear search',
     cancelSearch: 'Cancel',
     allFilter: 'All',
-    doingFilter: 'Doing',
+    doingFilter: 'In Progress',
     completedFilter: 'Done',
     batchPaste: 'Batch paste',
     resetSample: 'Reset demo data',

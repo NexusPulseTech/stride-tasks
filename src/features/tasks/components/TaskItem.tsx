@@ -13,6 +13,7 @@ import { SubtaskList } from './SubtaskList';
 import { TaskMoreMenu } from './TaskMoreMenu';
 import { TaskStatusButton } from './TaskStatusButton';
 import { TaskItemProps } from '../types';
+import { isDoneStatus } from '../utils/statusCategory';
 
 export type { TaskItemProps };
 
@@ -25,7 +26,7 @@ export function TaskItem({
   statuses, onAddCustomStatus, onDeleteCustomStatus, onChangeSubtaskStatus,
   activeMenuTaskId, onSetActiveMenuTaskId,
   onCopyTask, onTogglePinTask, onOpenAddSubtask,
-  onMoveTask, onDeleteTask,
+  onMoveTask, onDeleteTask, onOpenBatchPasteForTask,
   isSubOpen, onToggleExpandSubtasks, isAddingSub,
   subtaskFilterMode, onSubtaskFilterModeChange,
   isCompletedSubExpanded, onToggleCompletedSubExpanded,
@@ -39,7 +40,7 @@ export function TaskItem({
   const moreButtonRef = useRef<HTMLButtonElement>(null);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editTitle, setEditTitle] = useState(task.title);
-  const isDone = task.status === 'done';
+  const isDone = isDoneStatus(task.status, statuses);
   const hasSubs = task.subtasks && task.subtasks.length > 0;
   const stats = getTaskSubtaskStats(task);
   const totalSubs = stats.leafTotal;
@@ -288,6 +289,9 @@ export function TaskItem({
               onStartEdit={() => { setEditTitle(task.title); setIsEditingTitle(true); }}
               onCopyTask={onCopyTask} onTogglePinTask={onTogglePinTask}
               onOpenAddSubtask={onOpenAddSubtask} onMoveTask={onMoveTask} onDeleteTask={onDeleteTask}
+              onOpenBatchPasteSubtasks={onOpenBatchPasteForTask ? () => {
+                onOpenBatchPasteForTask(projectId, task.id, null, task.title);
+              } : undefined}
             />
           </div>
         </div>
@@ -315,6 +319,7 @@ export function TaskItem({
             onAddCustomStatus={onAddCustomStatus}
             onDeleteCustomStatus={onDeleteCustomStatus}
             onChangeSubtaskStatus={onChangeSubtaskStatus}
+            onOpenBatchPasteForTask={onOpenBatchPasteForTask}
           />
         </div>
       )}

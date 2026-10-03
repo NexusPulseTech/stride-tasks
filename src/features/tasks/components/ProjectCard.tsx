@@ -1,8 +1,9 @@
 import React, { useRef } from 'react';
-import { Plus } from 'lucide-react';
+import { ClipboardPaste, Plus } from 'lucide-react';
 import { Project, Task, StatusDefinition } from '../../../types';
 import { TaskItem } from './TaskItem';
 import { ProjectCardHeader } from './ProjectCardHeader';
+import { isDoneStatus } from '../utils/statusCategory';
 
 export interface ProjectCardProps {
   project: Project;
@@ -13,6 +14,7 @@ export interface ProjectCardProps {
   onToggleExpand: (id: string) => void;
   onCopyProjectAsMarkdown: (project: Project, e: React.MouseEvent) => void;
   onOpenBatchPaste: (project: Project) => void;
+  onOpenBatchPasteForTask?: (projId: string, taskId: string, parentSubId?: string | null, targetTitle?: string) => void;
   onDeleteProject: (id: string, e: React.MouseEvent) => void;
   taskInputValue: string;
   onTaskInputChange: (projId: string, val: string) => void;
@@ -87,6 +89,7 @@ export function ProjectCard({
   onToggleExpand,
   onCopyProjectAsMarkdown,
   onOpenBatchPaste,
+  onOpenBatchPasteForTask,
   onDeleteProject,
   taskInputValue,
   onTaskInputChange,
@@ -137,7 +140,7 @@ export function ProjectCard({
 }: ProjectCardProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const tasks = project.tasks;
-  const countDone = tasks.filter((t) => t.status === 'done').length;
+  const countDone = tasks.filter((task) => isDoneStatus(task.status, statuses)).length;
   const pct = tasks.length > 0 ? Math.round((countDone / tasks.length) * 100) : 0;
   const isAllDone = tasks.length > 0 && countDone === tasks.length;
 
@@ -242,6 +245,7 @@ export function ProjectCard({
                   onEditTaskTitle={onEditTaskTitle}
                   onEditSubtaskTitle={onEditSubtaskTitle}
                   onReorderSubtask={onReorderSubtask}
+                  onOpenBatchPasteForTask={onOpenBatchPasteForTask}
                 />
               );
             })
@@ -273,6 +277,16 @@ export function ProjectCard({
               >
                 <Plus className="w-3.5 h-3.5 shrink-0 stroke-[2]" aria-hidden="true" />
                 <span className="hidden sm:inline">Thêm</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => onOpenBatchPaste(project)}
+                className="h-8 px-2.5 bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-xs font-medium cursor-pointer transition-colors shrink-0 flex items-center gap-1"
+                title="Dán nhanh danh sách công việc"
+                aria-label="Dán nhanh danh sách công việc"
+              >
+                <ClipboardPaste className="w-3.5 h-3.5 shrink-0" />
+                <span className="hidden sm:inline">Dán nhanh</span>
               </button>
             </form>
           )}

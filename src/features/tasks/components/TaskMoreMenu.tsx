@@ -1,5 +1,5 @@
 import React from 'react';
-import { Copy, Pin, Plus, ArrowUp, ArrowDown, Trash2, Pencil } from 'lucide-react';
+import { Copy, Pin, Plus, ArrowUp, ArrowDown, Trash2, Pencil, ClipboardPaste } from 'lucide-react';
 import { Task } from '../../../types';
 import { PortalMenu } from '../../../components/ui/PortalMenu';
 
@@ -15,6 +15,7 @@ export interface TaskMoreMenuProps {
   onCopyTask: (title: string) => void;
   onTogglePinTask: (projId: string, taskId: string, e: React.MouseEvent) => void;
   onOpenAddSubtask: (taskId: string) => void;
+  onOpenBatchPasteSubtasks?: () => void;
   onMoveTask: (projId: string, index: number, dir: 'up' | 'down', e: React.MouseEvent) => void;
   onDeleteTask: (projId: string, taskId: string) => void;
 }
@@ -31,6 +32,7 @@ export function TaskMoreMenu({
   onCopyTask,
   onTogglePinTask,
   onOpenAddSubtask,
+  onOpenBatchPasteSubtasks,
   onMoveTask,
   onDeleteTask,
 }: TaskMoreMenuProps) {
@@ -48,6 +50,20 @@ export function TaskMoreMenu({
         <Pencil className="w-3.5 h-3.5 shrink-0 text-slate-400 dark:text-slate-400" strokeWidth={1.5} aria-hidden="true" />
         <span>Chỉnh sửa tên</span>
       </button>
+
+      {onOpenBatchPasteSubtasks && (
+        <button
+          type="button"
+          onClick={() => {
+            onOpenBatchPasteSubtasks();
+            onClose();
+          }}
+          className="w-full text-left px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/80 rounded-lg flex items-center gap-2 cursor-pointer transition-colors"
+        >
+          <ClipboardPaste className="w-3.5 h-3.5 shrink-0 text-slate-400" strokeWidth={1.5} aria-hidden="true" />
+          <span>Dán nhanh việc con</span>
+        </button>
+      )}
 
       {/* Sao chép việc */}
       <button

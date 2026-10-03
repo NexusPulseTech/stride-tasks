@@ -7,13 +7,14 @@ import { GuideModal } from './GuideModal';
 import { BackupModal } from './BackupModal';
 import { FeedbackModal } from './FeedbackModal';
 import { ViewSettingsModal } from './ViewSettingsModal';
-import { AutoBackupData, Project, ConfirmDialogState, MobileGuideTab } from '../../../types';
+import { AutoBackupData, BatchPasteTarget, Project, ConfirmDialogState, MobileGuideTab } from '../../../types';
 import { ViewPreferences } from '../../../hooks/useViewPreferences';
 
 export interface ModalsContainerProps {
   confirmDialog: ConfirmDialogState | null;
   onCloseConfirmDialog: () => void;
   batchPasteProject: Project | null;
+  batchPasteTarget?: BatchPasteTarget | null;
   batchPasteText: string;
   onBatchPasteTextChange: (text: string) => void;
   onCloseBatchPaste: () => void;
@@ -58,6 +59,7 @@ export function ModalsContainer({
   confirmDialog,
   onCloseConfirmDialog,
   batchPasteProject,
+  batchPasteTarget,
   batchPasteText,
   onBatchPasteTextChange,
   onCloseBatchPaste,
@@ -103,6 +105,7 @@ export function ModalsContainer({
 
       <BatchPasteModal
         batchPasteProject={batchPasteProject}
+        batchPasteTarget={batchPasteTarget}
         batchPasteText={batchPasteText}
         onTextChange={onBatchPasteTextChange}
         onClose={onCloseBatchPaste}
