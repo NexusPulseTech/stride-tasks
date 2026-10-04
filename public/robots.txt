@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tasks.nexuspulsetech.xyz/sitemap.xml
