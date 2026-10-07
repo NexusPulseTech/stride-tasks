@@ -1,8 +1,8 @@
 {
   "name": "stride-tasks",
   "private": true,
-  "version": "1.0.6",
-  "homepage": "https://nexuspulsetech.github.io/stride-tasks/",
+  "version": "2.1.0",
+  "homepage": "https://tasks.nexuspulsetech.xyz/",
   "description": "Ứng dụng quản lý công việc và dự án cá nhân tối giản, Notion-style subtasks, Linear status, Activity Heatmap nhịp độ làm việc, 100% offline local-first.",
   "type": "module",
   "scripts": {

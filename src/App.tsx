@@ -156,8 +156,16 @@ export default function App() {
         {/* Danh sách Dự án & Checklist */}
         <div className="space-y-2.5">
           {manager.filteredProjects.length === 0 ? (
-            <div className="bg-white dark:bg-[#161b22] rounded-xl p-8 text-center border border-slate-200/80 dark:border-slate-800 text-xs text-slate-400 dark:text-slate-500">
-              Không có công việc nào phù hợp.
+            <div className="bg-white dark:bg-[#161b22] rounded-xl p-8 text-center border border-slate-200/80 dark:border-slate-800">
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Không có dự án nào</p>
+              <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">Đã xóa sạch danh sách dự án. Hãy tạo một dự án mới để bắt đầu.</p>
+              <button
+                type="button"
+                onClick={() => manager.setShowMobileAddModal(true)}
+                className="mt-4 rounded-lg bg-blue-600 px-3 py-2 text-xs font-medium text-white hover:bg-blue-700"
+              >
+                Tạo dự án mới
+              </button>
             </div>
           ) : (
             manager.filteredProjects.map((p) => {
@@ -306,6 +314,11 @@ export default function App() {
         autoBackupData={manager.autoBackupData}
         onRestoreAutoBackup={manager.restoreAutoBackup}
         onClearAllData={manager.clearAllData}
+        onRestoreSnapshot={manager.handleRestoreSnapshot}
+        onDirectPasteRestore={manager.handleDirectPasteRestore}
+        onGetFullBackupJson={manager.getFullBackupJsonString}
+        onDownloadSourceZip={manager.downloadSourceZip}
+        onDownloadHtml={manager.downloadHtml}
         showFeedbackModal={manager.showFeedbackModal}
         onCloseFeedbackModal={() => manager.setShowFeedbackModal(false)}
         showViewSettingsModal={manager.showViewSettingsModal}

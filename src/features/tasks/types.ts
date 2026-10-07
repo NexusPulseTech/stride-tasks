@@ -1,5 +1,5 @@
 import React from 'react';
-import { Task, StatusDefinition } from '../../types';
+import { Task, StatusDefinition, RecurrenceType } from '../../types';
 
 export interface TaskItemProps {
   projectId: string;
@@ -29,6 +29,10 @@ export interface TaskItemProps {
   onOpenAddSubtask: (taskId: string) => void;
   onMoveTask: (projId: string, index: number, dir: 'up' | 'down', e: React.MouseEvent) => void;
   onDeleteTask: (projId: string, taskId: string) => void;
+  onSetTaskRecurrence?: (projId: string, taskId: string, recurrence: RecurrenceType) => void;
+  onSetSubTaskRecurrence?: (projId: string, taskId: string, subId: string, recurrence: RecurrenceType) => void;
+  onManuallyResetRecurring?: (projId: string, taskId: string) => void;
+  onManuallyResetRecurringSubTask?: (projId: string, taskId: string, subId: string) => void;
   isSubOpen: boolean;
   onToggleExpandSubtasks: (taskId: string) => void;
   isAddingSub: boolean;

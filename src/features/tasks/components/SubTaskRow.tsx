@@ -1,15 +1,27 @@
 import React, { useRef, useState } from 'react';
-import { Check, ChevronRight, Plus, MoreHorizontal, GripVertical, ClipboardPaste } from 'lucide-react';
-import { SubTask, StatusDefinition } from '../../../types';
+import {
+  Check,
+  ChevronRight,
+  Plus,
+  MoreHorizontal,
+  GripVertical,
+  ClipboardPaste,
+  Repeat,
+  RotateCw,
+} from 'lucide-react';
+import { SubTask, StatusDefinition, RecurrenceType } from '../../../types';
 import { FormattedTaskText } from '../utils/formatters';
-import { countSubtaskLeaves } from '../utils/statusCategory';
+import { countLeafSubtasks } from '../utils/subtaskTree';
+import { isDoneStatus } from '../utils/statusCategory';
 import { SubTaskInlineForm } from './SubTaskInlineForm';
 import { SubTaskMoreMenu } from './SubTaskMoreMenu';
 import { TaskStatusButton } from './TaskStatusButton';
-import { isDoneStatus } from '../utils/statusCategory';
 
 export interface SubTaskRowProps {
-  sub: SubTask; depth: number; projectId: string; taskId: string;
+  sub: SubTask;
+  depth: number;
+  projectId: string;
+  taskId: string;
   onToggleSubTask: (projId: string, taskId: string, subId: string, completed: boolean) => void;
   onDeleteSubTask: (projId: string, taskId: string, subId: string) => void;
   onAddSubTask: (projId: string, taskId: string, title?: string, parentSubId?: string | null) => void;
@@ -24,7 +36,11 @@ export interface SubTaskRowProps {
   onDeleteCustomStatus?: (statusId: string) => void;
   onChangeSubtaskStatus?: (projId: string, taskId: string, subId: string, status: string, isDoneCategory: boolean) => void;
   onOpenBatchPasteForTask?: (projId: string, taskId: string, parentSubId?: string | null, targetTitle?: string) => void;
-  isDragging?: boolean; isOver?: boolean; dragOverPosition?: 'top' | 'bottom' | null;
+  onSetSubTaskRecurrence?: (projId: string, taskId: string, subId: string, recurrence: RecurrenceType) => void;
+  onManuallyResetRecurringSubTask?: (projId: string, taskId: string, subId: string) => void;
+  isDragging?: boolean;
+  isOver?: boolean;
+  dragOverPosition?: 'top' | 'bottom' | null;
   onSubDragStart?: (e: React.DragEvent, subId: string) => void;
   onSubDragOver?: (e: React.DragEvent, subId: string) => void;
   onSubDrop?: (e: React.DragEvent, targetSubId: string) => void;
@@ -44,6 +60,8 @@ export function SubTaskRow({
   onDeleteCustomStatus = () => {},
   onChangeSubtaskStatus,
   onOpenBatchPasteForTask,
+  onSetSubTaskRecurrence,
+  onManuallyResetRecurringSubTask,
   isDragging = false, isOver = false, dragOverPosition = null,
   onSubDragStart, onSubDragOver, onSubDrop, onSubDragEnd,
   draggedSubId = null, dragOverSub = null,
@@ -56,25 +74,8 @@ export function SubTaskRow({
 
   const hasChildren = !!(sub.subtasks && sub.subtasks.length > 0);
   const isNodeExpanded = expandedNodes[sub.id] ?? true;
-  const leafStats = countSubtaskLeaves(sub, statuses);
+  const leafStats = countLeafSubtasks(sub);
   const isAddingChild = addingChildToSubId === sub.id;
-  const isSubDone = sub.completed || (sub.status ? isDoneStatus(sub.status, statuses) : false);
-
-  const handleQuickPaste = async () => {
-    try {
-      if (navigator.clipboard?.readText) {
-        const clipboardText = await navigator.clipboard.readText();
-        if (clipboardText.trim()) {
-          onAddSubTask(projectId, taskId, clipboardText, sub.id);
-          onToggleExpandNode(sub.id, true);
-          return;
-        }
-      }
-    } catch (error) {
-      // Clipboard access may be unavailable outside a secure user gesture.
-    }
-    onOpenBatchPasteForTask?.(projectId, taskId, sub.id, sub.title);
-  };
 
   const handleAddChildSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,6 +94,7 @@ export function SubTaskRow({
     setIsEditing(false);
   };
 
+  const isSubDone = sub.status ? isDoneStatus(sub.status, statuses) : sub.completed;
   if (filterMode === 'completed' && !isSubDone && (!hasChildren || leafStats.completed === 0)) return null;
   if (filterMode === 'active' && isSubDone && (!hasChildren || leafStats.completed === leafStats.total)) return null;
 
@@ -130,78 +132,114 @@ export function SubTaskRow({
             aria-label={isNodeExpanded ? 'Thu gọn việc con' : 'Mở rộng việc con'}
           >
             <ChevronRight
-              className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${
-                isNodeExpanded ? 'rotate-90 text-slate-700 dark:text-slate-200' : ''
-              }`}
+              className={`w-3 h-3 shrink-0 transition-transform duration-150 ${isNodeExpanded ? 'rotate-90 text-slate-700 dark:text-slate-200' : ''}`}
               strokeWidth={2}
-              aria-hidden="true"
             />
           </button>
         ) : (
-          <span className="w-4 h-4 shrink-0 flex items-center justify-center" aria-hidden="true">
+          <div className="w-4 h-4 shrink-0 flex items-center justify-center">
             <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600" />
-          </span>
+          </div>
         )}
 
         <button
           type="button"
-          onClick={() => onToggleSubTask(projectId, taskId, sub.id, !isSubDone)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleSubTask(projectId, taskId, sub.id, !isSubDone);
+          }}
           className="shrink-0 cursor-pointer p-0.5 -m-0.5 rounded-full"
-          title={isSubDone ? 'Đánh dấu chưa xong' : 'Đánh dấu đã xong'}
-          aria-label={isSubDone ? 'Đánh dấu chưa xong' : 'Đánh dấu đã xong'}
+          aria-label={isSubDone ? 'Đánh dấu việc con chưa xong' : 'Đánh dấu việc con đã xong'}
         >
           <div
             className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center transition-colors ${
               isSubDone
                 ? 'bg-[#34c759] border-[#34c759] text-white'
-                : 'border-slate-300 dark:border-slate-600 hover:border-slate-500 dark:hover:border-slate-400 bg-white dark:bg-[#161b22]'
+                : 'border-slate-300 dark:border-slate-600 hover:border-slate-600 dark:hover:border-slate-400'
             }`}
           >
             {isSubDone && <Check className="w-2 h-2 shrink-0 stroke-[2.5]" aria-hidden="true" />}
           </div>
         </button>
 
-        <div className="flex-1 min-w-0 pr-1">
+        <div className="flex-1 min-w-0 flex items-center">
           {isEditing ? (
-            <input
-              type="text"
-              value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') { e.preventDefault(); handleSaveEdit(); }
-                else if (e.key === 'Escape') { setEditTitle(sub.title); setIsEditing(false); }
-              }}
-              onBlur={handleSaveEdit}
-              onFocus={(e) => e.target.select()}
-              onClick={(e) => e.stopPropagation()}
-              autoFocus
-              className="w-full text-[12px] leading-tight px-1 py-0.5 bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-600 rounded focus:border-slate-900 dark:focus:border-slate-100 outline-none text-slate-900 dark:text-slate-100 shadow-2xs"
-            />
+            <div className="flex items-center gap-1 w-full" onClick={(e) => e.stopPropagation()}>
+              <input
+                type="text"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSaveEdit();
+                  if (e.key === 'Escape') {
+                    setEditTitle(sub.title);
+                    setIsEditing(false);
+                  }
+                }}
+                autoFocus
+                className="flex-1 h-5 px-1 bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-700 rounded text-xs text-slate-900 dark:text-slate-100 outline-none focus:border-slate-800 dark:focus:border-slate-200"
+              />
+              <button
+                type="button"
+                onClick={handleSaveEdit}
+                className="h-5 px-1.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 text-[10px] rounded cursor-pointer"
+              >
+                Lưu
+              </button>
+            </div>
           ) : (
-            <div
-              onClick={(e) => {
-                e.stopPropagation();
+            <span
+              onDoubleClick={() => {
                 setEditTitle(sub.title);
                 setIsEditing(true);
               }}
-              className={`text-[12px] leading-tight cursor-text select-text font-normal truncate hover:text-slate-900 dark:hover:text-white transition-colors ${
-                isSubDone ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-200'
-              }`}
-              title="Chạm hoặc nhấp chuột để sửa tên việc con"
+              className="text-xs text-slate-700 dark:text-slate-300 truncate cursor-text"
+              title="Nhấp đúp để chỉnh sửa tên"
             >
               <FormattedTaskText text={sub.title} isDone={isSubDone} />
-            </div>
+            </span>
+          )}
+
+          {/* Micro indicator cho việc con lặp lại */}
+          {sub.recurrence && (
+            <span className="inline-flex items-center gap-0.5 ml-1.5 text-[9.5px] text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-800/50 px-1 py-0.2 rounded font-medium shrink-0 whitespace-nowrap">
+              <Repeat className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" />
+              <span>
+                {sub.recurrence === 'daily'
+                  ? 'Hàng ngày'
+                  : sub.recurrence === 'weekdays'
+                  ? 'T2-T6'
+                  : 'Hàng tuần'}
+              </span>
+              {sub.recurrenceStreak && sub.recurrenceStreak > 0 ? (
+                <span className="text-[8.5px] font-mono font-semibold text-amber-600 dark:text-amber-400 ml-0.5">
+                  🔥{sub.recurrenceStreak}
+                </span>
+              ) : null}
+              {isSubDone && onManuallyResetRecurringSubTask && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onManuallyResetRecurringSubTask(projectId, taskId, sub.id);
+                  }}
+                  className="ml-0.5 text-[9px] text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-0.5 cursor-pointer"
+                  title="Làm mới lại việc con này hôm nay"
+                >
+                  <RotateCw className="w-2 h-2" />
+                  <span>Làm mới</span>
+                </button>
+              )}
+            </span>
           )}
         </div>
 
         {hasChildren && (
           <span
-            className={`text-[10px] tabular-nums px-1.5 py-0.2 rounded font-medium shrink-0 whitespace-nowrap ${
+            className={`text-[9.5px] px-1 py-0.2 rounded font-mono shrink-0 tabular-nums ${
               leafStats.completed === leafStats.total
-                ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-900/50'
-                : leafStats.completed > 0
-                ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/50'
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 font-semibold'
+                : 'text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800/80'
             }`}
             title={`Đã hoàn thành ${leafStats.completed}/${leafStats.total} việc con ở mọi cấp độ`}
           >
@@ -211,10 +249,9 @@ export function SubTaskRow({
           </span>
         )}
 
-        {/* Status Button cho việc con ở MỌI CẤP ĐỘ (Level 1, Level 2, Level 3+) */}
         <div className="shrink-0 flex items-center">
           <TaskStatusButton
-            status={sub.completed ? 'done' : sub.status || 'todo'}
+            status={sub.status || (sub.completed ? 'done' : 'todo')}
             statuses={statuses}
             onChangeStatus={(nextStatus) => {
               const def = statuses.find((s) => s.id === nextStatus);
@@ -244,10 +281,23 @@ export function SubTaskRow({
 
           <button
             type="button"
-            onClick={handleQuickPaste}
+            onClick={async (e) => {
+              e.stopPropagation();
+              try {
+                if (navigator.clipboard && navigator.clipboard.readText) {
+                  const clipText = await navigator.clipboard.readText();
+                  if (clipText && clipText.trim()) {
+                    onAddSubTask(projectId, taskId, clipText, sub.id);
+                    onToggleExpandNode(sub.id, true);
+                    return;
+                  }
+                }
+              } catch (err) {}
+              onOpenBatchPasteForTask?.(projectId, taskId, sub.id, sub.title);
+            }}
             className="p-1 text-slate-400 hover:text-slate-800 dark:text-slate-500 dark:hover:text-slate-100 hover:bg-slate-200/70 dark:hover:bg-slate-700 rounded cursor-pointer shrink-0 transition-colors"
             title={`Dán nhanh việc con vào "${sub.title}"`}
-            aria-label="Dán nhanh việc con"
+            aria-label="Dán việc con"
           >
             <ClipboardPaste className="w-3 h-3" />
           </button>
@@ -264,6 +314,9 @@ export function SubTaskRow({
           </button>
 
           <SubTaskMoreMenu
+            sub={sub}
+            projectId={projectId}
+            taskId={taskId}
             isOpen={isMenuOpen}
             onClose={() => setIsMenuOpen(false)}
             triggerRef={subMenuButtonRef}
@@ -272,7 +325,11 @@ export function SubTaskRow({
               onToggleExpandNode(sub.id, true);
               setIsMenuOpen(false);
             }}
-            onBatchPasteChild={handleQuickPaste}
+            onBatchPasteChild={onOpenBatchPasteForTask ? () => {
+              onOpenBatchPasteForTask(projectId, taskId, sub.id, sub.title);
+              onToggleExpandNode(sub.id, true);
+              setIsMenuOpen(false);
+            } : undefined}
             onStartEditTitle={() => {
               setEditTitle(sub.title);
               setIsEditing(true);
@@ -286,6 +343,8 @@ export function SubTaskRow({
               onDeleteSubTask(projectId, taskId, sub.id);
               setIsMenuOpen(false);
             }}
+            onSetSubTaskRecurrence={onSetSubTaskRecurrence}
+            onManuallyResetRecurringSubTask={onManuallyResetRecurringSubTask}
           />
         </div>
       </div>
@@ -306,7 +365,7 @@ export function SubTaskRow({
           }}
           onPaste={(e) => {
             const text = e.clipboardData.getData('text');
-            if (text.includes('\n')) {
+            if (text && text.includes('\n')) {
               e.preventDefault();
               onAddSubTask(projectId, taskId, text, sub.id);
               setInlineTitle('');
@@ -314,7 +373,21 @@ export function SubTaskRow({
               onToggleExpandNode(sub.id, true);
             }
           }}
-          onQuickPaste={handleQuickPaste}
+          onQuickPaste={async () => {
+            try {
+              if (navigator.clipboard && navigator.clipboard.readText) {
+                const clipText = await navigator.clipboard.readText();
+                if (clipText && clipText.trim()) {
+                  onAddSubTask(projectId, taskId, clipText, sub.id);
+                  setInlineTitle('');
+                  onSetAddingChildToSubId(null);
+                  onToggleExpandNode(sub.id, true);
+                  return;
+                }
+              }
+            } catch (err) {}
+            onOpenBatchPasteForTask?.(projectId, taskId, sub.id, sub.title);
+          }}
         />
       )}
 
@@ -334,6 +407,8 @@ export function SubTaskRow({
               onDeleteCustomStatus={onDeleteCustomStatus}
               onChangeSubtaskStatus={onChangeSubtaskStatus}
               onOpenBatchPasteForTask={onOpenBatchPasteForTask}
+              onSetSubTaskRecurrence={onSetSubTaskRecurrence}
+              onManuallyResetRecurringSubTask={onManuallyResetRecurringSubTask}
               isDragging={draggedSubId === child.id}
               isOver={dragOverSub?.subId === child.id}
               dragOverPosition={dragOverSub?.subId === child.id ? dragOverSub.position : null}
@@ -347,14 +422,37 @@ export function SubTaskRow({
           ))}
 
           {!isAddingChild && (
-            <button
-              type="button"
-              onClick={() => { onSetAddingChildToSubId(sub.id); onToggleExpandNode(sub.id, true); }}
-              className="flex items-center gap-1.5 py-0.5 px-1 text-[11px] text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100/60 dark:hover:bg-slate-800/40 rounded cursor-pointer transition-colors w-full text-left font-normal select-none"
-            >
-              <Plus className="w-2.5 h-2.5 shrink-0 stroke-[2]" aria-hidden="true" />
-              <span>Thêm việc con</span>
-            </button>
+            <div className="flex items-center gap-1.5 pt-0.5">
+              <button
+                type="button"
+                onClick={() => { onSetAddingChildToSubId(sub.id); onToggleExpandNode(sub.id, true); }}
+                className="flex items-center gap-1.5 py-0.5 px-1 text-[11px] text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100/60 dark:hover:bg-slate-800/40 rounded cursor-pointer transition-colors text-left font-normal select-none"
+              >
+                <Plus className="w-2.5 h-2.5 shrink-0 stroke-[2]" aria-hidden="true" />
+                <span>Thêm việc con</span>
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    if (navigator.clipboard && navigator.clipboard.readText) {
+                      const clipText = await navigator.clipboard.readText();
+                      if (clipText && clipText.trim()) {
+                        onAddSubTask(projectId, taskId, clipText, sub.id);
+                        onToggleExpandNode(sub.id, true);
+                        return;
+                      }
+                    }
+                  } catch (err) {}
+                  onOpenBatchPasteForTask?.(projectId, taskId, sub.id, sub.title);
+                }}
+                className="flex items-center gap-1 py-0.5 px-1.5 text-[10px] text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 bg-slate-100/80 hover:bg-slate-200/70 dark:bg-slate-800/70 dark:hover:bg-slate-700/60 rounded cursor-pointer transition-colors font-medium select-none shrink-0"
+                title={`Dán nhanh việc con vào "${sub.title}"`}
+              >
+                <ClipboardPaste className="w-2.5 h-2.5" />
+                <span>Dán nhanh</span>
+              </button>
+            </div>
           )}
         </div>
       )}

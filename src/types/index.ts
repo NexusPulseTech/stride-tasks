@@ -18,23 +18,31 @@ export interface CompletedItemLog {
   subtasksTotal?: number;
 }
 
+export type RecurrenceType = 'daily' | 'weekdays' | 'weekly' | null;
+
 export interface SubTask {
   id: string;
   title: string;
   completed: boolean;
-  status?: string;
+  status?: string; // Hỗ trợ trạng thái mở rộng: 'todo' | 'doing' | 'review' | 'blocked' | 'done' | custom
   subtasks?: SubTask[]; // Đệ quy: Cho phép subtask chứa N tầng subtask con bên trong
+  recurrence?: RecurrenceType;
+  lastCompletedDate?: string; // 'YYYY-MM-DD'
+  recurrenceStreak?: number;
 }
 
 export interface Task {
   id: string;
   title: string;
-  status: string;
+  status: string; // 'todo' | 'doing' | 'review' | 'blocked' | 'done' | custom
   deadline?: string;
   notes?: string;
   subtasks: SubTask[];
   isPinned?: boolean; // Ghim việc ưu tiên cao nhất
   completedAt?: string; // Thời gian hoàn thành (ISO string hoặc YYYY-MM-DD)
+  recurrence?: RecurrenceType;
+  lastCompletedDate?: string; // 'YYYY-MM-DD'
+  recurrenceStreak?: number;
 }
 
 export interface Project {
@@ -55,13 +63,32 @@ export interface ConfirmDialogState {
   onConfirm: () => void;
 }
 
+export interface UndoAction {
+  id: string;
+  message: string;
+  undo: () => void;
+}
+
+export type FilterType = 'all' | 'doing' | 'completed';
+export type MobileGuideTab = 'ios' | 'android' | 'file';
+
+export interface BatchPasteTarget {
+  type: 'project' | 'task' | 'subtask';
+  projectId: string;
+  projectName: string;
+  taskId?: string;
+  taskTitle?: string;
+  parentSubId?: string;
+  subTitle?: string;
+}
+
 export interface AutoBackupData {
   timestamp: string;
   projectCount: number;
   taskCount: number;
   historyCount?: number;
   projects: Project[];
-  completedLogs?: CompletedItemLog[];
+  completedLogs?: any[];
   customStatuses?: StatusDefinition[];
 }
 
@@ -78,27 +105,8 @@ export interface StrideBackupPayload {
   };
   data: {
     projects: Project[];
-    completedLogs?: CompletedItemLog[];
+    completedLogs?: any[];
     customStatuses?: StatusDefinition[];
     streak?: { count: number; lastDate?: string } | number;
   };
 }
-
-export interface BatchPasteTarget {
-  type: 'project' | 'task' | 'subtask';
-  projectId: string;
-  projectName: string;
-  taskId?: string;
-  taskTitle?: string;
-  parentSubId?: string;
-  subTitle?: string;
-}
-
-export interface UndoAction {
-  id: string;
-  message: string;
-  undo: () => void;
-}
-
-export type FilterType = 'all' | 'doing' | 'completed';
-export type MobileGuideTab = 'ios' | 'android' | 'file';

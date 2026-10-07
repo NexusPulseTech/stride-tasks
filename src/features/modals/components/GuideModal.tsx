@@ -71,6 +71,27 @@ export function GuideModal({ isOpen, onClose }: GuideModalProps) {
           <div className="p-3 bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 rounded-xl space-y-1">
             <div className="font-semibold text-slate-900 dark:text-slate-100 text-[12px] flex items-center gap-1.5">
               <span className="font-mono text-slate-500 dark:text-slate-400 text-[11px]">02.</span>
+              <span>Việc lặp lại định kỳ (Hàng ngày, T2-T6, Hàng tuần)</span>
+            </div>
+            <p className="text-slate-600 dark:text-slate-300">
+              Giải pháp cho các công việc thói quen như <em>&quot;Post Video X / Shorts hàng ngày&quot;</em> mà không cần tạo mới thủ công mỗi ngày:
+            </p>
+            <ul className="list-disc pl-4 space-y-0.5 text-[11.5px] text-slate-500 dark:text-slate-400 pt-0.5">
+              <li>
+                <strong>Cách bật</strong>: Nhấp vào nút <strong>···</strong> ở cạnh việc cha hoặc việc con, chọn <strong>🔁 Hàng ngày</strong>, <strong>💼 Ngày làm việc (T2-T6)</strong> hoặc <strong>📅 Hàng tuần</strong>.
+              </li>
+              <li>
+                <strong>Tự động làm mới khi sang ngày mới</strong>: Hôm nay bạn hoàn thành việc và được ghi nhận vào lịch sử & tính chuỗi Streak 🔥. Khi sang ngày mới, ứng dụng tự động mở lại việc (và các bước con) về trạng thái sẵn sàng làm mà không mất lịch sử cũ!
+              </li>
+              <li>
+                <strong>Làm mới tức thì</strong>: Nếu bạn muốn làm lại ngay trong ngày, bấm nút <strong>Làm mới</strong> cạnh huy hiệu hoặc trong menu <strong>···</strong>.
+              </li>
+            </ul>
+          </div>
+
+          <div className="p-3 bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 rounded-xl space-y-1">
+            <div className="font-semibold text-slate-900 dark:text-slate-100 text-[12px] flex items-center gap-1.5">
+              <span className="font-mono text-slate-500 dark:text-slate-400 text-[11px]">03.</span>
               <span>Chạy trên bất kỳ máy nào (100% Offline)</span>
             </div>
             <p className="text-slate-600 dark:text-slate-300">
@@ -84,20 +105,20 @@ export function GuideModal({ isOpen, onClose }: GuideModalProps) {
 
           <div className="p-3 bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 rounded-xl space-y-1">
             <div className="font-semibold text-slate-900 dark:text-slate-100 text-[12px] flex items-center gap-1.5">
-              <span className="font-mono text-slate-500 dark:text-slate-400 text-[11px]">03.</span>
+              <span className="font-mono text-slate-500 dark:text-slate-400 text-[11px]">04.</span>
               <span>Dữ liệu lưu ở đâu? Có an toàn không?</span>
             </div>
             <p className="text-slate-600 dark:text-slate-300">
-              Dữ liệu được lưu trực tiếp vào <strong>ổ cứng / chip nhớ</strong> của thiết bị bạn (thông qua phân vùng bảo mật LocalStorage của trình duyệt). Không có máy chủ, không thu thập dữ liệu cá nhân, hoạt động vĩnh viễn khi tắt mạng.
+              Dữ liệu được lưu trực tiếp vào <strong>ổ cứng / chip nhớ</strong> của thiết bị bạn (thông qua phân vùng bảo mật LocalStorage và IndexedDB 3 lớp). Không có máy chủ, không thu thập dữ liệu cá nhân, hoạt động vĩnh viễn khi tắt mạng.
             </p>
             <p className="text-[11.5px] text-slate-500 dark:text-slate-400 pt-0.5">
-              Bạn có thể bấm <strong>Sao lưu dữ liệu</strong> ở thanh trên để tải file JSON dự phòng hoặc đồng bộ sang máy khác.
+              Bạn có thể bấm <strong>Sao lưu dữ liệu</strong> ở thanh trên để tải file JSON dự phòng, xem Két ảnh chụp khôi phục hoặc chuyển sang thiết bị khác.
             </p>
           </div>
 
           <div className="p-3 bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 rounded-xl space-y-1">
             <div className="font-semibold text-slate-900 dark:text-slate-100 text-[12px] flex items-center gap-1.5">
-              <span className="font-mono text-slate-500 dark:text-slate-400 text-[11px]">04.</span>
+              <span className="font-mono text-slate-500 dark:text-slate-400 text-[11px]">05.</span>
               <span>Phím tắt năng suất cao (Power User)</span>
             </div>
             <div className="grid grid-cols-2 gap-1.5 text-[11px] pt-1">

@@ -6,7 +6,7 @@ export const MUTED_KEY = 'SOLO_MUTED_V1';
 export const REMINDER_KEY = 'SOLO_REMINDER_V1';
 export const ACTIVITY_KEY = 'SOLO_CHECKLIST_ACTIVITY_LOG_V1';
 export const COMPLETED_LOGS_KEY = 'SOLO_COMPLETED_LOGS_V2';
-export const APP_VERSION = '1.0.6';
+export const APP_VERSION = '2.1.0';
 
 export const INITIAL_PROJECTS: Project[] = [
   {
@@ -15,6 +15,18 @@ export const INITIAL_PROJECTS: Project[] = [
     color: '#0071e3',
     isExpanded: true,
     tasks: [
+      {
+        id: 't_daily_habit',
+        title: 'Post Video X / Shorts hàng ngày (Việc lặp lại định kỳ)',
+        status: 'todo',
+        isPinned: true,
+        recurrence: 'daily',
+        recurrenceStreak: 3,
+        subtasks: [
+          { id: 's_dh_1', title: 'Cắt video clip 45s khoảnh khắc game hay', completed: false, status: 'todo' },
+          { id: 's_dh_2', title: 'Đăng lên X & YouTube Shorts kèm hashtag', completed: false, status: 'todo' },
+        ],
+      },
       {
         id: 't_hierarchical_demo',
         title: 'Phát triển Game Indie hoàn chỉnh (Mô hình 3 cấp việc lồng nhau)',

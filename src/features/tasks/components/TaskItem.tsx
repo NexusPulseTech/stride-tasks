@@ -6,14 +6,16 @@ import {
   MoreHorizontal,
   GripVertical,
   Pin,
+  Repeat,
+  RotateCw,
 } from 'lucide-react';
 import { FormattedTaskText } from '../utils/formatters';
 import { getTaskSubtaskStats } from '../utils/subtaskTree';
+import { isDoneStatus } from '../utils/statusCategory';
 import { SubtaskList } from './SubtaskList';
 import { TaskMoreMenu } from './TaskMoreMenu';
 import { TaskStatusButton } from './TaskStatusButton';
 import { TaskItemProps } from '../types';
-import { isDoneStatus } from '../utils/statusCategory';
 
 export type { TaskItemProps };
 
@@ -26,7 +28,9 @@ export function TaskItem({
   statuses, onAddCustomStatus, onDeleteCustomStatus, onChangeSubtaskStatus,
   activeMenuTaskId, onSetActiveMenuTaskId,
   onCopyTask, onTogglePinTask, onOpenAddSubtask,
-  onMoveTask, onDeleteTask, onOpenBatchPasteForTask,
+  onMoveTask, onDeleteTask,
+  onSetTaskRecurrence, onSetSubTaskRecurrence, onManuallyResetRecurring,
+  onManuallyResetRecurringSubTask,
   isSubOpen, onToggleExpandSubtasks, isAddingSub,
   subtaskFilterMode, onSubtaskFilterModeChange,
   isCompletedSubExpanded, onToggleCompletedSubExpanded,
@@ -36,6 +40,7 @@ export function TaskItem({
   newSubTaskTitle, onNewSubTaskTitleChange,
   onAddSubTask, onCloseSubtaskInput,
   onEditTaskTitle, onEditSubtaskTitle, onReorderSubtask,
+  onOpenBatchPasteForTask,
 }: TaskItemProps) {
   const moreButtonRef = useRef<HTMLButtonElement>(null);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -191,6 +196,37 @@ export function TaskItem({
                 <span>Ưu tiên</span>
               </span>
             )}
+            {task.recurrence && (
+              <span className="inline-flex items-center gap-1 text-[10px] text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-800/50 px-1.5 py-0.5 rounded font-medium shrink-0 whitespace-nowrap">
+                <Repeat className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" />
+                <span>
+                  {task.recurrence === 'daily'
+                    ? 'Hàng ngày'
+                    : task.recurrence === 'weekdays'
+                    ? 'T2-T6'
+                    : 'Hàng tuần'}
+                </span>
+                {task.recurrenceStreak && task.recurrenceStreak > 0 ? (
+                  <span className="text-[9px] font-mono font-semibold text-amber-600 dark:text-amber-400">
+                    🔥{task.recurrenceStreak}
+                  </span>
+                ) : null}
+                {isDone && onManuallyResetRecurring && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onManuallyResetRecurring(projectId, task.id);
+                    }}
+                    className="ml-0.5 text-[9.5px] text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-0.5 cursor-pointer"
+                    title="Làm mới lại việc này để tiếp tục thực hiện hôm nay"
+                  >
+                    <RotateCw className="w-2.5 h-2.5" />
+                    <span>Làm mới</span>
+                  </button>
+                )}
+              </span>
+            )}
             {hasSubs && (
               <button
                 type="button"
@@ -290,8 +326,11 @@ export function TaskItem({
               onCopyTask={onCopyTask} onTogglePinTask={onTogglePinTask}
               onOpenAddSubtask={onOpenAddSubtask} onMoveTask={onMoveTask} onDeleteTask={onDeleteTask}
               onOpenBatchPasteSubtasks={onOpenBatchPasteForTask ? () => {
+                onSetActiveMenuTaskId(null);
                 onOpenBatchPasteForTask(projectId, task.id, null, task.title);
               } : undefined}
+              onSetRecurrence={onSetTaskRecurrence}
+              onManuallyResetRecurring={onManuallyResetRecurring}
             />
           </div>
         </div>
@@ -320,6 +359,8 @@ export function TaskItem({
             onDeleteCustomStatus={onDeleteCustomStatus}
             onChangeSubtaskStatus={onChangeSubtaskStatus}
             onOpenBatchPasteForTask={onOpenBatchPasteForTask}
+            onSetSubTaskRecurrence={onSetSubTaskRecurrence}
+            onManuallyResetRecurringSubTask={onManuallyResetRecurringSubTask}
           />
         </div>
       )}

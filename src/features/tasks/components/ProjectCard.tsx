@@ -1,9 +1,9 @@
 import React, { useRef } from 'react';
-import { ClipboardPaste, Plus } from 'lucide-react';
-import { Project, Task, StatusDefinition } from '../../../types';
+import { Plus, ClipboardPaste } from 'lucide-react';
+import { Project, Task, StatusDefinition, RecurrenceType } from '../../../types';
+import { isDoneStatus } from '../utils/statusCategory';
 import { TaskItem } from './TaskItem';
 import { ProjectCardHeader } from './ProjectCardHeader';
-import { isDoneStatus } from '../utils/statusCategory';
 
 export interface ProjectCardProps {
   project: Project;
@@ -41,6 +41,10 @@ export interface ProjectCardProps {
   onOpenAddSubtask: (taskId: string) => void;
   onMoveTask: (projId: string, index: number, dir: 'up' | 'down', e: React.MouseEvent) => void;
   onDeleteTask: (projId: string, taskId: string) => void;
+  onSetTaskRecurrence?: (projId: string, taskId: string, recurrence: RecurrenceType) => void;
+  onSetSubTaskRecurrence?: (projId: string, taskId: string, subId: string, recurrence: RecurrenceType) => void;
+  onManuallyResetRecurring?: (projId: string, taskId: string) => void;
+  onManuallyResetRecurringSubTask?: (projId: string, taskId: string, subId: string) => void;
   expandedSubtasks: Record<string, boolean>;
   onToggleExpandSubtasks: (taskId: string) => void;
   activeSubTaskId: string | null;
@@ -89,7 +93,6 @@ export function ProjectCard({
   onToggleExpand,
   onCopyProjectAsMarkdown,
   onOpenBatchPaste,
-  onOpenBatchPasteForTask,
   onDeleteProject,
   taskInputValue,
   onTaskInputChange,
@@ -116,6 +119,10 @@ export function ProjectCard({
   onOpenAddSubtask,
   onMoveTask,
   onDeleteTask,
+  onSetTaskRecurrence,
+  onSetSubTaskRecurrence,
+  onManuallyResetRecurring,
+  onManuallyResetRecurringSubTask,
   expandedSubtasks,
   onToggleExpandSubtasks,
   activeSubTaskId,
@@ -137,10 +144,11 @@ export function ProjectCard({
   onEditTaskTitle,
   onEditSubtaskTitle,
   onReorderSubtask,
+  onOpenBatchPasteForTask,
 }: ProjectCardProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const tasks = project.tasks;
-  const countDone = tasks.filter((task) => isDoneStatus(task.status, statuses)).length;
+  const countDone = tasks.filter((t) => isDoneStatus(t.status, statuses)).length;
   const pct = tasks.length > 0 ? Math.round((countDone / tasks.length) * 100) : 0;
   const isAllDone = tasks.length > 0 && countDone === tasks.length;
 
@@ -246,6 +254,10 @@ export function ProjectCard({
                   onEditSubtaskTitle={onEditSubtaskTitle}
                   onReorderSubtask={onReorderSubtask}
                   onOpenBatchPasteForTask={onOpenBatchPasteForTask}
+                  onSetTaskRecurrence={onSetTaskRecurrence}
+                  onSetSubTaskRecurrence={onSetSubTaskRecurrence}
+                  onManuallyResetRecurring={onManuallyResetRecurring}
+                  onManuallyResetRecurringSubTask={onManuallyResetRecurringSubTask}
                 />
               );
             })
@@ -281,11 +293,10 @@ export function ProjectCard({
               <button
                 type="button"
                 onClick={() => onOpenBatchPaste(project)}
-                className="h-8 px-2.5 bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-xs font-medium cursor-pointer transition-colors shrink-0 flex items-center gap-1"
-                title="Dán nhanh danh sách công việc"
-                aria-label="Dán nhanh danh sách công việc"
+                className="h-8 px-2.5 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-xs font-medium cursor-pointer transition-colors shrink-0 shadow-2xs flex items-center gap-1"
+                title="Dán nhanh danh sách công việc (từ Clipboard hoặc mở hộp thoại dán)"
               >
-                <ClipboardPaste className="w-3.5 h-3.5 shrink-0" />
+                <ClipboardPaste className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
                 <span className="hidden sm:inline">Dán nhanh</span>
               </button>
             </form>

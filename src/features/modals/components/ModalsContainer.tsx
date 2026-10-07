@@ -7,7 +7,7 @@ import { GuideModal } from './GuideModal';
 import { BackupModal } from './BackupModal';
 import { FeedbackModal } from './FeedbackModal';
 import { ViewSettingsModal } from './ViewSettingsModal';
-import { AutoBackupData, BatchPasteTarget, Project, ConfirmDialogState, MobileGuideTab } from '../../../types';
+import { Project, ConfirmDialogState, MobileGuideTab, AutoBackupData, BatchPasteTarget } from '../../../types';
 import { ViewPreferences } from '../../../hooks/useViewPreferences';
 
 export interface ModalsContainerProps {
@@ -43,6 +43,11 @@ export interface ModalsContainerProps {
   autoBackupData?: AutoBackupData | null;
   onRestoreAutoBackup?: () => void;
   onClearAllData?: () => void;
+  onRestoreSnapshot?: (projects: Project[], label?: string) => void;
+  onDirectPasteRestore?: (rawJson: string) => void;
+  onGetFullBackupJson?: () => string;
+  onDownloadSourceZip?: () => void;
+  onDownloadHtml?: () => void;
   showFeedbackModal: boolean;
   onCloseFeedbackModal: () => void;
   showViewSettingsModal: boolean;
@@ -88,6 +93,11 @@ export function ModalsContainer({
   autoBackupData,
   onRestoreAutoBackup,
   onClearAllData,
+  onRestoreSnapshot,
+  onDirectPasteRestore,
+  onGetFullBackupJson,
+  onDownloadSourceZip,
+  onDownloadHtml,
   showFeedbackModal,
   onCloseFeedbackModal,
   showViewSettingsModal,
@@ -143,6 +153,11 @@ export function ModalsContainer({
         autoBackupData={autoBackupData}
         onRestoreAutoBackup={onRestoreAutoBackup}
         onClearAllData={onClearAllData}
+        onRestoreSnapshot={onRestoreSnapshot}
+        onDirectPasteRestore={onDirectPasteRestore}
+        onGetFullBackupJson={onGetFullBackupJson}
+        onDownloadSourceZip={onDownloadSourceZip}
+        onDownloadHtml={onDownloadHtml}
       />
 
       <FeedbackModal

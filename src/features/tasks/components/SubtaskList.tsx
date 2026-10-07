@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { ClipboardPaste, Plus } from 'lucide-react';
-import { Task, StatusDefinition } from '../../../types';
-import { countSubtaskLeaves } from '../utils/statusCategory';
+import { Plus, ClipboardPaste } from 'lucide-react';
+import { Task, StatusDefinition, RecurrenceType } from '../../../types';
+import { countLeafSubtasks } from '../utils/subtaskTree';
 import { SubTaskRow } from './SubTaskRow';
 
 export interface SubtaskListProps {
@@ -44,7 +44,14 @@ export interface SubtaskListProps {
     targetId: string,
     position: 'top' | 'bottom'
   ) => void;
-  onOpenBatchPasteForTask?: (projId: string, taskId: string, parentSubId?: string | null, targetTitle?: string) => void;
+  onOpenBatchPasteForTask?: (
+    projId: string,
+    taskId: string,
+    parentSubId?: string | null,
+    targetTitle?: string
+  ) => void;
+  onSetSubTaskRecurrence?: (projId: string, taskId: string, subId: string, recurrence: RecurrenceType) => void;
+  onManuallyResetRecurringSubTask?: (projId: string, taskId: string, subId: string) => void;
 }
 
 export function SubtaskList({
@@ -54,10 +61,6 @@ export function SubtaskList({
   onFilterModeChange,
   onToggleSubTask,
   onDeleteSubTask,
-  statuses = [],
-  onAddCustomStatus = () => null,
-  onDeleteCustomStatus = () => {},
-  onChangeSubtaskStatus,
   isInputActive,
   newSubTaskTitle,
   onNewSubTaskTitleChange,
@@ -65,12 +68,20 @@ export function SubtaskList({
   onCloseInput,
   onEditSubtaskTitle,
   onReorderSubtask,
+  statuses,
+  onAddCustomStatus,
+  onDeleteCustomStatus,
+  onChangeSubtaskStatus,
   onOpenBatchPasteForTask,
+  onSetSubTaskRecurrence,
+  onManuallyResetRecurringSubTask,
 }: SubtaskListProps) {
   const rootInputRef = useRef<HTMLInputElement>(null);
-  const [expandedNodes, setExpandedNodes] = useState<Record<string, boolean>>({});
-  const [addingChildToSubId, setAddingChildToSubId] = useState<string | null>(null);
   const [isRootInputOpen, setIsRootInputOpen] = useState(false);
+  const [addingChildToSubId, setAddingChildToSubId] = useState<string | null>(null);
+  const [expandedNodes, setExpandedNodes] = useState<Record<string, boolean>>({});
+
+  // Kéo thả việc con
   const [draggedSubId, setDraggedSubId] = useState<string | null>(null);
   const [dragOverSub, setDragOverSub] = useState<{
     subId: string;
@@ -86,33 +97,30 @@ export function SubtaskList({
   const toggleExpandNode = (subId: string, forceExpand?: boolean) => {
     setExpandedNodes((prev) => ({
       ...prev,
-      [subId]: forceExpand !== undefined ? forceExpand : !(prev[subId] ?? true),
+      [subId]: forceExpand !== undefined ? forceExpand : !prev[subId],
     }));
   };
 
   const handleSubDragStart = (e: React.DragEvent, subId: string) => {
-    const target = e.target as HTMLElement;
-    if (target.closest('input, button, a')) {
-      e.preventDefault();
-      return;
-    }
     e.stopPropagation();
     setDraggedSubId(subId);
+    e.dataTransfer.setData('text/plain', subId);
     e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', `subtask:${subId}`);
   };
 
   const handleSubDragOver = (e: React.DragEvent, subId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    e.dataTransfer.dropEffect = 'move';
     if (!draggedSubId || draggedSubId === subId) return;
 
-    const rect = e.currentTarget.getBoundingClientRect();
+    const targetEl = (e.currentTarget as HTMLElement).closest('[data-subtask-row="true"]');
+    if (!targetEl) return;
+
+    const rect = targetEl.getBoundingClientRect();
     const midY = rect.top + rect.height / 2;
     const position = e.clientY < midY ? 'top' : 'bottom';
 
-    if (!dragOverSub || dragOverSub.subId !== subId || dragOverSub.position !== position) {
+    if (dragOverSub?.subId !== subId || dragOverSub?.position !== position) {
       setDragOverSub({ subId, position });
     }
   };
@@ -120,10 +128,20 @@ export function SubtaskList({
   const handleSubDrop = (e: React.DragEvent, targetSubId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    if (draggedSubId && draggedSubId !== targetSubId && onReorderSubtask) {
-      const pos = dragOverSub?.position || 'bottom';
-      onReorderSubtask(projectId, task.id, draggedSubId, targetSubId, pos);
+    if (!draggedSubId || draggedSubId === targetSubId || !dragOverSub) {
+      setDraggedSubId(null);
+      setDragOverSub(null);
+      return;
     }
+
+    onReorderSubtask?.(
+      projectId,
+      task.id,
+      draggedSubId,
+      targetSubId,
+      dragOverSub.position
+    );
+
     setDraggedSubId(null);
     setDragOverSub(null);
   };
@@ -134,15 +152,16 @@ export function SubtaskList({
     setDragOverSub(null);
   };
 
-  let totalLeafs = 0;
-  let doneLeafs = 0;
-  if (task.subtasks) {
-    for (const sub of task.subtasks) {
-      const stats = countSubtaskLeaves(sub, statuses);
-      totalLeafs += stats.total;
-      doneLeafs += stats.completed;
-    }
-  }
+  const totalStats = task.subtasks.reduce(
+    (acc, sub) => {
+      const s = countLeafSubtasks(sub);
+      return { total: acc.total + s.total, completed: acc.completed + s.completed };
+    },
+    { total: 0, completed: 0 }
+  );
+
+  const totalLeafs = totalStats.total;
+  const doneLeafs = totalStats.completed;
 
   const handleRootSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -154,25 +173,9 @@ export function SubtaskList({
     }
   };
 
-  const handleQuickPaste = async (parentSubId: string | null, targetTitle: string) => {
-    try {
-      if (navigator.clipboard?.readText) {
-        const clipboardText = await navigator.clipboard.readText();
-        if (clipboardText.trim()) {
-          onAddSubTask(projectId, task.id, clipboardText, parentSubId);
-          if (parentSubId) toggleExpandNode(parentSubId, true);
-          return;
-        }
-      }
-    } catch (error) {
-      // Clipboard permissions may require a user gesture or secure context.
-    }
-    onOpenBatchPasteForTask?.(projectId, task.id, parentSubId, targetTitle);
-  };
-
-  const handleRootPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+  const handleSubtaskPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     const text = e.clipboardData.getData('text');
-    if (text.includes('\n')) {
+    if (text && text.includes('\n')) {
       e.preventDefault();
       onAddSubTask(projectId, task.id, text, null);
       onNewSubTaskTitleChange('');
@@ -206,7 +209,7 @@ export function SubtaskList({
                   : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              Cần làm ({totalLeafs - doneLeafs})
+              Đang làm ({totalLeafs - doneLeafs})
             </button>
             <button
               type="button"
@@ -246,6 +249,8 @@ export function SubtaskList({
             onDeleteCustomStatus={onDeleteCustomStatus}
             onChangeSubtaskStatus={onChangeSubtaskStatus}
             onOpenBatchPasteForTask={onOpenBatchPasteForTask}
+            onSetSubTaskRecurrence={onSetSubTaskRecurrence}
+            onManuallyResetRecurringSubTask={onManuallyResetRecurringSubTask}
             isDragging={draggedSubId === sub.id}
             isOver={dragOverSub?.subId === sub.id}
             dragOverPosition={dragOverSub?.subId === sub.id ? dragOverSub.position : null}
@@ -267,14 +272,14 @@ export function SubtaskList({
             type="text"
             value={newSubTaskTitle}
             onChange={(e) => onNewSubTaskTitleChange(e.target.value)}
-            onPaste={handleRootPaste}
+            onPaste={handleSubtaskPaste}
             onKeyDown={(e) => {
               if (e.key === 'Escape') {
                 onCloseInput();
                 setIsRootInputOpen(false);
               }
             }}
-            placeholder="Nhập tên việc con... (Enter để lưu)"
+            placeholder="Nhập tên việc con... (Enter để lưu, hoặc dán nhiều dòng)"
             className="flex-1 h-7 px-2 bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-700 rounded-md text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-slate-800 dark:focus:border-slate-400 transition-all shadow-2xs"
           />
           <button
@@ -283,15 +288,6 @@ export function SubtaskList({
             className="h-7 px-2.5 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white disabled:opacity-40 text-white dark:text-slate-950 rounded-md text-[11px] font-medium cursor-pointer transition-colors shrink-0 shadow-2xs"
           >
             Lưu
-          </button>
-          <button
-            type="button"
-            onClick={() => handleQuickPaste(null, task.title)}
-            className="h-7 px-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md text-[10.5px] cursor-pointer shrink-0 transition-colors flex items-center gap-1"
-            title="Dán nhanh danh sách việc con từ Clipboard"
-          >
-            <ClipboardPaste className="w-3 h-3" />
-            <span className="hidden sm:inline">Dán</span>
           </button>
           <button
             type="button"
@@ -317,11 +313,22 @@ export function SubtaskList({
           </button>
           <button
             type="button"
-            onClick={() => handleQuickPaste(null, task.title)}
-            className="flex items-center gap-1 py-1 px-2 text-[10.5px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 bg-slate-100/80 hover:bg-slate-200/80 dark:bg-slate-800/70 dark:hover:bg-slate-700/70 rounded cursor-pointer transition-colors font-medium shrink-0"
-            title="Dán nhanh việc con từ Clipboard hoặc nhập thủ công"
+            onClick={async () => {
+              try {
+                if (navigator.clipboard && navigator.clipboard.readText) {
+                  const clipText = await navigator.clipboard.readText();
+                  if (clipText && clipText.trim()) {
+                    onAddSubTask(projectId, task.id, clipText, null);
+                    return;
+                  }
+                }
+              } catch (err) {}
+              onOpenBatchPasteForTask?.(projectId, task.id, null, task.title);
+            }}
+            className="flex items-center gap-1 py-1 px-2 text-[10.5px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 bg-slate-100/80 hover:bg-slate-200/80 dark:bg-slate-800/70 dark:hover:bg-slate-700/70 rounded cursor-pointer transition-colors font-medium select-none shrink-0 shadow-2xs"
+            title="Dán nhanh danh sách việc con (tự động đọc Clipboard hoặc mở hộp thoại dán)"
           >
-            <ClipboardPaste className="w-3 h-3 shrink-0" />
+            <ClipboardPaste className="w-3 h-3 shrink-0" strokeWidth={1.5} />
             <span>Dán nhanh</span>
           </button>
         </div>

@@ -1,8 +1,21 @@
 import React from 'react';
-import { Plus, Pencil, Copy, Trash2, ClipboardPaste } from 'lucide-react';
+import {
+  Plus,
+  Pencil,
+  Copy,
+  Trash2,
+  ClipboardPaste,
+  Repeat,
+  RotateCw,
+  Check,
+} from 'lucide-react';
+import { SubTask, RecurrenceType } from '../../../types';
 import { PortalMenu } from '../../../components/ui/PortalMenu';
 
 interface SubTaskMoreMenuProps {
+  sub: SubTask;
+  projectId: string;
+  taskId: string;
   isOpen: boolean;
   onClose: () => void;
   triggerRef: React.RefObject<HTMLButtonElement | null>;
@@ -11,9 +24,14 @@ interface SubTaskMoreMenuProps {
   onCopyTitle: () => void;
   onDelete: () => void;
   onBatchPasteChild?: () => void;
+  onSetSubTaskRecurrence?: (projId: string, taskId: string, subId: string, recurrence: RecurrenceType) => void;
+  onManuallyResetRecurringSubTask?: (projId: string, taskId: string, subId: string) => void;
 }
 
 export function SubTaskMoreMenu({
+  sub,
+  projectId,
+  taskId,
   isOpen,
   onClose,
   triggerRef,
@@ -22,9 +40,11 @@ export function SubTaskMoreMenu({
   onCopyTitle,
   onDelete,
   onBatchPasteChild,
+  onSetSubTaskRecurrence,
+  onManuallyResetRecurringSubTask,
 }: SubTaskMoreMenuProps) {
   return (
-    <PortalMenu isOpen={isOpen} onClose={onClose} triggerRef={triggerRef} widthClass="w-40">
+    <PortalMenu isOpen={isOpen} onClose={onClose} triggerRef={triggerRef} widthClass="w-48">
       <button
         type="button"
         onClick={onStartAddChild}
@@ -37,12 +57,84 @@ export function SubTaskMoreMenu({
       {onBatchPasteChild && (
         <button
           type="button"
-          onClick={onBatchPasteChild}
+          onClick={() => {
+            onBatchPasteChild();
+            onClose();
+          }}
           className="w-full text-left px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2 cursor-pointer transition-colors"
         >
           <ClipboardPaste className="w-3.5 h-3.5 shrink-0 text-slate-400" strokeWidth={1.5} aria-hidden="true" />
           <span>Dán danh sách việc con</span>
         </button>
+      )}
+
+      {/* Chu kỳ lặp lại (Hàng ngày, v.v.) cho việc con */}
+      {onSetSubTaskRecurrence && (
+        <div className="py-1 my-1 border-y border-slate-100 dark:border-slate-800">
+          <div className="px-2.5 py-0.5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+            <span>Lặp lại định kỳ</span>
+            <Repeat className="w-3 h-3 text-slate-400" />
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              onSetSubTaskRecurrence(projectId, taskId, sub.id, sub.recurrence === 'daily' ? null : 'daily');
+              onClose();
+            }}
+            className={`w-full text-left px-2.5 py-1.5 text-xs rounded-lg flex items-center justify-between cursor-pointer transition-colors ${
+              sub.recurrence === 'daily'
+                ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 font-medium'
+                : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/80'
+            }`}
+          >
+            <span>🔁 Hàng ngày</span>
+            {sub.recurrence === 'daily' && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              onSetSubTaskRecurrence(projectId, taskId, sub.id, sub.recurrence === 'weekdays' ? null : 'weekdays');
+              onClose();
+            }}
+            className={`w-full text-left px-2.5 py-1.5 text-xs rounded-lg flex items-center justify-between cursor-pointer transition-colors ${
+              sub.recurrence === 'weekdays'
+                ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 font-medium'
+                : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/80'
+            }`}
+          >
+            <span>💼 Ngày làm việc (T2-T6)</span>
+            {sub.recurrence === 'weekdays' && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              onSetSubTaskRecurrence(projectId, taskId, sub.id, sub.recurrence === 'weekly' ? null : 'weekly');
+              onClose();
+            }}
+            className={`w-full text-left px-2.5 py-1.5 text-xs rounded-lg flex items-center justify-between cursor-pointer transition-colors ${
+              sub.recurrence === 'weekly'
+                ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 font-medium'
+                : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/80'
+            }`}
+          >
+            <span>📅 Hàng tuần</span>
+            {sub.recurrence === 'weekly' && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
+          </button>
+
+          {sub.recurrence && onManuallyResetRecurringSubTask && (
+            <button
+              type="button"
+              onClick={() => {
+                onManuallyResetRecurringSubTask(projectId, taskId, sub.id);
+                onClose();
+              }}
+              className="w-full text-left px-2.5 py-1 text-xs text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/30 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors mt-0.5"
+            >
+              <RotateCw className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+              <span>Làm mới việc hôm nay</span>
+            </button>
+          )}
+        </div>
       )}
 
       <button

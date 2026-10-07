@@ -63,10 +63,13 @@ export function getTaskSubtaskStats(task: Task) {
  * Thác đổ (Cascade down): Đặt trạng thái completed cho toàn bộ cây con bên dưới
  */
 export function cascadeSubtaskCompleted(sub: SubTask, completed: boolean): SubTask {
+  const todayStr = new Date().toISOString().slice(0, 10);
   return {
     ...sub,
     completed,
     status: completed ? 'done' : 'todo',
+    lastCompletedDate: completed && sub.recurrence ? todayStr : sub.lastCompletedDate,
+    recurrenceStreak: completed && sub.recurrence ? (sub.recurrenceStreak || 0) + 1 : sub.recurrenceStreak,
     subtasks: sub.subtasks
       ? sub.subtasks.map((child) => cascadeSubtaskCompleted(child, completed))
       : undefined,
@@ -164,7 +167,8 @@ export function addNestedSubtask(
         const nextSubs = [...existingSubs, newSub];
         return {
           ...item,
-          completed: nextSubs.length > 0 && nextSubs.every((child) => child.completed),
+          // Vì thêm 1 bước con chưa xong (completed: false), nên cha không thể còn là completed = true
+          completed: false,
           subtasks: nextSubs,
         };
       }
@@ -290,6 +294,7 @@ export function updateSubtaskTitleInTree(
     return item;
   });
 }
+
 /**
  * Cập nhật trạng thái của một bước con (Subtask) ở bất kỳ tầng đệ quy nào (bậc 1, bậc 2, bậc 3...)
  */
