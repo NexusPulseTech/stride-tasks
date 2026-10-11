@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   Project,
   Task,
+  SubTask,
   FilterType,
   MobileGuideTab,
   ConfirmDialogState,
@@ -20,9 +21,11 @@ import { useSmartReminder } from './useSmartReminder';
 import { useTaskCRUD, STRIDE_AUTO_BACKUP_KEY } from './useTaskCRUD';
 import { useSubtaskOperations } from './useSubtaskOperations';
 import { useTaskDnd } from './useTaskDnd';
+import { useProjectDnd } from './useProjectDnd';
 import { useStatusManager } from './useStatusManager';
 import { useActivityLog, CompletedItemLog } from '../../analytics';
 import { clearAllPersistentData } from '../../../utils/persistentStorage';
+import { PinnedItem } from '../components/PinnedSection';
 
 export function useTaskManager() {
   const [showStats, setShowStats] = useState(false);
@@ -48,6 +51,31 @@ export function useTaskManager() {
   const [mobileTaskPinned, setMobileTaskPinned] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showViewSettingsModal, setShowViewSettingsModal] = useState(false);
+  const [selectedDetailId, setSelectedDetailId] = useState<{
+    taskId: string;
+    projectId: string;
+  } | null>(null);
+
+  const [scheduleTaskTarget, setScheduleTaskTarget] = useState<{
+    task: Task;
+    project: Project;
+  } | null>(null);
+
+  const openScheduleModal = (task: Task, project: Project) => {
+    setScheduleTaskTarget({ task, project });
+  };
+
+  const closeScheduleModal = () => {
+    setScheduleTaskTarget(null);
+  };
+
+  const openDetailModal = (task: Task, projectId: string) => {
+    setSelectedDetailId({ taskId: task.id, projectId });
+  };
+
+  const closeDetailModal = () => {
+    setSelectedDetailId(null);
+  };
 
   // Auto-backup data state
   const [autoBackupData, setAutoBackupData] = useState<AutoBackupData | null>(() => {
@@ -65,15 +93,14 @@ export function useTaskManager() {
   // Composed Sub-Hooks
   const statusManager = useStatusManager();
   const activity = useActivityLog();
-  const celebration = useCelebrationAndStreak([]);
-  const crud = useTaskCRUD({
-    showToast: celebration.showToast,
-    triggerCelebration: celebration.triggerCelebration,
-    triggerUndoableAction: celebration.triggerUndoableAction,
-    handleDoneStreak: () => {
-      celebration.handleDoneStreak();
-    },
-    onTaskDone: (completed, task, project) => {
+  const celebration = useCelebrationAndStreak();
+
+  const handleDoneStreak = useCallback(() => {
+    celebration.handleDoneStreak();
+  }, [celebration]);
+
+  const onTaskDone = useCallback(
+    (completed: boolean, task?: Task, project?: Project) => {
       if (completed && task) {
         activity.recordTaskCompletion(task, project);
         celebration.handleDoneStreak();
@@ -81,7 +108,26 @@ export function useTaskManager() {
         activity.removeTaskCompletion(task.id);
       }
     },
+    [activity, celebration]
+  );
+
+  const crud = useTaskCRUD({
+    showToast: celebration.showToast,
+    triggerCelebration: celebration.triggerCelebration,
+    triggerUndoableAction: celebration.triggerUndoableAction,
+    handleDoneStreak,
+    onTaskDone,
   });
+
+  // Derived state: luôn đồng bộ 100% với crud.projects mà không cần setState trong useEffect (loại bỏ Maximum update depth exceeded)
+  const selectedDetailTask = useMemo(() => {
+    if (!selectedDetailId) return null;
+    const proj = crud.projects.find((p) => p.id === selectedDetailId.projectId);
+    if (!proj) return null;
+    const task = proj.tasks.find((t) => t.id === selectedDetailId.taskId);
+    if (!task) return null;
+    return { task, project: proj };
+  }, [selectedDetailId, crud.projects]);
 
   const refreshAutoBackup = useCallback(() => {
     try {
@@ -130,21 +176,13 @@ export function useTaskManager() {
     setProjects: crud.setProjects,
     showToast: celebration.showToast,
     triggerUndoableAction: celebration.triggerUndoableAction,
-    handleDoneStreak: () => {
-      celebration.handleDoneStreak();
-    },
+    handleDoneStreak,
     playChime,
     isMuted: celebration.isMuted,
-    onTaskDone: (completed, task, project) => {
-      if (completed && task) {
-        activity.recordTaskCompletion(task, project);
-        celebration.handleDoneStreak();
-      } else if (!completed && task) {
-        activity.removeTaskCompletion(task.id);
-      }
-    },
+    onTaskDone,
   });
   const dnd = useTaskDnd(crud.setProjects);
+  const projectDnd = useProjectDnd(crud.setProjects);
 
   useEffect(() => {
     const handleGlobalClick = () => setActiveMenuTaskId(null);
@@ -362,7 +400,7 @@ export function useTaskManager() {
       }
 
       const totalRecovered = incomingProjects.reduce((a, b) => a + (b.tasks?.length || 0), 0);
-      celebration.showToast(`✨ Đã đồng bộ thành công ${totalRecovered} công việc từ mã JSON!`);
+      celebration.showToast(`Đã đồng bộ thành công ${totalRecovered} công việc từ mã JSON.`);
       setShowBackupModal(false);
     } catch (e) {
       celebration.showToast('Lỗi: Chuỗi dán vào không phải là JSON hợp lệ!');
@@ -520,9 +558,12 @@ export function useTaskManager() {
     e.target.value = '';
   };
 
+
   // 5. Xóa dự án (Confirm nếu dự án có công việc bên trong)
-  const handleDeleteProject = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDeleteProject = (id: string, e?: React.MouseEvent) => {
+    if (e && typeof e.stopPropagation === 'function') {
+      try { e.stopPropagation(); } catch (err) {}
+    }
     const projToDelete = crud.projects.find((p) => p.id === id);
     if (!projToDelete) return;
 
@@ -535,23 +576,44 @@ export function useTaskManager() {
         cancelText: 'Hủy',
         isDestructive: true,
         onConfirm: () => {
-          crud.handleDeleteProject(id, e);
+          crud.handleDeleteProject(id);
           setConfirmDialog(null);
         },
       });
     } else {
-      crud.handleDeleteProject(id, e);
+      crud.handleDeleteProject(id);
     }
+  };
+
+  const clearSampleData = () => {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Xóa toàn bộ dữ liệu mẫu ban đầu?',
+      message:
+        'Thao tác này sẽ xóa sạch tất cả dự án và công việc mẫu ban đầu, đưa ứng dụng về không gian làm việc trống (trang trắng) hoàn toàn. Bạn có chắc chắn muốn xóa không?',
+      confirmText: 'Xóa dữ liệu mẫu',
+      cancelText: 'Hủy',
+      isDestructive: true,
+      onConfirm: () => {
+        crud.setProjects([]);
+        activity.clearAllActivityLogs();
+        clearAllPersistentData();
+        celebration.showToast('Đã xóa sạch dữ liệu mẫu. Không gian làm việc sẵn sàng.');
+        setConfirmDialog(null);
+      },
+    });
   };
 
   let totalTasks = 0;
   let totalDone = 0;
   let totalDoing = 0;
+  let totalScheduled = 0;
   crud.projects.forEach((p) => {
     totalTasks += p.tasks.length;
     p.tasks.forEach((t) => {
       if (isDoneStatus(t.status, statusManager.statuses)) totalDone++;
       if (isDoingStatus(t.status, statusManager.statuses)) totalDoing++;
+      if (Boolean(t.reminderAt || t.deadline) && !isDoneStatus(t.status, statusManager.statuses)) totalScheduled++;
     });
   });
 
@@ -569,6 +631,9 @@ export function useTaskManager() {
       if (filter === 'doing') {
         return p.tasks.some((t) => isDoingStatus(t.status, statusManager.statuses));
       }
+      if (filter === 'scheduled') {
+        return p.tasks.some((t) => Boolean(t.reminderAt || t.deadline) && !isDoneStatus(t.status, statusManager.statuses));
+      }
       if (filter === 'completed') {
         return p.tasks.some((t) => isDoneStatus(t.status, statusManager.statuses));
       }
@@ -582,9 +647,37 @@ export function useTaskManager() {
       return p;
     });
 
-  const pinnedTasks = crud.projects.flatMap((p) =>
-    p.tasks.filter((t) => t.isPinned).map((t) => ({ task: t, project: p }))
-  );
+  // Hỗ trợ ghim cả Task cha lẫn bất kỳ Subtask con nào trong cây phả hệ
+  const pinnedTasks: PinnedItem[] = crud.projects.flatMap((p) => {
+    const list: PinnedItem[] = [];
+    p.tasks.forEach((t) => {
+      if (t.isPinned) {
+        list.push({ type: 'task', task: t, project: p });
+      }
+
+      const collectPinnedSubs = (subs: SubTask[], parentTask: Task, path: string[]) => {
+        subs.forEach((s) => {
+          if (s.isPinned) {
+            list.push({
+              type: 'subtask',
+              subtask: s,
+              parentTask,
+              project: p,
+              path,
+            });
+          }
+          if (s.subtasks && s.subtasks.length > 0) {
+            collectPinnedSubs(s.subtasks, parentTask, [...path, s.title]);
+          }
+        });
+      };
+
+      if (t.subtasks && t.subtasks.length > 0) {
+        collectPinnedSubs(t.subtasks, t, [t.title]);
+      }
+    });
+    return list;
+  });
 
   return {
     ...crud,
@@ -660,6 +753,7 @@ export function useTaskManager() {
     totalTasks,
     totalDone,
     totalDoing,
+    totalScheduled,
     percentTotal,
     uncompletedCount,
     filteredProjects,
@@ -673,5 +767,21 @@ export function useTaskManager() {
     handleSetSubTaskRecurrence: crud.handleSetSubTaskRecurrence,
     handleManuallyResetRecurring: crud.handleManuallyResetRecurring,
     handleManuallyResetRecurringSubTask: crud.handleManuallyResetRecurringSubTask,
+    handleSetTaskSchedule: crud.handleSetTaskSchedule,
+    selectedDetailTask,
+    openDetailModal,
+    closeDetailModal,
+    scheduleTaskTarget,
+    openScheduleModal,
+    closeScheduleModal,
+    clearSampleData,
+    togglePinSubTask: subtasks.togglePinSubTask,
+    draggedProjId: projectDnd.draggedProjId,
+    dragOverProj: projectDnd.dragOverProj,
+    moveProject: projectDnd.moveProject,
+    handleProjectDragStart: projectDnd.handleProjectDragStart,
+    handleProjectDragOver: projectDnd.handleProjectDragOver,
+    handleProjectDrop: projectDnd.handleProjectDrop,
+    handleProjectDragEnd: projectDnd.handleProjectDragEnd,
   };
 }

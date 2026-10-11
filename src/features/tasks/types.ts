@@ -21,7 +21,6 @@ export interface TaskItemProps {
   onAddCustomStatus: (label: string, category: 'todo' | 'doing' | 'done', color: string) => StatusDefinition | null;
   onDeleteCustomStatus: (statusId: string) => void;
   onChangeSubtaskStatus?: (projId: string, taskId: string, subId: string, status: string, isDoneCategory?: boolean) => void;
-  onOpenBatchPasteForTask?: (projId: string, taskId: string, parentSubId?: string | null, targetTitle?: string) => void;
   activeMenuTaskId: string | null;
   onSetActiveMenuTaskId: (id: string | null) => void;
   onCopyTask: (title: string) => void;
@@ -69,4 +68,13 @@ export interface TaskItemProps {
     targetId: string,
     position: 'top' | 'bottom'
   ) => void;
+  onOpenBatchPasteForTask?: (
+    projId: string,
+    taskId: string,
+    parentSubId?: string | null,
+    targetTitle?: string
+  ) => void;
+  onOpenDetail?: (task: Task, projectId: string) => void;
+  onOpenSchedule?: (task: Task, projectId: string) => void;
+  onTogglePinSubTask?: (projId: string, taskId: string, subId: string) => void;
 }

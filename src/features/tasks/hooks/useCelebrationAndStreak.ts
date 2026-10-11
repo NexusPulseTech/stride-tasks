@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { STREAK_KEY, MUTED_KEY, REMINDER_KEY } from '../../../constants';
 import { triggerHaptic, playChime } from '../../../utils';
 import { UndoAction, Project } from '../../../types';
 
-export function useCelebrationAndStreak(projects: Project[]) {
+export function useCelebrationAndStreak(projects?: Project[]) {
   const [streak, setStreak] = useState<number>(() => {
     try {
       const s = localStorage.getItem(STREAK_KEY);
@@ -37,16 +37,16 @@ export function useCelebrationAndStreak(projects: Project[]) {
     }
   });
 
-  const showToast = (msg: string) => {
+  const showToast = useCallback((msg: string) => {
     triggerHaptic();
     setToast(msg);
     if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
     toastTimerRef.current = window.setTimeout(() => {
       setToast(null);
     }, 2200);
-  };
+  }, []);
 
-  const triggerCelebration = () => {
+  const triggerCelebration = useCallback(() => {
     setShowConfetti(true);
     playChime(isMuted);
     triggerHaptic([25, 50, 25]);
@@ -54,9 +54,9 @@ export function useCelebrationAndStreak(projects: Project[]) {
     confettiTimerRef.current = window.setTimeout(() => {
       setShowConfetti(false);
     }, 2500);
-  };
+  }, [isMuted]);
 
-  const triggerUndoableAction = (message: string, undoFn: () => void) => {
+  const triggerUndoableAction = useCallback((message: string, undoFn: () => void) => {
     triggerHaptic();
     if (undoTimerRef.current) window.clearTimeout(undoTimerRef.current);
     const actionId = Date.now().toString();
@@ -73,17 +73,19 @@ export function useCelebrationAndStreak(projects: Project[]) {
     undoTimerRef.current = window.setTimeout(() => {
       setUndoState(null);
     }, 4500);
-  };
+  }, [showToast]);
 
-  const toggleMute = () => {
-    const next = !isMuted;
-    setIsMuted(next);
-    try {
-      localStorage.setItem(MUTED_KEY, String(next));
-    } catch (e) {}
-  };
+  const toggleMute = useCallback(() => {
+    setIsMuted((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(MUTED_KEY, String(next));
+      } catch (e) {}
+      return next;
+    });
+  }, []);
 
-  const handleDoneStreak = () => {
+  const handleDoneStreak = useCallback(() => {
     playChime(isMuted);
     const today = new Date().toISOString().slice(0, 10);
     try {
@@ -103,9 +105,9 @@ export function useCelebrationAndStreak(projects: Project[]) {
         setStreak(data.count);
       }
     } catch (e) {}
-  };
+  }, [isMuted]);
 
-  const toggleReminder = async () => {
+  const toggleReminder = useCallback(async () => {
     if (!reminderEnabled) {
       if (typeof window !== 'undefined' && 'Notification' in window) {
         try {
@@ -116,7 +118,7 @@ export function useCelebrationAndStreak(projects: Project[]) {
               localStorage.setItem(REMINDER_KEY, 'true');
             } catch (e) {}
             showToast('Đã bật nhắc nhở công việc đang dở!');
-            new Notification('🎯 Solo Checklist', {
+            new Notification('Solo Checklist', {
               body: 'Đã kích hoạt nhắc nhở! App sẽ giúp bạn theo dõi các việc dở dang.',
             });
           } else {
@@ -135,10 +137,11 @@ export function useCelebrationAndStreak(projects: Project[]) {
       } catch (e) {}
       showToast('Đã tắt nhắc nhở');
     }
-  };
+  }, [reminderEnabled, showToast]);
 
   useEffect(() => {
     if (!reminderEnabled) return;
+    if (!projects || projects.length === 0) return;
     const checkAndNotify = () => {
       if (typeof window === 'undefined' || !('Notification' in window)) return;
       if (Notification.permission !== 'granted') return;
@@ -147,7 +150,7 @@ export function useCelebrationAndStreak(projects: Project[]) {
       if (pendingTasks.length > 0) {
         const topTask = pendingTasks.find((t) => t.isPinned || t.status === 'doing') || pendingTasks[0];
         try {
-          new Notification('🎯 Solo Checklist - Nhắc việc', {
+          new Notification('Solo Checklist - Nhắc việc', {
             body: `Bạn còn ${pendingTasks.length} việc chưa hoàn thành! Việc tiếp theo: "${topTask.title.slice(0, 32)}..."`,
           });
         } catch (e) {}

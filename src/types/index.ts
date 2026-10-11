@@ -6,18 +6,6 @@ export interface StatusDefinition {
   isCustom?: boolean;
 }
 
-export interface CompletedItemLog {
-  id: string;
-  taskId: string;
-  taskTitle: string;
-  projectId: string;
-  projectName: string;
-  completedAt: string;
-  dateKey: string;
-  subtasksCompleted?: number;
-  subtasksTotal?: number;
-}
-
 export type RecurrenceType = 'daily' | 'weekdays' | 'weekly' | null;
 
 export interface SubTask {
@@ -29,6 +17,7 @@ export interface SubTask {
   recurrence?: RecurrenceType;
   lastCompletedDate?: string; // 'YYYY-MM-DD'
   recurrenceStreak?: number;
+  isPinned?: boolean;
 }
 
 export interface Task {
@@ -36,6 +25,7 @@ export interface Task {
   title: string;
   status: string; // 'todo' | 'doing' | 'review' | 'blocked' | 'done' | custom
   deadline?: string;
+  reminderAt?: string; // ISO string hẹn giờ nhắc thông minh (ví dụ: "2026-10-09T09:00:00")
   notes?: string;
   subtasks: SubTask[];
   isPinned?: boolean; // Ghim việc ưu tiên cao nhất
@@ -69,7 +59,7 @@ export interface UndoAction {
   undo: () => void;
 }
 
-export type FilterType = 'all' | 'doing' | 'completed';
+export type FilterType = 'all' | 'doing' | 'scheduled' | 'completed';
 export type MobileGuideTab = 'ios' | 'android' | 'file';
 
 export interface BatchPasteTarget {

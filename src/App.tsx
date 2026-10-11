@@ -11,11 +11,14 @@ import {
   ReminderBanner,
   useTaskManager,
 } from './features/tasks';
+import { TaskDetailModal } from './features/tasks/components/TaskDetailModal';
+import { SmartScheduleModal } from './features/tasks/components/SmartScheduleModal';
+import { EmergencyRecoveryBanner } from './features/tasks/components/EmergencyRecoveryBanner';
+import { isDoingStatus, isDoneStatus } from './features/tasks/utils/statusCategory';
 import { FocusBanner } from './features/focus';
 import { StatsPanel } from './features/analytics';
 import { ModalsContainer } from './features/modals';
 import { triggerHaptic } from './utils';
-import { isDoneStatus, isDoingStatus } from './features/tasks/utils/statusCategory';
 
 export default function App() {
   const manager = useTaskManager();
@@ -73,8 +76,11 @@ export default function App() {
         onToggleMute={manager.toggleMute}
         onOpenGuideModal={() => manager.setShowGuideModal(true)}
         onDownloadHtml={manager.downloadHtml}
+        onDownloadSourceZip={manager.downloadSourceZip}
         themeMode={theme.themeMode}
         onCycleTheme={theme.cycleTheme}
+        onClearSampleData={manager.clearSampleData}
+        onResetSample={manager.resetSample}
       />
 
       {/* Nội dung tập trung Core */}
@@ -115,11 +121,20 @@ export default function App() {
           />
         )}
 
+        {/* Cảnh báo khôi phục khẩn cấp nếu phát hiện dữ liệu cũ */}
+        <EmergencyRecoveryBanner
+          currentProjects={manager.projects}
+          onRestore={manager.handleRestoreSnapshot}
+          onOpenBackupModal={() => manager.setShowBackupModal(true)}
+          onClearSampleData={manager.clearSampleData}
+        />
+
         {/* Thanh lọc & tìm kiếm */}
         <ActionBar
           filter={manager.filter}
           onFilterChange={manager.setFilter}
           totalDoing={manager.totalDoing}
+          totalScheduled={manager.totalScheduled}
           search={manager.search}
           onSearchChange={manager.setSearch}
           mobileSearchOpen={manager.mobileSearchOpen}
@@ -148,34 +163,47 @@ export default function App() {
           expandedTaskId={manager.expandedTaskId}
           onToggleExpand={(id) => manager.setExpandedTaskId(manager.expandedTaskId === id ? null : id)}
           onToggleTaskDone={manager.toggleTaskDone}
+          onToggleSubTask={manager.toggleSubTask}
           onChangeStatus={manager.changeStatus}
           onTogglePinTask={manager.togglePinTask}
+          onTogglePinSubTask={manager.togglePinSubTask}
           onEditTaskTitle={manager.handleEditTaskTitle}
+          onEditSubtaskTitle={manager.handleEditSubtaskTitle}
+          onAddSubTask={manager.handleAddSubTask}
+          onDeleteSubTask={manager.handleDeleteSubTask}
+          onOpenDetail={manager.openDetailModal}
+          onOpenSchedule={(task, project) => manager.openScheduleModal(task, project)}
+          statuses={manager.statuses}
         />
 
         {/* Danh sách Dự án & Checklist */}
         <div className="space-y-2.5">
           {manager.filteredProjects.length === 0 ? (
-            <div className="bg-white dark:bg-[#161b22] rounded-xl p-8 text-center border border-slate-200/80 dark:border-slate-800">
-              <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Không có dự án nào</p>
-              <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">Đã xóa sạch danh sách dự án. Hãy tạo một dự án mới để bắt đầu.</p>
-              <button
-                type="button"
-                onClick={() => manager.setShowMobileAddModal(true)}
-                className="mt-4 rounded-lg bg-blue-600 px-3 py-2 text-xs font-medium text-white hover:bg-blue-700"
-              >
-                Tạo dự án mới
-              </button>
+            <div className="bg-white dark:bg-[#161b22] rounded-xl p-8 text-center border border-slate-200/80 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 space-y-2">
+              {manager.projects.length === 0 ? (
+                <>
+                  <p className="font-medium text-slate-700 dark:text-slate-300">Không gian làm việc đang trống</p>
+                  <p className="text-[11.5px] text-slate-400 dark:text-slate-500">
+                    Bạn có thể tạo dự án mới ở ô nhập bên trên hoặc mở menu để khôi phục dữ liệu mẫu bất kỳ lúc nào.
+                  </p>
+                </>
+              ) : (
+                <p>Không có công việc nào phù hợp với bộ lọc hoặc từ khóa tìm kiếm.</p>
+              )}
             </div>
           ) : (
-            manager.filteredProjects.map((p) => {
+            manager.filteredProjects.map((p, idx) => {
               const visibleTasks = p.tasks.filter((t) => {
                 if (manager.search.trim()) {
                   // Đã lọc deep bằng matchTaskDeep ở useTaskManager
                   return true;
                 }
-                if (manager.isFocusMode || manager.filter === 'doing') return isDoingStatus(t.status, manager.statuses);
-                if (manager.filter === 'completed') return isDoneStatus(t.status, manager.statuses);
+                if (manager.isFocusMode || manager.filter === 'doing') {
+                  return isDoingStatus(t.status, manager.statuses);
+                }
+                if (manager.filter === 'completed') {
+                  return isDoneStatus(t.status, manager.statuses);
+                }
                 return true;
               });
 
@@ -191,10 +219,10 @@ export default function App() {
                   onCopyProjectAsMarkdown={manager.copyProjectAsMarkdown}
                   onOpenBatchPaste={manager.openBatchPasteForProject}
                   onOpenBatchPasteForTask={(projId, taskId, parentSubId, targetTitle) => {
-                    const targetProject = manager.projects.find((project) => project.id === projId);
-                    const targetTask = targetProject?.tasks.find((task) => task.id === taskId);
-                    if (targetProject && targetTask) {
-                      manager.openBatchPasteForTask(targetProject, targetTask, parentSubId ?? undefined, targetTitle);
+                    const targetProj = manager.projects.find((item) => item.id === projId);
+                    const targetTask = targetProj?.tasks.find((item) => item.id === taskId);
+                    if (targetProj && targetTask) {
+                      manager.openBatchPasteForTask(targetProj, targetTask, parentSubId ?? undefined, targetTitle);
                     }
                   }}
                   onDeleteProject={manager.handleDeleteProject}
@@ -244,6 +272,23 @@ export default function App() {
                   onAddSubTask={(projId, taskId, title, parentSubId) => manager.handleAddSubTask(projId, taskId, title, parentSubId)}
                   onCloseSubtaskInput={() => manager.setActiveSubTaskId(null)}
                   onReorderSubtask={manager.handleReorderSubtask}
+                  onSetTaskRecurrence={manager.handleSetTaskRecurrence}
+                  onSetSubTaskRecurrence={manager.handleSetSubTaskRecurrence}
+                  onManuallyResetRecurring={manager.handleManuallyResetRecurring}
+                  onManuallyResetRecurringSubTask={manager.handleManuallyResetRecurringSubTask}
+                  onOpenDetail={manager.openDetailModal}
+                  onOpenSchedule={(task) => manager.openScheduleModal(task, p)}
+                  onTogglePinSubTask={manager.togglePinSubTask}
+                  onMoveProject={manager.moveProject}
+                  isFirstProject={idx === 0}
+                  isLastProject={idx === manager.filteredProjects.length - 1}
+                  isProjectDragging={manager.draggedProjId === p.id}
+                  isProjectOver={manager.dragOverProj?.projId === p.id}
+                  dragOverProjectPosition={manager.dragOverProj?.projId === p.id ? manager.dragOverProj.position : null}
+                  onProjectDragStart={manager.handleProjectDragStart}
+                  onProjectDragOver={manager.handleProjectDragOver}
+                  onProjectDrop={manager.handleProjectDrop}
+                  onProjectDragEnd={manager.handleProjectDragEnd}
                 />
               );
             })
@@ -329,6 +374,49 @@ export default function App() {
         onResetViewPreferences={viewPref.resetPreferences}
         totalTasksCount={manager.totalTasks}
         showToast={manager.showToast}
+      />
+
+      {/* Modal xem & chỉnh sửa toàn diện chi tiết công việc (Không che giấu Text) */}
+      <TaskDetailModal
+        isOpen={Boolean(manager.selectedDetailTask)}
+        onClose={manager.closeDetailModal}
+        task={manager.selectedDetailTask?.task || null}
+        project={manager.selectedDetailTask?.project || null}
+        statuses={manager.statuses}
+        onSaveTitle={manager.handleEditTaskTitle}
+        onChangeStatus={manager.changeStatus}
+        onToggleTaskDone={manager.toggleTaskDone}
+        onTogglePinTask={manager.togglePinTask}
+        onDeleteTask={manager.handleDeleteTask}
+        onSetRecurrence={manager.handleSetTaskRecurrence}
+        onManuallyResetRecurring={manager.handleManuallyResetRecurring}
+        onToggleSubTask={manager.toggleSubTask}
+        onAddSubTask={manager.handleAddSubTask}
+        onDeleteSubTask={manager.handleDeleteSubTask}
+        onEditSubtaskTitle={manager.handleEditSubtaskTitle}
+        onOpenSchedule={(task) => {
+          if (manager.selectedDetailTask) {
+            manager.openScheduleModal(task, manager.selectedDetailTask.project);
+          }
+        }}
+      />
+
+      {/* Modal Lên lịch nhắc thông minh (Linear / Things 3 / Apple Reminders Assistant) */}
+      <SmartScheduleModal
+        isOpen={Boolean(manager.scheduleTaskTarget)}
+        onClose={manager.closeScheduleModal}
+        task={manager.scheduleTaskTarget?.task || null}
+        projectName={manager.scheduleTaskTarget?.project?.name}
+        allProjects={manager.projects}
+        onSaveSchedule={(schedule) => {
+          if (manager.scheduleTaskTarget) {
+            manager.handleSetTaskSchedule(
+              manager.scheduleTaskTarget.project.id,
+              manager.scheduleTaskTarget.task.id,
+              schedule
+            );
+          }
+        }}
       />
     </div>
   );

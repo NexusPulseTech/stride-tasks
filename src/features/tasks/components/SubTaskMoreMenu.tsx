@@ -8,6 +8,10 @@ import {
   Repeat,
   RotateCw,
   Check,
+  Pin,
+  Eye,
+  Briefcase,
+  Calendar,
 } from 'lucide-react';
 import { SubTask, RecurrenceType } from '../../../types';
 import { PortalMenu } from '../../../components/ui/PortalMenu';
@@ -26,6 +30,8 @@ interface SubTaskMoreMenuProps {
   onBatchPasteChild?: () => void;
   onSetSubTaskRecurrence?: (projId: string, taskId: string, subId: string, recurrence: RecurrenceType) => void;
   onManuallyResetRecurringSubTask?: (projId: string, taskId: string, subId: string) => void;
+  onTogglePinSubTask?: (projId: string, taskId: string, subId: string) => void;
+  onOpenParentDetail?: () => void;
 }
 
 export function SubTaskMoreMenu({
@@ -42,9 +48,25 @@ export function SubTaskMoreMenu({
   onBatchPasteChild,
   onSetSubTaskRecurrence,
   onManuallyResetRecurringSubTask,
+  onTogglePinSubTask,
+  onOpenParentDetail,
 }: SubTaskMoreMenuProps) {
   return (
     <PortalMenu isOpen={isOpen} onClose={onClose} triggerRef={triggerRef} widthClass="w-48">
+      {onOpenParentDetail && (
+        <button
+          type="button"
+          onClick={() => {
+            onOpenParentDetail();
+            onClose();
+          }}
+          className="w-full text-left px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2 cursor-pointer transition-colors"
+        >
+          <Eye className="w-3.5 h-3.5 shrink-0 text-slate-400" strokeWidth={1.5} />
+          <span>Xem chi tiết công việc</span>
+        </button>
+      )}
+
       <button
         type="button"
         onClick={onStartAddChild}
@@ -53,6 +75,29 @@ export function SubTaskMoreMenu({
         <Plus className="w-3.5 h-3.5 shrink-0 text-slate-400" strokeWidth={1.75} aria-hidden="true" />
         <span>Thêm việc con</span>
       </button>
+
+      {/* Ghim / Bỏ ghim bước con */}
+      {onTogglePinSubTask && (
+        <button
+          type="button"
+          onClick={() => {
+            onTogglePinSubTask(projectId, taskId, sub.id);
+            onClose();
+          }}
+          className="w-full text-left px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2 cursor-pointer transition-colors"
+        >
+          <Pin
+            className={`w-3.5 h-3.5 shrink-0 ${
+              sub.isPinned
+                ? 'fill-amber-500 text-amber-600 dark:text-amber-400'
+                : 'text-slate-400 dark:text-slate-400'
+            }`}
+            strokeWidth={1.5}
+            aria-hidden="true"
+          />
+          <span>{sub.isPinned ? 'Bỏ ghim ưu tiên' : 'Ghim lên tiêu điểm ưu tiên'}</span>
+        </button>
+      )}
 
       {onBatchPasteChild && (
         <button
@@ -87,7 +132,10 @@ export function SubTaskMoreMenu({
                 : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/80'
             }`}
           >
-            <span>🔁 Hàng ngày</span>
+            <span className="flex items-center gap-2">
+              <Repeat className="w-3.5 h-3.5 text-slate-400 shrink-0" strokeWidth={1.5} />
+              <span>Hàng ngày</span>
+            </span>
             {sub.recurrence === 'daily' && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
           </button>
           <button
@@ -102,7 +150,10 @@ export function SubTaskMoreMenu({
                 : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/80'
             }`}
           >
-            <span>💼 Ngày làm việc (T2-T6)</span>
+            <span className="flex items-center gap-2">
+              <Briefcase className="w-3.5 h-3.5 text-slate-400 shrink-0" strokeWidth={1.5} />
+              <span>Ngày làm việc (T2 - T6)</span>
+            </span>
             {sub.recurrence === 'weekdays' && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
           </button>
           <button
@@ -117,7 +168,10 @@ export function SubTaskMoreMenu({
                 : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/80'
             }`}
           >
-            <span>📅 Hàng tuần</span>
+            <span className="flex items-center gap-2">
+              <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" strokeWidth={1.5} />
+              <span>Hàng tuần</span>
+            </span>
             {sub.recurrence === 'weekly' && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
           </button>
 

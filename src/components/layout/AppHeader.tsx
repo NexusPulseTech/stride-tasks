@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import {
   Check,
-  Flame,
+  Sparkles,
   Target,
   Activity,
   Sliders,
@@ -35,8 +35,11 @@ export interface AppHeaderProps {
   onToggleMute: () => void;
   onOpenGuideModal: () => void;
   onDownloadHtml: () => void;
+  onDownloadSourceZip?: () => void;
   themeMode: ThemeMode;
   onCycleTheme: () => void;
+  onClearSampleData?: () => void;
+  onResetSample?: () => void;
 }
 
 export function AppHeader({
@@ -59,8 +62,11 @@ export function AppHeader({
   onToggleMute,
   onOpenGuideModal,
   onDownloadHtml,
+  onDownloadSourceZip,
   themeMode,
   onCycleTheme,
+  onClearSampleData,
+  onResetSample,
 }: AppHeaderProps) {
   const { t, language, toggleLanguage } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -97,13 +103,13 @@ export function AppHeader({
 
         {/* Right Zone: Essential Fast Actions + Unified Popover Menu */}
         <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 relative">
-          {/* Streak Flame Badge (ẩn khi Zen Mode hoặc user tắt trong View Settings) */}
+          {/* Streak Badge chuẩn chuyên nghiệp (ẩn khi Zen Mode hoặc user tắt trong View Settings) */}
           {viewPreferences.showStreakBadge && !viewPreferences.zenMode && (
             <div
-              className="flex items-center gap-1 px-2 h-7.5 rounded-lg bg-slate-100/90 dark:bg-slate-800/80 text-xs font-semibold text-slate-700 dark:text-slate-300 shrink-0 font-mono tabular-nums select-none"
+              className="flex items-center gap-1 px-2 h-7.5 rounded-lg bg-slate-100/90 dark:bg-slate-800/80 text-xs font-semibold text-slate-700 dark:text-slate-300 shrink-0 font-mono tabular-nums select-none border border-slate-200/50 dark:border-slate-700/50"
               title={`${streak} ${t.header.streakDays}`}
             >
-              <Flame className="w-3.5 h-3.5 shrink-0 text-amber-500" strokeWidth={1.75} aria-hidden="true" />
+              <Sparkles className="w-3.5 h-3.5 shrink-0 text-amber-500 dark:text-amber-400" strokeWidth={1.75} aria-hidden="true" />
               <span>{streak}d</span>
             </div>
           )}
@@ -219,6 +225,9 @@ export function AppHeader({
             onOpenGuideModal={onOpenGuideModal}
             onOpenFeedback={onOpenFeedback}
             onDownloadHtml={onDownloadHtml}
+            onDownloadSourceZip={onDownloadSourceZip}
+            onClearSampleData={onClearSampleData}
+            onResetSample={onResetSample}
           />
         </div>
       </div>

@@ -75,11 +75,14 @@ export function processDailyRecurrenceRollover(projects: Project[]): {
       let taskChanged = false;
       let nextStatus = t.status;
       let nextSubs = t.subtasks;
+      let nextLastCompletedDate = t.lastCompletedDate;
 
-      // 1. Kiểm tra task cha có recurrence
-      if (t.recurrence && shouldResetRecurrence(t.recurrence, t.lastCompletedDate)) {
+      // 1. Kiểm tra task cha có recurrence: chỉ làm mới nếu task đang ở trạng thái đã xong (done) hoặc có đánh dấu hoàn thành
+      const isTaskDone = t.status === 'done' || Boolean(t.completedAt);
+      if (t.recurrence && isTaskDone && shouldResetRecurrence(t.recurrence, t.lastCompletedDate)) {
         nextStatus = 'todo';
         nextSubs = resetSubtasksForNewDay(t.subtasks);
+        nextLastCompletedDate = undefined;
         taskChanged = true;
         projectChanged = true;
         resetCount++;
@@ -91,10 +94,13 @@ export function processDailyRecurrenceRollover(projects: Project[]): {
             let sChanged = false;
             let nextCompleted = s.completed;
             let nextSStatus = s.status;
+            let nextSLastCompletedDate = s.lastCompletedDate;
 
-            if (s.recurrence && shouldResetRecurrence(s.recurrence, s.lastCompletedDate)) {
+            const isSubDone = s.completed || s.status === 'done';
+            if (s.recurrence && isSubDone && shouldResetRecurrence(s.recurrence, s.lastCompletedDate)) {
               nextCompleted = false;
               nextSStatus = 'todo';
+              nextSLastCompletedDate = undefined;
               sChanged = true;
               subsChanged = true;
               resetCount++;
@@ -110,7 +116,15 @@ export function processDailyRecurrenceRollover(projects: Project[]): {
               }
             }
 
-            return sChanged ? { ...s, completed: nextCompleted, status: nextSStatus, subtasks: nestedSubs } : s;
+            return sChanged
+              ? {
+                  ...s,
+                  completed: nextCompleted,
+                  status: nextSStatus,
+                  lastCompletedDate: nextSLastCompletedDate,
+                  subtasks: nestedSubs,
+                }
+              : s;
           });
           return { updated: next, changed: subsChanged };
         };
@@ -125,7 +139,15 @@ export function processDailyRecurrenceRollover(projects: Project[]): {
         }
       }
 
-      return taskChanged ? { ...t, status: nextStatus, subtasks: nextSubs } : t;
+      return taskChanged
+        ? {
+            ...t,
+            status: nextStatus,
+            completedAt: undefined,
+            lastCompletedDate: nextLastCompletedDate,
+            subtasks: nextSubs,
+          }
+        : t;
     });
 
     return projectChanged ? { ...p, tasks: newTasks } : p;
@@ -147,6 +169,8 @@ export function manuallyResetRecurringTask(projects: Project[], projId: string, 
         return {
           ...t,
           status: 'todo',
+          completedAt: undefined,
+          lastCompletedDate: undefined,
           subtasks: resetSubtasksForNewDay(t.subtasks),
         };
       }),
@@ -170,6 +194,7 @@ export function manuallyResetRecurringSubTask(
           ...s,
           completed: false,
           status: 'todo',
+          lastCompletedDate: undefined,
           subtasks: s.subtasks ? resetSubtasksForNewDay(s.subtasks) : [],
         };
       }

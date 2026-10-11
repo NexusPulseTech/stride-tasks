@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { Plus, ClipboardPaste } from 'lucide-react';
-import { Project, Task, StatusDefinition, RecurrenceType } from '../../../types';
+import { Project, Task, StatusDefinition, RecurrenceType, FilterType } from '../../../types';
 import { isDoneStatus } from '../utils/statusCategory';
 import { TaskItem } from './TaskItem';
 import { ProjectCardHeader } from './ProjectCardHeader';
@@ -9,7 +9,7 @@ export interface ProjectCardProps {
   project: Project;
   visibleTasks: Task[];
   search: string;
-  filter: 'all' | 'doing' | 'completed';
+  filter: FilterType;
   isFocusMode: boolean;
   onToggleExpand: (id: string) => void;
   onCopyProjectAsMarkdown: (project: Project, e: React.MouseEvent) => void;
@@ -82,6 +82,19 @@ export interface ProjectCardProps {
     targetId: string,
     position: 'top' | 'bottom'
   ) => void;
+  onOpenDetail?: (task: Task, projectId: string) => void;
+  onOpenSchedule?: (task: Task, projectId: string) => void;
+  onTogglePinSubTask?: (projId: string, taskId: string, subId: string) => void;
+  onMoveProject?: (projId: string, direction: 'up' | 'down') => void;
+  isFirstProject?: boolean;
+  isLastProject?: boolean;
+  isProjectDragging?: boolean;
+  isProjectOver?: boolean;
+  dragOverProjectPosition?: 'top' | 'bottom' | null;
+  onProjectDragStart?: (e: React.DragEvent, projId: string) => void;
+  onProjectDragOver?: (e: React.DragEvent, projId: string) => void;
+  onProjectDrop?: (e: React.DragEvent, projId: string) => void;
+  onProjectDragEnd?: () => void;
 }
 
 export function ProjectCard({
@@ -145,6 +158,19 @@ export function ProjectCard({
   onEditSubtaskTitle,
   onReorderSubtask,
   onOpenBatchPasteForTask,
+  onOpenDetail,
+  onOpenSchedule,
+  onTogglePinSubTask,
+  onMoveProject,
+  isFirstProject = false,
+  isLastProject = false,
+  isProjectDragging,
+  isProjectOver,
+  dragOverProjectPosition,
+  onProjectDragStart,
+  onProjectDragOver,
+  onProjectDrop,
+  onProjectDragEnd,
 }: ProjectCardProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const tasks = project.tasks;
@@ -154,8 +180,31 @@ export function ProjectCard({
 
   if (tasks.length === 0 && search) return null;
 
+  // Việc được ghim tự động ưu tiên hiển thị ở trên cùng danh mục
+  const sortedTasks = [...visibleTasks].sort((a, b) => {
+    if (a.isPinned && !b.isPinned) return -1;
+    if (!a.isPinned && b.isPinned) return 1;
+    return 0;
+  });
+
   return (
-    <div className="bg-white dark:bg-[#161b22] rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-2xs overflow-hidden transition-all">
+    <div
+      draggable
+      onDragStart={(e) => onProjectDragStart?.(e, project.id)}
+      onDragOver={(e) => onProjectDragOver?.(e, project.id)}
+      onDrop={(e) => onProjectDrop?.(e, project.id)}
+      onDragEnd={onProjectDragEnd}
+      className={`rounded-xl border transition-all overflow-hidden ${
+        isProjectDragging
+          ? 'opacity-30 scale-[0.99] border-dashed border-slate-400 dark:border-slate-600'
+          : 'bg-white dark:bg-[#161b22] border-slate-200/80 dark:border-slate-800 shadow-2xs'
+      }`}
+    >
+      {/* Chỉ báo kéo thả danh mục phía trên */}
+      {isProjectOver && dragOverProjectPosition === 'top' && (
+        <div className="h-1 w-full bg-slate-900 dark:bg-slate-100 rounded-full my-0.5 animate-in fade-in" />
+      )}
+
       {/* Tiêu đề dự án */}
       <ProjectCardHeader
         project={project}
@@ -168,13 +217,20 @@ export function ProjectCard({
         onOpenBatchPaste={onOpenBatchPaste}
         onDeleteProject={onDeleteProject}
         onEditProjectName={onEditProjectName}
+        onMoveProject={onMoveProject}
+        isFirst={isFirstProject}
+        isLast={isLastProject}
       />
 
       {/* Nội dung công việc bên trong */}
       {project.isExpanded && (
         <div className="px-3 sm:px-4 pb-3 pt-1 border-t border-slate-100 dark:border-slate-800/80 bg-[#fafbfc] dark:bg-[#11141b] space-y-1.5">
-          {visibleTasks.length === 0 ? (
-            <div className="py-3 text-center text-xs text-slate-400 dark:text-slate-500">
+          {sortedTasks.length === 0 ? (
+            <div
+              onDragOver={(e) => onDragOver(e, project.id, 0)}
+              onDrop={(e) => onDrop(e, project.id, 0)}
+              className="py-3 text-center text-xs text-slate-400 dark:text-slate-500 rounded-lg border border-dashed border-slate-200/60 dark:border-slate-800/60 transition-colors"
+            >
               {search ? (
                 <span>Không tìm thấy công việc nào khớp với tìm kiếm.</span>
               ) : isFocusMode || filter === 'doing' ? (
@@ -182,11 +238,11 @@ export function ProjectCard({
               ) : filter === 'completed' ? (
                 <span>Chưa có việc nào hoàn thành.</span>
               ) : (
-                <span className="italic">Chưa có việc nào. Gõ việc vào ô bên dưới hoặc bấm nút dán nhanh.</span>
+                <span className="italic">Chưa có việc nào. Kéo thả việc vào đây hoặc gõ vào ô bên dưới.</span>
               )}
             </div>
           ) : (
-            visibleTasks.map((task) => {
+            sortedTasks.map((task) => {
               const realTaskIndex = project.tasks.findIndex((t) => t.id === task.id);
               const taskIndex = realTaskIndex !== -1 ? realTaskIndex : 0;
               const isAddingSub = activeSubTaskId === task.id;
@@ -258,6 +314,9 @@ export function ProjectCard({
                   onSetSubTaskRecurrence={onSetSubTaskRecurrence}
                   onManuallyResetRecurring={onManuallyResetRecurring}
                   onManuallyResetRecurringSubTask={onManuallyResetRecurringSubTask}
+                  onOpenDetail={onOpenDetail}
+                  onOpenSchedule={onOpenSchedule}
+                  onTogglePinSubTask={onTogglePinSubTask}
                 />
               );
             })
@@ -302,6 +361,11 @@ export function ProjectCard({
             </form>
           )}
         </div>
+      )}
+
+      {/* Chỉ báo kéo thả danh mục phía dưới */}
+      {isProjectOver && dragOverProjectPosition === 'bottom' && (
+        <div className="h-1 w-full bg-slate-900 dark:bg-slate-100 rounded-full my-0.5 animate-in fade-in" />
       )}
     </div>
   );

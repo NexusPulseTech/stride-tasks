@@ -6,15 +6,18 @@ import {
   MoreHorizontal,
   GripVertical,
   Pin,
-  Repeat,
-  RotateCw,
+  Eye,
+  Calendar,
+  Clock,
 } from 'lucide-react';
 import { FormattedTaskText } from '../utils/formatters';
 import { getTaskSubtaskStats } from '../utils/subtaskTree';
 import { isDoneStatus } from '../utils/statusCategory';
+import { formatScheduleBadge } from '../utils/scheduleHelper';
 import { SubtaskList } from './SubtaskList';
 import { TaskMoreMenu } from './TaskMoreMenu';
 import { TaskStatusButton } from './TaskStatusButton';
+import { RecurrenceBadge } from './RecurrenceBadge';
 import { TaskItemProps } from '../types';
 
 export type { TaskItemProps };
@@ -41,6 +44,9 @@ export function TaskItem({
   onAddSubTask, onCloseSubtaskInput,
   onEditTaskTitle, onEditSubtaskTitle, onReorderSubtask,
   onOpenBatchPasteForTask,
+  onOpenDetail,
+  onOpenSchedule,
+  onTogglePinSubTask,
 }: TaskItemProps) {
   const moreButtonRef = useRef<HTMLButtonElement>(null);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -51,6 +57,7 @@ export function TaskItem({
   const totalSubs = stats.leafTotal;
   const doneCount = stats.leafDone;
   const pendingCount = totalSubs - doneCount;
+  const scheduleBadge = formatScheduleBadge(task.reminderAt, task.deadline);
 
   return (
     <div
@@ -70,25 +77,21 @@ export function TaskItem({
 
       {/* Item container */}
       <div
-        onClick={() => {
-          if (hasSubs) onToggleExpandSubtasks(task.id);
-        }}
+        data-task-card="true"
         className={`group flex items-start gap-1.5 py-1.5 px-2 sm:px-2.5 rounded-lg border transition-all duration-150 flex-nowrap w-full ${
-          hasSubs ? 'cursor-pointer' : ''
-        } ${
           isDone
             ? 'bg-slate-50/60 dark:bg-[#161b22]/50 border-slate-100/90 dark:border-slate-800/80 text-slate-400 dark:text-slate-500'
             : 'bg-white dark:bg-[#161b22] border-slate-200/70 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-2xs text-slate-800 dark:text-slate-100'
         } ${isDragging ? 'border-dashed border-slate-400 dark:border-slate-600' : ''}`}
       >
-        {/* GripVertical 6 chấm trên Desktop */}
+        {/* GripVertical - Hỗ trợ kéo thả trên cả Desktop & Mobile */}
         <div
           data-drag-handle="true"
-          className="mt-0.5 cursor-grab active:cursor-grabbing p-0.5 text-slate-300 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-300 transition-colors select-none hidden sm:block shrink-0"
-          title="Kéo thả để sắp xếp lại thứ tự"
+          className="mt-0.5 cursor-grab active:cursor-grabbing p-1 -ml-1 text-slate-300 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-300 transition-colors select-none shrink-0"
+          title="Kéo thả để sắp xếp lại thứ tự công việc"
           aria-label="Kéo thả sắp xếp thứ tự"
         >
-          <GripVertical className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
+          <GripVertical className="w-3.5 h-3.5 shrink-0 pointer-events-none" strokeWidth={1.5} aria-hidden="true" />
         </div>
 
         {/* Nút Navigation sổ/gập subtasks chuẩn Notion */}
@@ -176,13 +179,21 @@ export function TaskItem({
             <div
               onClick={(e) => {
                 e.stopPropagation();
+                if (onOpenDetail) {
+                  onOpenDetail(task, projectId);
+                } else {
+                  onToggleExpandTask(expandedTaskId === task.id ? null : task.id);
+                }
+              }}
+              onDoubleClick={(e) => {
+                e.stopPropagation();
                 setEditTitle(task.title);
                 setIsEditingTitle(true);
               }}
-              className={`text-[13px] leading-snug select-text font-normal cursor-text hover:text-slate-950 dark:hover:text-white transition-colors ${
+              className={`text-[13px] leading-snug select-text font-normal cursor-pointer hover:text-slate-950 dark:hover:text-white transition-colors ${
                 expandedTaskId === task.id ? '' : 'line-clamp-2'
               }`}
-              title="Chạm hoặc nhấp chuột vào chữ để chỉnh sửa (bấm ra ngoài để đóng/mở việc con)"
+              title="Nhấp để xem chi tiết đầy đủ (hoặc nhấp đúp để chỉnh sửa tiêu đề)"
             >
               <FormattedTaskText text={task.title} isDone={isDone} />
             </div>
@@ -191,42 +202,44 @@ export function TaskItem({
           {/* Micro indicators bên dưới tiêu đề */}
           <div className="flex items-center gap-1.5 mt-1 flex-nowrap overflow-hidden">
             {task.isPinned && (
-              <span className="inline-flex items-center gap-1 text-[10px] text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded font-medium shrink-0 whitespace-nowrap">
-                <Pin className="w-2.5 h-2.5 shrink-0 fill-current text-slate-500 dark:text-slate-400" strokeWidth={1.5} aria-hidden="true" />
+              <span className="inline-flex items-center gap-1 text-[10px] text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/50 px-1.5 py-0.5 rounded font-medium shrink-0 whitespace-nowrap">
+                <Pin className="w-2.5 h-2.5 shrink-0 fill-current text-amber-600 dark:text-amber-400" strokeWidth={1.5} aria-hidden="true" />
                 <span>Ưu tiên</span>
               </span>
             )}
+
+            {/* Recurrence Badge chuẩn Linear/Things 3, không icon lửa */}
             {task.recurrence && (
-              <span className="inline-flex items-center gap-1 text-[10px] text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-800/50 px-1.5 py-0.5 rounded font-medium shrink-0 whitespace-nowrap">
-                <Repeat className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" />
-                <span>
-                  {task.recurrence === 'daily'
-                    ? 'Hàng ngày'
-                    : task.recurrence === 'weekdays'
-                    ? 'T2-T6'
-                    : 'Hàng tuần'}
-                </span>
-                {task.recurrenceStreak && task.recurrenceStreak > 0 ? (
-                  <span className="text-[9px] font-mono font-semibold text-amber-600 dark:text-amber-400">
-                    🔥{task.recurrenceStreak}
-                  </span>
-                ) : null}
-                {isDone && onManuallyResetRecurring && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onManuallyResetRecurring(projectId, task.id);
-                    }}
-                    className="ml-0.5 text-[9.5px] text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-0.5 cursor-pointer"
-                    title="Làm mới lại việc này để tiếp tục thực hiện hôm nay"
-                  >
-                    <RotateCw className="w-2.5 h-2.5" />
-                    <span>Làm mới</span>
-                  </button>
-                )}
-              </span>
+              <RecurrenceBadge
+                recurrence={task.recurrence}
+                recurrenceStreak={task.recurrenceStreak}
+                isDone={isDone}
+                onReset={() => onManuallyResetRecurring?.(projectId, task.id)}
+              />
             )}
+
+            {/* Lịch hẹn / Nhắc việc thông minh */}
+            {scheduleBadge.status !== 'none' && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenSchedule?.(task, projectId);
+                }}
+                className={`inline-flex items-center gap-1 text-[10.5px] px-1.5 py-0.5 rounded border transition-colors cursor-pointer shrink-0 font-medium whitespace-nowrap select-none ${
+                  scheduleBadge.isOverdue
+                    ? 'text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border-rose-200/80 dark:border-rose-800/60 hover:bg-rose-100/70'
+                    : scheduleBadge.status === 'today'
+                    ? 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/60 hover:bg-amber-100/70'
+                    : 'text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 border-slate-200/80 dark:border-slate-700/70 hover:bg-slate-200/80'
+                }`}
+                title="Nhấp để thay đổi lịch hẹn hoặc hủy nhắc"
+              >
+                <Clock className="w-2.5 h-2.5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
+                <span>{scheduleBadge.label}</span>
+              </button>
+            )}
+
             {hasSubs && (
               <button
                 type="button"
@@ -251,20 +264,34 @@ export function TaskItem({
                   strokeWidth={2}
                   aria-hidden="true"
                 />
-                <span className="tabular-nums">
-                  {pendingCount > 0
-                    ? `${pendingCount} cần làm · ${doneCount}/${totalSubs} xong`
-                    : `${totalSubs}/${totalSubs} xong ✓`}
+                <span className="tabular-nums inline-flex items-center gap-1">
+                  {pendingCount > 0 ? (
+                    <span>{pendingCount} cần làm · {doneCount}/{totalSubs} xong</span>
+                  ) : (
+                    <>
+                      <span>{totalSubs}/{totalSubs} xong</span>
+                      <Check className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2.5} aria-hidden="true" />
+                    </>
+                  )}
                 </span>
               </button>
             )}
-            {task.title.length > 70 && (
+
+            {/* Nút Xem chi tiết khi văn bản dài */}
+            {task.title.length > 60 && (
               <button
                 type="button"
-                onClick={() => onToggleExpandTask(expandedTaskId === task.id ? null : task.id)}
-                className="text-[10px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer shrink-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onOpenDetail) {
+                    onOpenDetail(task, projectId);
+                  } else {
+                    onToggleExpandTask(expandedTaskId === task.id ? null : task.id);
+                  }
+                }}
+                className="text-[10px] text-blue-600 dark:text-blue-400 hover:underline cursor-pointer shrink-0 inline-flex items-center gap-0.5 font-medium"
               >
-                {expandedTaskId === task.id ? 'Thu gọn' : '...'}
+                <span>{expandedTaskId === task.id ? 'Thu gọn' : 'Xem chi tiết'}</span>
               </button>
             )}
           </div>
@@ -272,6 +299,22 @@ export function TaskItem({
 
         {/* Nút thêm nhanh việc con & Nút trạng thái & Menu */}
         <div className="shrink-0 flex items-center gap-1 flex-nowrap">
+          {/* Nút xem chi tiết việc (Eye) */}
+          {onOpenDetail && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenDetail(task, projectId);
+              }}
+              className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer shrink-0 transition-colors"
+              title="Xem chi tiết & toàn bộ nội dung"
+              aria-label="Xem chi tiết"
+            >
+              <Eye className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
+            </button>
+          )}
+
           {/* Nút thêm nhanh việc con trực tiếp - Không cần vào 3 chấm */}
           <button
             type="button"
@@ -285,6 +328,30 @@ export function TaskItem({
           >
             <Plus className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
           </button>
+
+          {/* Nút Lên lịch nhắc thông minh (Calendar) */}
+          {onOpenSchedule && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenSchedule(task, projectId);
+              }}
+              className={`p-1 rounded cursor-pointer shrink-0 transition-colors ${
+                scheduleBadge.status !== 'none'
+                  ? 'text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40'
+                  : 'text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
+              title={
+                scheduleBadge.status !== 'none'
+                  ? `Lịch hẹn: ${scheduleBadge.label} (Bấm để đổi)`
+                  : 'Lên lịch nhắc thông minh'
+              }
+              aria-label="Lên lịch nhắc thông minh"
+            >
+              <Calendar className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
+            </button>
+          )}
 
           <TaskStatusButton
             status={task.status}
@@ -331,15 +398,12 @@ export function TaskItem({
               } : undefined}
               onSetRecurrence={onSetTaskRecurrence}
               onManuallyResetRecurring={onManuallyResetRecurring}
+              onOpenDetail={onOpenDetail ? () => onOpenDetail(task, projectId) : undefined}
+              onOpenSchedule={onOpenSchedule ? () => onOpenSchedule(task, projectId) : undefined}
             />
           </div>
         </div>
       </div>
-
-      {/* Drop indicator phía dưới */}
-      {isOver && dragOverPosition === 'bottom' && (
-        <div className="h-0.5 w-full bg-slate-900 dark:bg-slate-100 rounded-full my-0.5" />
-      )}
 
       {/* Sub-tasks lồng nhau */}
       {((isSubOpen && totalSubs > 0) || isAddingSub) && (
@@ -361,8 +425,15 @@ export function TaskItem({
             onOpenBatchPasteForTask={onOpenBatchPasteForTask}
             onSetSubTaskRecurrence={onSetSubTaskRecurrence}
             onManuallyResetRecurringSubTask={onManuallyResetRecurringSubTask}
+            onTogglePinSubTask={onTogglePinSubTask}
+            onOpenParentDetail={onOpenDetail ? () => onOpenDetail(task, projectId) : undefined}
           />
         </div>
+      )}
+
+      {/* Drop indicator phía dưới */}
+      {isOver && dragOverPosition === 'bottom' && (
+        <div className="h-0.5 w-full bg-slate-900 dark:bg-slate-100 rounded-full my-0.5" />
       )}
     </div>
   );

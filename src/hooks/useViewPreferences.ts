@@ -5,7 +5,7 @@ export interface ViewPreferences {
   showStatsPanel: boolean;        // Hiện/Ẩn bản đồ nhịp độ & thống kê
   showFocusButton: boolean;       // Hiện nút Focus Mode trên header
   showReminderButton: boolean;    // Hiện nút Reminder trên header
-  showStreakBadge: boolean;       // Hiện huy hiệu Streak Flame
+  showStreakBadge: boolean;       // Hiện huy hiệu chuỗi ngày liên tiếp (Streak)
   showAddProjectBar: boolean;     // Hiện thanh Add Project ở đầu
   showFilterTabs: boolean;        // Hiện bộ lọc Tất cả / Đang làm / Đã xong
   showLanguageSwitcher: boolean;  // Hiện nút chuyển EN/VI trên header

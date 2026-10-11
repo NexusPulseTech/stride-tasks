@@ -7,6 +7,7 @@ interface ActionBarProps {
   filter: FilterType;
   onFilterChange: (filter: FilterType) => void;
   totalDoing: number;
+  totalScheduled?: number;
   search: string;
   onSearchChange: (search: string) => void;
   mobileSearchOpen: boolean;
@@ -22,6 +23,7 @@ export function ActionBar({
   filter,
   onFilterChange,
   totalDoing,
+  totalScheduled = 0,
   search,
   onSearchChange,
   mobileSearchOpen,
@@ -94,6 +96,18 @@ export function ActionBar({
               >
                 <span>{t.actionBar.doingFilter}</span>
                 {totalDoing > 0 && <span className="ml-1 font-bold font-mono tabular-nums">({totalDoing})</span>}
+              </button>
+              <button
+                type="button"
+                onClick={() => onFilterChange('scheduled')}
+                className={`px-2.5 py-1 rounded-md transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+                  filter === 'scheduled'
+                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-2xs font-semibold'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                }`}
+              >
+                <span>{t.actionBar.scheduledFilter}</span>
+                {totalScheduled > 0 && <span className="ml-1 font-bold font-mono tabular-nums">({totalScheduled})</span>}
               </button>
               <button
                 type="button"

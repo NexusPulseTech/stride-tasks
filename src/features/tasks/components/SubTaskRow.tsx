@@ -6,8 +6,7 @@ import {
   MoreHorizontal,
   GripVertical,
   ClipboardPaste,
-  Repeat,
-  RotateCw,
+  Pin,
 } from 'lucide-react';
 import { SubTask, StatusDefinition, RecurrenceType } from '../../../types';
 import { FormattedTaskText } from '../utils/formatters';
@@ -16,6 +15,7 @@ import { isDoneStatus } from '../utils/statusCategory';
 import { SubTaskInlineForm } from './SubTaskInlineForm';
 import { SubTaskMoreMenu } from './SubTaskMoreMenu';
 import { TaskStatusButton } from './TaskStatusButton';
+import { RecurrenceBadge } from './RecurrenceBadge';
 
 export interface SubTaskRowProps {
   sub: SubTask;
@@ -38,6 +38,8 @@ export interface SubTaskRowProps {
   onOpenBatchPasteForTask?: (projId: string, taskId: string, parentSubId?: string | null, targetTitle?: string) => void;
   onSetSubTaskRecurrence?: (projId: string, taskId: string, subId: string, recurrence: RecurrenceType) => void;
   onManuallyResetRecurringSubTask?: (projId: string, taskId: string, subId: string) => void;
+  onTogglePinSubTask?: (projId: string, taskId: string, subId: string) => void;
+  onOpenParentDetail?: () => void;
   isDragging?: boolean;
   isOver?: boolean;
   dragOverPosition?: 'top' | 'bottom' | null;
@@ -62,6 +64,8 @@ export function SubTaskRow({
   onOpenBatchPasteForTask,
   onSetSubTaskRecurrence,
   onManuallyResetRecurringSubTask,
+  onTogglePinSubTask,
+  onOpenParentDetail,
   isDragging = false, isOver = false, dragOverPosition = null,
   onSubDragStart, onSubDragOver, onSubDrop, onSubDragEnd,
   draggedSubId = null, dragOverSub = null,
@@ -69,6 +73,7 @@ export function SubTaskRow({
   const [inlineTitle, setInlineTitle] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(sub.title);
+  const [isExpandedText, setIsExpandedText] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const subMenuButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -189,63 +194,69 @@ export function SubTaskRow({
             </div>
           ) : (
             <span
+              onClick={() => setIsExpandedText(!isExpandedText)}
               onDoubleClick={() => {
                 setEditTitle(sub.title);
                 setIsEditing(true);
               }}
-              className="text-xs text-slate-700 dark:text-slate-300 truncate cursor-text"
-              title="Nhấp đúp để chỉnh sửa tên"
+              className={`text-xs text-slate-700 dark:text-slate-300 cursor-pointer hover:text-slate-950 dark:hover:text-white transition-colors ${
+                isExpandedText ? 'break-words' : 'truncate'
+              }`}
+              title="Nhấp để xem toàn bộ nội dung (nhấp đúp để sửa tên)"
             >
               <FormattedTaskText text={sub.title} isDone={isSubDone} />
             </span>
           )}
 
-          {/* Micro indicator cho việc con lặp lại */}
-          {sub.recurrence && (
-            <span className="inline-flex items-center gap-0.5 ml-1.5 text-[9.5px] text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-800/50 px-1 py-0.2 rounded font-medium shrink-0 whitespace-nowrap">
-              <Repeat className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" />
-              <span>
-                {sub.recurrence === 'daily'
-                  ? 'Hàng ngày'
-                  : sub.recurrence === 'weekdays'
-                  ? 'T2-T6'
-                  : 'Hàng tuần'}
-              </span>
-              {sub.recurrenceStreak && sub.recurrenceStreak > 0 ? (
-                <span className="text-[8.5px] font-mono font-semibold text-amber-600 dark:text-amber-400 ml-0.5">
-                  🔥{sub.recurrenceStreak}
-                </span>
-              ) : null}
-              {isSubDone && onManuallyResetRecurringSubTask && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onManuallyResetRecurringSubTask(projectId, taskId, sub.id);
-                  }}
-                  className="ml-0.5 text-[9px] text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-0.5 cursor-pointer"
-                  title="Làm mới lại việc con này hôm nay"
-                >
-                  <RotateCw className="w-2 h-2" />
-                  <span>Làm mới</span>
-                </button>
-              )}
+          {/* Nút Xem hết khi văn bản dài */}
+          {sub.title.length > 45 && !isEditing && (
+            <button
+              type="button"
+              onClick={() => setIsExpandedText(!isExpandedText)}
+              className="text-[9.5px] text-blue-600 dark:text-blue-400 hover:underline shrink-0 ml-0.5 cursor-pointer font-medium"
+            >
+              {isExpandedText ? 'Thu gọn' : '...'}
+            </button>
+          )}
+
+          {/* Pinned indicator cho việc con */}
+          {sub.isPinned && (
+            <span className="inline-flex items-center gap-1 ml-1 text-[9.5px] text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/50 px-1 py-0.2 rounded font-medium shrink-0 whitespace-nowrap">
+              <Pin className="w-2.5 h-2.5 fill-current text-amber-600 dark:text-amber-400" />
+              <span>Ưu tiên</span>
             </span>
+          )}
+
+          {/* Micro indicator cho việc con lặp lại (chuẩn chuyên nghiệp) */}
+          {sub.recurrence && (
+            <div className="ml-1 shrink-0">
+              <RecurrenceBadge
+                recurrence={sub.recurrence}
+                recurrenceStreak={sub.recurrenceStreak}
+                isDone={isSubDone}
+                onReset={
+                  onManuallyResetRecurringSubTask
+                    ? () => onManuallyResetRecurringSubTask(projectId, taskId, sub.id)
+                    : undefined
+                }
+              />
+            </div>
           )}
         </div>
 
         {hasChildren && (
           <span
-            className={`text-[9.5px] px-1 py-0.2 rounded font-mono shrink-0 tabular-nums ${
+            className={`text-[9.5px] px-1 py-0.2 rounded font-mono shrink-0 tabular-nums inline-flex items-center gap-0.5 ${
               leafStats.completed === leafStats.total
                 ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 font-semibold'
                 : 'text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800/80'
             }`}
             title={`Đã hoàn thành ${leafStats.completed}/${leafStats.total} việc con ở mọi cấp độ`}
           >
-            {leafStats.completed === leafStats.total
-              ? `${leafStats.total}/${leafStats.total} ✓`
-              : `${leafStats.completed}/${leafStats.total}`}
+            <span>{leafStats.completed}/{leafStats.total}</span>
+            {leafStats.completed === leafStats.total && (
+              <Check className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2.5} aria-hidden="true" />
+            )}
           </span>
         )}
 
@@ -345,6 +356,8 @@ export function SubTaskRow({
             }}
             onSetSubTaskRecurrence={onSetSubTaskRecurrence}
             onManuallyResetRecurringSubTask={onManuallyResetRecurringSubTask}
+            onTogglePinSubTask={onTogglePinSubTask}
+            onOpenParentDetail={onOpenParentDetail}
           />
         </div>
       </div>
@@ -409,6 +422,8 @@ export function SubTaskRow({
               onOpenBatchPasteForTask={onOpenBatchPasteForTask}
               onSetSubTaskRecurrence={onSetSubTaskRecurrence}
               onManuallyResetRecurringSubTask={onManuallyResetRecurringSubTask}
+              onTogglePinSubTask={onTogglePinSubTask}
+              onOpenParentDetail={onOpenParentDetail}
               isDragging={draggedSubId === child.id}
               isOver={dragOverSub?.subId === child.id}
               dragOverPosition={dragOverSub?.subId === child.id ? dragOverSub.position : null}

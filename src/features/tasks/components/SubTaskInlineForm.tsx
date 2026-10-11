@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { ClipboardPaste, CornerDownRight } from 'lucide-react';
+import { CornerDownRight, ClipboardPaste } from 'lucide-react';
 
 interface SubTaskInlineFormProps {
   parentTitle: string;
@@ -47,7 +47,7 @@ export function SubTaskInlineForm({
       <button
         type="submit"
         disabled={!value.trim()}
-        className="h-6.5 px-2.5 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white disabled:opacity-40 text-white dark:text-slate-900 rounded-md text-[11px] font-medium cursor-pointer transition-colors shrink-0 shadow-2xs"
+        className="h-6.5 px-2 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white disabled:opacity-40 text-white dark:text-slate-900 rounded-md text-[11px] font-medium cursor-pointer transition-colors shrink-0 shadow-2xs"
       >
         Lưu
       </button>

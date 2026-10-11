@@ -11,6 +11,9 @@ import {
   Repeat,
   RotateCw,
   Check,
+  Eye,
+  Calendar,
+  Briefcase,
 } from 'lucide-react';
 import { Task, RecurrenceType } from '../../../types';
 import { PortalMenu } from '../../../components/ui/PortalMenu';
@@ -32,6 +35,8 @@ export interface TaskMoreMenuProps {
   onDeleteTask: (projId: string, taskId: string) => void;
   onSetRecurrence?: (projId: string, taskId: string, recurrence: RecurrenceType) => void;
   onManuallyResetRecurring?: (projId: string, taskId: string) => void;
+  onOpenDetail?: () => void;
+  onOpenSchedule?: () => void;
 }
 
 export function TaskMoreMenu({
@@ -51,9 +56,26 @@ export function TaskMoreMenu({
   onDeleteTask,
   onSetRecurrence,
   onManuallyResetRecurring,
+  onOpenDetail,
+  onOpenSchedule,
 }: TaskMoreMenuProps) {
   return (
     <PortalMenu isOpen={isOpen} onClose={onClose} triggerRef={triggerRef} widthClass="w-52">
+      {/* Xem chi tiết việc */}
+      {onOpenDetail && (
+        <button
+          type="button"
+          onClick={() => {
+            onOpenDetail();
+            onClose();
+          }}
+          className="w-full text-left px-2.5 py-1.5 text-xs text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/80 rounded-lg flex items-center gap-2 cursor-pointer transition-colors font-medium"
+        >
+          <Eye className="w-3.5 h-3.5 shrink-0 text-slate-500 dark:text-slate-400" strokeWidth={1.5} aria-hidden="true" />
+          <span>Xem chi tiết & Ghi chú</span>
+        </button>
+      )}
+
       {/* Chỉnh sửa tên việc */}
       <button
         type="button"
@@ -101,6 +123,21 @@ export function TaskMoreMenu({
         <span>{task.isPinned ? 'Bỏ ghim ưu tiên' : 'Ghim lên đầu'}</span>
       </button>
 
+      {/* Lên lịch nhắc thông minh */}
+      {onOpenSchedule && (
+        <button
+          type="button"
+          onClick={() => {
+            onOpenSchedule();
+            onClose();
+          }}
+          className="w-full text-left px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/80 rounded-lg flex items-center gap-2 cursor-pointer transition-colors"
+        >
+          <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" strokeWidth={1.5} aria-hidden="true" />
+          <span>Lên lịch nhắc thông minh</span>
+        </button>
+      )}
+
       {/* Chu kỳ lặp lại (Hàng ngày, v.v.) */}
       {onSetRecurrence && (
         <div className="py-1 my-1 border-y border-slate-100 dark:border-slate-800">
@@ -120,7 +157,10 @@ export function TaskMoreMenu({
                 : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/80'
             }`}
           >
-            <span>🔁 Hàng ngày</span>
+            <span className="flex items-center gap-2">
+              <Repeat className="w-3.5 h-3.5 text-slate-400 shrink-0" strokeWidth={1.5} />
+              <span>Hàng ngày</span>
+            </span>
             {task.recurrence === 'daily' && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
           </button>
           <button
@@ -135,7 +175,10 @@ export function TaskMoreMenu({
                 : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/80'
             }`}
           >
-            <span>💼 Ngày làm việc (T2-T6)</span>
+            <span className="flex items-center gap-2">
+              <Briefcase className="w-3.5 h-3.5 text-slate-400 shrink-0" strokeWidth={1.5} />
+              <span>Ngày làm việc (T2 - T6)</span>
+            </span>
             {task.recurrence === 'weekdays' && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
           </button>
           <button
@@ -150,7 +193,10 @@ export function TaskMoreMenu({
                 : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/80'
             }`}
           >
-            <span>📅 Hàng tuần</span>
+            <span className="flex items-center gap-2">
+              <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" strokeWidth={1.5} />
+              <span>Hàng tuần</span>
+            </span>
             {task.recurrence === 'weekly' && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
           </button>
 

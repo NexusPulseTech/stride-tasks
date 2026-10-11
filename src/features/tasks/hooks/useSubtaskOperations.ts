@@ -180,7 +180,7 @@ export function useSubtaskOperations({
         onTaskDone?.(true, targetTask ? { ...targetTask, status: 'done' } : undefined, p);
         const remaining = p.tasks.filter((t) => t.id !== taskId && t.status !== 'done');
         if (remaining.length === 0) {
-          showToast(`🎉 Hoàn thành xuất sắc toàn bộ bước con của việc này!`);
+          showToast(`Hoàn thành xuất sắc toàn bộ bước con của việc này!`);
         }
       }
     }
@@ -284,6 +284,37 @@ export function useSubtaskOperations({
     triggerHaptic();
   };
 
+  const togglePinSubTask = (projId: string, taskId: string, subId: string) => {
+    triggerHaptic();
+    setProjects((prev) =>
+      prev.map((proj) => {
+        if (proj.id !== projId) return proj;
+        return {
+          ...proj,
+          tasks: proj.tasks.map((task) => {
+            if (task.id !== taskId) return task;
+            const updatePinned = (subs: SubTask[]): SubTask[] => {
+              return subs.map((s) => {
+                if (s.id === subId) {
+                  return { ...s, isPinned: !s.isPinned };
+                }
+                if (s.subtasks && s.subtasks.length > 0) {
+                  return { ...s, subtasks: updatePinned(s.subtasks) };
+                }
+                return s;
+              });
+            };
+            return {
+              ...task,
+              subtasks: updatePinned(task.subtasks),
+            };
+          }),
+        };
+      })
+    );
+    showToast('Đã cập nhật ghim việc con!');
+  };
+
   return {
     subInputs,
     setSubInputs,
@@ -309,5 +340,6 @@ export function useSubtaskOperations({
     handleDeleteSubTask,
     handleEditSubtaskTitle,
     handleReorderSubtask,
+    togglePinSubTask,
   };
 }

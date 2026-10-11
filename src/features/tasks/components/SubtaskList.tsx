@@ -52,6 +52,8 @@ export interface SubtaskListProps {
   ) => void;
   onSetSubTaskRecurrence?: (projId: string, taskId: string, subId: string, recurrence: RecurrenceType) => void;
   onManuallyResetRecurringSubTask?: (projId: string, taskId: string, subId: string) => void;
+  onTogglePinSubTask?: (projId: string, taskId: string, subId: string) => void;
+  onOpenParentDetail?: () => void;
 }
 
 export function SubtaskList({
@@ -75,6 +77,8 @@ export function SubtaskList({
   onOpenBatchPasteForTask,
   onSetSubTaskRecurrence,
   onManuallyResetRecurringSubTask,
+  onTogglePinSubTask,
+  onOpenParentDetail,
 }: SubtaskListProps) {
   const rootInputRef = useRef<HTMLInputElement>(null);
   const [isRootInputOpen, setIsRootInputOpen] = useState(false);
@@ -251,6 +255,8 @@ export function SubtaskList({
             onOpenBatchPasteForTask={onOpenBatchPasteForTask}
             onSetSubTaskRecurrence={onSetSubTaskRecurrence}
             onManuallyResetRecurringSubTask={onManuallyResetRecurringSubTask}
+            onTogglePinSubTask={onTogglePinSubTask}
+            onOpenParentDetail={onOpenParentDetail}
             isDragging={draggedSubId === sub.id}
             isOver={dragOverSub?.subId === sub.id}
             dragOverPosition={dragOverSub?.subId === sub.id ? dragOverSub.position : null}

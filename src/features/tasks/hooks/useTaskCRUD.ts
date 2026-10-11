@@ -46,18 +46,22 @@ export function useTaskCRUD({
   });
 
   const isHydratedRef = useRef(false);
+  const showToastRef = useRef(showToast);
+  useEffect(() => {
+    showToastRef.current = showToast;
+  }, [showToast]);
 
-  // 1. Tự động kiểm tra làm mới việc lặp lại khi sang ngày mới (Auto-Rollover)
+  // 1. Tự động kiểm tra làm mới việc lặp lại khi sang ngày mới (Auto-Rollover) - chạy 1 lần khi khởi động
   useEffect(() => {
     setProjects((current) => {
       const { updatedProjects, resetCount } = processDailyRecurrenceRollover(current);
       if (resetCount > 0) {
-        showToast(`☀️ Đã tự động làm mới ${resetCount} việc lặp lại cho ngày hôm nay!`);
+        showToastRef.current?.(`Đã tự động làm mới ${resetCount} việc lặp lại cho ngày hôm nay.`);
         return updatedProjects;
       }
       return current;
     });
-  }, [showToast]);
+  }, []);
 
   // 2. Khởi tạo bảo vệ: Yêu cầu Persistent Storage & kiểm tra phục hồi sâu từ IndexedDB (chỉ khi LocalStorage bị xóa sạch bởi trình duyệt)
   useEffect(() => {
@@ -70,11 +74,11 @@ export function useTaskCRUD({
         if (Array.isArray(idbProjects) && idbProjects.length > 0) {
           setProjects(idbProjects);
           saveProjectsSafely(idbProjects);
-          showToast(`Đã tự động bảo vệ & khôi phục ${countTotalTasks(idbProjects)} công việc từ bộ nhớ vĩnh cửu!`);
+          showToastRef.current?.(`Đã tự động bảo vệ & khôi phục ${countTotalTasks(idbProjects)} công việc từ bộ nhớ vĩnh cửu!`);
         }
       });
     }
-  }, [showToast]);
+  }, []);
 
   // 3. Đồng bộ đa tab thời gian thực (Zero Desync across open tabs)
   useEffect(() => {
@@ -171,8 +175,12 @@ export function useTaskCRUD({
     showToast(`Đã tạo dự án "${name}"!`);
   };
 
-  const handleDeleteProject = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDeleteProject = (id: string, e?: React.MouseEvent) => {
+    if (e && typeof e.stopPropagation === 'function') {
+      try {
+        e.stopPropagation();
+      } catch (err) {}
+    }
     const projIndex = projects.findIndex((p) => p.id === id);
     const projToDelete = projects[projIndex];
     if (!projToDelete) return;
@@ -217,7 +225,7 @@ export function useTaskCRUD({
       const remaining = p.tasks.filter((t) => t.id !== taskId && !isDoneStatus(t.status));
       if (remaining.length === 0) {
         triggerCelebration();
-        showToast(`🎉 Xuất sắc! Đã hoàn thành toàn bộ dự án "${p.name}"!`);
+        showToast(`Đã hoàn thành toàn bộ công việc trong danh mục "${p.name}".`);
       }
     }
   };
@@ -258,7 +266,7 @@ export function useTaskCRUD({
       checkProjectCompletion(projId, taskId);
       onTaskDone?.(true, targetTask ? { ...targetTask, status: 'done' } : undefined, targetProject);
       if (completedRecurring) {
-        showToast(`🔁 Đã xong việc lặp lại hôm nay (Chuỗi ${newStreak} ngày)! Ngày mai sẽ tự động làm mới.`);
+        showToast(`Đã xong việc lặp lại hôm nay (Chuỗi ${newStreak} ngày). Ngày mai sẽ tự động làm mới.`);
       }
     } else {
       onTaskDone?.(false, targetTask, targetProject);
@@ -285,12 +293,41 @@ export function useTaskCRUD({
 
   const handleManuallyResetRecurring = (projId: string, taskId: string) => {
     setProjects((prev) => manuallyResetRecurringTask(prev, projId, taskId));
-    showToast('🔄 Đã làm mới việc lặp lại để tiếp tục thực hiện!');
+    showToast('Đã làm mới việc lặp lại để tiếp tục thực hiện.');
   };
 
   const handleManuallyResetRecurringSubTask = (projId: string, taskId: string, subId: string) => {
     setProjects((prev) => manuallyResetRecurringSubTask(prev, projId, taskId, subId));
-    showToast('🔄 Đã làm mới việc con lặp lại!');
+    showToast('Đã làm mới việc con lặp lại.');
+  };
+
+  const handleSetTaskSchedule = (
+    projId: string,
+    taskId: string,
+    schedule: { reminderAt?: string | null; deadline?: string | null }
+  ) => {
+    triggerHaptic();
+    setProjects((prev) =>
+      prev.map((p) => {
+        if (p.id !== projId) return p;
+        return {
+          ...p,
+          tasks: p.tasks.map((t) => {
+            if (t.id !== taskId) return t;
+            return {
+              ...t,
+              reminderAt: schedule.reminderAt === null ? undefined : (schedule.reminderAt ?? t.reminderAt),
+              deadline: schedule.deadline === null ? undefined : (schedule.deadline ?? t.deadline),
+            };
+          }),
+        };
+      })
+    );
+    showToast(
+      schedule.reminderAt || schedule.deadline
+        ? 'Đã lên lịch nhắc thông minh!'
+        : 'Đã gỡ bỏ lịch hẹn công việc.'
+    );
   };
 
   const changeStatus = (
@@ -463,5 +500,6 @@ export function useTaskCRUD({
     handleSetSubTaskRecurrence,
     handleManuallyResetRecurring,
     handleManuallyResetRecurringSubTask,
+    handleSetTaskSchedule,
   };
 }

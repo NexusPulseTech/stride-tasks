@@ -78,10 +78,10 @@ export function GuideModal({ isOpen, onClose }: GuideModalProps) {
             </p>
             <ul className="list-disc pl-4 space-y-0.5 text-[11.5px] text-slate-500 dark:text-slate-400 pt-0.5">
               <li>
-                <strong>Cách bật</strong>: Nhấp vào nút <strong>···</strong> ở cạnh việc cha hoặc việc con, chọn <strong>🔁 Hàng ngày</strong>, <strong>💼 Ngày làm việc (T2-T6)</strong> hoặc <strong>📅 Hàng tuần</strong>.
+                <strong>Cách bật</strong>: Nhấp vào nút <strong>···</strong> ở cạnh việc cha hoặc việc con, chọn <strong>Hàng ngày</strong>, <strong>Ngày làm việc (T2-T6)</strong> hoặc <strong>Hàng tuần</strong>.
               </li>
               <li>
-                <strong>Tự động làm mới khi sang ngày mới</strong>: Hôm nay bạn hoàn thành việc và được ghi nhận vào lịch sử & tính chuỗi Streak 🔥. Khi sang ngày mới, ứng dụng tự động mở lại việc (và các bước con) về trạng thái sẵn sàng làm mà không mất lịch sử cũ!
+                <strong>Tự động làm mới khi sang ngày mới</strong>: Hôm nay bạn hoàn thành việc và được ghi nhận vào lịch sử & tính chuỗi Streak liên tục. Khi sang ngày mới, ứng dụng tự động mở lại việc (và các bước con) về trạng thái sẵn sàng làm mà không mất lịch sử cũ!
               </li>
               <li>
                 <strong>Làm mới tức thì</strong>: Nếu bạn muốn làm lại ngay trong ngày, bấm nút <strong>Làm mới</strong> cạnh huy hiệu hoặc trong menu <strong>···</strong>.

@@ -179,7 +179,7 @@ export function ViewSettingsModal({
                 />
               </label>
 
-              {/* Streak Flame */}
+              {/* Streak Badge */}
               <label className="flex items-center justify-between p-3 hover:bg-slate-50/70 dark:hover:bg-slate-800/30 cursor-pointer">
                 <span className="text-xs text-slate-700 dark:text-slate-200">
                   {t.viewSettings.showStreakBadge}

@@ -210,48 +210,109 @@ export function StatusPickerPopover({
         </button>
       </div>
 
-      {/* Danh sách các trạng thái */}
-      <div className="p-1.5 space-y-0.5 max-h-56 overflow-y-auto overflow-x-hidden">
-        {statuses.map((s) => {
-          const isSelected = s.id === currentStatusId;
-          return (
-            <div
-              key={s.id}
-              onClick={() => {
-                onSelectStatus(s.id);
-                onClose();
-              }}
-              className={`group flex items-center justify-between px-2.5 py-1.5 rounded-lg cursor-pointer transition-colors ${
-                isSelected
-                  ? 'bg-slate-100 dark:bg-slate-800 font-semibold text-slate-900 dark:text-white'
-                  : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300'
-              }`}
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                {getStatusIcon(s)}
-                <span className="truncate">{s.label}</span>
-              </div>
-              <div className="flex items-center gap-1 shrink-0">
-                {isSelected && (
-                  <Check className="w-3.5 h-3.5 text-slate-900 dark:text-slate-100 stroke-[2.5]" />
-                )}
-                {s.isCustom && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeleteCustomStatus(s.id);
+      {/* Danh sách các trạng thái phân nhóm chuẩn mực */}
+      <div className="p-1.5 space-y-2 max-h-60 overflow-y-auto overflow-x-hidden">
+        {/* Nhóm 1: Quá trình đang làm (Chờ, Đang làm, Review, Testing, Blocked, Paused...) */}
+        <div>
+          <div className="px-2 py-1 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+            Quá trình đang làm
+          </div>
+          <div className="space-y-0.5">
+            {statuses
+              .filter((s) => s.category !== 'done')
+              .map((s) => {
+                const isSelected = s.id === currentStatusId;
+                return (
+                  <div
+                    key={s.id}
+                    onClick={() => {
+                      onSelectStatus(s.id);
+                      onClose();
                     }}
-                    className="opacity-0 group-hover:opacity-100 p-0.5 text-slate-400 hover:text-rose-600 rounded transition-opacity"
-                    title="Xóa trạng thái này"
+                    className={`group flex items-center justify-between px-2.5 py-1.5 rounded-lg cursor-pointer transition-colors ${
+                      isSelected
+                        ? 'bg-slate-100 dark:bg-slate-800 font-semibold text-slate-900 dark:text-white'
+                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300'
+                    }`}
                   >
-                    <Trash2 className="w-3 h-3" />
-                  </button>
-                )}
-              </div>
-            </div>
-          );
-        })}
+                    <div className="flex items-center gap-2 min-w-0">
+                      {getStatusIcon(s)}
+                      <span className="truncate">{s.label}</span>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      {isSelected && (
+                        <Check className="w-3.5 h-3.5 text-slate-900 dark:text-slate-100 stroke-[2.5]" />
+                      )}
+                      {s.isCustom && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteCustomStatus(s.id);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 p-0.5 text-slate-400 hover:text-rose-600 rounded transition-opacity"
+                          title="Xóa trạng thái này"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+
+        {/* Nhóm 2: Đã hoàn thành */}
+        <div>
+          <div className="px-2 py-1 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+            Đã hoàn thành
+          </div>
+          <div className="space-y-0.5">
+            {statuses
+              .filter((s) => s.category === 'done')
+              .map((s) => {
+                const isSelected = s.id === currentStatusId;
+                return (
+                  <div
+                    key={s.id}
+                    onClick={() => {
+                      onSelectStatus(s.id);
+                      onClose();
+                    }}
+                    className={`group flex items-center justify-between px-2.5 py-1.5 rounded-lg cursor-pointer transition-colors ${
+                      isSelected
+                        ? 'bg-slate-100 dark:bg-slate-800 font-semibold text-slate-900 dark:text-white'
+                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      {getStatusIcon(s)}
+                      <span className="truncate">{s.label}</span>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      {isSelected && (
+                        <Check className="w-3.5 h-3.5 text-slate-900 dark:text-slate-100 stroke-[2.5]" />
+                      )}
+                      {s.isCustom && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteCustomStatus(s.id);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 p-0.5 text-slate-400 hover:text-rose-600 rounded transition-opacity"
+                          title="Xóa trạng thái này"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
       </div>
 
       {/* Footer: Thêm trạng thái tùy chỉnh */}

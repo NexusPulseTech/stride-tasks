@@ -17,6 +17,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Zap,
+  HelpCircle,
+  FolderArchive,
 } from 'lucide-react';
 import { Project } from '../../../types';
 import {
@@ -495,6 +497,29 @@ export function BackupModal({
                   <span>Chọn tệp...</span>
                 </button>
               </div>
+
+              {/* Mục 5: Tải trọn bộ mã nguồn (.ZIP) v2.2.0 */}
+              {onDownloadSourceZip && (
+                <div className="p-3 bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/70 dark:border-blue-900/50 rounded-xl flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="text-xs font-semibold text-blue-950 dark:text-blue-200 flex items-center gap-1.5">
+                      <FolderArchive className="w-3.5 h-3.5 shrink-0 text-blue-600 dark:text-blue-400" strokeWidth={1.5} />
+                      <span>Tải trọn bộ mã nguồn TaskTodo (.ZIP)</span>
+                    </div>
+                    <p className="text-[11px] text-blue-800/80 dark:text-blue-300/80 mt-0.5">
+                      Bao gồm toàn bộ mã nguồn React/TypeScript, logic Smart Scheduling, Pinned & DnD
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={onDownloadSourceZip}
+                    className="h-7.5 px-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg flex items-center gap-1.5 cursor-pointer transition-all shadow-xs active:scale-[0.98] shrink-0"
+                  >
+                    <Download className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
+                    <span>Tải .zip</span>
+                  </button>
+                </div>
+              )}
             </>
           )}
 
@@ -589,13 +614,16 @@ export function BackupModal({
           {activeTab === 'transfer' && (
             <div className="space-y-3">
               <div className="p-2.5 bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/70 dark:border-blue-800/60 rounded-xl text-[11px] text-blue-800 dark:text-blue-300 leading-relaxed">
-                💡 <strong>Chuyển dữ liệu giữa các Domain / Cứu dữ liệu cũ:</strong>
+                <div className="flex items-center gap-1.5 font-semibold mb-1">
+                  <HelpCircle className="w-3.5 h-3.5 shrink-0 text-blue-600 dark:text-blue-400" strokeWidth={1.5} />
+                  <span>Chuyển dữ liệu giữa các Domain / Cứu dữ liệu cũ:</span>
+                </div>
                 Khi bạn chuyển từ domain cũ (như <code>task.nexuspulsetech.xyz</code> hoặc <code>nexuspulsetech.github.io</code>) sang <code>tasks.nexuspulsetech.xyz</code>, trình duyệt phân tách bộ nhớ riêng.
                 <br />
                 <strong>Cách lấy lại toàn bộ công việc cũ:</strong>
                 <ol className="list-decimal pl-4 mt-1 space-y-0.5">
                   <li>Mở tab trình duyệt chứa đường dẫn cũ mà bạn từng tạo task.</li>
-                  <li>Mở menu ➔ Bảo Vệ Dữ Liệu ➔ Bấm nút sao chép dữ liệu bên dưới.</li>
+                  <li>Mở menu → Bảo Vệ Dữ Liệu → Bấm nút sao chép dữ liệu bên dưới.</li>
                   <li>Quay lại tab mới này và Dán chuỗi đó vào ô để khôi phục ngay lập tức!</li>
                 </ol>
               </div>
@@ -668,14 +696,14 @@ export function BackupModal({
 
             {onClearAllData && (
               <div className="flex items-center justify-between text-[11px]">
-                <span className="text-slate-400 dark:text-slate-500">Làm mới hoàn toàn:</span>
+                <span className="text-slate-400 dark:text-slate-500">Bắt đầu trang trắng:</span>
                 <button
                   type="button"
                   onClick={onClearAllData}
-                  className="text-rose-500 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 flex items-center gap-1 cursor-pointer transition-colors"
+                  className="text-rose-500 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 flex items-center gap-1 cursor-pointer transition-colors font-medium"
                 >
                   <Trash2 className="w-3 h-3 shrink-0" />
-                  <span>Xóa toàn bộ dự án & việc</span>
+                  <span>Xóa sạch dữ liệu mẫu & việc (Trang trắng)</span>
                 </button>
               </div>
             )}

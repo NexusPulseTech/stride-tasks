@@ -37,6 +37,7 @@ export interface Translations {
     soundLabel: string;
     backupLabel: string;
     downloadHtmlLabel: string;
+    downloadSourceZipLabel: string;
     guideLabel: string;
     mobileGuideLabel: string;
     feedbackLabel: string;
@@ -48,6 +49,7 @@ export interface Translations {
     cancelSearch: string;
     allFilter: string;
     doingFilter: string;
+    scheduledFilter: string;
     completedFilter: string;
     batchPaste: string;
     resetSample: string;

@@ -17,10 +17,14 @@ import {
   EyeOff,
   Eye,
   Check,
+  FolderArchive,
+  Trash2,
+  RotateCcw,
 } from 'lucide-react';
 import { ThemeMode } from '../../hooks';
 import { ViewPreferences } from '../../hooks/useViewPreferences';
 import { useLanguage } from '../../i18n';
+import { APP_VERSION } from '../../constants';
 
 export interface HeaderMenuPopoverProps {
   isOpen: boolean;
@@ -39,6 +43,9 @@ export interface HeaderMenuPopoverProps {
   onOpenGuideModal: () => void;
   onOpenFeedback: () => void;
   onDownloadHtml: () => void;
+  onDownloadSourceZip?: () => void;
+  onClearSampleData?: () => void;
+  onResetSample?: () => void;
 }
 
 export function HeaderMenuPopover({
@@ -58,6 +65,9 @@ export function HeaderMenuPopover({
   onOpenGuideModal,
   onOpenFeedback,
   onDownloadHtml,
+  onDownloadSourceZip,
+  onClearSampleData,
+  onResetSample,
 }: HeaderMenuPopoverProps) {
   const popoverRef = useRef<HTMLDivElement>(null);
   const { t, language, setLanguage } = useLanguage();
@@ -276,19 +286,6 @@ export function HeaderMenuPopover({
             <span>{t.header.backupLabel}</span>
           </button>
 
-          {/* Download HTML */}
-          <button
-            type="button"
-            onClick={() => {
-              onClose();
-              onDownloadHtml();
-            }}
-            className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-slate-100/80 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200 transition-colors text-left cursor-pointer"
-          >
-            <Download className="w-3.5 h-3.5 text-slate-400" />
-            <span>{t.header.downloadHtmlLabel}</span>
-          </button>
-
           {/* User Guide */}
           <button
             type="button"
@@ -315,6 +312,69 @@ export function HeaderMenuPopover({
             <span>{t.header.feedbackLabel}</span>
           </button>
 
+          {/* Xóa sạch dữ liệu mẫu (Trang trắng) */}
+          {onClearSampleData && (
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onClearSampleData();
+              }}
+              className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 transition-colors text-left cursor-pointer font-medium"
+            >
+              <Trash2 className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+              <span>Xóa dữ liệu mẫu (Trang trắng)</span>
+            </button>
+          )}
+
+          {/* Khôi phục lại mẫu ban đầu */}
+          {onResetSample && (
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onResetSample();
+              }}
+              className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-slate-100/80 dark:hover:bg-slate-800/60 text-slate-600 dark:text-slate-300 transition-colors text-left cursor-pointer text-xs"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <span>Khôi phục dữ liệu mẫu ban đầu</span>
+            </button>
+          )}
+
+          {/* Tải mã nguồn ZIP dự án */}
+          {onDownloadSourceZip && (
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onDownloadSourceZip();
+              }}
+              className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg hover:bg-slate-100/80 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200 transition-colors text-left cursor-pointer"
+            >
+              <span className="flex items-center gap-2">
+                <FolderArchive className="w-3.5 h-3.5 text-slate-400" />
+                <span>{language === 'vi' ? 'Tải trọn bộ mã nguồn (.zip)' : 'Download Source Code (.zip)'}</span>
+              </span>
+              <span className="text-[10px] text-slate-400 font-mono">v{APP_VERSION}</span>
+            </button>
+          )}
+
+          {/* Tải trang HTML Offline */}
+          {onDownloadHtml && (
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onDownloadHtml();
+              }}
+              className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-slate-100/80 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200 transition-colors text-left cursor-pointer"
+            >
+              <Download className="w-3.5 h-3.5 text-slate-400" />
+              <span>{language === 'vi' ? 'Tải tệp HTML độc lập chạy offline' : 'Download Offline Single HTML'}</span>
+            </button>
+          )}
+
           {/* GitHub Repository */}
           <a
             href="https://github.com/NexusPulseTech/stride-tasks"
@@ -327,7 +387,7 @@ export function HeaderMenuPopover({
               <Github className="w-3.5 h-3.5 text-slate-400" />
               <span>{t.header.githubLabel}</span>
             </span>
-            <span className="text-[10px] text-slate-400 font-mono">v1.0.2</span>
+            <span className="text-[10px] text-slate-400 font-mono">v{APP_VERSION}</span>
           </a>
         </div>
       </div>

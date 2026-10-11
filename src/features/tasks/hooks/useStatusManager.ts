@@ -67,13 +67,15 @@ export function useStatusManager() {
 
   const restoreCustomStatuses = useCallback((customList: StatusDefinition[]) => {
     if (!Array.isArray(customList)) return;
-    const validCustom = customList
-      .filter((status) => status?.id && status.label && !DEFAULT_STATUSES.some((item) => item.id === status.id))
-      .map((status) => ({ ...status, isCustom: true }));
-    setStatuses([...DEFAULT_STATUSES, ...validCustom]);
-    try {
-      localStorage.setItem(STRIDE_CUSTOM_STATUSES_KEY, JSON.stringify(validCustom));
-    } catch (e) {}
+    setStatuses(() => {
+      const validCustom = customList
+        .filter((s) => s && s.id && s.label && !DEFAULT_STATUSES.some((d) => d.id === s.id))
+        .map((s) => ({ ...s, isCustom: true }));
+      try {
+        localStorage.setItem(STRIDE_CUSTOM_STATUSES_KEY, JSON.stringify(validCustom));
+      } catch (e) {}
+      return [...DEFAULT_STATUSES, ...validCustom];
+    });
   }, []);
 
   const getStatus = useCallback(

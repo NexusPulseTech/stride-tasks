@@ -1,42 +1,44 @@
-import { StatusDefinition, SubTask } from '../../../types';
+import { StatusDefinition } from '../../../types';
 import { DEFAULT_STATUSES } from '../hooks/useStatusManager';
 
+/**
+ * Phân loại trạng thái thành 3 dạng chính theo kiến trúc Linear / ClickUp:
+ * 1. 'all': Tất cả
+ * 2. 'doing': Quá trình đang làm (gồm doing, todo, review, testing, blocked, paused, và bất kỳ custom status nào chưa hoàn thành)
+ * 3. 'done': Đã xong (gồm done và custom done)
+ */
 export function getStatusCategory(
   statusId: string,
   customStatuses: StatusDefinition[] = []
 ): 'todo' | 'doing' | 'done' {
-  const status = customStatuses.find((item) => item.id === statusId)
-    || DEFAULT_STATUSES.find((item) => item.id === statusId);
-  if (status) return status.category;
+  const match =
+    customStatuses.find((s) => s.id === statusId) ||
+    DEFAULT_STATUSES.find((s) => s.id === statusId);
+
+  if (match) return match.category;
   if (statusId === 'done') return 'done';
   if (['doing', 'review', 'testing', 'blocked', 'paused'].includes(statusId)) return 'doing';
   return 'todo';
 }
 
-export function isDoneStatus(statusId: string, statuses: StatusDefinition[] = []): boolean {
-  return getStatusCategory(statusId, statuses) === 'done';
+/**
+ * Kiểm tra xem một trạng thái có thuộc quá trình đang làm hay không.
+ * Mọi trạng thái chưa hoàn thành (doing, review, testing, blocked, paused, todo, custom in-progress)
+ * đều thuộc tiến trình thực hiện công việc (In-Progress Process).
+ */
+export function isDoingStatus(
+  statusId: string,
+  customStatuses: StatusDefinition[] = []
+): boolean {
+  return !isDoneStatus(statusId, customStatuses);
 }
 
-export function isDoingStatus(statusId: string, statuses: StatusDefinition[] = []): boolean {
-  return !isDoneStatus(statusId, statuses);
-}
-
-export function countSubtaskLeaves(
-  subtask: SubTask,
-  statuses: StatusDefinition[] = []
-): { total: number; completed: number } {
-  if (!subtask.subtasks?.length) {
-    return {
-      total: 1,
-      completed: Number(subtask.completed || (subtask.status ? isDoneStatus(subtask.status, statuses) : false)),
-    };
-  }
-
-  return subtask.subtasks.reduce(
-    (counts, child) => {
-      const childCounts = countSubtaskLeaves(child, statuses);
-      return { total: counts.total + childCounts.total, completed: counts.completed + childCounts.completed };
-    },
-    { total: 0, completed: 0 }
-  );
+/**
+ * Kiểm tra xem một trạng thái có phải là Đã xong (Done) hay không.
+ */
+export function isDoneStatus(
+  statusId: string,
+  customStatuses: StatusDefinition[] = []
+): boolean {
+  return getStatusCategory(statusId, customStatuses) === 'done';
 }

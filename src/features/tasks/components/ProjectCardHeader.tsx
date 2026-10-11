@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, Trash2, Copy, ClipboardPaste } from 'lucide-react';
+import { ChevronRight, Trash2, Copy, ClipboardPaste, GripVertical, ArrowUp, ArrowDown } from 'lucide-react';
 import { Project } from '../../../types';
 
 export interface ProjectCardHeaderProps {
@@ -13,6 +13,9 @@ export interface ProjectCardHeaderProps {
   onOpenBatchPaste: (project: Project) => void;
   onDeleteProject: (id: string, e: React.MouseEvent) => void;
   onEditProjectName?: (id: string, newName: string) => void;
+  onMoveProject?: (projId: string, direction: 'up' | 'down') => void;
+  isFirst?: boolean;
+  isLast?: boolean;
 }
 
 export function ProjectCardHeader({
@@ -26,6 +29,9 @@ export function ProjectCardHeader({
   onOpenBatchPaste,
   onDeleteProject,
   onEditProjectName,
+  onMoveProject,
+  isFirst = false,
+  isLast = false,
 }: ProjectCardHeaderProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(project.name);
@@ -33,11 +39,22 @@ export function ProjectCardHeader({
   return (
     <div
       onClick={() => onToggleExpand(project.id)}
-      className="h-11 px-3.5 cursor-pointer select-none flex items-center justify-between gap-2 hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors flex-nowrap w-full overflow-hidden"
+      className="h-11 px-3 sm:px-3.5 cursor-pointer select-none flex items-center justify-between gap-2 hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors flex-nowrap w-full overflow-hidden"
     >
-      <div className="flex items-center gap-2 flex-1 min-w-0 flex-nowrap overflow-hidden">
+      <div className="flex items-center gap-1.5 flex-1 min-w-0 flex-nowrap overflow-hidden">
+        {/* GripVertical cho phép kéo thả sắp xếp danh mục */}
         <div
-          className="w-2 h-2 rounded-full shrink-0"
+          data-project-drag-handle="true"
+          className="cursor-grab active:cursor-grabbing p-1 -ml-1 text-slate-300 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-300 transition-colors select-none shrink-0"
+          title="Kéo thả sắp xếp thứ tự danh mục"
+          aria-label="Kéo thả danh mục"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <GripVertical className="w-3.5 h-3.5 shrink-0 pointer-events-none" strokeWidth={1.5} />
+        </div>
+
+        <div
+          className="w-2.5 h-2.5 rounded-full shrink-0"
           style={{ backgroundColor: project.color || '#487ca5' }}
         />
         {isEditing ? (
@@ -101,6 +118,38 @@ export function ProjectCardHeader({
             }}
           />
         </div>
+
+        {/* Di chuyển danh mục lên/xuống (Hỗ trợ tốt nhất cho cả Desktop và Mobile) */}
+        {onMoveProject && (
+          <div className="flex items-center gap-0.5 shrink-0">
+            <button
+              type="button"
+              disabled={isFirst}
+              onClick={(e) => {
+                e.stopPropagation();
+                onMoveProject(project.id, 'up');
+              }}
+              className="p-1 text-slate-300 dark:text-slate-600 hover:text-slate-700 dark:hover:text-slate-200 disabled:opacity-20 disabled:pointer-events-none rounded transition-colors cursor-pointer shrink-0"
+              title="Di chuyển danh mục lên trên"
+              aria-label="Di chuyển danh mục lên trên"
+            >
+              <ArrowUp className="w-3 h-3 shrink-0" strokeWidth={1.5} />
+            </button>
+            <button
+              type="button"
+              disabled={isLast}
+              onClick={(e) => {
+                e.stopPropagation();
+                onMoveProject(project.id, 'down');
+              }}
+              className="p-1 text-slate-300 dark:text-slate-600 hover:text-slate-700 dark:hover:text-slate-200 disabled:opacity-20 disabled:pointer-events-none rounded transition-colors cursor-pointer shrink-0"
+              title="Di chuyển danh mục xuống dưới"
+              aria-label="Di chuyển danh mục xuống dưới"
+            >
+              <ArrowDown className="w-3 h-3 shrink-0" strokeWidth={1.5} />
+            </button>
+          </div>
+        )}
 
         {/* Nút Sao chép toàn bộ checklist của dự án (Desktop) */}
         <button
