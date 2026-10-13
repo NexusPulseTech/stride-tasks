@@ -16,6 +16,7 @@ import { RecurrenceBadge } from './RecurrenceBadge';
 import { isDoneStatus } from '../utils/statusCategory';
 import { countLeafSubtasks } from '../utils/subtaskTree';
 import { formatScheduleBadge } from '../utils/scheduleHelper';
+import { useLanguage } from '../../../i18n';
 
 export type PinnedItem =
   | {
@@ -72,6 +73,7 @@ interface PinnedSubtaskBranchProps {
   onToggleSubTask?: (projId: string, taskId: string, subId: string, completed: boolean) => void;
   onDeleteSubTask?: (projId: string, taskId: string, subId: string) => void;
   onAddSubTask?: (projId: string, taskId: string, title?: string, parentSubId?: string | null) => void;
+  onTogglePinSubTask?: (projId: string, taskId: string, subId: string) => void;
   newSubInputs: Record<string, string>;
   onNewSubInputChange: (key: string, val: string) => void;
   addingToId: string | null;
@@ -89,21 +91,29 @@ function PinnedSubtaskBranch({
   onToggleSubTask,
   onDeleteSubTask,
   onAddSubTask,
+  onTogglePinSubTask,
   newSubInputs,
   onNewSubInputChange,
   addingToId,
   onSetAddingToId,
 }: PinnedSubtaskBranchProps) {
+  const { t } = useLanguage();
   if (!subs || subs.length === 0) return null;
+
+  const sortedSubs = [...subs].sort((a, b) => {
+    if (a.isPinned && !b.isPinned) return -1;
+    if (!a.isPinned && b.isPinned) return 1;
+    return 0;
+  });
 
   return (
     <div className={`space-y-1 ${depth > 0 ? 'ml-3 pl-2.5 border-l border-slate-200/80 dark:border-slate-800' : ''}`}>
-      {subs.map((childSub) => {
+      {sortedSubs.map((childSub) => {
         const childDone = childSub.status
           ? isDoneStatus(childSub.status, statuses)
           : childSub.completed;
         const hasChildren = childSub.subtasks && childSub.subtasks.length > 0;
-        const isChildExpanded = Boolean(expandedPinnedSubs[childSub.id]); // Mặc định ĐÓNG, chỉ mở khi người dùng bấm dropdown
+        const isChildExpanded = Boolean(expandedPinnedSubs[childSub.id]);
         const childStats = hasChildren && childSub.subtasks ? countArrayLeafSubtasks(childSub.subtasks) : { total: 0, completed: 0 };
 
         return (
@@ -118,7 +128,7 @@ function PinnedSubtaskBranch({
                   }
                 }}
                 className="mt-0.5 shrink-0 cursor-pointer p-0.5 rounded-full"
-                aria-label={childDone ? 'Đánh dấu chưa xong' : 'Đánh dấu hoàn thành'}
+                aria-label={childDone ? 'Uncheck' : 'Check'}
               >
                 <div
                   className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center transition-colors ${
@@ -137,7 +147,7 @@ function PinnedSubtaskBranch({
                   type="button"
                   onClick={() => onToggleExpandSub(childSub.id)}
                   className="mt-0.5 w-4 h-4 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center justify-center shrink-0 cursor-pointer rounded"
-                  title={isChildExpanded ? 'Thu gọn' : 'Xem các bước con bên dưới'}
+                  title={isChildExpanded ? t.pinned.collapseSubtasks : t.pinned.expandSubtasks}
                 >
                   <ChevronRight
                     className={`w-3 h-3 transition-transform duration-150 ${
@@ -147,7 +157,7 @@ function PinnedSubtaskBranch({
                 </button>
               )}
 
-              {/* Tiêu đề subtask con (không bị cắt chữ bí bách) */}
+              {/* Tiêu đề subtask con */}
               <div className="flex-1 min-w-0 pr-1">
                 <span
                   className={`text-xs block break-words leading-relaxed ${
@@ -164,7 +174,7 @@ function PinnedSubtaskBranch({
                   {/* Badge số lượng việc con */}
                   {hasChildren && (
                     <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
-                      {childStats.completed}/{childStats.total} việc con
+                      {childStats.completed}/{childStats.total} {t.pinned.subtaskCount}
                     </span>
                   )}
 
@@ -179,14 +189,31 @@ function PinnedSubtaskBranch({
                 </div>
               </div>
 
-              {/* Quick actions for this child subtask */}
+              {/* Quick actions for this child subtask: Pin, Add child, Delete */}
               <div className="shrink-0 flex items-center gap-0.5 opacity-0 group-hover/child:opacity-100 transition-opacity">
+                {onTogglePinSubTask && (
+                  <button
+                    type="button"
+                    onClick={() => onTogglePinSubTask(projectId, parentTaskId, childSub.id)}
+                    className={`p-1 cursor-pointer rounded transition-colors ${
+                      childSub.isPinned
+                        ? 'text-amber-500 fill-amber-500 hover:text-slate-400'
+                        : 'text-slate-300 dark:text-slate-600 hover:text-amber-500'
+                    }`}
+                    title={childSub.isPinned ? t.subtaskMenu.unpinSubtask : t.subtaskMenu.pinSubtask}
+                    aria-label={childSub.isPinned ? t.subtaskMenu.unpinSubtask : t.subtaskMenu.pinSubtask}
+                  >
+                    <Pin className={`w-3 h-3 ${childSub.isPinned ? 'fill-current' : ''}`} />
+                  </button>
+                )}
+
                 {onAddSubTask && (
                   <button
                     type="button"
                     onClick={() => onSetAddingToId(childSub.id)}
                     className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer rounded"
-                    title="Thêm bước con bên dưới"
+                    title={t.pinned.addSubtask}
+                    aria-label={t.pinned.addSubtask}
                   >
                     <Plus className="w-3 h-3" />
                   </button>
@@ -197,7 +224,8 @@ function PinnedSubtaskBranch({
                     type="button"
                     onClick={() => onDeleteSubTask(projectId, parentTaskId, childSub.id)}
                     className="p-1 text-slate-300 dark:text-slate-600 hover:text-rose-500 cursor-pointer rounded"
-                    title="Xóa bước con này"
+                    title={t.pinned.deleteSubtask}
+                    aria-label={t.pinned.deleteSubtask}
                   >
                     <Trash2 className="w-3 h-3" />
                   </button>
@@ -224,21 +252,21 @@ function PinnedSubtaskBranch({
                   value={newSubInputs[childSub.id] || ''}
                   onChange={(e) => onNewSubInputChange(childSub.id, e.target.value)}
                   autoFocus
-                  placeholder={`Thêm bước con cho "${childSub.title.slice(0, 15)}..."`}
+                  placeholder={t.pinned.addSubtaskPlaceholder.replace('{title}', childSub.title.slice(0, 15))}
                   className="flex-1 text-xs px-2 py-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md outline-none text-slate-900 dark:text-slate-100"
                 />
                 <button
                   type="submit"
                   className="h-6 px-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-medium rounded cursor-pointer"
                 >
-                  Lưu
+                  {t.pinned.save}
                 </button>
                 <button
                   type="button"
                   onClick={() => onSetAddingToId(null)}
                   className="text-xs text-slate-400 hover:text-slate-600 px-1 cursor-pointer"
                 >
-                  Hủy
+                  {t.pinned.cancel}
                 </button>
               </form>
             )}
@@ -256,6 +284,7 @@ function PinnedSubtaskBranch({
                 onToggleSubTask={onToggleSubTask}
                 onDeleteSubTask={onDeleteSubTask}
                 onAddSubTask={onAddSubTask}
+                onTogglePinSubTask={onTogglePinSubTask}
                 newSubInputs={newSubInputs}
                 onNewSubInputChange={onNewSubInputChange}
                 addingToId={addingToId}
@@ -272,13 +301,9 @@ function PinnedSubtaskBranch({
 export function PinnedSection({
   pinnedTasks,
   pinnedItems,
-  expandedTaskId,
-  onToggleExpand,
   onToggleTaskDone,
-  onChangeStatus,
   onTogglePinTask,
   onTogglePinSubTask,
-  onEditTaskTitle,
   onToggleSubTask,
   onDeleteSubTask,
   onAddSubTask,
@@ -286,6 +311,7 @@ export function PinnedSection({
   onOpenSchedule,
   statuses = [],
 }: PinnedSectionProps) {
+  const { t, language } = useLanguage();
   const items = pinnedItems || pinnedTasks || [];
   const [expandedPinnedSubs, setExpandedPinnedSubs] = useState<Record<string, boolean>>({});
   const [newSubInputs, setNewSubInputs] = useState<Record<string, string>>({});
@@ -315,10 +341,10 @@ export function PinnedSection({
       <div className="h-6 flex items-center justify-between flex-nowrap gap-2 overflow-hidden">
         <div className="flex items-center gap-1.5 text-[12px] font-semibold text-slate-800 dark:text-slate-200 truncate flex-1 min-w-0">
           <Pin className="w-3.5 h-3.5 shrink-0 text-amber-600 dark:text-amber-400 fill-current" strokeWidth={1.5} aria-hidden="true" />
-          <span className="truncate">Tiêu điểm ưu tiên ({items.length})</span>
+          <span className="truncate">{t.pinned.title} ({items.length})</span>
         </div>
         <span className="text-[10.5px] text-slate-500 dark:text-slate-400 shrink-0 whitespace-nowrap hidden sm:inline">
-          Việc quan trọng cần làm trước
+          {t.pinned.subtitle}
         </span>
       </div>
 
@@ -341,7 +367,7 @@ export function PinnedSection({
           const recurrence = isTaskType ? task.recurrence : subtask?.recurrence;
           const recurrenceStreak = isTaskType ? task.recurrenceStreak : subtask?.recurrenceStreak;
           const scheduleBadge = isTaskType
-            ? formatScheduleBadge(task.reminderAt, task.deadline)
+            ? formatScheduleBadge(task.reminderAt, task.deadline, new Date(), language)
             : { status: 'none', label: '', isOverdue: false };
 
           // Danh sách subtasks con hiển thị dưới mục ghim
@@ -349,7 +375,7 @@ export function PinnedSection({
             ? task.subtasks || []
             : subtask?.subtasks || [];
           const hasSubs = subs.length > 0;
-          const isSubsOpen = Boolean(expandedPinnedSubs[itemId]); // Mặc định ĐÓNG, chỉ mở khi người dùng bấm nút
+          const isSubsOpen = Boolean(expandedPinnedSubs[itemId]);
           const stats = hasSubs ? countArrayLeafSubtasks(subs) : { total: 0, completed: 0 };
 
           return (
@@ -361,12 +387,12 @@ export function PinnedSection({
                   : 'bg-white dark:bg-[#161b22] border-slate-200/90 dark:border-slate-800 shadow-2xs text-slate-800 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-700'
               }`}
             >
-              {/* Item Header Row chuẩn dáng task bình thường */}
+              {/* Item Header Row */}
               <div className="flex items-start gap-1.5 py-1.5 px-2 sm:px-2.5 flex-nowrap w-full overflow-hidden">
-                {/* Pin glyph indicator thay cho drag handle */}
+                {/* Pin glyph indicator */}
                 <div
                   className="mt-0.5 p-1 -ml-1 text-amber-500 dark:text-amber-400 select-none shrink-0"
-                  title="Công việc được ghim ưu tiên"
+                  title={t.pinned.title}
                 >
                   <Pin className="w-3.5 h-3.5 shrink-0 fill-current" strokeWidth={1.5} />
                 </div>
@@ -382,7 +408,7 @@ export function PinnedSection({
                     }
                   }}
                   className="mt-0.5 shrink-0 cursor-pointer p-0.5 -m-0.5 rounded-full"
-                  aria-label={isDone ? 'Đánh dấu chưa xong' : 'Đánh dấu đã xong'}
+                  aria-label={isDone ? 'Mark undone' : 'Mark done'}
                 >
                   <div
                     className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${
@@ -395,7 +421,7 @@ export function PinnedSection({
                   </div>
                 </button>
 
-                {/* Nút dropdown sổ/gập việc con chuẩn Notion */}
+                {/* Nút dropdown sổ/gập việc con */}
                 {hasSubs && (
                   <button
                     type="button"
@@ -404,8 +430,8 @@ export function PinnedSection({
                       toggleSubExpand(itemId);
                     }}
                     className="w-4.5 h-4.5 mt-0.5 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 flex items-center justify-center cursor-pointer shrink-0 transition-colors rounded hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
-                    title={isSubsOpen ? 'Thu gọn việc con' : `Mở rộng ${stats.total} việc con`}
-                    aria-label={isSubsOpen ? 'Thu gọn việc con' : 'Mở rộng việc con'}
+                    title={isSubsOpen ? t.pinned.collapseSubtasks : `${t.pinned.expandSubtasks} (${stats.total})`}
+                    aria-label={isSubsOpen ? t.pinned.collapseSubtasks : t.pinned.expandSubtasks}
                   >
                     <ChevronRight
                       className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${
@@ -416,7 +442,7 @@ export function PinnedSection({
                   </button>
                 )}
 
-                {/* Tiêu đề & Thông tin */}
+                {/* Tiêu đề & Thông tin (Tối ưu full width trên mobile, không mất chữ) */}
                 <div className="flex-1 min-w-0 pr-1 overflow-hidden">
                   <div
                     onClick={() => {
@@ -425,26 +451,28 @@ export function PinnedSection({
                     className={`text-[13px] leading-snug font-normal break-words cursor-pointer hover:text-slate-950 dark:hover:text-white transition-colors ${
                       isDone ? 'line-through text-slate-400 dark:text-slate-500' : ''
                     }`}
-                    title="Nhấp để xem chi tiết"
+                    title={t.pinned.viewDetails}
                   >
                     <FormattedTaskText text={title} isDone={isDone} />
                   </div>
 
                   {/* Metadata Row */}
                   <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                    {/* Project & Path Tag */}
+                    {/* Project & Full Hierarchical Path Tag */}
                     <span
-                      className="inline-flex items-center gap-1 text-[10px] text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 px-1.5 py-0.5 rounded font-medium max-w-[150px] truncate shrink-0"
+                      className="inline-flex items-center gap-1 text-[10px] text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 px-1.5 py-0.5 rounded font-medium max-w-[200px] truncate shrink-0"
                       title={project.name}
                     >
                       <Folder className="w-3 h-3 shrink-0 text-slate-400 dark:text-slate-500" strokeWidth={1.5} />
                       <span className="truncate">
                         {project.name}
-                        {!isTaskType ? ` › ${task.title.slice(0, 15)}...` : ''}
+                        {!isTaskType && item.path && item.path.length > 0
+                          ? ` › ${item.path.join(' › ')}`
+                          : (!isTaskType ? ` › ${task.title}` : '')}
                       </span>
                     </span>
 
-                    {/* Recurrence Badge (Sạch sẽ, chuẩn Linear/Things 3, không icon lửa) */}
+                    {/* Recurrence Badge */}
                     {recurrence && (
                       <RecurrenceBadge
                         recurrence={recurrence}
@@ -468,7 +496,7 @@ export function PinnedSection({
                             ? 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/60'
                             : 'text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 border-slate-200/80 dark:border-slate-700/70'
                         }`}
-                        title="Đổi lịch hẹn"
+                        title={scheduleBadge.label}
                       >
                         <Clock className="w-2.5 h-2.5 shrink-0" strokeWidth={1.5} />
                         <span>{scheduleBadge.label}</span>
@@ -485,7 +513,7 @@ export function PinnedSection({
                             ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border-slate-900 dark:border-slate-100'
                             : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200'
                         }`}
-                        title={isSubsOpen ? 'Thu gọn các bước con' : 'Xem các bước con'}
+                        title={isSubsOpen ? t.pinned.collapseSubtasks : t.pinned.expandSubtasks}
                       >
                         <ChevronRight
                           className={`w-2.5 h-2.5 shrink-0 transition-transform duration-200 ${
@@ -493,26 +521,26 @@ export function PinnedSection({
                           }`}
                         />
                         <span className="tabular-nums">
-                          {stats.completed}/{stats.total} việc con
+                          {stats.completed}/{stats.total} {t.pinned.subtaskCount}
                         </span>
                       </button>
                     )}
                   </div>
                 </div>
 
-                {/* Action Buttons: Detail, Calendar, Unpin */}
-                <div className="shrink-0 flex items-center gap-1">
+                {/* Action Buttons: Detail, Calendar, Unpin (Ẩn trên mobile để tối đa hóa không gian đọc tiêu đề) */}
+                <div className="shrink-0 flex items-center gap-0.5 sm:gap-1">
                   {onOpenSchedule && isTaskType && (
                     <button
                       type="button"
                       onClick={() => onOpenSchedule(task, project)}
-                      className={`p-1 rounded cursor-pointer transition-colors ${
+                      className={`p-1 rounded cursor-pointer transition-colors hidden sm:inline-flex items-center justify-center ${
                         scheduleBadge.status !== 'none'
                           ? 'text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40'
                           : 'text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                       }`}
-                      title={scheduleBadge.status !== 'none' ? `Lịch hẹn: ${scheduleBadge.label}` : 'Lên lịch nhắc thông minh'}
-                      aria-label="Lên lịch nhắc"
+                      title={scheduleBadge.status !== 'none' ? `${t.schedule.modalTitle}: ${scheduleBadge.label}` : t.schedule.modalTitle}
+                      aria-label={t.schedule.modalTitle}
                     >
                       <Calendar className="w-3.5 h-3.5" strokeWidth={1.5} />
                     </button>
@@ -522,9 +550,9 @@ export function PinnedSection({
                     <button
                       type="button"
                       onClick={() => onOpenDetail(task, project.id)}
-                      className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer rounded transition-colors"
-                      title="Xem toàn bộ nội dung"
-                      aria-label="Xem chi tiết"
+                      className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer rounded transition-colors hidden sm:inline-flex items-center justify-center"
+                      title={t.pinned.viewDetails}
+                      aria-label={t.pinned.viewDetails}
                     >
                       <Eye className="w-3.5 h-3.5" />
                     </button>
@@ -540,8 +568,8 @@ export function PinnedSection({
                       }
                     }}
                     className="p-1 text-amber-600 dark:text-amber-400 hover:text-slate-400 cursor-pointer rounded transition-colors"
-                    title="Bỏ ghim khỏi Tiêu điểm ưu tiên"
-                    aria-label="Bỏ ghim"
+                    title={t.pinned.unpin}
+                    aria-label={t.pinned.unpin}
                   >
                     <Pin className="w-3.5 h-3.5 fill-current" />
                   </button>
@@ -562,6 +590,7 @@ export function PinnedSection({
                     onToggleSubTask={onToggleSubTask}
                     onDeleteSubTask={onDeleteSubTask}
                     onAddSubTask={onAddSubTask}
+                    onTogglePinSubTask={onTogglePinSubTask}
                     newSubInputs={newSubInputs}
                     onNewSubInputChange={(key, val) =>
                       setNewSubInputs((prev) => ({ ...prev, [key]: val }))
@@ -591,31 +620,31 @@ export function PinnedSection({
                               }))
                             }
                             autoFocus
-                            placeholder="Thêm bước con tiếp theo..."
+                            placeholder={t.taskDetail.newSubtaskPlaceholder}
                             className="flex-1 text-xs px-2 py-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md outline-none text-slate-900 dark:text-slate-100"
                           />
                           <button
                             type="submit"
                             className="h-6 px-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-medium rounded cursor-pointer"
                           >
-                            Lưu
+                            {t.pinned.save}
                           </button>
                           <button
                             type="button"
                             onClick={() => setAddingToId(null)}
                             className="text-xs text-slate-400 hover:text-slate-600 px-1 cursor-pointer"
                           >
-                            Hủy
+                            {t.pinned.cancel}
                           </button>
                         </form>
                       ) : (
                         <button
                           type="button"
                           onClick={() => setAddingToId(itemId)}
-                          className="text-[11px] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 inline-flex items-center gap-1 cursor-pointer py-0.5"
+                          className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 py-0.5 cursor-pointer transition-colors"
                         >
                           <Plus className="w-3 h-3" />
-                          <span>Thêm bước con</span>
+                          <span>{t.pinned.addSubtask}</span>
                         </button>
                       )}
                     </div>

@@ -154,36 +154,17 @@ export function AppHeader({
             </button>
           )}
 
-          {/* Quick Language Switcher Button (Tùy chọn hiển thị trên header) */}
+          {/* Quick Language Switcher Button (Mặc định hiển thị cùng nút Cài đặt) */}
           {viewPreferences.showLanguageSwitcher && !viewPreferences.zenMode && (
             <button
               type="button"
               onClick={toggleLanguage}
-              className="h-7.5 px-2 rounded-lg border border-slate-200/90 dark:border-slate-700/80 bg-white dark:bg-slate-800/70 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-mono text-[11px] font-semibold transition-colors cursor-pointer shrink-0 flex items-center gap-1 shadow-2xs"
-              title="Đổi ngôn ngữ (Switch Language)"
+              className="h-7.5 px-2.5 rounded-lg border border-slate-200/90 dark:border-slate-700/80 bg-white dark:bg-slate-800/70 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-mono text-[11px] font-semibold transition-colors cursor-pointer shrink-0 flex items-center gap-1.5 shadow-2xs"
+              title={language === 'vi' ? 'Chuyển sang English (Switch to English)' : 'Chuyển sang Tiếng Việt (Switch to Vietnamese)'}
               aria-label="Switch Language"
             >
-              <Globe className="w-3 h-3 text-slate-400 shrink-0" />
-              <span>{language.toUpperCase()}</span>
-            </button>
-          )}
-
-          {/* Quick Theme Switcher Button */}
-          {!viewPreferences.zenMode && (
-            <button
-              type="button"
-              onClick={onCycleTheme}
-              className="h-7.5 w-7.5 rounded-lg border border-slate-200/90 dark:border-slate-700/80 bg-white dark:bg-slate-800/70 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer shrink-0 hidden sm:flex items-center justify-center shadow-2xs"
-              title={getThemeTooltip()}
-              aria-label={getThemeTooltip()}
-            >
-              {themeMode === 'light' ? (
-                <Sun className="w-3.5 h-3.5 shrink-0 text-amber-500" strokeWidth={1.75} aria-hidden="true" />
-              ) : themeMode === 'dark' ? (
-                <Moon className="w-3.5 h-3.5 shrink-0 text-indigo-400" strokeWidth={1.75} aria-hidden="true" />
-              ) : (
-                <Monitor className="w-3.5 h-3.5 shrink-0 text-slate-500 dark:text-slate-400" strokeWidth={1.5} aria-hidden="true" />
-              )}
+              <Globe className="w-3.5 h-3.5 text-slate-400 shrink-0" strokeWidth={1.75} />
+              <span className="font-bold">{language.toUpperCase()}</span>
             </button>
           )}
 

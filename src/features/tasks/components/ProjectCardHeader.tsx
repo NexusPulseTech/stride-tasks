@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronRight, Trash2, Copy, ClipboardPaste, GripVertical, ArrowUp, ArrowDown } from 'lucide-react';
 import { Project } from '../../../types';
+import { useLanguage } from '../../../i18n';
 
 export interface ProjectCardHeaderProps {
   project: Project;
@@ -33,6 +34,7 @@ export function ProjectCardHeader({
   isFirst = false,
   isLast = false,
 }: ProjectCardHeaderProps) {
+  const { t } = useLanguage();
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(project.name);
 
@@ -46,8 +48,8 @@ export function ProjectCardHeader({
         <div
           data-project-drag-handle="true"
           className="cursor-grab active:cursor-grabbing p-1 -ml-1 text-slate-300 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-300 transition-colors select-none shrink-0"
-          title="Kéo thả sắp xếp thứ tự danh mục"
-          aria-label="Kéo thả danh mục"
+          title={t.projectHeader.dragSort}
+          aria-label={t.projectHeader.dragSort}
           onClick={(e) => e.stopPropagation()}
         >
           <GripVertical className="w-3.5 h-3.5 shrink-0 pointer-events-none" strokeWidth={1.5} />
@@ -130,8 +132,8 @@ export function ProjectCardHeader({
                 onMoveProject(project.id, 'up');
               }}
               className="p-1 text-slate-300 dark:text-slate-600 hover:text-slate-700 dark:hover:text-slate-200 disabled:opacity-20 disabled:pointer-events-none rounded transition-colors cursor-pointer shrink-0"
-              title="Di chuyển danh mục lên trên"
-              aria-label="Di chuyển danh mục lên trên"
+              title={t.projectHeader.moveUp}
+              aria-label={t.projectHeader.moveUp}
             >
               <ArrowUp className="w-3 h-3 shrink-0" strokeWidth={1.5} />
             </button>
@@ -143,8 +145,8 @@ export function ProjectCardHeader({
                 onMoveProject(project.id, 'down');
               }}
               className="p-1 text-slate-300 dark:text-slate-600 hover:text-slate-700 dark:hover:text-slate-200 disabled:opacity-20 disabled:pointer-events-none rounded transition-colors cursor-pointer shrink-0"
-              title="Di chuyển danh mục xuống dưới"
-              aria-label="Di chuyển danh mục xuống dưới"
+              title={t.projectHeader.moveDown}
+              aria-label={t.projectHeader.moveDown}
             >
               <ArrowDown className="w-3 h-3 shrink-0" strokeWidth={1.5} />
             </button>
@@ -156,8 +158,8 @@ export function ProjectCardHeader({
           type="button"
           onClick={(e) => onCopyProjectAsMarkdown(project, e)}
           className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 rounded transition-colors cursor-pointer shrink-0 hidden sm:flex"
-          title="Sao chép toàn bộ checklist (Markdown/Notion)"
-          aria-label="Sao chép toàn bộ checklist của dự án"
+          title={t.projectHeader.copyChecklist}
+          aria-label={t.projectHeader.copyChecklist}
         >
           <Copy className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
         </button>
@@ -167,8 +169,8 @@ export function ProjectCardHeader({
           type="button"
           onClick={() => onOpenBatchPaste(project)}
           className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 rounded transition-colors cursor-pointer shrink-0"
-          title="Dán nhanh nhiều việc cùng lúc"
-          aria-label="Dán nhanh nhiều việc"
+          title={t.projectHeader.batchPaste}
+          aria-label={t.projectHeader.batchPaste}
         >
           <ClipboardPaste className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
         </button>
@@ -178,8 +180,8 @@ export function ProjectCardHeader({
           type="button"
           onClick={(e) => onDeleteProject(project.id, e)}
           className="p-1 text-slate-300 dark:text-slate-600 hover:text-rose-500 rounded transition-colors cursor-pointer shrink-0"
-          title="Xóa dự án"
-          aria-label="Xóa dự án"
+          title={t.projectHeader.deleteProject}
+          aria-label={t.projectHeader.deleteProject}
         >
           <Trash2 className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
         </button>
@@ -189,8 +191,8 @@ export function ProjectCardHeader({
           type="button"
           onClick={() => onToggleExpand(project.id)}
           className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer shrink-0"
-          title={project.isExpanded ? 'Thu gọn dự án' : 'Mở rộng dự án'}
-          aria-label={project.isExpanded ? 'Thu gọn dự án' : 'Mở rộng dự án'}
+          title={project.isExpanded ? t.projectHeader.collapseProject : t.projectHeader.expandProject}
+          aria-label={project.isExpanded ? t.projectHeader.collapseProject : t.projectHeader.expandProject}
         >
           <ChevronRight
             className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${
@@ -204,3 +206,4 @@ export function ProjectCardHeader({
     </div>
   );
 }
+

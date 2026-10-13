@@ -8,10 +8,10 @@ import {
   Circle,
   Clock,
   AlertCircle,
-  CheckCircle2,
   PauseCircle,
 } from 'lucide-react';
 import { StatusDefinition } from '../../../types';
+import { useLanguage } from '../../../i18n';
 
 export interface StatusPickerPopoverProps {
   isOpen: boolean;
@@ -55,6 +55,7 @@ export function StatusPickerPopover({
   onDeleteCustomStatus,
   anchorRef,
 }: StatusPickerPopoverProps) {
+  const { t } = useLanguage();
   const popoverRef = useRef<HTMLDivElement>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [newLabel, setNewLabel] = useState('');
@@ -63,46 +64,50 @@ export function StatusPickerPopover({
   const [coords, setCoords] = useState<PopoverCoords>({
     top: 0,
     right: 8,
-    width: 264,
+    width: 240,
     isFlipped: false,
   });
 
-  const updateCoordinates = useCallback(() => {
+  const getStatusLabel = (def: StatusDefinition) => {
+    if (def.isCustom) return def.label;
+    const key = def.id as keyof typeof t.status;
+    if (t.status[key]) return t.status[key];
+    if (def.category === 'done') return t.status.done;
+    if (def.category === 'doing') return t.status.doing;
+    return t.status.todo;
+  };
+
+  const updatePosition = useCallback(() => {
     if (!anchorRef.current) return;
     const rect = anchorRef.current.getBoundingClientRect();
-    const margin = 6;
-    const popoverWidth = Math.min(270, window.innerWidth - 16);
-    const estimatedHeight = isCreating ? 340 : 280;
+    const popoverWidth = Math.min(260, window.innerWidth - 16);
+    const viewportHeight = window.innerHeight;
+    const spaceBelow = viewportHeight - rect.bottom;
+    const estimatedHeight = 320;
+    const isFlipped = spaceBelow < estimatedHeight && rect.top > estimatedHeight;
 
-    // Viewport overflow check: Flip upwards if close to bottom of screen
-    const spaceBelow = window.innerHeight - rect.bottom;
-    const spaceAbove = rect.top;
-    const shouldFlip = spaceBelow < estimatedHeight && spaceAbove > spaceBelow;
-
-    // Horizontal placement: Align to right edge of button
     let right = window.innerWidth - rect.right;
     if (right < 8) right = 8;
-    // Don't let left edge go off-screen
-    if (window.innerWidth - right < popoverWidth + 8) {
+    if (right + popoverWidth > window.innerWidth - 8) {
       right = Math.max(8, window.innerWidth - popoverWidth - 8);
     }
 
-    if (shouldFlip) {
+    if (isFlipped) {
       setCoords({
-        bottom: window.innerHeight - rect.top + margin,
+        bottom: viewportHeight - rect.top + 6,
         right,
         width: popoverWidth,
         isFlipped: true,
       });
     } else {
       setCoords({
-        top: rect.bottom + margin,
+        top: rect.bottom + 6,
         right,
         width: popoverWidth,
         isFlipped: false,
       });
     }
-  }, [anchorRef, isCreating]);
+  }, [anchorRef]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -111,44 +116,36 @@ export function StatusPickerPopover({
       return;
     }
 
-    updateCoordinates();
+    updatePosition();
+    const handleScrollOrResize = () => updatePosition();
+    window.addEventListener('resize', handleScrollOrResize);
+    window.addEventListener('scroll', handleScrollOrResize, true);
 
-    function handleClickOutside(event: MouseEvent | TouchEvent) {
-      const target = event.target as Node;
+    const handleClickOutside = (e: MouseEvent) => {
       if (
         popoverRef.current &&
-        !popoverRef.current.contains(target) &&
+        !popoverRef.current.contains(e.target as Node) &&
         anchorRef.current &&
-        !anchorRef.current.contains(target)
+        !anchorRef.current.contains(e.target as Node)
       ) {
         onClose();
       }
-    }
+    };
 
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    }
-
-    const handleScrollOrResize = () => {
-      updateCoordinates();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('touchstart', handleClickOutside);
     document.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('scroll', handleScrollOrResize, true);
-    window.addEventListener('resize', handleScrollOrResize);
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('touchstart', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('scroll', handleScrollOrResize, true);
       window.removeEventListener('resize', handleScrollOrResize);
+      window.removeEventListener('scroll', handleScrollOrResize, true);
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, onClose, anchorRef, updateCoordinates]);
+  }, [isOpen, updatePosition, onClose, anchorRef]);
 
   if (!isOpen) return null;
 
@@ -166,16 +163,16 @@ export function StatusPickerPopover({
 
   const getStatusIcon = (status: StatusDefinition) => {
     if (status.category === 'done' || status.id === 'done') {
-      return <CheckCircle2 className="w-3.5 h-3.5 shrink-0" style={{ color: status.color }} />;
+      return <Check className="w-3 h-3 shrink-0 stroke-[2.5]" style={{ color: status.color }} />;
     }
     if (status.id === 'blocked') {
-      return <AlertCircle className="w-3.5 h-3.5 shrink-0" style={{ color: status.color }} />;
+      return <AlertCircle className="w-3 h-3 shrink-0 stroke-[2]" style={{ color: status.color }} />;
     }
     if (status.id === 'paused') {
-      return <PauseCircle className="w-3.5 h-3.5 shrink-0" style={{ color: status.color }} />;
+      return <PauseCircle className="w-3 h-3 shrink-0 stroke-[2]" style={{ color: status.color }} />;
     }
     if (status.category === 'doing') {
-      return <Clock className="w-3.5 h-3.5 shrink-0" style={{ color: status.color }} />;
+      return <Clock className="w-3 h-3 shrink-0 stroke-[2]" style={{ color: status.color }} />;
     }
     return <Circle className="w-3.5 h-3.5 shrink-0" style={{ color: status.color }} />;
   };
@@ -198,13 +195,13 @@ export function StatusPickerPopover({
       {/* Header */}
       <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between bg-slate-50/70 dark:bg-slate-900/50 shrink-0">
         <span className="font-semibold text-[11px] text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-          Chọn trạng thái
+          {t.status.chooseStatus}
         </span>
         <button
           type="button"
           onClick={onClose}
           className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-0.5 rounded cursor-pointer"
-          title="Đóng (Esc)"
+          title={`${t.common.close} (Esc)`}
         >
           <X className="w-3.5 h-3.5" />
         </button>
@@ -212,16 +209,17 @@ export function StatusPickerPopover({
 
       {/* Danh sách các trạng thái phân nhóm chuẩn mực */}
       <div className="p-1.5 space-y-2 max-h-60 overflow-y-auto overflow-x-hidden">
-        {/* Nhóm 1: Quá trình đang làm (Chờ, Đang làm, Review, Testing, Blocked, Paused...) */}
+        {/* Nhóm 1: Quá trình đang làm */}
         <div>
           <div className="px-2 py-1 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-            Quá trình đang làm
+            {t.status.inProgressGroup}
           </div>
           <div className="space-y-0.5">
             {statuses
               .filter((s) => s.category !== 'done')
               .map((s) => {
                 const isSelected = s.id === currentStatusId;
+                const label = getStatusLabel(s);
                 return (
                   <div
                     key={s.id}
@@ -237,7 +235,7 @@ export function StatusPickerPopover({
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       {getStatusIcon(s)}
-                      <span className="truncate">{s.label}</span>
+                      <span className="truncate">{label}</span>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
                       {isSelected && (
@@ -251,7 +249,7 @@ export function StatusPickerPopover({
                             onDeleteCustomStatus(s.id);
                           }}
                           className="opacity-0 group-hover:opacity-100 p-0.5 text-slate-400 hover:text-rose-600 rounded transition-opacity"
-                          title="Xóa trạng thái này"
+                          title={t.status.deleteStatus}
                         >
                           <Trash2 className="w-3 h-3" />
                         </button>
@@ -266,13 +264,14 @@ export function StatusPickerPopover({
         {/* Nhóm 2: Đã hoàn thành */}
         <div>
           <div className="px-2 py-1 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-            Đã hoàn thành
+            {t.status.completedGroup}
           </div>
           <div className="space-y-0.5">
             {statuses
               .filter((s) => s.category === 'done')
               .map((s) => {
                 const isSelected = s.id === currentStatusId;
+                const label = getStatusLabel(s);
                 return (
                   <div
                     key={s.id}
@@ -288,7 +287,7 @@ export function StatusPickerPopover({
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       {getStatusIcon(s)}
-                      <span className="truncate">{s.label}</span>
+                      <span className="truncate">{label}</span>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
                       {isSelected && (
@@ -302,7 +301,7 @@ export function StatusPickerPopover({
                             onDeleteCustomStatus(s.id);
                           }}
                           className="opacity-0 group-hover:opacity-100 p-0.5 text-slate-400 hover:text-rose-600 rounded transition-opacity"
-                          title="Xóa trạng thái này"
+                          title={t.status.deleteStatus}
                         >
                           <Trash2 className="w-3 h-3" />
                         </button>
@@ -324,14 +323,14 @@ export function StatusPickerPopover({
             className="w-full py-1 px-2 flex items-center justify-center gap-1.5 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 rounded-lg hover:border-slate-300 transition-colors cursor-pointer shadow-2xs"
           >
             <Plus className="w-3 h-3" strokeWidth={2} />
-            <span>Thêm trạng thái mới...</span>
+            <span>{t.status.addStatus}...</span>
           </button>
         ) : (
           <form onSubmit={handleCreateSubmit} className="space-y-2 animate-in fade-in duration-100">
             <div>
               <input
                 type="text"
-                placeholder="Tên trạng thái (VD: Đang test)..."
+                placeholder={t.status.customStatusPlaceholder}
                 value={newLabel}
                 onChange={(e) => setNewLabel(e.target.value)}
                 autoFocus
@@ -350,7 +349,7 @@ export function StatusPickerPopover({
                     : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'
                 }`}
               >
-                Chờ
+                {t.status.todo}
               </button>
               <button
                 type="button"
@@ -361,7 +360,7 @@ export function StatusPickerPopover({
                     : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'
                 }`}
               >
-                Đang làm
+                {t.status.doing}
               </button>
               <button
                 type="button"
@@ -372,7 +371,7 @@ export function StatusPickerPopover({
                     : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'
                 }`}
               >
-                Đã xong
+                {t.status.done}
               </button>
             </div>
 
@@ -399,14 +398,14 @@ export function StatusPickerPopover({
                 onClick={() => setIsCreating(false)}
                 className="flex-1 py-1 text-[11px] rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
-                Hủy
+                {t.common.cancel}
               </button>
               <button
                 type="submit"
                 disabled={!newLabel.trim()}
                 className="flex-1 py-1 text-[11px] rounded-lg bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 font-medium hover:bg-slate-800 disabled:opacity-40 cursor-pointer shadow-2xs"
               >
-                Lưu
+                {t.common.save}
               </button>
             </div>
           </form>

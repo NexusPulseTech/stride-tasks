@@ -40,8 +40,6 @@ export default function App() {
     setActiveMenuTaskId: manager.setActiveMenuTaskId,
     batchPasteProject: manager.batchPasteProject,
     setBatchPasteProject: manager.setBatchPasteProject,
-    batchPasteTarget: manager.batchPasteTarget,
-    setBatchPasteTarget: manager.setBatchPasteTarget,
     search: manager.search,
     setSearch: manager.setSearch,
     setMobileSearchOpen: manager.setMobileSearchOpen,
@@ -134,7 +132,6 @@ export default function App() {
           filter={manager.filter}
           onFilterChange={manager.setFilter}
           totalDoing={manager.totalDoing}
-          totalScheduled={manager.totalScheduled}
           search={manager.search}
           onSearchChange={manager.setSearch}
           mobileSearchOpen={manager.mobileSearchOpen}
@@ -327,13 +324,9 @@ export default function App() {
         confirmDialog={manager.confirmDialog}
         onCloseConfirmDialog={() => manager.setConfirmDialog(null)}
         batchPasteProject={manager.batchPasteProject}
-        batchPasteTarget={manager.batchPasteTarget}
         batchPasteText={manager.batchPasteText}
         onBatchPasteTextChange={manager.setBatchPasteText}
-        onCloseBatchPaste={() => {
-          manager.setBatchPasteProject(null);
-          manager.setBatchPasteTarget(null);
-        }}
+        onCloseBatchPaste={() => manager.setBatchPasteProject(null)}
         onExecuteBatchPaste={manager.handleExecuteBatchPaste}
         showMobileAddModal={manager.showMobileAddModal}
         projects={manager.projects}

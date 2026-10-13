@@ -6,10 +6,10 @@ import {
   Clock,
   AlertCircle,
   PauseCircle,
-  CheckCircle2,
 } from 'lucide-react';
 import { StatusDefinition } from '../../../types';
 import { StatusPickerPopover } from './StatusPickerPopover';
+import { useLanguage } from '../../../i18n';
 
 export interface TaskStatusButtonProps {
   status: string;
@@ -22,7 +22,7 @@ export interface TaskStatusButtonProps {
 
 const FALLBACK_DEF: StatusDefinition = {
   id: 'todo',
-  label: 'Chờ',
+  label: 'Todo',
   category: 'todo',
   color: '#64748b',
 };
@@ -35,6 +35,7 @@ export function TaskStatusButton({
   onDeleteCustomStatus,
   size = 'md',
 }: TaskStatusButtonProps) {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -47,6 +48,17 @@ export function TaskStatusButton({
     ) ||
     safeStatuses[0] ||
     FALLBACK_DEF;
+
+  const getStatusLabel = (def: StatusDefinition) => {
+    if (def.isCustom) return def.label;
+    const key = def.id as keyof typeof t.status;
+    if (t.status[key]) return t.status[key];
+    if (def.category === 'done') return t.status.done;
+    if (def.category === 'doing') return t.status.doing;
+    return t.status.todo;
+  };
+
+  const currentLabel = getStatusLabel(currentDef);
 
   const getStatusIcon = (def: StatusDefinition) => {
     if (def.category === 'done' || def.id === 'done') {
@@ -76,7 +88,7 @@ export function TaskStatusButton({
         className={`shrink-0 whitespace-nowrap rounded-md border transition-all cursor-pointer select-none font-medium flex items-center gap-1 shadow-2xs ${
           size === 'sm'
             ? 'text-[10px] px-1.5 py-0.2 h-[22px]'
-            : 'text-[10.5px] px-2 py-0.5 h-[24px]'
+            : 'text-[10.5px] px-1.5 sm:px-2 py-0.5 h-[24px]'
         } ${
           currentDef.category === 'done'
             ? 'text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-[#161b22]/40 border-slate-200/80 dark:border-slate-800'
@@ -84,11 +96,11 @@ export function TaskStatusButton({
             ? 'text-slate-900 dark:text-slate-100 bg-slate-100/90 dark:bg-slate-800 border-slate-300 dark:border-slate-600 font-semibold'
             : 'text-slate-600 dark:text-slate-300 bg-white dark:bg-[#161b22] border-slate-200 dark:border-slate-700/70 hover:bg-slate-50 dark:hover:bg-slate-800'
         }`}
-        title={`Trạng thái: ${currentDef.label} (Bấm để đổi trạng thái hoặc thêm mới)`}
-        aria-label={`Trạng thái: ${currentDef.label}`}
+        title={`${t.taskDetail.statusLabel} ${currentLabel}`}
+        aria-label={`${t.taskDetail.statusLabel} ${currentLabel}`}
       >
         {getStatusIcon(currentDef)}
-        <span className="truncate max-w-[85px]">{currentDef.label}</span>
+        <span className="hidden sm:inline truncate max-w-[85px]">{currentLabel}</span>
         <ChevronDown className="w-2.5 h-2.5 text-slate-400 shrink-0 opacity-70" />
       </button>
 

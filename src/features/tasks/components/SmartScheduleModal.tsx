@@ -8,7 +8,6 @@ import {
   X,
   Trash2,
   CalendarCheck,
-  AlertCircle,
   ChevronRight,
   Sun,
   Sunset,
@@ -23,6 +22,7 @@ import {
   toTimeInputValue,
   formatScheduleBadge,
 } from '../utils/scheduleHelper';
+import { useLanguage } from '../../../i18n';
 
 interface SmartScheduleModalProps {
   isOpen: boolean;
@@ -41,6 +41,7 @@ export function SmartScheduleModal({
   allProjects = [],
   onSaveSchedule,
 }: SmartScheduleModalProps) {
+  const { t, language } = useLanguage();
   const [activeTab, setActiveTab] = useState<'presets' | 'custom'>('presets');
 
   // Custom date & time state
@@ -87,17 +88,17 @@ export function SmartScheduleModal({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  const presets = useMemo(() => generateSchedulePresets(new Date()), []);
-  const workload = useMemo(() => analyzeWorkload(allProjects, new Date()), [allProjects]);
+  const presets = useMemo(() => generateSchedulePresets(new Date(), language), [language]);
+  const workload = useMemo(() => analyzeWorkload(allProjects, new Date(), language), [allProjects, language]);
 
   if (!isOpen || !task) return null;
 
-  const currentSchedule = formatScheduleBadge(task.reminderAt, task.deadline);
+  const currentSchedule = formatScheduleBadge(task.reminderAt, task.deadline, new Date(), language);
 
   const handleApplyPreset = (isoString: string) => {
     onSaveSchedule({
       reminderAt: isoString,
-      deadline: enableDeadline ? isoString.split('T')[0] : null,
+      deadline: enableDeadline ? isoString.split('T')[0] : undefined,
     });
     onClose();
   };
@@ -113,7 +114,7 @@ export function SmartScheduleModal({
 
     onSaveSchedule({
       reminderAt: scheduledDate.toISOString(),
-      deadline: enableDeadline ? customDate : null,
+      deadline: enableDeadline ? customDate : undefined,
     });
     onClose();
   };
@@ -138,7 +139,7 @@ export function SmartScheduleModal({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Lựa chọn lịch thông minh"
+      aria-label={t.schedule.modalTitle}
       onClick={onClose}
       className="fixed inset-0 z-[99999] bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs flex flex-col justify-end sm:justify-center sm:items-center p-0 sm:p-4 animate-in fade-in duration-150"
     >
@@ -159,7 +160,7 @@ export function SmartScheduleModal({
             </div>
             <div className="min-w-0 flex-1">
               <h2 className="text-[13.5px] sm:text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
-                Lên lịch nhắc thông minh
+                {t.schedule.modalTitle}
               </h2>
               <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                 {projectName ? `${projectName} · ` : ''}{task.title}
@@ -171,8 +172,8 @@ export function SmartScheduleModal({
             type="button"
             onClick={onClose}
             className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors cursor-pointer shrink-0"
-            title="Đóng (Esc)"
-            aria-label="Đóng"
+            title={`${t.common.close} (Esc)`}
+            aria-label={t.common.close}
           >
             <X className="w-4 h-4" strokeWidth={1.75} />
           </button>
@@ -184,7 +185,7 @@ export function SmartScheduleModal({
             <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 min-w-0 truncate">
               <Clock className="w-3.5 h-3.5 shrink-0 text-slate-400" strokeWidth={1.5} />
               <span className="truncate">
-                Đang hẹn:{' '}
+                {t.schedule.currentlyScheduled}{' '}
                 <strong
                   className={
                     currentSchedule.isOverdue
@@ -202,7 +203,7 @@ export function SmartScheduleModal({
               className="text-[11px] text-rose-600 dark:text-rose-400 hover:underline cursor-pointer flex items-center gap-1 shrink-0"
             >
               <Trash2 className="w-3 h-3" strokeWidth={1.5} />
-              <span>Hủy lịch</span>
+              <span>{t.schedule.clearSchedule}</span>
             </button>
           </div>
         )}
@@ -211,20 +212,20 @@ export function SmartScheduleModal({
         <div className="p-3.5 mx-4 mt-3 bg-blue-50/60 dark:bg-blue-950/25 border border-blue-200/60 dark:border-blue-900/40 rounded-xl text-xs text-blue-900 dark:text-blue-300 space-y-1 shrink-0">
           <div className="flex items-center gap-1.5 font-medium">
             <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" strokeWidth={1.75} />
-            <span>Phân tích tải công việc (Linear / Things 3 Dispatcher)</span>
+            <span>{t.schedule.workloadTitle}</span>
           </div>
           <p className="text-[11.5px] leading-relaxed text-blue-800/90 dark:text-blue-300/90">
             {workload.adviceMessage}
           </p>
           <div className="flex items-center gap-3 pt-0.5 text-[10.5px] text-blue-700 dark:text-blue-400 font-mono">
-            <span>Hôm nay: {workload.todayCount} việc</span>
+            <span>{t.schedule.todayTasks}: {workload.todayCount}</span>
             <span>·</span>
-            <span>Ngày mai: {workload.tomorrowCount} việc</span>
+            <span>{t.schedule.tomorrowTasks}: {workload.tomorrowCount}</span>
             {workload.overdueCount > 0 && (
               <>
                 <span>·</span>
                 <span className="text-rose-600 dark:text-rose-400 font-semibold">
-                  Quá hạn: {workload.overdueCount} việc
+                  {t.schedule.overdueTasks}: {workload.overdueCount}
                 </span>
               </>
             )}
@@ -243,7 +244,7 @@ export function SmartScheduleModal({
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
               }`}
             >
-              Gợi ý nhanh (1-Chạm)
+              {t.schedule.tabPresets}
             </button>
             <button
               type="button"
@@ -254,7 +255,7 @@ export function SmartScheduleModal({
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
               }`}
             >
-              Tự chọn ngày & giờ
+              {t.schedule.tabCustom}
             </button>
           </div>
         </div>
@@ -303,7 +304,7 @@ export function SmartScheduleModal({
                   onChange={(e) => setEnableDeadline(e.target.checked)}
                   className="rounded text-amber-600 focus:ring-amber-500 cursor-pointer"
                 />
-                <span>Đồng thời gán ngày này làm hạn chót (Deadline) của công việc</span>
+                <span>{t.schedule.deadlineCheckbox}</span>
               </label>
             </div>
           ) : (
@@ -312,7 +313,7 @@ export function SmartScheduleModal({
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Chọn ngày thực hiện</span>
+                  <span>{t.schedule.selectDate}</span>
                 </label>
                 <input
                   type="date"
@@ -327,16 +328,16 @@ export function SmartScheduleModal({
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Khung giờ nhắc nhở</span>
+                  <span>{t.schedule.selectTime}</span>
                 </label>
 
                 {/* Quick time slots buttons */}
                 <div className="grid grid-cols-4 gap-1.5 mb-2">
                   {[
-                    { label: '09:00', text: 'Sáng' },
-                    { label: '14:00', text: 'Chiều' },
-                    { label: '17:00', text: 'Cuối ngày' },
-                    { label: '20:00', text: 'Tối' },
+                    { label: '09:00', text: t.schedule.morning },
+                    { label: '14:00', text: t.schedule.afternoon },
+                    { label: '17:00', text: t.schedule.endOfDay },
+                    { label: '20:00', text: t.schedule.evening },
                   ].map((slot) => (
                     <button
                       key={slot.label}
@@ -370,7 +371,7 @@ export function SmartScheduleModal({
                   onChange={(e) => setEnableDeadline(e.target.checked)}
                   className="rounded text-amber-600 focus:ring-amber-500 cursor-pointer"
                 />
-                <span>Đồng thời gán ngày này làm hạn chót (Deadline)</span>
+                <span>{t.schedule.deadlineCheckbox}</span>
               </label>
 
               {/* Submit Button */}
@@ -380,7 +381,7 @@ export function SmartScheduleModal({
                   className="w-full h-11 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-slate-900 text-xs font-semibold rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-sm"
                 >
                   <Check className="w-4 h-4" strokeWidth={2} />
-                  <span>Áp dụng lịch nhắc</span>
+                  <span>{t.schedule.apply}</span>
                 </button>
               </div>
             </form>
@@ -396,11 +397,11 @@ export function SmartScheduleModal({
               className="h-9 px-3 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
             >
               <Trash2 className="w-3.5 h-3.5" />
-              <span>Gỡ bỏ lịch</span>
+              <span>{t.schedule.removeSchedule}</span>
             </button>
           ) : (
             <span className="text-[11px] text-slate-400 dark:text-slate-500">
-              Nhắc việc chính xác qua Web Notification & In-app
+              {t.schedule.footerHint}
             </span>
           )}
 
@@ -409,7 +410,7 @@ export function SmartScheduleModal({
             onClick={onClose}
             className="h-9 px-4 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/60 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
           >
-            Đóng
+            {t.schedule.close}
           </button>
         </div>
       </div>

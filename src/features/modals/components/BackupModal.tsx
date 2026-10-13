@@ -21,6 +21,7 @@ import {
   FolderArchive,
 } from 'lucide-react';
 import { Project } from '../../../types';
+import { useLanguage } from '../../../i18n';
 import {
   getSnapshotVault,
   deepScanAllRecoverySources,
@@ -131,6 +132,7 @@ export function BackupModal({
   onDownloadHtml,
   initialTab = 'backup',
 }: BackupModalProps) {
+  const { language, t } = useLanguage();
   const [pasteText, setPasteText] = useState('');
   const [copied, setCopied] = useState(false);
   const [showPasteArea, setShowPasteArea] = useState(false);
@@ -363,7 +365,11 @@ export function BackupModal({
                     className="h-8.5 px-3 bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-800/80 hover:bg-blue-50 dark:hover:bg-blue-950/50 text-blue-900 dark:text-blue-200 font-medium rounded-lg flex items-center justify-center gap-1.5 transition-all shadow-2xs active:scale-[0.98] cursor-pointer"
                   >
                     <ClipboardPaste className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
-                    <span className="text-[11.5px]">{showPasteArea ? 'Thu gọn ô dán dữ liệu' : 'Dán & Khôi phục dữ liệu'}</span>
+                    <span className="text-[11.5px]">
+                      {showPasteArea
+                        ? (language === 'vi' ? 'Thu gọn ô dán dữ liệu' : 'Collapse paste box')
+                        : (language === 'vi' ? 'Dán & Khôi phục dữ liệu' : 'Paste & Restore data')}
+                    </span>
                   </button>
                 </div>
 
@@ -372,8 +378,9 @@ export function BackupModal({
                   <div className="p-2.5 bg-white dark:bg-slate-900 border border-blue-100 dark:border-blue-900/50 rounded-lg space-y-2 animate-in fade-in zoom-in-[0.99] duration-150">
                     <div className="flex items-center justify-between gap-2">
                       <label className="text-[11px] font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                        <span>Dán chuỗi JSON đã sao chép từ máy khác:</span>
+                        <span>{language === 'vi' ? 'Dán chuỗi JSON đã sao chép từ máy khác:' : 'Paste JSON string copied from another device:'}</span>
                       </label>
+
                       <button
                         type="button"
                         onClick={handlePasteFromClipboard}
@@ -618,7 +625,7 @@ export function BackupModal({
                   <HelpCircle className="w-3.5 h-3.5 shrink-0 text-blue-600 dark:text-blue-400" strokeWidth={1.5} />
                   <span>Chuyển dữ liệu giữa các Domain / Cứu dữ liệu cũ:</span>
                 </div>
-                Khi bạn chuyển từ domain cũ (như <code>task.nexuspulsetech.xyz</code> hoặc <code>nexuspulsetech.github.io</code>) sang <code>tasks.nexuspulsetech.xyz</code>, trình duyệt phân tách bộ nhớ riêng.
+                Khi bạn chuyển từ domain cũ (như <code>task.nexuspulsetech.xyz</code> hoặc <code>nexuspulsetech.github.io</code>) sang <code>tasks.nexuspulsetech.xyz</code>, trình duyệt phân tách bộ nhớ riêng.  
                 <br />
                 <strong>Cách lấy lại toàn bộ công việc cũ:</strong>
                 <ol className="list-decimal pl-4 mt-1 space-y-0.5">

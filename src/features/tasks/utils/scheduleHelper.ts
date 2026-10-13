@@ -47,7 +47,11 @@ export function isSameDay(d1: Date, d2: Date): boolean {
 /**
  * Phân tích độ tải công việc (Workload analysis) khi người dùng có quá nhiều việc
  */
-export function analyzeWorkload(projects: Project[], referenceDate: Date = new Date()): WorkloadInsight {
+export function analyzeWorkload(
+  projects: Project[],
+  referenceDate: Date = new Date(),
+  lang: 'en' | 'vi' = 'en'
+): WorkloadInsight {
   const allTasks: Task[] = projects.flatMap((p) => p.tasks).filter((t) => t.status !== 'done');
   const now = referenceDate;
   const todayStr = toDateInputValue(now);
@@ -81,14 +85,26 @@ export function analyzeWorkload(projects: Project[], referenceDate: Date = new D
   const isHeavyWorkload = todayCount >= 5 || overdueCount >= 3;
   let adviceMessage = '';
 
-  if (overdueCount > 0 && todayCount >= 4) {
-    adviceMessage = `Bạn đang có ${overdueCount} việc quá hạn và ${todayCount} việc hôm nay. Nên dời việc này sang Ngày mai hoặc Thứ Bảy để giảm tải.`;
-  } else if (todayCount >= 5) {
-    adviceMessage = `Hôm nay đã có ${todayCount} việc hẹn lịch. Gợi ý chọn buổi chiều muộn hoặc sáng mai để tránh dồn việc.`;
-  } else if (todayCount === 0 && overdueCount === 0) {
-    adviceMessage = 'Hôm nay chưa có việc nào hẹn giờ. Rất thích hợp để hoàn thành việc này trong ngày!';
+  if (lang === 'vi') {
+    if (overdueCount > 0 && todayCount >= 4) {
+      adviceMessage = `Bạn đang có ${overdueCount} việc quá hạn và ${todayCount} việc hôm nay. Nên dời việc này sang Ngày mai hoặc Thứ Bảy để giảm tải.`;
+    } else if (todayCount >= 5) {
+      adviceMessage = `Hôm nay đã có ${todayCount} việc hẹn lịch. Gợi ý chọn buổi chiều muộn hoặc sáng mai để tránh dồn việc.`;
+    } else if (todayCount === 0 && overdueCount === 0) {
+      adviceMessage = 'Hôm nay chưa có việc nào hẹn giờ. Rất thích hợp để hoàn thành việc này trong ngày!';
+    } else {
+      adviceMessage = `Hôm nay có ${todayCount} việc hẹn giờ. Phân bổ khung giờ hợp lý giúp bạn duy trì nhịp độ làm việc.`;
+    }
   } else {
-    adviceMessage = `Hôm nay có ${todayCount} việc hẹn giờ. Phân bổ khung giờ hợp lý giúp bạn duy trì nhịp độ làm việc.`;
+    if (overdueCount > 0 && todayCount >= 4) {
+      adviceMessage = `You have ${overdueCount} overdue and ${todayCount} tasks today. Consider rescheduling to Tomorrow or Saturday to prevent overload.`;
+    } else if (todayCount >= 5) {
+      adviceMessage = `Already ${todayCount} tasks scheduled today. Suggest choosing late afternoon or tomorrow morning to balance focus.`;
+    } else if (todayCount === 0 && overdueCount === 0) {
+      adviceMessage = 'No tasks scheduled yet for today. Great time to knock this out today!';
+    } else {
+      adviceMessage = `${todayCount} task(s) scheduled for today. Spacing them out will keep your workflow smooth.`;
+    }
   }
 
   return {
@@ -104,16 +120,17 @@ export function analyzeWorkload(projects: Project[], referenceDate: Date = new D
 /**
  * Sinh danh sách các khung giờ gợi ý thông minh chuẩn 1 chạm (One-tap presets)
  */
-export function generateSchedulePresets(now: Date = new Date()): SchedulePreset[] {
+export function generateSchedulePresets(now: Date = new Date(), lang: 'en' | 'vi' = 'en'): SchedulePreset[] {
   const presets: SchedulePreset[] = [];
   const currentHours = now.getHours();
+  const isVi = lang === 'vi';
 
-  // 1. Hôm nay: Buổi sáng 09:00
+  // 1. Buổi sáng 09:00
   const todayMorning = new Date(now);
   todayMorning.setHours(9, 0, 0, 0);
   presets.push({
     id: 'today_morning',
-    label: 'Sáng nay',
+    label: isVi ? 'Sáng nay' : 'This morning',
     sublabel: '09:00',
     date: todayMorning,
     isoString: todayMorning.toISOString(),
@@ -121,12 +138,12 @@ export function generateSchedulePresets(now: Date = new Date()): SchedulePreset[
     isPast: currentHours >= 9,
   });
 
-  // 2. Hôm nay: Buổi chiều 14:00
+  // 2. Buổi chiều 14:00
   const todayAfternoon = new Date(now);
   todayAfternoon.setHours(14, 0, 0, 0);
   presets.push({
     id: 'today_afternoon',
-    label: 'Chiều nay',
+    label: isVi ? 'Chiều nay' : 'This afternoon',
     sublabel: '14:00',
     date: todayAfternoon,
     isoString: todayAfternoon.toISOString(),
@@ -134,12 +151,12 @@ export function generateSchedulePresets(now: Date = new Date()): SchedulePreset[
     isPast: currentHours >= 14,
   });
 
-  // 3. Hôm nay: Buổi tối 20:00
+  // 3. Buổi tối 20:00
   const todayEvening = new Date(now);
   todayEvening.setHours(20, 0, 0, 0);
   presets.push({
     id: 'today_evening',
-    label: 'Tối nay',
+    label: isVi ? 'Tối nay' : 'This evening',
     sublabel: '20:00',
     date: todayEvening,
     isoString: todayEvening.toISOString(),
@@ -152,7 +169,7 @@ export function generateSchedulePresets(now: Date = new Date()): SchedulePreset[
   in1Hour.setMinutes(Math.round(in1Hour.getMinutes() / 5) * 5, 0, 0);
   presets.push({
     id: 'in_1_hour',
-    label: 'Sau 1 tiếng',
+    label: isVi ? 'Sau 1 tiếng' : 'In 1 hour',
     sublabel: `${pad(in1Hour.getHours())}:${pad(in1Hour.getMinutes())}`,
     date: in1Hour,
     isoString: in1Hour.toISOString(),
@@ -164,7 +181,7 @@ export function generateSchedulePresets(now: Date = new Date()): SchedulePreset[
   in3Hours.setMinutes(Math.round(in3Hours.getMinutes() / 5) * 5, 0, 0);
   presets.push({
     id: 'in_3_hours',
-    label: 'Sau 3 tiếng',
+    label: isVi ? 'Sau 3 tiếng' : 'In 3 hours',
     sublabel: `${pad(in3Hours.getHours())}:${pad(in3Hours.getMinutes())}`,
     date: in3Hours,
     isoString: in3Hours.toISOString(),
@@ -177,7 +194,7 @@ export function generateSchedulePresets(now: Date = new Date()): SchedulePreset[
   tomorrowMorning.setHours(9, 0, 0, 0);
   presets.push({
     id: 'tomorrow_morning',
-    label: 'Sáng mai',
+    label: isVi ? 'Sáng mai' : 'Tomorrow morning',
     sublabel: '09:00',
     date: tomorrowMorning,
     isoString: tomorrowMorning.toISOString(),
@@ -190,7 +207,7 @@ export function generateSchedulePresets(now: Date = new Date()): SchedulePreset[
   tomorrowAfternoon.setHours(14, 0, 0, 0);
   presets.push({
     id: 'tomorrow_afternoon',
-    label: 'Chiều mai',
+    label: isVi ? 'Chiều mai' : 'Tomorrow afternoon',
     sublabel: '14:00',
     date: tomorrowAfternoon,
     isoString: tomorrowAfternoon.toISOString(),
@@ -205,7 +222,7 @@ export function generateSchedulePresets(now: Date = new Date()): SchedulePreset[
   saturday.setHours(9, 0, 0, 0);
   presets.push({
     id: 'this_weekend',
-    label: 'Thứ Bảy tuần này',
+    label: isVi ? 'Thứ Bảy tuần này' : 'This Saturday',
     sublabel: `${pad(saturday.getDate())}/${pad(saturday.getMonth() + 1)} · 09:00`,
     date: saturday,
     isoString: saturday.toISOString(),
@@ -219,7 +236,7 @@ export function generateSchedulePresets(now: Date = new Date()): SchedulePreset[
   nextMonday.setHours(9, 0, 0, 0);
   presets.push({
     id: 'next_week',
-    label: 'Thứ Hai tuần sau',
+    label: isVi ? 'Thứ Hai tuần sau' : 'Next Monday',
     sublabel: `${pad(nextMonday.getDate())}/${pad(nextMonday.getMonth() + 1)} · 09:00`,
     date: nextMonday,
     isoString: nextMonday.toISOString(),
@@ -235,7 +252,8 @@ export function generateSchedulePresets(now: Date = new Date()): SchedulePreset[
 export function formatScheduleBadge(
   reminderAt?: string,
   deadline?: string,
-  now: Date = new Date()
+  now: Date = new Date(),
+  lang: 'en' | 'vi' = 'en'
 ): {
   label: string;
   status: 'overdue' | 'today' | 'tomorrow' | 'upcoming' | 'none';
@@ -252,6 +270,7 @@ export function formatScheduleBadge(
     return { label: '', status: 'none', isOverdue: false };
   }
 
+  const isVi = lang === 'vi';
   const hasTime = targetStr.includes('T') && targetStr.length > 10;
   const timeFormatted = hasTime
     ? `${pad(targetDate.getHours())}:${pad(targetDate.getMinutes())}`
@@ -268,8 +287,9 @@ export function formatScheduleBadge(
   // Đã quá hạn
   if (isPast && !isToday) {
     const dateLabel = `${pad(targetDate.getDate())}/${pad(targetDate.getMonth() + 1)}`;
+    const overduePrefix = isVi ? 'Quá hạn' : 'Overdue';
     return {
-      label: timeFormatted ? `Quá hạn (${dateLabel} ${timeFormatted})` : `Quá hạn (${dateLabel})`,
+      label: timeFormatted ? `${overduePrefix} (${dateLabel} ${timeFormatted})` : `${overduePrefix} (${dateLabel})`,
       status: 'overdue',
       isOverdue: true,
       timeOnly: timeFormatted,
@@ -277,8 +297,9 @@ export function formatScheduleBadge(
   }
 
   if (isToday) {
+    const todayLabel = isVi ? 'Hôm nay' : 'Today';
     return {
-      label: timeFormatted ? `Hôm nay, ${timeFormatted}` : 'Hôm nay',
+      label: timeFormatted ? `${todayLabel}, ${timeFormatted}` : todayLabel,
       status: isPast ? 'overdue' : 'today',
       isOverdue: isPast,
       timeOnly: timeFormatted,
@@ -286,8 +307,9 @@ export function formatScheduleBadge(
   }
 
   if (isTomorrow) {
+    const tomorrowLabel = isVi ? 'Ngày mai' : 'Tomorrow';
     return {
-      label: timeFormatted ? `Mai, ${timeFormatted}` : 'Ngày mai',
+      label: timeFormatted ? `${tomorrowLabel}, ${timeFormatted}` : tomorrowLabel,
       status: 'tomorrow',
       isOverdue: false,
       timeOnly: timeFormatted,
@@ -297,7 +319,7 @@ export function formatScheduleBadge(
   // Trong vòng 6 ngày tới
   const diffDays = Math.ceil((targetDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
   if (diffDays <= 6 && diffDays > 0) {
-    const dayNames = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+    const dayNames = isVi ? ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const dayName = dayNames[targetDate.getDay()];
     return {
       label: timeFormatted ? `${dayName}, ${timeFormatted}` : `${dayName}, ${pad(targetDate.getDate())}/${pad(targetDate.getMonth() + 1)}`,

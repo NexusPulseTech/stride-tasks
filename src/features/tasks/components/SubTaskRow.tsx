@@ -16,6 +16,7 @@ import { SubTaskInlineForm } from './SubTaskInlineForm';
 import { SubTaskMoreMenu } from './SubTaskMoreMenu';
 import { TaskStatusButton } from './TaskStatusButton';
 import { RecurrenceBadge } from './RecurrenceBadge';
+import { useLanguage } from '../../../i18n';
 
 export interface SubTaskRowProps {
   sub: SubTask;
@@ -70,6 +71,7 @@ export function SubTaskRow({
   onSubDragStart, onSubDragOver, onSubDrop, onSubDragEnd,
   draggedSubId = null, dragOverSub = null,
 }: SubTaskRowProps) {
+  const { t } = useLanguage();
   const [inlineTitle, setInlineTitle] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(sub.title);
@@ -133,11 +135,11 @@ export function SubTaskRow({
             type="button"
             onClick={() => onToggleExpandNode(sub.id)}
             className="w-4 h-4 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 flex items-center justify-center cursor-pointer shrink-0 transition-colors rounded hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
-            title={isNodeExpanded ? 'Thu gọn các việc con' : 'Xem toàn bộ việc con bên trong'}
-            aria-label={isNodeExpanded ? 'Thu gọn việc con' : 'Mở rộng việc con'}
+            title={isNodeExpanded ? t.pinned.collapseSubtasks : t.pinned.expandSubtasks}
+            aria-label={isNodeExpanded ? t.pinned.collapseSubtasks : t.pinned.expandSubtasks}
           >
             <ChevronRight
-              className={`w-3 h-3 shrink-0 transition-transform duration-150 ${isNodeExpanded ? 'rotate-90 text-slate-700 dark:text-slate-200' : ''}`}
+              className={`w-3.5 h-3.5 shrink-0 transition-transform duration-150 ${isNodeExpanded ? 'rotate-90 text-slate-700 dark:text-slate-200' : ''}`}
               strokeWidth={2}
             />
           </button>
@@ -154,7 +156,7 @@ export function SubTaskRow({
             onToggleSubTask(projectId, taskId, sub.id, !isSubDone);
           }}
           className="shrink-0 cursor-pointer p-0.5 -m-0.5 rounded-full"
-          aria-label={isSubDone ? 'Đánh dấu việc con chưa xong' : 'Đánh dấu việc con đã xong'}
+          aria-label={isSubDone ? t.common.reset : t.common.completed}
         >
           <div
             className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center transition-colors ${
@@ -215,19 +217,27 @@ export function SubTaskRow({
               onClick={() => setIsExpandedText(!isExpandedText)}
               className="text-[9.5px] text-blue-600 dark:text-blue-400 hover:underline shrink-0 ml-0.5 cursor-pointer font-medium"
             >
-              {isExpandedText ? 'Thu gọn' : '...'}
+              {isExpandedText ? t.common.collapse : '...'}
             </button>
           )}
 
-          {/* Pinned indicator cho việc con */}
+          {/* Pinned indicator cho việc con - Nhấp trực tiếp để bỏ ghim */}
           {sub.isPinned && (
-            <span className="inline-flex items-center gap-1 ml-1 text-[9.5px] text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/50 px-1 py-0.2 rounded font-medium shrink-0 whitespace-nowrap">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onTogglePinSubTask?.(projectId, taskId, sub.id);
+              }}
+              className="inline-flex items-center gap-1 ml-1 text-[9.5px] text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/50 px-1 py-0.2 rounded font-medium shrink-0 whitespace-nowrap cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
+              title={t.pinned.unpin}
+            >
               <Pin className="w-2.5 h-2.5 fill-current text-amber-600 dark:text-amber-400" />
-              <span>Ưu tiên</span>
-            </span>
+              <span>{t.pinned.priorityTag}</span>
+            </button>
           )}
 
-          {/* Micro indicator cho việc con lặp lại (chuẩn chuyên nghiệp) */}
+          {/* Micro indicator cho việc con lặp lại */}
           {sub.recurrence && (
             <div className="ml-1 shrink-0">
               <RecurrenceBadge
@@ -251,7 +261,7 @@ export function SubTaskRow({
                 ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 font-semibold'
                 : 'text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800/80'
             }`}
-            title={`Đã hoàn thành ${leafStats.completed}/${leafStats.total} việc con ở mọi cấp độ`}
+            title={`${leafStats.completed}/${leafStats.total} ${t.pinned.subtaskCount}`}
           >
             <span>{leafStats.completed}/{leafStats.total}</span>
             {leafStats.completed === leafStats.total && (
@@ -276,6 +286,26 @@ export function SubTaskRow({
         </div>
 
         <div className="flex items-center gap-0.5 shrink-0">
+          {/* Nút Ghim trực tiếp cho bất kỳ việc con ở mọi cấp bậc (Depth 0, 1, 2, 3+) */}
+          {onTogglePinSubTask && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onTogglePinSubTask(projectId, taskId, sub.id);
+              }}
+              className={`p-1 cursor-pointer rounded transition-colors shrink-0 ${
+                sub.isPinned
+                  ? 'text-amber-500 fill-amber-500 hover:text-slate-400'
+                  : 'text-slate-400 hover:text-amber-500 dark:text-slate-500 dark:hover:text-amber-400 opacity-0 group-hover/sub:opacity-100'
+              }`}
+              title={sub.isPinned ? t.subtaskMenu.unpinSubtask : t.subtaskMenu.pinSubtask}
+              aria-label={sub.isPinned ? t.subtaskMenu.unpinSubtask : t.subtaskMenu.pinSubtask}
+            >
+              <Pin className={`w-3 h-3 ${sub.isPinned ? 'fill-current' : ''}`} />
+            </button>
+          )}
+
           <button
             type="button"
             onClick={(e) => {
@@ -284,8 +314,8 @@ export function SubTaskRow({
               if (!isAddingChild) onToggleExpandNode(sub.id, true);
             }}
             className="p-1 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-200/70 dark:hover:bg-slate-700 rounded cursor-pointer shrink-0 transition-colors"
-            title="Thêm nhanh việc con (+)"
-            aria-label="Thêm việc con"
+            title={t.subtaskMenu.addSubtask}
+            aria-label={t.subtaskMenu.addSubtask}
           >
             <Plus className="w-3.5 h-3.5 shrink-0" strokeWidth={2} aria-hidden="true" />
           </button>
@@ -307,8 +337,8 @@ export function SubTaskRow({
               onOpenBatchPasteForTask?.(projectId, taskId, sub.id, sub.title);
             }}
             className="p-1 text-slate-400 hover:text-slate-800 dark:text-slate-500 dark:hover:text-slate-100 hover:bg-slate-200/70 dark:hover:bg-slate-700 rounded cursor-pointer shrink-0 transition-colors"
-            title={`Dán nhanh việc con vào "${sub.title}"`}
-            aria-label="Dán việc con"
+            title={t.subtaskMenu.batchPaste}
+            aria-label={t.subtaskMenu.batchPaste}
           >
             <ClipboardPaste className="w-3 h-3" />
           </button>
@@ -318,8 +348,8 @@ export function SubTaskRow({
             type="button"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/70 dark:hover:bg-slate-700 rounded cursor-pointer shrink-0 transition-colors"
-            title="Tùy chọn mục con"
-            aria-label="Tùy chọn mục con"
+            title={t.tasks.moreActions}
+            aria-label={t.tasks.moreActions}
           >
             <MoreHorizontal className="w-3 h-3 shrink-0" strokeWidth={1.5} aria-hidden="true" />
           </button>
@@ -406,7 +436,11 @@ export function SubTaskRow({
 
       {hasChildren && isNodeExpanded && (
         <div className="ml-2 sm:ml-2.5 pl-2 sm:pl-2.5 border-l border-slate-200/90 dark:border-slate-800 space-y-0.5 my-0.5">
-          {sub.subtasks!.map((child) => (
+          {[...sub.subtasks!].sort((a, b) => {
+            if (a.isPinned && !b.isPinned) return -1;
+            if (!a.isPinned && b.isPinned) return 1;
+            return 0;
+          }).map((child) => (
             <SubTaskRow
               key={child.id} sub={child} depth={depth + 1}
               projectId={projectId} taskId={taskId}
@@ -444,7 +478,7 @@ export function SubTaskRow({
                 className="flex items-center gap-1.5 py-0.5 px-1 text-[11px] text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100/60 dark:hover:bg-slate-800/40 rounded cursor-pointer transition-colors text-left font-normal select-none"
               >
                 <Plus className="w-2.5 h-2.5 shrink-0 stroke-[2]" aria-hidden="true" />
-                <span>Thêm việc con</span>
+                <span>{t.subtaskMenu.addSubtask}</span>
               </button>
               <button
                 type="button"
@@ -462,10 +496,10 @@ export function SubTaskRow({
                   onOpenBatchPasteForTask?.(projectId, taskId, sub.id, sub.title);
                 }}
                 className="flex items-center gap-1 py-0.5 px-1.5 text-[10px] text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 bg-slate-100/80 hover:bg-slate-200/70 dark:bg-slate-800/70 dark:hover:bg-slate-700/60 rounded cursor-pointer transition-colors font-medium select-none shrink-0"
-                title={`Dán nhanh việc con vào "${sub.title}"`}
+                title={`${t.subtaskMenu.batchPaste} ("${sub.title}")`}
               >
                 <ClipboardPaste className="w-2.5 h-2.5" />
-                <span>Dán nhanh</span>
+                <span>{t.subtaskMenu.batchPaste}</span>
               </button>
             </div>
           )}

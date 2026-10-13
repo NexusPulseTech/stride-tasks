@@ -19,6 +19,10 @@ export interface Translations {
     inProgress: string;
     clean: string;
     reset: string;
+    edit: string;
+    close: string;
+    expand: string;
+    collapse: string;
   };
   header: {
     streakDays: string;
@@ -42,6 +46,13 @@ export interface Translations {
     mobileGuideLabel: string;
     feedbackLabel: string;
     githubLabel: string;
+    light: string;
+    dark: string;
+    system: string;
+    muted: string;
+    soundOn: string;
+    clearSampleData: string;
+    restoreSampleData: string;
   };
   actionBar: {
     searchPlaceholder: string;
@@ -118,4 +129,145 @@ export interface Translations {
     inAppBannerTitle: string;
     dismiss: string;
   };
+  schedule: {
+    modalTitle: string;
+    currentlyScheduled: string;
+    clearSchedule: string;
+    workloadTitle: string;
+    todayTasks: string;
+    tomorrowTasks: string;
+    overdueTasks: string;
+    tabPresets: string;
+    tabCustom: string;
+    deadlineCheckbox: string;
+    selectDate: string;
+    selectTime: string;
+    morning: string;
+    afternoon: string;
+    endOfDay: string;
+    evening: string;
+    apply: string;
+    close: string;
+    removeSchedule: string;
+    footerHint: string;
+  };
+  pinned: {
+    title: string;
+    subtitle: string;
+    priorityTag: string;
+    collapseSubtasks: string;
+    expandSubtasks: string;
+    subtaskCount: string;
+    viewDetails: string;
+    unpin: string;
+    addSubtask: string;
+    save: string;
+    cancel: string;
+    addSubtaskPlaceholder: string;
+    deleteSubtask: string;
+  };
+  projectCard: {
+    copyChecklist: string;
+    batchPaste: string;
+    deleteCategory: string;
+    moveUp: string;
+    moveDown: string;
+    expandCategory: string;
+    collapseCategory: string;
+    addSubtaskShort: string;
+    noTasksSearch: string;
+    noTasksEmpty: string;
+  };
+  taskMenu: {
+    viewDetail: string;
+    editTitle: string;
+    copyTask: string;
+    pinTask: string;
+    unpinTask: string;
+    schedule: string;
+    addSubtask: string;
+    batchPasteSubtasks: string;
+    moveUp: string;
+    moveDown: string;
+    repeat: string;
+    deleteTask: string;
+  };
+  subtaskMenu: {
+    viewDetail: string;
+    addSubtask: string;
+    pinSubtask: string;
+    unpinSubtask: string;
+    batchPaste: string;
+    editTitle: string;
+    copyTitle: string;
+    deleteSubtask: string;
+  };
+  taskDetail: {
+    title: string;
+    pinnedBadge: string;
+    saveTitle: string;
+    cancel: string;
+    clickToEdit: string;
+    statusLabel: string;
+    repeatLabel: string;
+    scheduleLabel: string;
+    noRepeat: string;
+    daily: string;
+    weekdays: string;
+    weekly: string;
+    chooseSchedule: string;
+    subtasksTitle: string;
+    subtasksEmpty: string;
+    newSubtaskPlaceholder: string;
+    notesTitle: string;
+    notesPlaceholder: string;
+    progressPercent: string;
+    completedAt: string;
+    editNotesHint: string;
+  };
+  status: {
+    todo: string;
+    doing: string;
+    done: string;
+    review: string;
+    blocked: string;
+    testing: string;
+    paused: string;
+    addStatus: string;
+    manageStatuses: string;
+    chooseStatus: string;
+    inProgressGroup: string;
+    completedGroup: string;
+    customStatusPlaceholder: string;
+    createStatus: string;
+    deleteStatus: string;
+  };
+  emptyState: {
+    noWorkspaceProjects: string;
+    noWorkspaceProjectsHint: string;
+    noFilteredTasks: string;
+  };
+  footer: {
+    tagline: string;
+    themeLabel: string;
+    themeSystem: string;
+    themeLight: string;
+    themeDark: string;
+    pwa: string;
+    offlineGuide: string;
+    backupData: string;
+    feedback: string;
+    github: string;
+  };
+  projectHeader: {
+    dragSort: string;
+    moveUp: string;
+    moveDown: string;
+    copyChecklist: string;
+    batchPaste: string;
+    deleteProject: string;
+    expandProject: string;
+    collapseProject: string;
+  };
 }
+

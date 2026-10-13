@@ -15,13 +15,13 @@ const VIEW_PREFERENCES_KEY = 'stride_tasks_view_preferences_v1';
 
 const DEFAULT_PREFERENCES: ViewPreferences = {
   zenMode: false,
-  showStatsPanel: true,
-  showFocusButton: true,
-  showReminderButton: true,
-  showStreakBadge: true,
+  showStatsPanel: false,        // Mặc định ẩn trên header để giữ gọn gàng 2 nút
+  showFocusButton: false,       // Mặc định ẩn trên header
+  showReminderButton: false,    // Mặc định ẩn trên header
+  showStreakBadge: false,       // Mặc định ẩn trên header
   showAddProjectBar: true,
   showFilterTabs: true,
-  showLanguageSwitcher: true,
+  showLanguageSwitcher: true,   // Mặc định hiện nút đổi ngôn ngữ
 };
 
 export function useViewPreferences() {

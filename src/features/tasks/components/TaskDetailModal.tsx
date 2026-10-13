@@ -4,28 +4,24 @@ import {
   X,
   Pin,
   Check,
-  Folder,
   Plus,
   Trash2,
   Copy,
   Repeat,
-  RotateCw,
-  AlignLeft,
   ListTodo,
   Calendar,
   Clock,
   CheckCircle2,
-  ArrowRight,
-  Sparkles,
   Pencil,
+  FileText,
 } from 'lucide-react';
 import { Task, Project, StatusDefinition, RecurrenceType, SubTask } from '../../../types';
 import { isDoneStatus } from '../utils/statusCategory';
 import { TaskStatusButton } from './TaskStatusButton';
-import { RecurrenceBadge } from './RecurrenceBadge';
 import { FormattedTaskText } from '../utils/formatters';
 import { getTaskSubtaskStats } from '../utils/subtaskTree';
 import { formatScheduleBadge } from '../utils/scheduleHelper';
+import { useLanguage } from '../../../i18n';
 
 interface TaskDetailModalProps {
   isOpen: boolean;
@@ -38,6 +34,7 @@ interface TaskDetailModalProps {
   onChangeStatus: (projId: string, taskId: string, status: string, isDoneCategory?: boolean) => void;
   onToggleTaskDone: (projId: string, taskId: string, done: boolean) => void;
   onTogglePinTask: (projId: string, taskId: string, e: React.MouseEvent) => void;
+  onTogglePinSubTask?: (projId: string, taskId: string, subId: string) => void;
   onDeleteTask: (projId: string, taskId: string) => void;
   onSetRecurrence?: (projId: string, taskId: string, recurrence: RecurrenceType) => void;
   onManuallyResetRecurring?: (projId: string, taskId: string) => void;
@@ -59,21 +56,24 @@ export function TaskDetailModal({
   onChangeStatus,
   onToggleTaskDone,
   onTogglePinTask,
+  onTogglePinSubTask,
   onDeleteTask,
   onSetRecurrence,
-  onManuallyResetRecurring,
   onToggleSubTask,
   onAddSubTask,
   onDeleteSubTask,
   onEditSubtaskTitle,
   onOpenSchedule,
 }: TaskDetailModalProps) {
+  const { t, language } = useLanguage();
   const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [newSubTitle, setNewSubTitle] = useState('');
   const [editingSubId, setEditingSubId] = useState<string | null>(null);
   const [editSubTitle, setEditSubTitle] = useState('');
+  const [addingChildToId, setAddingChildToId] = useState<string | null>(null);
+  const [childSubTitle, setChildSubTitle] = useState('');
   const [copied, setCopied] = useState(false);
 
   const titleTextareaRef = useRef<HTMLTextAreaElement>(null);
@@ -84,6 +84,8 @@ export function TaskDetailModal({
       setNotes(task.notes || '');
       setIsEditingTitle(false);
       setNewSubTitle('');
+      setAddingChildToId(null);
+      setChildSubTitle('');
     }
   }, [task]);
 
@@ -104,7 +106,7 @@ export function TaskDetailModal({
   const isDone = isDoneStatus(task.status, statuses);
   const stats = getTaskSubtaskStats(task);
   const subPct = stats.leafTotal > 0 ? Math.round((stats.leafDone / stats.leafTotal) * 100) : 0;
-  const scheduleBadge = formatScheduleBadge(task.reminderAt, task.deadline);
+  const scheduleBadge = formatScheduleBadge(task.reminderAt, task.deadline, new Date(), language);
 
   const handleSaveTitleSubmit = () => {
     const trimmed = title.trim();
@@ -124,8 +126,16 @@ export function TaskDetailModal({
     if (e) e.preventDefault();
     const trimmed = newSubTitle.trim();
     if (!trimmed) return;
-    onAddSubTask(project.id, task.id, trimmed);
+    onAddSubTask(project.id, task.id, trimmed, null);
     setNewSubTitle('');
+  };
+
+  const handleAddChildSubmit = (parentSubId: string) => {
+    const trimmed = childSubTitle.trim();
+    if (!trimmed) return;
+    onAddSubTask(project.id, task.id, trimmed, parentSubId);
+    setChildSubTitle('');
+    setAddingChildToId(null);
   };
 
   const handleCopy = () => {
@@ -136,11 +146,188 @@ export function TaskDetailModal({
     }
   };
 
+  // Đệ quy hiển thị các bước con ở mọi cấp độ phân cấp (Hierarchical Tree)
+  const renderSubtaskList = (subs: SubTask[], depth = 0): React.ReactNode => {
+    if (!subs || subs.length === 0) return null;
+
+    const sortedSubs = [...subs].sort((a, b) => {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      return 0;
+    });
+
+    return (
+      <div className={`space-y-1 ${depth > 0 ? 'ml-3 pl-2.5 border-l border-slate-200/80 dark:border-slate-800' : ''}`}>
+        {sortedSubs.map((sub) => {
+          const subDone = sub.status ? isDoneStatus(sub.status, statuses) : sub.completed;
+          const isEditingThis = editingSubId === sub.id;
+          const isAddingToThis = addingChildToId === sub.id;
+
+          return (
+            <div key={sub.id} className="space-y-1">
+              <div className="group flex items-center gap-2 p-1.5 sm:p-2 rounded-lg bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
+                {/* Checkbox subtask */}
+                <button
+                  type="button"
+                  onClick={() => onToggleSubTask(project.id, task.id, sub.id, !subDone)}
+                  className="shrink-0 cursor-pointer p-0.5 rounded-full"
+                  aria-label={subDone ? 'Uncheck' : 'Check'}
+                >
+                  <div
+                    className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center transition-colors ${
+                      subDone
+                        ? 'bg-[#34c759] border-[#34c759] text-white'
+                        : 'border-slate-300 dark:border-slate-600 hover:border-slate-500'
+                    }`}
+                  >
+                    {subDone && <Check className="w-2 h-2 shrink-0" strokeWidth={3} />}
+                  </div>
+                </button>
+
+                {/* Subtask Title */}
+                <div className="flex-1 min-w-0">
+                  {isEditingThis ? (
+                    <input
+                      type="text"
+                      value={editSubTitle}
+                      onChange={(e) => setEditSubTitle(e.target.value)}
+                      onFocus={(e) => e.target.select()}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          if (editSubTitle.trim()) {
+                            onEditSubtaskTitle(project.id, task.id, sub.id, editSubTitle.trim());
+                          }
+                          setEditingSubId(null);
+                        } else if (e.key === 'Escape') {
+                          setEditingSubId(null);
+                        }
+                      }}
+                      onBlur={() => {
+                        if (editSubTitle.trim()) {
+                          onEditSubtaskTitle(project.id, task.id, sub.id, editSubTitle.trim());
+                        }
+                        setEditingSubId(null);
+                      }}
+                      autoFocus
+                      className="w-full text-xs px-2 py-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-slate-100 outline-none"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span
+                        onClick={() => {
+                          setEditingSubId(sub.id);
+                          setEditSubTitle(sub.title);
+                        }}
+                        className={`text-xs cursor-text hover:text-slate-950 dark:hover:text-white transition-colors ${
+                          subDone
+                            ? 'line-through text-slate-400 dark:text-slate-500'
+                            : 'text-slate-800 dark:text-slate-200'
+                        }`}
+                        title={t.taskDetail.clickToEdit}
+                      >
+                        <FormattedTaskText text={sub.title} isDone={subDone} />
+                      </span>
+
+                      {/* Pin Tag if pinned */}
+                      {sub.isPinned && (
+                        <span className="inline-flex items-center gap-1 text-[9.5px] px-1 py-0.2 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/50 font-medium">
+                          <Pin className="w-2.5 h-2.5 fill-current" />
+                          <span>{t.pinned.priorityTag}</span>
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Subtask Quick Actions: Pin, Add child, Delete */}
+                <div className="flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {onTogglePinSubTask && (
+                    <button
+                      type="button"
+                      onClick={() => onTogglePinSubTask(project.id, task.id, sub.id)}
+                      className={`p-1 cursor-pointer rounded transition-colors ${
+                        sub.isPinned
+                          ? 'text-amber-500 fill-amber-500 hover:text-slate-400'
+                          : 'text-slate-300 dark:text-slate-600 hover:text-amber-500'
+                      }`}
+                      title={sub.isPinned ? t.subtaskMenu.unpinSubtask : t.subtaskMenu.pinSubtask}
+                      aria-label={sub.isPinned ? t.subtaskMenu.unpinSubtask : t.subtaskMenu.pinSubtask}
+                    >
+                      <Pin className={`w-3 h-3 ${sub.isPinned ? 'fill-current' : ''}`} />
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAddingChildToId(isAddingToThis ? null : sub.id);
+                      setChildSubTitle('');
+                    }}
+                    className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer rounded"
+                    title={t.pinned.addSubtask}
+                  >
+                    <Plus className="w-3 h-3" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onDeleteSubTask(project.id, task.id, sub.id)}
+                    className="p-1 text-slate-300 dark:text-slate-600 hover:text-rose-500 cursor-pointer rounded"
+                    title={t.pinned.deleteSubtask}
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Form thêm con trực tiếp */}
+              {isAddingToThis && (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleAddChildSubmit(sub.id);
+                  }}
+                  className="flex items-center gap-1.5 ml-4 my-1"
+                >
+                  <input
+                    type="text"
+                    value={childSubTitle}
+                    onChange={(e) => setChildSubTitle(e.target.value)}
+                    autoFocus
+                    placeholder={t.pinned.addSubtaskPlaceholder.replace('{title}', sub.title.slice(0, 15))}
+                    className="flex-1 text-xs px-2.5 py-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md outline-none text-slate-900 dark:text-slate-100"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!childSubTitle.trim()}
+                    className="h-6 px-2.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-medium rounded cursor-pointer disabled:opacity-40"
+                  >
+                    {t.pinned.save}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAddingChildToId(null)}
+                    className="text-xs text-slate-400 hover:text-slate-600 px-1 cursor-pointer"
+                  >
+                    {t.pinned.cancel}
+                  </button>
+                </form>
+              )}
+
+              {/* Recursive child subtasks */}
+              {sub.subtasks && sub.subtasks.length > 0 && renderSubtaskList(sub.subtasks, depth + 1)}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return createPortal(
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Chi tiết công việc"
+      aria-label={t.taskDetail.title}
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 dark:bg-black/70 backdrop-blur-xs animate-in fade-in duration-150"
       onClick={onClose}
     >
@@ -148,9 +335,9 @@ export function TaskDetailModal({
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-2xl max-h-[92vh] flex flex-col bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150"
       >
-        {/* Top Header - Chuẩn Linear / GitHub Enterprise UI (Chống chồng tréo mọi kích thước màn hình) */}
+        {/* Top Header */}
         <div className="h-12 px-3.5 sm:px-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2 bg-slate-50/80 dark:bg-[#12161f]/90 shrink-0">
-          {/* Breadcrumb bên trái: Linh hoạt, tự co giãn, không bao giờ tràn */}
+          {/* Breadcrumb bên trái */}
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 overflow-hidden">
             <div
               className="w-2.5 h-2.5 rounded-full shrink-0"
@@ -158,14 +345,14 @@ export function TaskDetailModal({
             />
             <span
               className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate max-w-[100px] sm:max-w-[200px]"
-              title={`Dự án: ${project.name}`}
+              title={project.name}
             >
               {project.name}
             </span>
             {task.isPinned && (
               <span className="inline-flex items-center gap-1 text-[10.5px] px-1.5 py-0.5 rounded font-medium bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-300/60 dark:border-amber-700/60 shrink-0 whitespace-nowrap">
                 <Pin className="w-2.5 h-2.5 fill-current text-amber-600 dark:text-amber-400 shrink-0" strokeWidth={1.5} aria-hidden="true" />
-                <span className="hidden sm:inline">Đã ghim</span>
+                <span className="hidden sm:inline">{t.taskDetail.pinnedBadge}</span>
               </span>
             )}
             <span className="text-slate-300 dark:text-slate-600 text-xs select-none shrink-0 hidden sm:inline">/</span>
@@ -174,7 +361,7 @@ export function TaskDetailModal({
             </span>
           </div>
 
-          {/* Action Toolbar bên phải: Kích thước cố định chuẩn SaaS, không bao giờ chồng tréo */}
+          {/* Action Toolbar bên phải */}
           <div className="flex items-center gap-1 shrink-0">
             {/* Nút Ghim ưu tiên */}
             <button
@@ -185,8 +372,8 @@ export function TaskDetailModal({
                   ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-600 dark:text-amber-400 shadow-2xs font-semibold'
                   : 'border-slate-200 dark:border-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
-              title={task.isPinned ? 'Bỏ ghim ưu tiên' : 'Ghim việc lên đầu'}
-              aria-label={task.isPinned ? 'Bỏ ghim' : 'Ghim việc'}
+              title={task.isPinned ? t.tasks.unpinTask : t.tasks.pinTask}
+              aria-label={task.isPinned ? t.tasks.unpinTask : t.tasks.pinTask}
             >
               <Pin
                 className={`w-3.5 h-3.5 shrink-0 ${task.isPinned ? 'fill-current' : ''}`}
@@ -199,8 +386,8 @@ export function TaskDetailModal({
               type="button"
               onClick={handleCopy}
               className="w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors cursor-pointer shrink-0"
-              title="Sao chép nội dung việc"
-              aria-label="Sao chép"
+              title={t.common.copy}
+              aria-label={t.common.copy}
             >
               {copied ? (
                 <Check className="w-3.5 h-3.5 text-emerald-500" strokeWidth={2} />
@@ -217,8 +404,8 @@ export function TaskDetailModal({
                 onClose();
               }}
               className="w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:border-rose-200 flex items-center justify-center transition-colors cursor-pointer shrink-0"
-              title="Xóa công việc này"
-              aria-label="Xóa"
+              title={t.common.delete}
+              aria-label={t.common.delete}
             >
               <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
             </button>
@@ -230,8 +417,8 @@ export function TaskDetailModal({
               type="button"
               onClick={onClose}
               className="w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors cursor-pointer shrink-0"
-              title="Đóng (Esc)"
-              aria-label="Đóng"
+              title={`${t.common.close} (Esc)`}
+              aria-label={t.common.close}
             >
               <X className="w-4 h-4" strokeWidth={1.75} />
             </button>
@@ -240,7 +427,7 @@ export function TaskDetailModal({
 
         {/* Modal Scrollable Body */}
         <div className="p-4 sm:p-6 overflow-y-auto space-y-5 flex-1">
-          {/* Main Title Area (Xem & Chỉnh sửa toàn diện, không che giấu Text) */}
+          {/* Main Title Area */}
           <div className="space-y-2">
             <div className="flex items-start gap-3">
               {/* Checkbox tròn */}
@@ -248,7 +435,7 @@ export function TaskDetailModal({
                 type="button"
                 onClick={() => onToggleTaskDone(project.id, task.id, !isDone)}
                 className="mt-1 shrink-0 cursor-pointer p-0.5 rounded-full"
-                aria-label={isDone ? 'Đánh dấu chưa xong' : 'Đánh dấu hoàn thành'}
+                aria-label={isDone ? 'Mark undone' : 'Mark done'}
               >
                 <div
                   className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
@@ -278,7 +465,7 @@ export function TaskDetailModal({
                       }}
                       rows={3}
                       autoFocus
-                      placeholder="Nhập tiêu đề hoặc nội dung công việc..."
+                      placeholder={t.taskDetail.clickToEdit}
                       className="w-full text-base sm:text-lg font-semibold leading-relaxed p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 outline-none text-slate-900 dark:text-slate-100 resize-y shadow-2xs"
                     />
                     <div className="flex items-center gap-2 justify-end">
@@ -290,14 +477,14 @@ export function TaskDetailModal({
                         }}
                         className="px-3 py-1 text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer"
                       >
-                        Hủy
+                        {t.taskDetail.cancel}
                       </button>
                       <button
                         type="button"
                         onClick={handleSaveTitleSubmit}
                         className="px-3 py-1 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-lg text-xs font-medium cursor-pointer shadow-2xs hover:bg-slate-800 dark:hover:bg-white"
                       >
-                        Lưu tên việc
+                        {t.taskDetail.saveTitle}
                       </button>
                     </div>
                   </div>
@@ -305,7 +492,7 @@ export function TaskDetailModal({
                   <div
                     onClick={() => setIsEditingTitle(true)}
                     className="group cursor-text p-1.5 -m-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
-                    title="Nhấp chuột vào để chỉnh sửa tiêu đề công việc"
+                    title={t.taskDetail.clickToEdit}
                   >
                     <h1
                       className={`text-base sm:text-lg font-semibold leading-relaxed break-words whitespace-pre-wrap ${
@@ -318,7 +505,7 @@ export function TaskDetailModal({
                     </h1>
                     <span className="text-[11px] text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity mt-1 flex items-center gap-1.5">
                       <Pencil className="w-3 h-3 text-slate-400 dark:text-slate-500" strokeWidth={1.5} aria-hidden="true" />
-                      <span>Nhấp để chỉnh sửa nội dung</span>
+                      <span>{t.taskDetail.editNotesHint}</span>
                     </span>
                   </div>
                 )}
@@ -326,11 +513,11 @@ export function TaskDetailModal({
             </div>
           </div>
 
-          {/* Quick Properties Toolbar (Trạng thái & Lặp lại) */}
+          {/* Quick Properties Toolbar (Trạng thái & Lặp lại & Lên lịch) */}
           <div className="p-3 bg-slate-50 dark:bg-[#12161f] border border-slate-100 dark:border-slate-800 rounded-xl flex flex-wrap items-center gap-3 text-xs">
             {/* Status */}
             <div className="flex items-center gap-1.5">
-              <span className="text-slate-400 dark:text-slate-500 font-medium">Trạng thái:</span>
+              <span className="text-slate-400 dark:text-slate-500 font-medium">{t.taskDetail.statusLabel}</span>
               <TaskStatusButton
                 status={task.status}
                 statuses={statuses}
@@ -346,11 +533,11 @@ export function TaskDetailModal({
 
             <div className="h-4 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block" />
 
-            {/* Recurrence Rule Selector */}
+            {/* Recurrence Selector */}
             <div className="flex items-center gap-1.5">
               <span className="text-slate-400 dark:text-slate-500 font-medium flex items-center gap-1">
                 <Repeat className="w-3.5 h-3.5" />
-                <span>Lặp lại:</span>
+                <span>{t.taskDetail.repeatLabel}</span>
               </span>
               <select
                 value={task.recurrence || 'none'}
@@ -362,10 +549,10 @@ export function TaskDetailModal({
                 }}
                 className="px-2 py-1 text-xs rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 outline-none cursor-pointer"
               >
-                <option value="none">Không lặp lại</option>
-                <option value="daily">Hàng ngày (Daily)</option>
-                <option value="weekdays">T2 - T6 (Weekdays)</option>
-                <option value="weekly">Hàng tuần (Weekly)</option>
+                <option value="none">{t.taskDetail.noRepeat}</option>
+                <option value="daily">{t.taskDetail.daily}</option>
+                <option value="weekdays">{t.taskDetail.weekdays}</option>
+                <option value="weekly">{t.taskDetail.weekly}</option>
               </select>
             </div>
 
@@ -376,7 +563,7 @@ export function TaskDetailModal({
                 <div className="flex items-center gap-1.5">
                   <span className="text-slate-400 dark:text-slate-500 font-medium flex items-center gap-1">
                     <Calendar className="w-3.5 h-3.5" />
-                    <span>Lịch nhắc:</span>
+                    <span>{t.taskDetail.scheduleLabel}</span>
                   </span>
                   <button
                     type="button"
@@ -388,28 +575,46 @@ export function TaskDetailModal({
                           : 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300'
                         : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
                     }`}
-                    title="Nhấp để lên lịch nhắc thông minh"
+                    title={t.schedule.modalTitle}
                   >
                     <Clock className="w-3 h-3 shrink-0" strokeWidth={1.5} />
-                    <span>{scheduleBadge.status !== 'none' ? scheduleBadge.label : 'Chọn lịch thông minh'}</span>
+                    <span>{scheduleBadge.status !== 'none' ? scheduleBadge.label : t.taskDetail.chooseSchedule}</span>
                   </button>
                 </div>
               </>
             )}
           </div>
 
-          {/* Subtasks Section (Danh sách việc con chi tiết) */}
-          <div className="space-y-3 pt-2">
+          {/* Notes & Markdown details */}
+          <div className="space-y-2 pt-1">
+            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-1.5">
+              <FileText className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+              <h2 className="text-xs font-semibold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                {t.taskDetail.notesTitle}
+              </h2>
+            </div>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              onBlur={handleSaveNotesBlur}
+              placeholder={t.taskDetail.notesPlaceholder}
+              rows={3}
+              className="w-full text-xs leading-relaxed p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:border-slate-800 dark:focus:border-slate-200 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 resize-y"
+            />
+          </div>
+
+          {/* Subtasks Section (Hierarchical & Pin-enabled) */}
+          <div className="space-y-3 pt-1">
             <div className="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-2">
               <div className="flex items-center gap-2">
                 <ListTodo className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                 <h2 className="text-xs font-semibold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                  Các bước con ({stats.leafDone}/{stats.leafTotal})
+                  {t.taskDetail.subtasksTitle} ({stats.leafDone}/{stats.leafTotal})
                 </h2>
               </div>
               {stats.leafTotal > 0 && (
                 <span className="text-[11px] font-mono font-medium text-slate-500 dark:text-slate-400 tabular-nums">
-                  {subPct}% hoàn thành
+                  {t.taskDetail.progressPercent.replace('{pct}', String(subPct))}
                 </span>
               )}
             </div>
@@ -424,107 +629,24 @@ export function TaskDetailModal({
               </div>
             )}
 
-            {/* List of subtasks */}
+            {/* List of subtasks (Recursive) */}
             <div className="space-y-1.5">
               {task.subtasks && task.subtasks.length > 0 ? (
-                task.subtasks.map((sub) => {
-                  const subDone = sub.status ? isDoneStatus(sub.status, statuses) : sub.completed;
-                  const isEditingThis = editingSubId === sub.id;
-
-                  return (
-                    <div
-                      key={sub.id}
-                      className="group flex items-center gap-2 p-2 rounded-lg bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
-                    >
-                      {/* Checkbox subtask */}
-                      <button
-                        type="button"
-                        onClick={() => onToggleSubTask(project.id, task.id, sub.id, !subDone)}
-                        className="shrink-0 cursor-pointer p-0.5 rounded-full"
-                        aria-label={subDone ? 'Đánh dấu chưa xong' : 'Đánh dấu xong'}
-                      >
-                        <div
-                          className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${
-                            subDone
-                              ? 'bg-[#34c759] border-[#34c759] text-white'
-                              : 'border-slate-300 dark:border-slate-600 hover:border-slate-500'
-                          }`}
-                        >
-                          {subDone && <Check className="w-2.5 h-2.5 shrink-0" strokeWidth={2.5} />}
-                        </div>
-                      </button>
-
-                      {/* Title */}
-                      <div className="flex-1 min-w-0">
-                        {isEditingThis ? (
-                          <input
-                            type="text"
-                            value={editSubTitle}
-                            onChange={(e) => setEditSubTitle(e.target.value)}
-                            onFocus={(e) => e.target.select()}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                if (editSubTitle.trim()) {
-                                  onEditSubtaskTitle(project.id, task.id, sub.id, editSubTitle.trim());
-                                }
-                                setEditingSubId(null);
-                              } else if (e.key === 'Escape') {
-                                setEditingSubId(null);
-                              }
-                            }}
-                            onBlur={() => {
-                              if (editSubTitle.trim()) {
-                                onEditSubtaskTitle(project.id, task.id, sub.id, editSubTitle.trim());
-                              }
-                              setEditingSubId(null);
-                            }}
-                            autoFocus
-                            className="w-full text-xs px-2 py-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-slate-100 outline-none"
-                          />
-                        ) : (
-                          <span
-                            onClick={() => {
-                              setEditingSubId(sub.id);
-                              setEditSubTitle(sub.title);
-                            }}
-                            className={`text-xs block cursor-text hover:text-slate-950 dark:hover:text-white transition-colors ${
-                              subDone
-                                ? 'line-through text-slate-400 dark:text-slate-500'
-                                : 'text-slate-800 dark:text-slate-200'
-                            }`}
-                            title="Nhấp để sửa tên bước con"
-                          >
-                            <FormattedTaskText text={sub.title} isDone={subDone} />
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Delete Subtask */}
-                      <button
-                        type="button"
-                        onClick={() => onDeleteSubTask(project.id, task.id, sub.id)}
-                        className="p-1 text-slate-300 dark:text-slate-600 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shrink-0"
-                        title="Xóa bước con này"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    </div>
-                  );
-                })
+                renderSubtaskList(task.subtasks, 0)
               ) : (
                 <p className="text-xs text-slate-400 dark:text-slate-500 italic py-1">
-                  Chưa có bước con nào. Thêm các việc nhỏ bên dưới để dễ dàng theo dõi.
+                  {t.taskDetail.subtasksEmpty}
                 </p>
               )}
             </div>
 
-            {/* Input thêm việc con nhanh */}
+            {/* Input thêm việc con nhanh ở gốc */}
             <form onSubmit={handleAddSubSubmit} className="flex items-center gap-2 pt-1">
               <input
                 type="text"
                 value={newSubTitle}
                 onChange={(e) => setNewSubTitle(e.target.value)}
-                placeholder="Thêm bước con tiếp theo (nhấn Enter)..."
+                placeholder={t.taskDetail.newSubtaskPlaceholder}
                 className="flex-1 text-xs px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 outline-none focus:border-slate-900 dark:focus:border-slate-100 shadow-2xs"
               />
               <button
@@ -533,19 +655,24 @@ export function TaskDetailModal({
                 className="h-8 px-3 bg-slate-900 dark:bg-slate-100 disabled:opacity-40 text-white dark:text-slate-900 text-xs font-medium rounded-lg flex items-center gap-1 cursor-pointer transition-colors shadow-2xs shrink-0"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>Thêm</span>
+                <span>{t.pinned.addSubtask}</span>
               </button>
             </form>
           </div>
         </div>
 
         {/* Modal Footer */}
-        <div className="px-4 sm:px-6 py-3 bg-slate-50/80 dark:bg-[#12161f]/80 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0 text-xs text-slate-500 dark:text-slate-400">
+        <div className="px-4 sm:px-6 py-3 bg-slate-50/80 dark:bg-[#12161f]/90 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0 text-xs text-slate-500 dark:text-slate-400">
           <div className="flex items-center gap-3">
             {task.completedAt && (
               <span className="flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Hoàn thành: {new Date(task.completedAt).toLocaleDateString('vi-VN')}</span>
+                <span>
+                  {t.taskDetail.completedAt.replace(
+                    '{date}',
+                    new Date(task.completedAt).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US')
+                  )}
+                </span>
               </span>
             )}
           </div>
@@ -555,7 +682,7 @@ export function TaskDetailModal({
             onClick={onClose}
             className="px-4 py-1.5 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-slate-900 rounded-lg text-xs font-medium cursor-pointer shadow-2xs transition-colors"
           >
-            Hoàn tất
+            {t.common.close}
           </button>
         </div>
       </div>

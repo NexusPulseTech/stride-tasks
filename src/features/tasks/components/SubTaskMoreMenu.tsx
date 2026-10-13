@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { SubTask, RecurrenceType } from '../../../types';
 import { PortalMenu } from '../../../components/ui/PortalMenu';
+import { useLanguage } from '../../../i18n';
 
 interface SubTaskMoreMenuProps {
   sub: SubTask;
@@ -51,8 +52,10 @@ export function SubTaskMoreMenu({
   onTogglePinSubTask,
   onOpenParentDetail,
 }: SubTaskMoreMenuProps) {
+  const { t } = useLanguage();
+
   return (
-    <PortalMenu isOpen={isOpen} onClose={onClose} triggerRef={triggerRef} widthClass="w-48">
+    <PortalMenu isOpen={isOpen} onClose={onClose} triggerRef={triggerRef} widthClass="w-52">
       {onOpenParentDetail && (
         <button
           type="button"
@@ -63,7 +66,7 @@ export function SubTaskMoreMenu({
           className="w-full text-left px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2 cursor-pointer transition-colors"
         >
           <Eye className="w-3.5 h-3.5 shrink-0 text-slate-400" strokeWidth={1.5} />
-          <span>Xem chi tiết công việc</span>
+          <span>{t.subtaskMenu.viewDetail}</span>
         </button>
       )}
 
@@ -73,7 +76,7 @@ export function SubTaskMoreMenu({
         className="w-full text-left px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2 cursor-pointer transition-colors"
       >
         <Plus className="w-3.5 h-3.5 shrink-0 text-slate-400" strokeWidth={1.75} aria-hidden="true" />
-        <span>Thêm việc con</span>
+        <span>{t.subtaskMenu.addSubtask}</span>
       </button>
 
       {/* Ghim / Bỏ ghim bước con */}
@@ -95,7 +98,7 @@ export function SubTaskMoreMenu({
             strokeWidth={1.5}
             aria-hidden="true"
           />
-          <span>{sub.isPinned ? 'Bỏ ghim ưu tiên' : 'Ghim lên tiêu điểm ưu tiên'}</span>
+          <span>{sub.isPinned ? t.subtaskMenu.unpinSubtask : t.subtaskMenu.pinSubtask}</span>
         </button>
       )}
 
@@ -109,7 +112,7 @@ export function SubTaskMoreMenu({
           className="w-full text-left px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2 cursor-pointer transition-colors"
         >
           <ClipboardPaste className="w-3.5 h-3.5 shrink-0 text-slate-400" strokeWidth={1.5} aria-hidden="true" />
-          <span>Dán danh sách việc con</span>
+          <span>{t.subtaskMenu.batchPaste}</span>
         </button>
       )}
 
@@ -197,7 +200,7 @@ export function SubTaskMoreMenu({
         className="w-full text-left px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2 cursor-pointer transition-colors"
       >
         <Pencil className="w-3.5 h-3.5 shrink-0 text-slate-400" strokeWidth={1.5} aria-hidden="true" />
-        <span>Chỉnh sửa tên</span>
+        <span>{t.subtaskMenu.editTitle}</span>
       </button>
 
       <button
@@ -206,7 +209,7 @@ export function SubTaskMoreMenu({
         className="w-full text-left px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2 cursor-pointer transition-colors"
       >
         <Copy className="w-3.5 h-3.5 shrink-0 text-slate-400" strokeWidth={1.5} aria-hidden="true" />
-        <span>Sao chép tên</span>
+        <span>{t.subtaskMenu.copyTitle}</span>
       </button>
 
       <div className="border-t border-slate-100 dark:border-slate-700/80 my-0.5" />
@@ -217,7 +220,7 @@ export function SubTaskMoreMenu({
         className="w-full text-left px-2.5 py-1.5 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg flex items-center gap-2 cursor-pointer transition-colors"
       >
         <Trash2 className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
-        <span>Xóa việc con</span>
+        <span>{t.subtaskMenu.deleteSubtask}</span>
       </button>
     </PortalMenu>
   );

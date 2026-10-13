@@ -16,8 +16,6 @@ interface KeyboardShortcutsProps {
   setActiveMenuTaskId: (val: string | null) => void;
   batchPasteProject: unknown | null;
   setBatchPasteProject: (val: null) => void;
-  batchPasteTarget: unknown | null;
-  setBatchPasteTarget: (val: null) => void;
   search: string;
   setSearch: (val: string) => void;
   setMobileSearchOpen: (val: boolean) => void;
@@ -42,8 +40,6 @@ export function useKeyboardShortcuts({
   setActiveMenuTaskId,
   batchPasteProject,
   setBatchPasteProject,
-  batchPasteTarget,
-  setBatchPasteTarget,
   search,
   setSearch,
   setMobileSearchOpen,
@@ -86,9 +82,8 @@ export function useKeyboardShortcuts({
           setActiveMenuTaskId(null);
           return;
         }
-        if (batchPasteProject || batchPasteTarget) {
+        if (batchPasteProject) {
           setBatchPasteProject(null);
-          setBatchPasteTarget(null);
           return;
         }
         if (search) {
@@ -154,8 +149,6 @@ export function useKeyboardShortcuts({
     setActiveMenuTaskId,
     batchPasteProject,
     setBatchPasteProject,
-    batchPasteTarget,
-    setBatchPasteTarget,
     search,
     setSearch,
     setMobileSearchOpen,

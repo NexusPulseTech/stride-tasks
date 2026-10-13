@@ -3,6 +3,7 @@ import { Plus, ClipboardPaste } from 'lucide-react';
 import { Task, StatusDefinition, RecurrenceType } from '../../../types';
 import { countLeafSubtasks } from '../utils/subtaskTree';
 import { SubTaskRow } from './SubTaskRow';
+import { useLanguage } from '../../../i18n';
 
 export interface SubtaskListProps {
   projectId: string;
@@ -80,6 +81,7 @@ export function SubtaskList({
   onTogglePinSubTask,
   onOpenParentDetail,
 }: SubtaskListProps) {
+  const { t } = useLanguage();
   const rootInputRef = useRef<HTMLInputElement>(null);
   const [isRootInputOpen, setIsRootInputOpen] = useState(false);
   const [addingChildToSubId, setAddingChildToSubId] = useState<string | null>(null);
@@ -202,7 +204,7 @@ export function SubtaskList({
                   : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              Tất cả ({totalLeafs})
+              {t.common.all} ({totalLeafs})
             </button>
             <button
               type="button"
@@ -213,7 +215,7 @@ export function SubtaskList({
                   : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              Đang làm ({totalLeafs - doneLeafs})
+              {t.common.active} ({totalLeafs - doneLeafs})
             </button>
             <button
               type="button"
@@ -224,15 +226,19 @@ export function SubtaskList({
                   : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              Đã xong ({doneLeafs})
+              {t.common.completed} ({doneLeafs})
             </button>
           </div>
         </div>
       )}
 
-      {/* Danh sách toàn bộ các bước con */}
+      {/* Danh sách toàn bộ các bước con (Ghim ưu tiên tự động lên đầu) */}
       <div className="space-y-0.5">
-        {task.subtasks.map((sub) => (
+        {[...task.subtasks].sort((a, b) => {
+          if (a.isPinned && !b.isPinned) return -1;
+          if (!a.isPinned && b.isPinned) return 1;
+          return 0;
+        }).map((sub) => (
           <SubTaskRow
             key={sub.id}
             sub={sub}
@@ -302,9 +308,9 @@ export function SubtaskList({
               setIsRootInputOpen(false);
             }}
             className="h-7 px-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-xs cursor-pointer rounded-md shrink-0 transition-colors"
-            title="Đóng (Esc)"
+            title="Esc"
           >
-            Hủy
+            {t.common.cancel}
           </button>
         </form>
       ) : (
@@ -315,7 +321,7 @@ export function SubtaskList({
             className="flex-1 flex items-center gap-1.5 py-1 px-1.5 text-[11px] text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100/60 dark:hover:bg-slate-800/40 rounded cursor-pointer transition-colors text-left font-normal select-none"
           >
             <Plus className="w-3 h-3 shrink-0 stroke-[1.75]" aria-hidden="true" />
-            <span>Thêm việc con</span>
+            <span>{t.subtaskMenu.addSubtask}</span>
           </button>
           <button
             type="button"
@@ -332,10 +338,10 @@ export function SubtaskList({
               onOpenBatchPasteForTask?.(projectId, task.id, null, task.title);
             }}
             className="flex items-center gap-1 py-1 px-2 text-[10.5px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 bg-slate-100/80 hover:bg-slate-200/80 dark:bg-slate-800/70 dark:hover:bg-slate-700/70 rounded cursor-pointer transition-colors font-medium select-none shrink-0 shadow-2xs"
-            title="Dán nhanh danh sách việc con (tự động đọc Clipboard hoặc mở hộp thoại dán)"
+            title={t.subtaskMenu.batchPaste}
           >
             <ClipboardPaste className="w-3 h-3 shrink-0" strokeWidth={1.5} />
-            <span>Dán nhanh</span>
+            <span>{t.subtaskMenu.batchPaste}</span>
           </button>
         </div>
       )}

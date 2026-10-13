@@ -18,8 +18,8 @@ interface LanguageContextType {
 }
 
 const LanguageContext = createContext<LanguageContextType>({
-  language: 'vi',
-  t: vi,
+  language: 'en',
+  t: en,
   setLanguage: () => {},
   toggleLanguage: () => {},
 });
@@ -29,12 +29,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     try {
       const stored = localStorage.getItem(LANGUAGE_KEY);
       if (stored === 'en' || stored === 'vi') return stored;
-      // Phát hiện ngôn ngữ trình duyệt nếu chưa đặt
-      if (typeof navigator !== 'undefined' && navigator.language?.startsWith('en')) {
-        return 'en';
-      }
     } catch (e) {}
-    return 'vi';
+    return 'en';
   });
 
   const setLanguage = useCallback((lang: Language) => {

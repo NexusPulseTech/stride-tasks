@@ -496,7 +496,7 @@ export function useTaskManager() {
     reader.onload = (event) => {
       try {
         const parsed = JSON.parse(event.target?.result as string);
-
+        
         let incomingProjects: Project[] = [];
         let incomingLogs: CompletedItemLog[] | null = null;
         let incomingCustomStatuses: StatusDefinition[] | null = null;
@@ -508,12 +508,12 @@ export function useTaskManager() {
           incomingLogs = Array.isArray(parsed.data.completedLogs) ? parsed.data.completedLogs : null;
           incomingCustomStatuses = Array.isArray(parsed.data.customStatuses) ? parsed.data.customStatuses : null;
           isFullSnapshot = true;
-        }
+        } 
         // Định dạng 2: Tệp cũ (mảng Project[])
         else if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].tasks) {
           incomingProjects = parsed;
           isFullSnapshot = false;
-        }
+        } 
         // Định dạng 3: Object chứa trực tiếp projects
         else if (parsed && typeof parsed === 'object' && Array.isArray(parsed.projects)) {
           incomingProjects = parsed.projects;

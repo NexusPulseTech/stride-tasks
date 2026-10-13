@@ -19,6 +19,7 @@ import { TaskMoreMenu } from './TaskMoreMenu';
 import { TaskStatusButton } from './TaskStatusButton';
 import { RecurrenceBadge } from './RecurrenceBadge';
 import { TaskItemProps } from '../types';
+import { useLanguage } from '../../../i18n';
 
 export type { TaskItemProps };
 
@@ -48,6 +49,7 @@ export function TaskItem({
   onOpenSchedule,
   onTogglePinSubTask,
 }: TaskItemProps) {
+  const { t, language } = useLanguage();
   const moreButtonRef = useRef<HTMLButtonElement>(null);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editTitle, setEditTitle] = useState(task.title);
@@ -103,8 +105,8 @@ export function TaskItem({
               onToggleExpandSubtasks(task.id);
             }}
             className="w-4.5 h-4.5 mt-0.5 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 flex items-center justify-center cursor-pointer shrink-0 transition-colors rounded hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
-            title={isSubOpen ? 'Thu gọn việc con' : `Mở rộng ${totalSubs} việc con (Notion Navigation)`}
-            aria-label={isSubOpen ? 'Thu gọn việc con' : 'Mở rộng việc con'}
+            title={isSubOpen ? t.pinned.collapseSubtasks : `${t.pinned.expandSubtasks} (${totalSubs})`}
+            aria-label={isSubOpen ? t.pinned.collapseSubtasks : t.pinned.expandSubtasks}
           >
             <ChevronRight
               className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${
@@ -121,12 +123,13 @@ export function TaskItem({
               onOpenAddSubtask(task.id);
             }}
             className="w-4.5 h-4.5 mt-0.5 text-slate-300 dark:text-slate-600 hover:text-slate-800 dark:hover:text-slate-100 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer shrink-0 transition-all rounded hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
-            title="Thêm việc con cho mục này"
-            aria-label="Thêm việc con"
+            title={t.taskMenu?.addSubtask || 'Add subtask'}
+            aria-label={t.taskMenu?.addSubtask || 'Add subtask'}
           >
             <Plus className="w-3 h-3 shrink-0" strokeWidth={2} />
           </button>
         )}
+
 
         {/* Checkbox chuẩn Apple / Linear */}
         <button
@@ -254,8 +257,8 @@ export function TaskItem({
                     ? 'bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-slate-200/90 dark:border-slate-700/80 hover:bg-slate-200/80 dark:hover:bg-slate-700 font-medium'
                     : 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-800/50 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/30'
                 }`}
-                title={isSubOpen ? 'Thu gọn việc con' : 'Xem toàn bộ việc con'}
-                aria-label={isSubOpen ? 'Thu gọn việc con' : 'Xem toàn bộ việc con'}
+                title={isSubOpen ? t.pinned.collapseSubtasks : t.pinned.expandSubtasks}
+                aria-label={isSubOpen ? t.pinned.collapseSubtasks : t.pinned.expandSubtasks}
               >
                 <ChevronRight
                   className={`w-2.5 h-2.5 shrink-0 transition-transform duration-200 ${
@@ -266,10 +269,18 @@ export function TaskItem({
                 />
                 <span className="tabular-nums inline-flex items-center gap-1">
                   {pendingCount > 0 ? (
-                    <span>{pendingCount} cần làm · {doneCount}/{totalSubs} xong</span>
+                    <span>
+                      {language === 'vi'
+                        ? `${pendingCount} cần làm · ${doneCount}/${totalSubs} xong`
+                        : `${pendingCount} todo · ${doneCount}/${totalSubs} done`}
+                    </span>
                   ) : (
                     <>
-                      <span>{totalSubs}/{totalSubs} xong</span>
+                      <span>
+                        {language === 'vi'
+                          ? `${totalSubs}/${totalSubs} xong`
+                          : `${totalSubs}/${totalSubs} done`}
+                      </span>
                       <Check className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2.5} aria-hidden="true" />
                     </>
                   )}
@@ -291,15 +302,16 @@ export function TaskItem({
                 }}
                 className="text-[10px] text-blue-600 dark:text-blue-400 hover:underline cursor-pointer shrink-0 inline-flex items-center gap-0.5 font-medium"
               >
-                <span>{expandedTaskId === task.id ? 'Thu gọn' : 'Xem chi tiết'}</span>
+                <span>{expandedTaskId === task.id ? t.common.collapse : t.pinned.viewDetails}</span>
               </button>
             )}
           </div>
         </div>
 
-        {/* Nút thêm nhanh việc con & Nút trạng thái & Menu */}
+
+        {/* Nút thêm nhanh việc con & Nút trạng thái & Menu (3 icon phụ ẩn trên mobile để giữ nguyên văn bản) */}
         <div className="shrink-0 flex items-center gap-1 flex-nowrap">
-          {/* Nút xem chi tiết việc (Eye) */}
+          {/* Nút xem chi tiết việc (Eye) - Chỉ hiện trên desktop sm:, mobile bấm vào tên việc hoặc 3 chấm */}
           {onOpenDetail && (
             <button
               type="button"
@@ -307,29 +319,29 @@ export function TaskItem({
                 e.stopPropagation();
                 onOpenDetail(task, projectId);
               }}
-              className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer shrink-0 transition-colors"
-              title="Xem chi tiết & toàn bộ nội dung"
-              aria-label="Xem chi tiết"
+              className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer shrink-0 transition-colors hidden sm:inline-flex items-center justify-center"
+              title={t.taskMenu?.viewDetail || 'Xem chi tiết & Ghi chú'}
+              aria-label={t.taskMenu?.viewDetail || 'Xem chi tiết'}
             >
               <Eye className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
             </button>
           )}
 
-          {/* Nút thêm nhanh việc con trực tiếp - Không cần vào 3 chấm */}
+          {/* Nút thêm nhanh việc con trực tiếp (+) - Chỉ hiện trên desktop sm:, mobile có trong menu 3 chấm hoặc mở subtasks */}
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
               onOpenAddSubtask(task.id);
             }}
-            className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer shrink-0 transition-colors"
-            title="Thêm nhanh việc con (+)"
-            aria-label="Thêm việc con"
+            className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer shrink-0 transition-colors hidden sm:inline-flex items-center justify-center"
+            title={t.taskMenu?.addSubtask || 'Thêm việc con (+)'}
+            aria-label={t.taskMenu?.addSubtask || 'Thêm việc con'}
           >
             <Plus className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
           </button>
 
-          {/* Nút Lên lịch nhắc thông minh (Calendar) */}
+          {/* Nút Lên lịch nhắc thông minh (Calendar) - Chỉ hiện trên desktop sm: */}
           {onOpenSchedule && (
             <button
               type="button"
@@ -337,20 +349,21 @@ export function TaskItem({
                 e.stopPropagation();
                 onOpenSchedule(task, projectId);
               }}
-              className={`p-1 rounded cursor-pointer shrink-0 transition-colors ${
+              className={`p-1 rounded cursor-pointer shrink-0 transition-colors hidden sm:inline-flex items-center justify-center ${
                 scheduleBadge.status !== 'none'
                   ? 'text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40'
                   : 'text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
               title={
                 scheduleBadge.status !== 'none'
-                  ? `Lịch hẹn: ${scheduleBadge.label} (Bấm để đổi)`
-                  : 'Lên lịch nhắc thông minh'
+                  ? `${t.schedule.modalTitle}: ${scheduleBadge.label}`
+                  : (t.taskMenu?.schedule || t.schedule.modalTitle)
               }
-              aria-label="Lên lịch nhắc thông minh"
+              aria-label={t.taskMenu?.schedule || t.schedule.modalTitle}
             >
               <Calendar className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
             </button>
+
           )}
 
           <TaskStatusButton
