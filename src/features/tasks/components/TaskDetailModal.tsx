@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   Pencil,
   FileText,
+  RotateCcw,
 } from 'lucide-react';
 import { Task, Project, StatusDefinition, RecurrenceType, SubTask } from '../../../types';
 import { isDoneStatus } from '../utils/statusCategory';
@@ -43,6 +44,7 @@ interface TaskDetailModalProps {
   onDeleteSubTask: (projId: string, taskId: string, subId: string) => void;
   onEditSubtaskTitle: (projId: string, taskId: string, subId: string, newTitle: string) => void;
   onOpenSchedule?: (task: Task, projectId: string) => void;
+  onOpenAnkiSrs?: (task: Task, projectId: string) => void;
 }
 
 export function TaskDetailModal({
@@ -64,6 +66,7 @@ export function TaskDetailModal({
   onDeleteSubTask,
   onEditSubtaskTitle,
   onOpenSchedule,
+  onOpenAnkiSrs,
 }: TaskDetailModalProps) {
   const { t, language } = useLanguage();
   const [title, setTitle] = useState('');
@@ -185,7 +188,7 @@ export function TaskDetailModal({
                 </button>
 
                 {/* Subtask Title */}
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 flex items-center gap-1.5 flex-nowrap overflow-hidden">
                   {isEditingThis ? (
                     <input
                       type="text"
@@ -209,16 +212,16 @@ export function TaskDetailModal({
                         setEditingSubId(null);
                       }}
                       autoFocus
-                      className="w-full text-xs px-2 py-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-slate-100 outline-none"
+                      className="flex-1 min-w-0 h-6 text-xs px-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-slate-100 outline-none"
                     />
                   ) : (
-                    <div className="flex items-center gap-1.5 flex-wrap">
+                    <>
                       <span
                         onClick={() => {
                           setEditingSubId(sub.id);
                           setEditSubTitle(sub.title);
                         }}
-                        className={`text-xs cursor-text hover:text-slate-950 dark:hover:text-white transition-colors ${
+                        className={`text-xs cursor-text hover:text-slate-950 dark:hover:text-white transition-colors truncate min-w-0 ${
                           subDone
                             ? 'line-through text-slate-400 dark:text-slate-500'
                             : 'text-slate-800 dark:text-slate-200'
@@ -228,54 +231,37 @@ export function TaskDetailModal({
                         <FormattedTaskText text={sub.title} isDone={subDone} />
                       </span>
 
-                      {/* Pin Tag if pinned */}
                       {sub.isPinned && (
-                        <span className="inline-flex items-center gap-1 text-[9.5px] px-1 py-0.2 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/50 font-medium">
-                          <Pin className="w-2.5 h-2.5 fill-current" />
+                        <span className="inline-flex items-center gap-1 text-[9.5px] px-1 py-0.2 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/50 font-medium shrink-0 whitespace-nowrap">
+                          <Pin className="w-2.5 h-2.5 fill-current shrink-0" />
                           <span>{t.pinned.priorityTag}</span>
                         </span>
                       )}
-                    </div>
+                    </>
                   )}
                 </div>
 
-                {/* Subtask Quick Actions: Pin, Add child, Delete */}
-                <div className="flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                  {onTogglePinSubTask && (
-                    <button
-                      type="button"
-                      onClick={() => onTogglePinSubTask(project.id, task.id, sub.id)}
-                      className={`p-1 cursor-pointer rounded transition-colors ${
-                        sub.isPinned
-                          ? 'text-amber-500 fill-amber-500 hover:text-slate-400'
-                          : 'text-slate-300 dark:text-slate-600 hover:text-amber-500'
-                      }`}
-                      title={sub.isPinned ? t.subtaskMenu.unpinSubtask : t.subtaskMenu.pinSubtask}
-                      aria-label={sub.isPinned ? t.subtaskMenu.unpinSubtask : t.subtaskMenu.pinSubtask}
-                    >
-                      <Pin className={`w-3 h-3 ${sub.isPinned ? 'fill-current' : ''}`} />
-                    </button>
-                  )}
-
+                {/* Subtask Quick Actions: Add child (+), Delete */}
+                <div className="flex items-center gap-0.5 shrink-0 flex-nowrap">
                   <button
                     type="button"
                     onClick={() => {
                       setAddingChildToId(isAddingToThis ? null : sub.id);
                       setChildSubTitle('');
                     }}
-                    className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer rounded"
+                    className="w-6 h-6 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-700/60 cursor-pointer rounded shrink-0 transition-colors inline-flex items-center justify-center"
                     title={t.pinned.addSubtask}
                   >
-                    <Plus className="w-3 h-3" />
+                    <Plus className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} />
                   </button>
 
                   <button
                     type="button"
                     onClick={() => onDeleteSubTask(project.id, task.id, sub.id)}
-                    className="p-1 text-slate-300 dark:text-slate-600 hover:text-rose-500 cursor-pointer rounded"
+                    className="w-6 h-6 text-slate-300 dark:text-slate-600 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 cursor-pointer rounded shrink-0 transition-colors inline-flex items-center justify-center"
                     title={t.pinned.deleteSubtask}
                   >
-                    <Trash2 className="w-3 h-3" />
+                    <Trash2 className="w-3 h-3 shrink-0" />
                   </button>
                 </div>
               </div>
@@ -287,27 +273,30 @@ export function TaskDetailModal({
                     e.preventDefault();
                     handleAddChildSubmit(sub.id);
                   }}
-                  className="flex items-center gap-1.5 ml-4 my-1"
+                  className="h-7 flex items-center gap-1.5 ml-4 flex-nowrap w-auto overflow-hidden"
                 >
                   <input
                     type="text"
                     value={childSubTitle}
                     onChange={(e) => setChildSubTitle(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') setAddingChildToId(null);
+                    }}
                     autoFocus
                     placeholder={t.pinned.addSubtaskPlaceholder.replace('{title}', sub.title.slice(0, 15))}
-                    className="flex-1 text-xs px-2.5 py-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md outline-none text-slate-900 dark:text-slate-100"
+                    className="flex-1 min-w-0 h-6.5 text-xs px-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md outline-none text-slate-900 dark:text-slate-100"
                   />
                   <button
                     type="submit"
                     disabled={!childSubTitle.trim()}
-                    className="h-6 px-2.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-medium rounded cursor-pointer disabled:opacity-40"
+                    className="h-6.5 px-2.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-medium rounded-md cursor-pointer disabled:opacity-40 shrink-0 whitespace-nowrap"
                   >
                     {t.pinned.save}
                   </button>
                   <button
                     type="button"
                     onClick={() => setAddingChildToId(null)}
-                    className="text-xs text-slate-400 hover:text-slate-600 px-1 cursor-pointer"
+                    className="h-6.5 text-xs text-slate-400 hover:text-slate-600 px-1.5 cursor-pointer shrink-0 whitespace-nowrap"
                   >
                     {t.pinned.cancel}
                   </button>
@@ -583,6 +572,7 @@ export function TaskDetailModal({
                 </div>
               </>
             )}
+
           </div>
 
           {/* Notes & Markdown details */}
@@ -641,20 +631,20 @@ export function TaskDetailModal({
             </div>
 
             {/* Input thêm việc con nhanh ở gốc */}
-            <form onSubmit={handleAddSubSubmit} className="flex items-center gap-2 pt-1">
+            <form onSubmit={handleAddSubSubmit} className="flex items-center gap-2 pt-1 flex-nowrap w-full overflow-hidden">
               <input
                 type="text"
                 value={newSubTitle}
                 onChange={(e) => setNewSubTitle(e.target.value)}
                 placeholder={t.taskDetail.newSubtaskPlaceholder}
-                className="flex-1 text-xs px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 outline-none focus:border-slate-900 dark:focus:border-slate-100 shadow-2xs"
+                className="flex-1 min-w-0 h-8 text-xs px-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 outline-none focus:border-slate-900 dark:focus:border-slate-100 shadow-2xs"
               />
               <button
                 type="submit"
                 disabled={!newSubTitle.trim()}
-                className="h-8 px-3 bg-slate-900 dark:bg-slate-100 disabled:opacity-40 text-white dark:text-slate-900 text-xs font-medium rounded-lg flex items-center gap-1 cursor-pointer transition-colors shadow-2xs shrink-0"
+                className="h-8 px-3 bg-slate-900 dark:bg-slate-100 disabled:opacity-40 text-white dark:text-slate-900 text-xs font-medium rounded-lg inline-flex items-center gap-1 cursor-pointer transition-colors shadow-2xs shrink-0 whitespace-nowrap"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-3.5 h-3.5 shrink-0" />
                 <span>{t.pinned.addSubtask}</span>
               </button>
             </form>

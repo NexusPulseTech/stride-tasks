@@ -1,9 +1,10 @@
 import React, { useRef } from 'react';
-import { Plus, ClipboardPaste } from 'lucide-react';
+import { Plus, ClipboardPaste, Check } from 'lucide-react';
 import { Project, Task, StatusDefinition, RecurrenceType, FilterType } from '../../../types';
 import { isDoneStatus } from '../utils/statusCategory';
 import { TaskItem } from './TaskItem';
 import { ProjectCardHeader } from './ProjectCardHeader';
+import { useLanguage } from '../../../i18n';
 
 export interface ProjectCardProps {
   project: Project;
@@ -11,6 +12,8 @@ export interface ProjectCardProps {
   search: string;
   filter: FilterType;
   isFocusMode: boolean;
+  hideCompletedInAllView?: boolean;
+  onToggleHideCompletedInAll?: () => void;
   onToggleExpand: (id: string) => void;
   onCopyProjectAsMarkdown: (project: Project, e: React.MouseEvent) => void;
   onOpenBatchPaste: (project: Project) => void;
@@ -85,6 +88,7 @@ export interface ProjectCardProps {
   onOpenDetail?: (task: Task, projectId: string) => void;
   onOpenSchedule?: (task: Task, projectId: string) => void;
   onTogglePinSubTask?: (projId: string, taskId: string, subId: string) => void;
+  onOpenAnkiSrs?: (task: Task, projectId: string) => void;
   onMoveProject?: (projId: string, direction: 'up' | 'down') => void;
   isFirstProject?: boolean;
   isLastProject?: boolean;
@@ -103,6 +107,8 @@ export function ProjectCard({
   search,
   filter,
   isFocusMode,
+  hideCompletedInAllView = false,
+  onToggleHideCompletedInAll,
   onToggleExpand,
   onCopyProjectAsMarkdown,
   onOpenBatchPaste,
@@ -161,6 +167,7 @@ export function ProjectCard({
   onOpenDetail,
   onOpenSchedule,
   onTogglePinSubTask,
+  onOpenAnkiSrs,
   onMoveProject,
   isFirstProject = false,
   isLastProject = false,
@@ -172,6 +179,7 @@ export function ProjectCard({
   onProjectDrop,
   onProjectDragEnd,
 }: ProjectCardProps) {
+  const { t } = useLanguage();
   const inputRef = useRef<HTMLInputElement>(null);
   const tasks = project.tasks;
   const countDone = tasks.filter((t) => isDoneStatus(t.status, statuses)).length;
@@ -232,13 +240,29 @@ export function ProjectCard({
               className="py-3 text-center text-xs text-slate-400 dark:text-slate-500 rounded-lg border border-dashed border-slate-200/60 dark:border-slate-800/60 transition-colors"
             >
               {search ? (
-                <span>Không tìm thấy công việc nào khớp với tìm kiếm.</span>
+                <span>{t.tasks.emptyTasksSearch}</span>
               ) : isFocusMode || filter === 'doing' ? (
-                <span>Tuyệt vời! Không còn việc nào chưa hoàn thành.</span>
+                <span>{t.tasks.emptyTasksFocus}</span>
               ) : filter === 'completed' ? (
-                <span>Chưa có việc nào hoàn thành.</span>
+                <span>{t.tasks.emptyTasksCompleted}</span>
+              ) : filter === 'all' && hideCompletedInAllView && isAllDone ? (
+                <div className="space-y-1.5 py-1">
+                  <span className="font-medium text-emerald-600 dark:text-emerald-400 flex items-center justify-center gap-1">
+                    <Check className="w-3.5 h-3.5" />
+                    <span>{t.projectCard.noTasksEmpty} ({t.actionBar.hideCompleted})</span>
+                  </span>
+                  {onToggleHideCompletedInAll && (
+                    <button
+                      type="button"
+                      onClick={onToggleHideCompletedInAll}
+                      className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline cursor-pointer font-medium"
+                    >
+                      {t.actionBar.showCompleted}
+                    </button>
+                  )}
+                </div>
               ) : (
-                <span className="italic">Chưa có việc nào. Kéo thả việc vào đây hoặc gõ vào ô bên dưới.</span>
+                <span className="italic">{t.tasks.emptyTasksDefault}</span>
               )}
             </div>
           ) : (
@@ -317,12 +341,34 @@ export function ProjectCard({
                   onOpenDetail={onOpenDetail}
                   onOpenSchedule={onOpenSchedule}
                   onTogglePinSubTask={onTogglePinSubTask}
+                  onOpenAnkiSrs={onOpenAnkiSrs}
                 />
               );
             })
           )}
 
-          {/* Ô thêm việc dưới cùng */}
+          {/* Thanh hiển thị số việc đã hoàn thành bị ẩn trong tab Tất cả */}
+          {filter === 'all' && hideCompletedInAllView && countDone > 0 && !search.trim() && (
+            <div className="pt-2 pb-0.5 flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-500 px-1 border-t border-slate-100 dark:border-slate-800/60">
+              <span className="flex items-center gap-1 font-medium">
+                <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span>
+                  {t.actionBar.hiddenCompletedCount.replace('{count}', String(countDone))}
+                </span>
+              </span>
+              {onToggleHideCompletedInAll && (
+                <button
+                  type="button"
+                  onClick={onToggleHideCompletedInAll}
+                  className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline cursor-pointer font-medium"
+                >
+                  {t.actionBar.showCompleted}
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Ô thêm việc dưới cùng - Cố định kích thước, không nhảy, không xuống dòng */}
           {!isFocusMode && filter !== 'completed' && (
             <form
               onSubmit={(e) => {
@@ -330,7 +376,7 @@ export function ProjectCard({
                 onAddTask(project.id, e);
                 inputRef.current?.focus();
               }}
-              className="flex items-center gap-1.5 pt-1"
+              className="flex items-center gap-1.5 pt-1 flex-nowrap w-full overflow-hidden"
             >
               <input
                 ref={inputRef}
@@ -339,12 +385,12 @@ export function ProjectCard({
                 onChange={(e) => onTaskInputChange(project.id, e.target.value)}
                 onPaste={(e) => onTaskInputPaste(project.id, e)}
                 placeholder="Nhập việc cần làm... (Enter để lưu)"
-                className="flex-1 h-8 px-2.5 bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-lg text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-slate-800 dark:focus:border-slate-400 transition-all shadow-2xs"
+                className="flex-1 min-w-0 h-8 px-2.5 bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-lg text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-slate-800 dark:focus:border-slate-400 transition-colors shadow-2xs"
               />
               <button
                 type="submit"
                 disabled={!taskInputValue.trim()}
-                className="h-8 px-3 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white disabled:opacity-40 text-white dark:text-slate-950 rounded-lg text-xs font-medium cursor-pointer transition-colors shrink-0 shadow-2xs flex items-center gap-1"
+                className="h-8 px-3 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white disabled:opacity-40 text-white dark:text-slate-950 rounded-lg text-xs font-medium cursor-pointer transition-colors shrink-0 whitespace-nowrap shadow-2xs inline-flex items-center gap-1"
               >
                 <Plus className="w-3.5 h-3.5 shrink-0 stroke-[2]" aria-hidden="true" />
                 <span className="hidden sm:inline">Thêm</span>
@@ -352,7 +398,7 @@ export function ProjectCard({
               <button
                 type="button"
                 onClick={() => onOpenBatchPaste(project)}
-                className="h-8 px-2.5 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-xs font-medium cursor-pointer transition-colors shrink-0 shadow-2xs flex items-center gap-1"
+                className="h-8 px-2.5 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-xs font-medium cursor-pointer transition-colors shrink-0 whitespace-nowrap shadow-2xs inline-flex items-center gap-1"
                 title="Dán nhanh danh sách công việc (từ Clipboard hoặc mở hộp thoại dán)"
               >
                 <ClipboardPaste className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />

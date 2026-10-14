@@ -67,7 +67,7 @@ export function ProjectCardHeader({
               setIsEditing(false);
             }}
             onClick={(e) => e.stopPropagation()}
-            className="flex-1 min-w-0"
+            className="flex-1 min-w-0 flex items-center"
           >
             <input
               type="text"
@@ -85,7 +85,7 @@ export function ProjectCardHeader({
                 setIsEditing(false);
               }}
               autoFocus
-              className="text-[13px] font-semibold text-slate-900 dark:text-slate-100 bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-600 rounded px-1.5 py-0.5 outline-none w-full shadow-2xs"
+              className="h-6 text-[13px] font-semibold text-slate-900 dark:text-slate-100 bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-600 rounded px-1.5 py-0 outline-none w-full min-w-0"
             />
           </form>
         ) : (

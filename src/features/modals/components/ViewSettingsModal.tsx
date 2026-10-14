@@ -230,6 +230,24 @@ export function ViewSettingsModal({
                   className="rounded text-slate-900 dark:text-slate-100 focus:ring-slate-500 cursor-pointer"
                 />
               </label>
+
+              {/* Ẩn việc đã xong trong tab Tất cả (chống spam rác thị giác) */}
+              <label className="flex items-center justify-between p-3 hover:bg-slate-50/70 dark:hover:bg-slate-800/30 cursor-pointer">
+                <div>
+                  <div className="text-xs font-medium text-slate-700 dark:text-slate-200">
+                    {t.viewSettings.hideCompletedInAll}
+                  </div>
+                  <p className="text-[10.5px] text-slate-400 dark:text-slate-500 mt-0.5">
+                    {preferences.hideCompletedInAllView ? t.actionBar.allActiveOnly : t.actionBar.allWithCompleted}
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={preferences.hideCompletedInAllView}
+                  onChange={(e) => onUpdatePreference('hideCompletedInAllView', e.target.checked)}
+                  className="rounded text-slate-900 dark:text-slate-100 focus:ring-slate-500 cursor-pointer shrink-0 ml-2"
+                />
+              </label>
             </div>
           </div>
         </div>

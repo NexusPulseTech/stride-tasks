@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, X, ArrowRight } from 'lucide-react';
+import { Bell, X, RotateCcw } from 'lucide-react';
 import { useLanguage } from '../../../i18n';
 
 interface ReminderBannerProps {
@@ -7,12 +7,15 @@ interface ReminderBannerProps {
     visible: boolean;
     pendingCount: number;
     topTaskTitle: string;
+    projectId?: string;
+    taskId?: string;
   } | null;
   onDismiss: () => void;
+  onReviewTask?: (projectId: string, taskId: string) => void;
 }
 
-export function ReminderBanner({ banner, onDismiss }: ReminderBannerProps) {
-  const { t } = useLanguage();
+export function ReminderBanner({ banner, onDismiss, onReviewTask }: ReminderBannerProps) {
+  const { t, language } = useLanguage();
 
   if (!banner || !banner.visible) return null;
 
@@ -24,34 +27,56 @@ export function ReminderBanner({ banner, onDismiss }: ReminderBannerProps) {
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-1">
-          <h4 className="text-xs font-semibold text-slate-900 dark:text-slate-100">
+          <h4 className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">
             {t.reminder.inAppBannerTitle.replace('{count}', String(banner.pendingCount))}
           </h4>
           <button
             type="button"
             onClick={onDismiss}
-            className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded cursor-pointer"
+            className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded cursor-pointer shrink-0"
             title={t.common.cancel}
           >
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        <p className="text-[11.5px] text-slate-600 dark:text-slate-300 truncate mt-0.5 font-medium">
+        <p
+          onClick={() => {
+            if (banner.projectId && banner.taskId && onReviewTask) {
+              onReviewTask(banner.projectId, banner.taskId);
+              onDismiss();
+            }
+          }}
+          className="text-[11.5px] text-slate-700 dark:text-slate-200 truncate mt-0.5 font-medium cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          title="Nhấp để chọn chu kỳ nhắc cấp số nhân (1, 2, 3)"
+        >
           "{banner.topTaskTitle}"
         </p>
 
-        <div className="flex items-center justify-between pt-2">
-          <span className="text-[10px] text-slate-400 dark:text-slate-500">
-            Stride Focus Nudge
-          </span>
+        <div className="flex items-center justify-between pt-2 gap-2">
+          {banner.projectId && banner.taskId && onReviewTask ? (
+            <button
+              type="button"
+              onClick={() => {
+                onReviewTask(banner.projectId!, banner.taskId!);
+                onDismiss();
+              }}
+              className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>{language === 'vi' ? 'Hoãn cấp số nhân (1-2-3)' : 'Anki Snooze (1-2-3)'}</span>
+            </button>
+          ) : (
+            <span className="text-[10px] text-slate-400 dark:text-slate-500">
+              Stride Focus Nudge
+            </span>
+          )}
           <button
             type="button"
             onClick={onDismiss}
-            className="text-[11px] font-medium text-slate-800 dark:text-slate-200 hover:underline flex items-center gap-1 cursor-pointer"
+            className="text-[11px] font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 cursor-pointer"
           >
             <span>{t.reminder.dismiss}</span>
-            <ArrowRight className="w-3 h-3" />
           </button>
         </div>
       </div>

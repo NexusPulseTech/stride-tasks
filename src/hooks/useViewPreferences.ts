@@ -9,6 +9,7 @@ export interface ViewPreferences {
   showAddProjectBar: boolean;     // Hiện thanh Add Project ở đầu
   showFilterTabs: boolean;        // Hiện bộ lọc Tất cả / Đang làm / Đã xong
   showLanguageSwitcher: boolean;  // Hiện nút chuyển EN/VI trên header
+  hideCompletedInAllView: boolean; // Ẩn các task đã làm trong tab Tất cả (chống spam rác thị giác)
 }
 
 const VIEW_PREFERENCES_KEY = 'stride_tasks_view_preferences_v1';
@@ -22,6 +23,7 @@ const DEFAULT_PREFERENCES: ViewPreferences = {
   showAddProjectBar: true,
   showFilterTabs: true,
   showLanguageSwitcher: true,   // Mặc định hiện nút đổi ngôn ngữ
+  hideCompletedInAllView: true,  // Mặc định ẩn việc đã xong trong tab Tất cả theo đúng mong muốn của người dùng
 };
 
 export function useViewPreferences() {
@@ -61,6 +63,17 @@ export function useViewPreferences() {
     });
   }, []);
 
+  const toggleHideCompletedInAll = useCallback(() => {
+    setPreferences((prev) => {
+      const nextVal = !prev.hideCompletedInAllView;
+      const next: ViewPreferences = { ...prev, hideCompletedInAllView: nextVal };
+      try {
+        localStorage.setItem(VIEW_PREFERENCES_KEY, JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
+  }, []);
+
   const resetPreferences = useCallback(() => {
     setPreferences(DEFAULT_PREFERENCES);
     try {
@@ -72,6 +85,7 @@ export function useViewPreferences() {
     preferences,
     updatePreference,
     toggleZenMode,
+    toggleHideCompletedInAll,
     resetPreferences,
   };
 }

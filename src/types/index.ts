@@ -18,6 +18,8 @@ export interface SubTask {
   lastCompletedDate?: string; // 'YYYY-MM-DD'
   recurrenceStreak?: number;
   isPinned?: boolean;
+  snoozeUntil?: string; // ISO string thời điểm hết hoãn / đếm ngược nhắc lại
+  snoozeLevel?: number; // Cấp độ hoãn lũy tiến (1 = 1 ngày, 2 = 3 ngày, 3 = 9 ngày...)
 }
 
 export interface Task {
@@ -33,6 +35,8 @@ export interface Task {
   recurrence?: RecurrenceType;
   lastCompletedDate?: string; // 'YYYY-MM-DD'
   recurrenceStreak?: number;
+  snoozeUntil?: string; // ISO string thời điểm hết hoãn / đếm ngược nhắc lại
+  snoozeLevel?: number; // Cấp độ hoãn lũy tiến (1 = 1 ngày, 2 = 3 ngày, 3 = 9 ngày...)
 }
 
 export interface Project {

@@ -12,7 +12,7 @@ import {
   Check,
   ArrowRightLeft,
   Search,
-  Sparkles,
+  Database,
   ClipboardPaste,
   CheckCircle2,
   AlertCircle,
@@ -549,7 +549,7 @@ export function BackupModal({
               {hasScanned && discoveredSources.length > 0 && (
                 <div className="p-2.5 bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-xl space-y-2">
                   <div className="flex items-center gap-1.5 font-semibold text-blue-900 dark:text-blue-300 text-[11px]">
-                    <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                    <Database className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                     <span>Tìm thấy {discoveredSources.length} nguồn dữ liệu khả dụng trên máy của bạn:</span>
                   </div>
                   <div className="space-y-1.5 max-h-[160px] overflow-y-auto">

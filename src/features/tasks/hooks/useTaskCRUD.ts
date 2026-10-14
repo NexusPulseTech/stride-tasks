@@ -32,6 +32,7 @@ interface TaskCRUDDeps {
   triggerUndoableAction: (message: string, undoFn: () => void) => void;
   handleDoneStreak: () => void;
   onTaskDone?: (completed: boolean, task?: Task, project?: Project) => void;
+  onTaskCreated?: (projId: string, newTask: Task) => void;
 }
 
 export function useTaskCRUD({
@@ -40,6 +41,7 @@ export function useTaskCRUD({
   triggerUndoableAction,
   handleDoneStreak,
   onTaskDone,
+  onTaskCreated,
 }: TaskCRUDDeps) {
   const [projects, setProjects] = useState<Project[]>(() => {
     return loadProjectsSafely();
@@ -214,6 +216,7 @@ export function useTaskCRUD({
       const newTask: Task = { id: 't_' + Date.now(), title: raw, status: 'todo', subtasks: [] };
       setProjects((prev) => prev.map((p) => (p.id === projId ? { ...p, tasks: [...p.tasks, newTask] } : p)));
       showToast('Đã thêm việc!');
+      onTaskCreated?.(projId, newTask);
     }
     setTaskInputs((prev) => ({ ...prev, [projId]: '' }));
   };
@@ -252,6 +255,7 @@ export function useTaskCRUD({
             ...t,
             status: nextStatus,
             completedAt: isChecked ? (t.completedAt || new Date().toISOString()) : undefined,
+            snoozeUntil: isChecked ? undefined : t.snoozeUntil,
             lastCompletedDate: isChecked && isRecurring ? todayStr : t.lastCompletedDate,
             recurrenceStreak: isChecked && isRecurring ? newStreak : t.recurrenceStreak,
             subtasks: isChecked ? t.subtasks.map((s) => cascadeSubtaskCompleted(s, true)) : t.subtasks,
@@ -307,6 +311,7 @@ export function useTaskCRUD({
     schedule: { reminderAt?: string | null; deadline?: string | null }
   ) => {
     triggerHaptic();
+    const isClearing = schedule.reminderAt === null && schedule.deadline === null;
     setProjects((prev) =>
       prev.map((p) => {
         if (p.id !== projId) return p;
@@ -318,6 +323,7 @@ export function useTaskCRUD({
               ...t,
               reminderAt: schedule.reminderAt === null ? undefined : (schedule.reminderAt ?? t.reminderAt),
               deadline: schedule.deadline === null ? undefined : (schedule.deadline ?? t.deadline),
+              snoozeUntil: isClearing ? undefined : t.snoozeUntil,
             };
           }),
         };
@@ -363,6 +369,7 @@ export function useTaskCRUD({
                   ...t,
                   status,
                   completedAt: isDoneCategory ? t.completedAt || new Date().toISOString() : undefined,
+                  snoozeUntil: isDoneCategory ? undefined : t.snoozeUntil,
                   subtasks: nextSubs,
                 };
               }),
@@ -474,6 +481,35 @@ export function useTaskCRUD({
     showToast('Đã đổi tên dự án!');
   };
 
+  const handleSnoozeTask = (
+    projId: string,
+    taskId: string,
+    snoozeUntil: string | null,
+    snoozeLevel?: number
+  ) => {
+    setProjects((prev) =>
+      prev.map((p) => {
+        if (p.id !== projId) return p;
+        return {
+          ...p,
+          tasks: p.tasks.map((t) => {
+            if (t.id !== taskId) return t;
+            return {
+              ...t,
+              snoozeUntil: snoozeUntil || undefined,
+              snoozeLevel: snoozeLevel !== undefined ? snoozeLevel : t.snoozeLevel,
+            };
+          }),
+        };
+      })
+    );
+    if (snoozeUntil) {
+      showToast('Đã lưu thời gian hoãn nhắc công việc!');
+    } else {
+      showToast('Đã hủy hoãn nhắc công việc!');
+    }
+  };
+
   return {
     projects,
     setProjects,
@@ -501,5 +537,6 @@ export function useTaskCRUD({
     handleManuallyResetRecurring,
     handleManuallyResetRecurringSubTask,
     handleSetTaskSchedule,
+    handleSnoozeTask,
   };
 }

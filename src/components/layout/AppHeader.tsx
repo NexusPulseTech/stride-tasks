@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import {
   Check,
-  Sparkles,
+  Flame,
   Target,
   Activity,
   Sliders,
@@ -109,7 +109,7 @@ export function AppHeader({
               className="flex items-center gap-1 px-2 h-7.5 rounded-lg bg-slate-100/90 dark:bg-slate-800/80 text-xs font-semibold text-slate-700 dark:text-slate-300 shrink-0 font-mono tabular-nums select-none border border-slate-200/50 dark:border-slate-700/50"
               title={`${streak} ${t.header.streakDays}`}
             >
-              <Sparkles className="w-3.5 h-3.5 shrink-0 text-amber-500 dark:text-amber-400" strokeWidth={1.75} aria-hidden="true" />
+              <Flame className="w-3.5 h-3.5 shrink-0 text-amber-500 dark:text-amber-400" strokeWidth={1.75} aria-hidden="true" />
               <span>{streak}d</span>
             </div>
           )}

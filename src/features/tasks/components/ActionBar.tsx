@@ -1,7 +1,8 @@
-import React from 'react';
-import { Search, RotateCcw, X } from 'lucide-react';
+import React, { useRef, useState, useCallback } from 'react';
+import { Search, RotateCcw, X, Eye, EyeOff, Target } from 'lucide-react';
 import { FilterType } from '../../../types';
 import { useLanguage } from '../../../i18n';
+import { triggerHaptic } from '../../../utils';
 
 interface ActionBarProps {
   filter: FilterType;
@@ -17,6 +18,11 @@ interface ActionBarProps {
   desktopSearchRef: React.RefObject<HTMLInputElement | null>;
   mobileSearchRef: React.RefObject<HTMLInputElement | null>;
   showFilterTabs?: boolean;
+  hideCompletedInAllView?: boolean;
+  onToggleHideCompletedInAll?: () => void;
+  hiddenDoneCount?: number;
+  dailyFocusCount?: number;
+  onOpenDailyFocus?: () => void;
 }
 
 export function ActionBar({
@@ -33,8 +39,48 @@ export function ActionBar({
   desktopSearchRef,
   mobileSearchRef,
   showFilterTabs = true,
+  hideCompletedInAllView = false,
+  onToggleHideCompletedInAll,
+  hiddenDoneCount = 0,
+  dailyFocusCount = 0,
+  onOpenDailyFocus,
 }: ActionBarProps) {
   const { t } = useLanguage();
+  const longPressTimerRef = useRef<number | null>(null);
+  const isLongPressRef = useRef(false);
+  const [holdingProgress, setHoldingProgress] = useState(false);
+
+  const handleAllPointerDown = useCallback(() => {
+    isLongPressRef.current = false;
+    setHoldingProgress(true);
+    longPressTimerRef.current = window.setTimeout(() => {
+      isLongPressRef.current = true;
+      triggerHaptic();
+      onToggleHideCompletedInAll?.();
+      setHoldingProgress(false);
+    }, 1200); // Giữ 1.2s để toggle nhanh
+  }, [onToggleHideCompletedInAll]);
+
+  const handleAllPointerUp = useCallback(() => {
+    if (longPressTimerRef.current) {
+      window.clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+    setHoldingProgress(false);
+    if (!isLongPressRef.current) {
+      onFilterChange('all');
+    }
+    isLongPressRef.current = false;
+  }, [onFilterChange]);
+
+  const handleAllPointerCancel = useCallback(() => {
+    if (longPressTimerRef.current) {
+      window.clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+    setHoldingProgress(false);
+    isLongPressRef.current = false;
+  }, []);
 
   return (
     <div className="w-full">
@@ -73,60 +119,141 @@ export function ActionBar({
         <div className="h-9 flex items-center justify-between gap-1.5 flex-nowrap w-full overflow-hidden">
           {/* 3 tabs bộ lọc trạng thái (ẩn được theo View Preferences) */}
           {showFilterTabs ? (
-            <div className="flex items-center gap-0.5 bg-slate-200/70 dark:bg-slate-800/80 p-0.5 rounded-lg text-[11px] sm:text-[11.5px] font-medium shrink-0 flex-nowrap">
-              <button
-                type="button"
-                onClick={() => onFilterChange('all')}
-                className={`px-2.5 py-1 rounded-md transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-                  filter === 'all'
-                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-2xs font-semibold'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                }`}
-              >
-                {t.actionBar.allFilter}
-              </button>
-              <button
-                type="button"
-                onClick={() => onFilterChange('doing')}
-                className={`px-2.5 py-1 rounded-md transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-                  filter === 'doing'
-                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-2xs font-semibold'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                }`}
-              >
-                <span>{t.actionBar.doingFilter}</span>
-                {totalDoing > 0 && <span className="ml-1 font-bold font-mono tabular-nums">({totalDoing})</span>}
-              </button>
-              <button
-                type="button"
-                onClick={() => onFilterChange('scheduled')}
-                className={`px-2.5 py-1 rounded-md transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-                  filter === 'scheduled'
-                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-2xs font-semibold'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                }`}
-              >
-                <span>{t.actionBar.scheduledFilter}</span>
-                {totalScheduled > 0 && <span className="ml-1 font-bold font-mono tabular-nums">({totalScheduled})</span>}
-              </button>
-              <button
-                type="button"
-                onClick={() => onFilterChange('completed')}
-                className={`px-2.5 py-1 rounded-md transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-                  filter === 'completed'
-                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-2xs font-semibold'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                }`}
-              >
-                {t.actionBar.completedFilter}
-              </button>
+            <div className="flex items-center gap-1.5 shrink-0 flex-nowrap">
+              <div className="flex items-center gap-0.5 bg-slate-200/70 dark:bg-slate-800/80 p-0.5 rounded-lg text-[11px] sm:text-[11.5px] font-medium shrink-0 flex-nowrap">
+                <button
+                  type="button"
+                  onPointerDown={handleAllPointerDown}
+                  onPointerUp={handleAllPointerUp}
+                  onPointerLeave={handleAllPointerCancel}
+                  onPointerCancel={handleAllPointerCancel}
+                  title={`${t.actionBar.allFilter} (${hideCompletedInAllView ? t.actionBar.allActiveOnly : t.actionBar.allWithCompleted}) • ${t.actionBar.longPressHint}`}
+                  className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer whitespace-nowrap shrink-0 relative select-none ${
+                    filter === 'all'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-2xs font-semibold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  } ${holdingProgress ? 'ring-2 ring-amber-400/50' : ''}`}
+                >
+                  <span>{t.actionBar.allFilter}</span>
+                  {filter === 'all' && hideCompletedInAllView && (
+                    <span
+                      className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-amber-500 pointer-events-none"
+                      title={t.actionBar.hideCompleted}
+                    />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onFilterChange('doing')}
+                  className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
+                    filter === 'doing'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-2xs font-semibold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  }`}
+                >
+                  <span>{t.actionBar.doingFilter}</span>
+                  {totalDoing > 0 && <span className="ml-1 font-bold font-mono tabular-nums">({totalDoing})</span>}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onFilterChange('scheduled')}
+                  className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
+                    filter === 'scheduled'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-2xs font-semibold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  }`}
+                >
+                  <span>{t.actionBar.scheduledFilter}</span>
+                  {totalScheduled > 0 && <span className="ml-1 font-bold font-mono tabular-nums">({totalScheduled})</span>}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onFilterChange('completed')}
+                  className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
+                    filter === 'completed'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-2xs font-semibold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  }`}
+                >
+                  {t.actionBar.completedFilter}
+                </button>
+              </div>
+
+              {/* Nút bật/tắt nhanh ẩn việc đã xong: Cố định kích thước 32x32px & vị trí, triệt tiêu hiện tượng nhảy layout */}
+              {onToggleHideCompletedInAll && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (filter !== 'all') {
+                      onFilterChange('all');
+                    }
+                    onToggleHideCompletedInAll();
+                  }}
+                  className={`relative w-8 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer shrink-0 border ${
+                    filter === 'all'
+                      ? hideCompletedInAllView
+                        ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 hover:bg-amber-500/25 border-amber-300/60 dark:border-amber-700/60 shadow-2xs'
+                        : 'bg-slate-200/60 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-300/70 dark:hover:bg-slate-700 border-transparent'
+                      : 'opacity-40 hover:opacity-80 text-slate-400 dark:text-slate-500 border-transparent hover:bg-slate-200/50 dark:hover:bg-slate-800/50'
+                  }`}
+                  title={
+                    filter === 'all'
+                      ? hideCompletedInAllView
+                        ? `${t.actionBar.hideCompleted} (${hiddenDoneCount} việc đã ẩn) • Bấm để hiện lại`
+                        : `${t.actionBar.showCompleted} • Bấm để ẩn việc đã hoàn thành`
+                      : `${t.actionBar.hideCompleted} (Áp dụng cho tab Tất cả) • Bấm để chuyển sang Tất cả`
+                  }
+                  aria-label={hideCompletedInAllView ? t.actionBar.showCompleted : t.actionBar.hideCompleted}
+                >
+                  {hideCompletedInAllView ? (
+                    <EyeOff className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                  ) : (
+                    <Eye className="w-3.5 h-3.5 shrink-0" />
+                  )}
+
+                  {/* Huy hiệu số việc đã ẩn: Absolute không gây co giãn layout (CLS = 0) */}
+                  {filter === 'all' && hideCompletedInAllView && hiddenDoneCount > 0 && (
+                    <span
+                      className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-amber-500 text-white font-mono text-[9px] font-bold flex items-center justify-center shadow-xs pointer-events-none"
+                      aria-hidden="true"
+                    >
+                      {hiddenDoneCount > 99 ? '99+' : hiddenDoneCount}
+                    </span>
+                  )}
+                </button>
+              )}
             </div>
           ) : (
             <div />
           )}
 
-          {/* Khu vực tìm kiếm */}
+          {/* Khu vực tìm kiếm & Tiêu điểm */}
           <div className="flex items-center gap-1 shrink-0 flex-nowrap">
+            {/* Nút Tiêu điểm giải quyết quá tải việc */}
+            {onOpenDailyFocus && (
+              <button
+                type="button"
+                onClick={onOpenDailyFocus}
+                className={`h-8 px-2 sm:px-2.5 rounded-lg border text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs shrink-0 ${
+                  dailyFocusCount > 0
+                    ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-200 border-amber-300/80 dark:border-amber-800/80'
+                    : 'bg-white dark:bg-[#161b22] border-slate-200/90 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+                }`}
+                title={t.dailyFocus.buttonTooltip}
+                aria-label={t.dailyFocus.buttonTooltip}
+              >
+                <Target className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span className="hidden md:inline font-semibold text-[11.5px]">
+                  {t.dailyFocus.modalTitle.split('&')[0].trim()}
+                </span>
+                {dailyFocusCount > 0 && (
+                  <span className="font-mono tabular-nums font-bold text-[10px] px-1 py-0.2 bg-amber-500/20 dark:bg-amber-500/30 text-amber-800 dark:text-amber-200 rounded-full">
+                    {dailyFocusCount}
+                  </span>
+                )}
+              </button>
+            )}
+
             {/* Nút kính lúp trên Mobile */}
             <button
               type="button"

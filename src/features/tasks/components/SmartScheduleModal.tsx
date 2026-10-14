@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import {
   Calendar,
   Clock,
-  Sparkles,
   Check,
   X,
   Trash2,
@@ -13,6 +12,8 @@ import {
   Sunset,
   Moon,
   Zap,
+  RotateCcw,
+  Pin,
 } from 'lucide-react';
 import { Task, Project } from '../../../types';
 import {
@@ -22,7 +23,14 @@ import {
   toTimeInputValue,
   formatScheduleBadge,
 } from '../utils/scheduleHelper';
+import {
+  AnkiSrsOption,
+  getAnkiSrs3Options,
+  calculateSnoozeTarget,
+  formatSnoozeCountdown,
+} from '../utils/spacedSnooze';
 import { useLanguage } from '../../../i18n';
+import { triggerHaptic } from '../../../utils';
 
 interface SmartScheduleModalProps {
   isOpen: boolean;
@@ -31,6 +39,7 @@ interface SmartScheduleModalProps {
   projectName?: string;
   allProjects?: Project[];
   onSaveSchedule: (schedule: { reminderAt?: string | null; deadline?: string | null }) => void;
+  onSelectAnkiSrs?: (option: AnkiSrsOption, targetIso: string | null) => void;
 }
 
 export function SmartScheduleModal({
@@ -40,9 +49,17 @@ export function SmartScheduleModal({
   projectName,
   allProjects = [],
   onSaveSchedule,
+  onSelectAnkiSrs,
 }: SmartScheduleModalProps) {
   const { t, language } = useLanguage();
   const [activeTab, setActiveTab] = useState<'presets' | 'custom'>('presets');
+
+  const currentLevel = task?.snoozeLevel || 1;
+  const ankiOptions = useMemo(() => getAnkiSrs3Options(currentLevel), [currentLevel]);
+  const snoozeCountdown = useMemo(
+    () => formatSnoozeCountdown(task?.snoozeUntil, language),
+    [task?.snoozeUntil, language]
+  );
 
   // Custom date & time state
   const [customDate, setCustomDate] = useState(() => {
@@ -78,15 +95,45 @@ export function SmartScheduleModal({
     setEnableDeadline(Boolean(task.deadline));
   }, [isOpen, task]);
 
-  // Escape key handler
+  const handleChooseAnkiOption = (opt: AnkiSrsOption) => {
+    triggerHaptic();
+    const targetIso = opt.days > 0 ? calculateSnoozeTarget(opt.days) : null;
+    if (onSelectAnkiSrs) {
+      onSelectAnkiSrs(opt, targetIso);
+    } else {
+      onSaveSchedule({
+        reminderAt: targetIso,
+        deadline: enableDeadline && targetIso ? targetIso.split('T')[0] : undefined,
+      });
+    }
+    onClose();
+  };
+
+  // Phím tắt chuẩn AnkiWeb: 1, 2, 3 chọn nhanh cấp số nhân, Esc để đóng
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || !task) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (activeTab === 'presets') {
+        if (e.key === '1') {
+          e.preventDefault();
+          handleChooseAnkiOption(ankiOptions[0]);
+        } else if (e.key === '2') {
+          e.preventDefault();
+          handleChooseAnkiOption(ankiOptions[1]);
+        } else if (e.key === '3') {
+          e.preventDefault();
+          handleChooseAnkiOption(ankiOptions[2]);
+        }
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, task, activeTab, ankiOptions]);
 
   const presets = useMemo(() => generateSchedulePresets(new Date(), language), [language]);
   const workload = useMemo(() => analyzeWorkload(allProjects, new Date(), language), [allProjects, language]);
@@ -159,9 +206,14 @@ export function SmartScheduleModal({
               <CalendarCheck className="w-4 h-4" strokeWidth={1.75} />
             </div>
             <div className="min-w-0 flex-1">
-              <h2 className="text-[13.5px] sm:text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
-                {t.schedule.modalTitle}
-              </h2>
+              <div className="flex items-center gap-2 flex-nowrap">
+                <h2 className="text-[13.5px] sm:text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
+                  {t.schedule.modalTitle}
+                </h2>
+                <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-blue-100/80 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-900/40 shrink-0">
+                  {language === 'vi' ? `Anki Mức ${currentLevel}` : `Anki Lvl ${currentLevel}`}
+                </span>
+              </div>
               <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                 {projectName ? `${projectName} · ` : ''}{task.title}
               </p>
@@ -179,22 +231,31 @@ export function SmartScheduleModal({
           </button>
         </div>
 
-        {/* Current Scheduled Status Indicator (if already set) */}
-        {currentSchedule.status !== 'none' && (
+        {/* Current Scheduled or Snoozed Status Indicator */}
+        {(currentSchedule.status !== 'none' || snoozeCountdown) && (
           <div className="px-5 py-2 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2 text-xs shrink-0">
             <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 min-w-0 truncate">
               <Clock className="w-3.5 h-3.5 shrink-0 text-slate-400" strokeWidth={1.5} />
               <span className="truncate">
-                {t.schedule.currentlyScheduled}{' '}
-                <strong
-                  className={
-                    currentSchedule.isOverdue
-                      ? 'text-rose-600 dark:text-rose-400'
-                      : 'text-amber-600 dark:text-amber-400'
-                  }
-                >
-                  {currentSchedule.label}
-                </strong>
+                {snoozeCountdown ? (
+                  <>
+                    {language === 'vi' ? 'Chu kỳ Anki SRS:' : 'Anki SRS:'}{' '}
+                    <strong className="text-amber-600 dark:text-amber-400">{snoozeCountdown.text}</strong>
+                  </>
+                ) : (
+                  <>
+                    {t.schedule.currentlyScheduled}{' '}
+                    <strong
+                      className={
+                        currentSchedule.isOverdue
+                          ? 'text-rose-600 dark:text-rose-400'
+                          : 'text-amber-600 dark:text-amber-400'
+                      }
+                    >
+                      {currentSchedule.label}
+                    </strong>
+                  </>
+                )}
               </span>
             </div>
             <button
@@ -207,30 +268,6 @@ export function SmartScheduleModal({
             </button>
           </div>
         )}
-
-        {/* Workload Insight & Smart Assistant Bar */}
-        <div className="p-3.5 mx-4 mt-3 bg-blue-50/60 dark:bg-blue-950/25 border border-blue-200/60 dark:border-blue-900/40 rounded-xl text-xs text-blue-900 dark:text-blue-300 space-y-1 shrink-0">
-          <div className="flex items-center gap-1.5 font-medium">
-            <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" strokeWidth={1.75} />
-            <span>{t.schedule.workloadTitle}</span>
-          </div>
-          <p className="text-[11.5px] leading-relaxed text-blue-800/90 dark:text-blue-300/90">
-            {workload.adviceMessage}
-          </p>
-          <div className="flex items-center gap-3 pt-0.5 text-[10.5px] text-blue-700 dark:text-blue-400 font-mono">
-            <span>{t.schedule.todayTasks}: {workload.todayCount}</span>
-            <span>·</span>
-            <span>{t.schedule.tomorrowTasks}: {workload.tomorrowCount}</span>
-            {workload.overdueCount > 0 && (
-              <>
-                <span>·</span>
-                <span className="text-rose-600 dark:text-rose-400 font-semibold">
-                  {t.schedule.overdueTasks}: {workload.overdueCount}
-                </span>
-              </>
-            )}
-          </div>
-        </div>
 
         {/* Segmented Control Tabs */}
         <div className="px-4 pt-3 pb-1 shrink-0">
@@ -263,7 +300,95 @@ export function SmartScheduleModal({
         {/* Modal Scrollable Body */}
         <div className="p-4 overflow-y-auto space-y-4 flex-1">
           {activeTab === 'presets' ? (
-            <div className="space-y-3">
+            <div className="space-y-3.5">
+              {/* ANKIWEB EXPONENTIAL SPACED REPETITION (KEYS 1, 2, 3) */}
+              <div className="p-3 rounded-xl bg-slate-50/90 dark:bg-slate-900/50 border border-slate-200/80 dark:border-slate-800 space-y-2">
+                <div className="flex items-center justify-between gap-2 text-[11px]">
+                  <span className="font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                    <RotateCcw className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" strokeWidth={2} />
+                    <span>
+                      {language === 'vi'
+                        ? 'Nhắc lặp cấp số nhân AnkiWeb (Phím 1, 2, 3):'
+                        : 'Select 1 of 3 spaced intervals (Keys 1, 2, 3):'}
+                    </span>
+                  </span>
+                  <div className="flex items-center gap-1 font-mono text-[10px] shrink-0">
+                    <kbd className="px-1 py-0.2 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold">1</kbd>
+                    <kbd className="px-1 py-0.2 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold">2</kbd>
+                    <kbd className="px-1 py-0.2 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold">3</kbd>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+                  {/* Option 1: Again */}
+                  <button
+                    type="button"
+                    onClick={() => handleChooseAnkiOption(ankiOptions[0])}
+                    className="p-2 rounded-lg border border-rose-200 dark:border-rose-900/60 bg-rose-50/70 hover:bg-rose-100/80 dark:bg-rose-950/25 dark:hover:bg-rose-950/45 text-left transition-all cursor-pointer flex flex-col justify-between"
+                  >
+                    <div className="flex items-center justify-between w-full mb-1">
+                      <span className="w-4 h-4 rounded bg-rose-500 text-white font-mono font-bold text-[10px] flex items-center justify-center">
+                        1
+                      </span>
+                      <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold text-rose-700 dark:text-rose-300">
+                        <Pin className="w-2.5 h-2.5 fill-current" />
+                        <span>Mức 1</span>
+                      </span>
+                    </div>
+                    <div className="text-[11px] font-bold text-rose-950 dark:text-rose-100 truncate">
+                      {language === 'vi' ? 'Làm ngay' : 'Again (Now)'}
+                    </div>
+                    <div className="text-[9.5px] text-rose-700/80 dark:text-rose-300/80 truncate">
+                      {language === 'vi' ? 'Reset & Ghim đầu' : 'Reset & Pin'}
+                    </div>
+                  </button>
+
+                  {/* Option 2: Good (Exponential x2.3) */}
+                  <button
+                    type="button"
+                    onClick={() => handleChooseAnkiOption(ankiOptions[1])}
+                    className="p-2 rounded-lg border border-blue-200 dark:border-blue-900/60 bg-blue-50/70 hover:bg-blue-100/80 dark:bg-blue-950/25 dark:hover:bg-blue-950/45 text-left transition-all cursor-pointer flex flex-col justify-between"
+                  >
+                    <div className="flex items-center justify-between w-full mb-1">
+                      <span className="w-4 h-4 rounded bg-blue-600 text-white font-mono font-bold text-[10px] flex items-center justify-center">
+                        2
+                      </span>
+                      <span className="text-[9px] font-mono font-semibold text-blue-700 dark:text-blue-300">
+                        Mức {ankiOptions[1].nextLevel}
+                      </span>
+                    </div>
+                    <div className="text-[11px] font-bold text-blue-950 dark:text-blue-100 truncate">
+                      {language === 'vi' ? ankiOptions[1].intervalTagVi : ankiOptions[1].intervalTagEn}
+                    </div>
+                    <div className="text-[9.5px] text-blue-700/80 dark:text-blue-300/80 truncate">
+                      {language === 'vi' ? 'Chuẩn cấp số nhân' : 'Good (×2.3)'}
+                    </div>
+                  </button>
+
+                  {/* Option 3: Easy (Skip 2 levels) */}
+                  <button
+                    type="button"
+                    onClick={() => handleChooseAnkiOption(ankiOptions[2])}
+                    className="p-2 rounded-lg border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/70 hover:bg-emerald-100/80 dark:bg-emerald-950/25 dark:hover:bg-emerald-950/45 text-left transition-all cursor-pointer flex flex-col justify-between"
+                  >
+                    <div className="flex items-center justify-between w-full mb-1">
+                      <span className="w-4 h-4 rounded bg-emerald-600 text-white font-mono font-bold text-[10px] flex items-center justify-center">
+                        3
+                      </span>
+                      <span className="text-[9px] font-mono font-semibold text-emerald-700 dark:text-emerald-300">
+                        Mức {ankiOptions[2].nextLevel}
+                      </span>
+                    </div>
+                    <div className="text-[11px] font-bold text-emerald-950 dark:text-emerald-100 truncate">
+                      {language === 'vi' ? ankiOptions[2].intervalTagVi : ankiOptions[2].intervalTagEn}
+                    </div>
+                    <div className="text-[9.5px] text-emerald-700/80 dark:text-emerald-300/80 truncate">
+                      {language === 'vi' ? 'Dãn xa vượt cấp' : 'Easy Bonus'}
+                    </div>
+                  </button>
+                </div>
+              </div>
+
               {/* Grid presets với touch target tối thiểu 44px trên mobile */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {presets.map((preset) => {

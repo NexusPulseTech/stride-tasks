@@ -15,8 +15,8 @@ export interface TaskStatusButtonProps {
   status: string;
   statuses: StatusDefinition[];
   onChangeStatus: (nextStatus: string) => void;
-  onAddCustomStatus: (label: string, category: 'todo' | 'doing' | 'done', color: string) => StatusDefinition | null;
-  onDeleteCustomStatus: (statusId: string) => void;
+  onAddCustomStatus?: (label: string, category: 'todo' | 'doing' | 'done', color: string) => StatusDefinition | null;
+  onDeleteCustomStatus?: (statusId: string) => void;
   size?: 'sm' | 'md';
 }
 
@@ -31,8 +31,8 @@ export function TaskStatusButton({
   status,
   statuses = [],
   onChangeStatus,
-  onAddCustomStatus,
-  onDeleteCustomStatus,
+  onAddCustomStatus = () => null,
+  onDeleteCustomStatus = () => {},
   size = 'md',
 }: TaskStatusButtonProps) {
   const { t } = useLanguage();

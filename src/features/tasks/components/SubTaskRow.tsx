@@ -7,11 +7,14 @@ import {
   GripVertical,
   ClipboardPaste,
   Pin,
+  Clock,
+  RotateCcw,
 } from 'lucide-react';
 import { SubTask, StatusDefinition, RecurrenceType } from '../../../types';
 import { FormattedTaskText } from '../utils/formatters';
 import { countLeafSubtasks } from '../utils/subtaskTree';
 import { isDoneStatus } from '../utils/statusCategory';
+import { formatSnoozeCountdown } from '../utils/spacedSnooze';
 import { SubTaskInlineForm } from './SubTaskInlineForm';
 import { SubTaskMoreMenu } from './SubTaskMoreMenu';
 import { TaskStatusButton } from './TaskStatusButton';
@@ -40,6 +43,7 @@ export interface SubTaskRowProps {
   onSetSubTaskRecurrence?: (projId: string, taskId: string, subId: string, recurrence: RecurrenceType) => void;
   onManuallyResetRecurringSubTask?: (projId: string, taskId: string, subId: string) => void;
   onTogglePinSubTask?: (projId: string, taskId: string, subId: string) => void;
+  onOpenAnkiSrsForSubtask?: (sub: SubTask, projectId: string, taskId: string) => void;
   onOpenParentDetail?: () => void;
   isDragging?: boolean;
   isOver?: boolean;
@@ -66,12 +70,13 @@ export function SubTaskRow({
   onSetSubTaskRecurrence,
   onManuallyResetRecurringSubTask,
   onTogglePinSubTask,
+  onOpenAnkiSrsForSubtask,
   onOpenParentDetail,
   isDragging = false, isOver = false, dragOverPosition = null,
   onSubDragStart, onSubDragOver, onSubDrop, onSubDragEnd,
   draggedSubId = null, dragOverSub = null,
 }: SubTaskRowProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [inlineTitle, setInlineTitle] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(sub.title);
@@ -117,13 +122,13 @@ export function SubTaskRow({
         onDragOver={(e) => onSubDragOver?.(e, sub.id)}
         onDrop={(e) => onSubDrop?.(e, sub.id)}
         onDragEnd={onSubDragEnd}
-        className={`group/sub flex items-center gap-1.5 py-0.5 px-1 rounded-md hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors w-full min-h-[26px] ${
+        className={`group/sub flex items-center gap-1.5 py-0.5 px-1.5 rounded-md hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors w-full min-h-[28px] flex-nowrap overflow-hidden ${
           isDragging ? 'opacity-30 scale-[0.99] border-dashed border border-slate-300 dark:border-slate-600' : ''
         }`}
       >
         <div
           data-subtask-drag-handle="true"
-          className="cursor-grab active:cursor-grabbing p-0.5 -ml-0.5 text-slate-300 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-300 opacity-0 group-hover/sub:opacity-100 transition-opacity select-none hidden sm:block shrink-0"
+          className="cursor-grab active:cursor-grabbing p-0.5 -ml-0.5 text-slate-300 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-300 opacity-0 group-hover/sub:opacity-100 transition-opacity select-none hidden sm:flex items-center justify-center shrink-0"
           title="Kéo thả để sắp xếp lại việc con"
           aria-label="Kéo thả sắp xếp việc con"
         >
@@ -155,7 +160,7 @@ export function SubTaskRow({
             e.stopPropagation();
             onToggleSubTask(projectId, taskId, sub.id, !isSubDone);
           }}
-          className="shrink-0 cursor-pointer p-0.5 -m-0.5 rounded-full"
+          className="shrink-0 cursor-pointer p-0.5 -m-0.5 rounded-full flex items-center justify-center"
           aria-label={isSubDone ? t.common.reset : t.common.completed}
         >
           <div
@@ -169,9 +174,9 @@ export function SubTaskRow({
           </div>
         </button>
 
-        <div className="flex-1 min-w-0 flex items-center">
+        <div className="flex-1 min-w-0 flex items-center gap-1 flex-nowrap overflow-hidden">
           {isEditing ? (
-            <div className="flex items-center gap-1 w-full" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-1 w-full min-w-0 flex-nowrap" onClick={(e) => e.stopPropagation()}>
               <input
                 type="text"
                 value={editTitle}
@@ -184,12 +189,12 @@ export function SubTaskRow({
                   }
                 }}
                 autoFocus
-                className="flex-1 h-5 px-1 bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-700 rounded text-xs text-slate-900 dark:text-slate-100 outline-none focus:border-slate-800 dark:focus:border-slate-200"
+                className="flex-1 min-w-0 h-5 px-1.5 bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-700 rounded text-xs text-slate-900 dark:text-slate-100 outline-none focus:border-slate-800 dark:focus:border-slate-200"
               />
               <button
                 type="button"
                 onClick={handleSaveEdit}
-                className="h-5 px-1.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 text-[10px] rounded cursor-pointer"
+                className="h-5 px-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 text-[10px] font-medium rounded cursor-pointer shrink-0 whitespace-nowrap"
               >
                 Lưu
               </button>
@@ -201,7 +206,7 @@ export function SubTaskRow({
                 setEditTitle(sub.title);
                 setIsEditing(true);
               }}
-              className={`text-xs text-slate-700 dark:text-slate-300 cursor-pointer hover:text-slate-950 dark:hover:text-white transition-colors ${
+              className={`text-xs text-slate-700 dark:text-slate-300 cursor-pointer hover:text-slate-950 dark:hover:text-white transition-colors min-w-0 ${
                 isExpandedText ? 'break-words' : 'truncate'
               }`}
               title="Nhấp để xem toàn bộ nội dung (nhấp đúp để sửa tên)"
@@ -210,67 +215,91 @@ export function SubTaskRow({
             </span>
           )}
 
-          {/* Nút Xem hết khi văn bản dài */}
-          {sub.title.length > 45 && !isEditing && (
-            <button
-              type="button"
-              onClick={() => setIsExpandedText(!isExpandedText)}
-              className="text-[9.5px] text-blue-600 dark:text-blue-400 hover:underline shrink-0 ml-0.5 cursor-pointer font-medium"
-            >
-              {isExpandedText ? t.common.collapse : '...'}
-            </button>
-          )}
+          {!isEditing && (
+            <div className="flex items-center gap-1 shrink-0 flex-nowrap">
+              {sub.title.length > 45 && (
+                <button
+                  type="button"
+                  onClick={() => setIsExpandedText(!isExpandedText)}
+                  className="text-[9.5px] text-blue-600 dark:text-blue-400 hover:underline shrink-0 cursor-pointer font-medium whitespace-nowrap"
+                >
+                  {isExpandedText ? t.common.collapse : '...'}
+                </button>
+              )}
 
-          {/* Pinned indicator cho việc con - Nhấp trực tiếp để bỏ ghim */}
-          {sub.isPinned && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onTogglePinSubTask?.(projectId, taskId, sub.id);
-              }}
-              className="inline-flex items-center gap-1 ml-1 text-[9.5px] text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/50 px-1 py-0.2 rounded font-medium shrink-0 whitespace-nowrap cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
-              title={t.pinned.unpin}
-            >
-              <Pin className="w-2.5 h-2.5 fill-current text-amber-600 dark:text-amber-400" />
-              <span>{t.pinned.priorityTag}</span>
-            </button>
-          )}
+              {sub.isPinned && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onTogglePinSubTask?.(projectId, taskId, sub.id);
+                  }}
+                  className="inline-flex items-center gap-1 text-[9.5px] text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/50 px-1 py-0.2 rounded font-medium shrink-0 whitespace-nowrap cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
+                  title={t.pinned.unpin}
+                >
+                  <Pin className="w-2.5 h-2.5 fill-current text-amber-600 dark:text-amber-400 shrink-0" />
+                  <span className="hidden sm:inline">{t.pinned.priorityTag}</span>
+                </button>
+              )}
 
-          {/* Micro indicator cho việc con lặp lại */}
-          {sub.recurrence && (
-            <div className="ml-1 shrink-0">
-              <RecurrenceBadge
-                recurrence={sub.recurrence}
-                recurrenceStreak={sub.recurrenceStreak}
-                isDone={isSubDone}
-                onReset={
-                  onManuallyResetRecurringSubTask
-                    ? () => onManuallyResetRecurringSubTask(projectId, taskId, sub.id)
-                    : undefined
-                }
-              />
+              {sub.snoozeUntil && (() => {
+                const countdown = formatSnoozeCountdown(sub.snoozeUntil, language);
+                if (!countdown) return null;
+                return (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (onOpenAnkiSrsForSubtask) onOpenAnkiSrsForSubtask(sub, projectId, taskId);
+                    }}
+                    className={`inline-flex items-center gap-1 text-[9.5px] px-1 py-0.2 rounded border font-medium shrink-0 whitespace-nowrap cursor-pointer transition-colors ${
+                      countdown.isDue
+                        ? 'text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border-rose-200/80 dark:border-rose-800/60 hover:bg-rose-100/80'
+                        : 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/60 hover:bg-amber-100/80'
+                    }`}
+                    title={`${sub.snoozeUntil} • Nhấn để đổi chu kỳ nhắc lặp`}
+                  >
+                    <RotateCcw className="w-2.5 h-2.5 shrink-0" strokeWidth={1.75} />
+                    <span>{countdown.text}</span>
+                  </button>
+                );
+              })()}
+
+              {sub.recurrence && (
+                <div className="shrink-0">
+                  <RecurrenceBadge
+                    recurrence={sub.recurrence}
+                    recurrenceStreak={sub.recurrenceStreak}
+                    isDone={isSubDone}
+                    onReset={
+                      onManuallyResetRecurringSubTask
+                        ? () => onManuallyResetRecurringSubTask(projectId, taskId, sub.id)
+                        : undefined
+                    }
+                  />
+                </div>
+              )}
+
+              {hasChildren && (
+                <span
+                  className={`text-[9.5px] px-1 py-0.2 rounded font-mono shrink-0 tabular-nums whitespace-nowrap inline-flex items-center gap-0.5 ${
+                    leafStats.completed === leafStats.total
+                      ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 font-semibold'
+                      : 'text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800/80'
+                  }`}
+                  title={`${leafStats.completed}/${leafStats.total} ${t.pinned.subtaskCount}`}
+                >
+                  <span>{leafStats.completed}/{leafStats.total}</span>
+                  {leafStats.completed === leafStats.total && (
+                    <Check className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2.5} aria-hidden="true" />
+                  )}
+                </span>
+              )}
             </div>
           )}
         </div>
 
-        {hasChildren && (
-          <span
-            className={`text-[9.5px] px-1 py-0.2 rounded font-mono shrink-0 tabular-nums inline-flex items-center gap-0.5 ${
-              leafStats.completed === leafStats.total
-                ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 font-semibold'
-                : 'text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800/80'
-            }`}
-            title={`${leafStats.completed}/${leafStats.total} ${t.pinned.subtaskCount}`}
-          >
-            <span>{leafStats.completed}/{leafStats.total}</span>
-            {leafStats.completed === leafStats.total && (
-              <Check className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2.5} aria-hidden="true" />
-            )}
-          </span>
-        )}
-
-        <div className="shrink-0 flex items-center">
+        <div className="flex items-center gap-0.5 shrink-0 flex-nowrap">
           <TaskStatusButton
             status={sub.status || (sub.completed ? 'done' : 'todo')}
             statuses={statuses}
@@ -283,29 +312,8 @@ export function SubTaskRow({
             onDeleteCustomStatus={onDeleteCustomStatus}
             size="sm"
           />
-        </div>
 
-        <div className="flex items-center gap-0.5 shrink-0">
-          {/* Nút Ghim trực tiếp cho bất kỳ việc con ở mọi cấp bậc (Depth 0, 1, 2, 3+) */}
-          {onTogglePinSubTask && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onTogglePinSubTask(projectId, taskId, sub.id);
-              }}
-              className={`p-1 cursor-pointer rounded transition-colors shrink-0 ${
-                sub.isPinned
-                  ? 'text-amber-500 fill-amber-500 hover:text-slate-400'
-                  : 'text-slate-400 hover:text-amber-500 dark:text-slate-500 dark:hover:text-amber-400 opacity-0 group-hover/sub:opacity-100'
-              }`}
-              title={sub.isPinned ? t.subtaskMenu.unpinSubtask : t.subtaskMenu.pinSubtask}
-              aria-label={sub.isPinned ? t.subtaskMenu.unpinSubtask : t.subtaskMenu.pinSubtask}
-            >
-              <Pin className={`w-3 h-3 ${sub.isPinned ? 'fill-current' : ''}`} />
-            </button>
-          )}
-
+          {/* Nút thêm bước con (+) chuẩn basic như các icon khác */}
           <button
             type="button"
             onClick={(e) => {
@@ -313,11 +321,11 @@ export function SubTaskRow({
               onSetAddingChildToSubId(isAddingChild ? null : sub.id);
               if (!isAddingChild) onToggleExpandNode(sub.id, true);
             }}
-            className="p-1 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-200/70 dark:hover:bg-slate-700 rounded cursor-pointer shrink-0 transition-colors"
+            className="w-6 h-6 text-slate-400 hover:text-slate-800 dark:text-slate-500 dark:hover:text-slate-100 hover:bg-slate-200/70 dark:hover:bg-slate-700 rounded cursor-pointer shrink-0 transition-colors inline-flex items-center justify-center"
             title={t.subtaskMenu.addSubtask}
             aria-label={t.subtaskMenu.addSubtask}
           >
-            <Plus className="w-3.5 h-3.5 shrink-0" strokeWidth={2} aria-hidden="true" />
+            <Plus className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} />
           </button>
 
           <button
@@ -336,22 +344,22 @@ export function SubTaskRow({
               } catch (err) {}
               onOpenBatchPasteForTask?.(projectId, taskId, sub.id, sub.title);
             }}
-            className="p-1 text-slate-400 hover:text-slate-800 dark:text-slate-500 dark:hover:text-slate-100 hover:bg-slate-200/70 dark:hover:bg-slate-700 rounded cursor-pointer shrink-0 transition-colors"
+            className="w-6 h-6 text-slate-400 hover:text-slate-800 dark:text-slate-500 dark:hover:text-slate-100 hover:bg-slate-200/70 dark:hover:bg-slate-700 rounded cursor-pointer shrink-0 transition-colors inline-flex items-center justify-center"
             title={t.subtaskMenu.batchPaste}
             aria-label={t.subtaskMenu.batchPaste}
           >
-            <ClipboardPaste className="w-3 h-3" />
+            <ClipboardPaste className="w-3 h-3 shrink-0" strokeWidth={1.5} />
           </button>
 
           <button
             ref={subMenuButtonRef}
             type="button"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/70 dark:hover:bg-slate-700 rounded cursor-pointer shrink-0 transition-colors"
+            className="w-6 h-6 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/70 dark:hover:bg-slate-700 rounded cursor-pointer shrink-0 transition-colors inline-flex items-center justify-center"
             title={t.tasks.moreActions}
             aria-label={t.tasks.moreActions}
           >
-            <MoreHorizontal className="w-3 h-3 shrink-0" strokeWidth={1.5} aria-hidden="true" />
+            <MoreHorizontal className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
           </button>
 
           <SubTaskMoreMenu
@@ -457,6 +465,7 @@ export function SubTaskRow({
               onSetSubTaskRecurrence={onSetSubTaskRecurrence}
               onManuallyResetRecurringSubTask={onManuallyResetRecurringSubTask}
               onTogglePinSubTask={onTogglePinSubTask}
+              onOpenAnkiSrsForSubtask={onOpenAnkiSrsForSubtask}
               onOpenParentDetail={onOpenParentDetail}
               isDragging={draggedSubId === child.id}
               isOver={dragOverSub?.subId === child.id}
@@ -469,40 +478,6 @@ export function SubTaskRow({
               dragOverSub={dragOverSub}
             />
           ))}
-
-          {!isAddingChild && (
-            <div className="flex items-center gap-1.5 pt-0.5">
-              <button
-                type="button"
-                onClick={() => { onSetAddingChildToSubId(sub.id); onToggleExpandNode(sub.id, true); }}
-                className="flex items-center gap-1.5 py-0.5 px-1 text-[11px] text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100/60 dark:hover:bg-slate-800/40 rounded cursor-pointer transition-colors text-left font-normal select-none"
-              >
-                <Plus className="w-2.5 h-2.5 shrink-0 stroke-[2]" aria-hidden="true" />
-                <span>{t.subtaskMenu.addSubtask}</span>
-              </button>
-              <button
-                type="button"
-                onClick={async () => {
-                  try {
-                    if (navigator.clipboard && navigator.clipboard.readText) {
-                      const clipText = await navigator.clipboard.readText();
-                      if (clipText && clipText.trim()) {
-                        onAddSubTask(projectId, taskId, clipText, sub.id);
-                        onToggleExpandNode(sub.id, true);
-                        return;
-                      }
-                    }
-                  } catch (err) {}
-                  onOpenBatchPasteForTask?.(projectId, taskId, sub.id, sub.title);
-                }}
-                className="flex items-center gap-1 py-0.5 px-1.5 text-[10px] text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 bg-slate-100/80 hover:bg-slate-200/70 dark:bg-slate-800/70 dark:hover:bg-slate-700/60 rounded cursor-pointer transition-colors font-medium select-none shrink-0"
-                title={`${t.subtaskMenu.batchPaste} ("${sub.title}")`}
-              >
-                <ClipboardPaste className="w-2.5 h-2.5" />
-                <span>{t.subtaskMenu.batchPaste}</span>
-              </button>
-            </div>
-          )}
         </div>
       )}
     </div>

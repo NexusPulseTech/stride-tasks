@@ -9,10 +9,12 @@ import {
   PinnedSection,
   ProjectCard,
   ReminderBanner,
+  DailyFocusModal,
   useTaskManager,
 } from './features/tasks';
 import { TaskDetailModal } from './features/tasks/components/TaskDetailModal';
 import { SmartScheduleModal } from './features/tasks/components/SmartScheduleModal';
+import { AnkiSrsModal } from './features/tasks/components/AnkiSrsModal';
 import { EmergencyRecoveryBanner } from './features/tasks/components/EmergencyRecoveryBanner';
 import { isDoingStatus, isDoneStatus } from './features/tasks/utils/statusCategory';
 import { FocusBanner } from './features/focus';
@@ -48,6 +50,16 @@ export default function App() {
     desktopSearchRef: manager.desktopSearchRef,
     onCycleTheme: theme.cycleTheme,
   });
+
+  const handleToggleHideCompletedInAll = () => {
+    const willHide = !viewPref.preferences.hideCompletedInAllView;
+    viewPref.toggleHideCompletedInAll();
+    manager.showToast(
+      willHide
+        ? 'Đã ẩn việc hoàn thành (tab Tất cả)'
+        : 'Đang hiện toàn bộ việc'
+    );
+  };
 
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#f8f9fa] dark:bg-[#0b0f17] text-[#212529] dark:text-[#f1f5f9] font-sans antialiased selection:bg-slate-200 dark:selection:bg-slate-700 transition-colors">
@@ -132,6 +144,7 @@ export default function App() {
           filter={manager.filter}
           onFilterChange={manager.setFilter}
           totalDoing={manager.totalDoing}
+          totalScheduled={manager.totalScheduled}
           search={manager.search}
           onSearchChange={manager.setSearch}
           mobileSearchOpen={manager.mobileSearchOpen}
@@ -147,6 +160,11 @@ export default function App() {
           desktopSearchRef={manager.desktopSearchRef}
           mobileSearchRef={manager.mobileSearchRef}
           showFilterTabs={viewPref.preferences.showFilterTabs && !viewPref.preferences.zenMode}
+          hideCompletedInAllView={viewPref.preferences.hideCompletedInAllView}
+          onToggleHideCompletedInAll={handleToggleHideCompletedInAll}
+          hiddenDoneCount={manager.totalDone}
+          dailyFocusCount={manager.dailyFocusQueue.length}
+          onOpenDailyFocus={() => manager.setShowDailyFocusModal(true)}
         />
 
         <FocusBanner
@@ -170,6 +188,8 @@ export default function App() {
           onDeleteSubTask={manager.handleDeleteSubTask}
           onOpenDetail={manager.openDetailModal}
           onOpenSchedule={(task, project) => manager.openScheduleModal(task, project)}
+          onOpenAnkiSrs={manager.openAnkiModalForTask}
+          onChangeSubtaskStatus={manager.changeSubtaskStatus}
           statuses={manager.statuses}
         />
 
@@ -192,7 +212,7 @@ export default function App() {
             manager.filteredProjects.map((p, idx) => {
               const visibleTasks = p.tasks.filter((t) => {
                 if (manager.search.trim()) {
-                  // Đã lọc deep bằng matchTaskDeep ở useTaskManager
+                  // Đã lọc deep bằng matchTaskDeep ở useTaskManager -> Hiện TẤT CẢ khi tìm kiếm kể cả việc đã làm!
                   return true;
                 }
                 if (manager.isFocusMode || manager.filter === 'doing') {
@@ -200,6 +220,9 @@ export default function App() {
                 }
                 if (manager.filter === 'completed') {
                   return isDoneStatus(t.status, manager.statuses);
+                }
+                if (manager.filter === 'all' && viewPref.preferences.hideCompletedInAllView) {
+                  return !isDoneStatus(t.status, manager.statuses);
                 }
                 return true;
               });
@@ -212,6 +235,8 @@ export default function App() {
                   search={manager.search}
                   filter={manager.filter}
                   isFocusMode={manager.isFocusMode}
+                  hideCompletedInAllView={viewPref.preferences.hideCompletedInAllView}
+                  onToggleHideCompletedInAll={handleToggleHideCompletedInAll}
                   onToggleExpand={manager.toggleExpand}
                   onCopyProjectAsMarkdown={manager.copyProjectAsMarkdown}
                   onOpenBatchPaste={manager.openBatchPasteForProject}
@@ -276,6 +301,7 @@ export default function App() {
                   onOpenDetail={manager.openDetailModal}
                   onOpenSchedule={(task) => manager.openScheduleModal(task, p)}
                   onTogglePinSubTask={manager.togglePinSubTask}
+                  onOpenAnkiSrs={manager.openAnkiModalForTask}
                   onMoveProject={manager.moveProject}
                   isFirstProject={idx === 0}
                   isLastProject={idx === manager.filteredProjects.length - 1}
@@ -314,6 +340,13 @@ export default function App() {
       <ReminderBanner
         banner={manager.reminder.inAppBanner}
         onDismiss={manager.reminder.dismissBanner}
+        onReviewTask={(projectId, taskId) => {
+          const p = manager.projects.find((item) => item.id === projectId);
+          const t = p?.tasks.find((item) => item.id === taskId);
+          if (p && t) {
+            manager.openAnkiModalForTask(t, p.id);
+          }
+        }}
       />
 
       <ToastNotification message={manager.toast} isVisible={Boolean(manager.toast && !manager.undoState)} />
@@ -392,9 +425,10 @@ export default function App() {
             manager.openScheduleModal(task, manager.selectedDetailTask.project);
           }
         }}
+        onOpenAnkiSrs={manager.openAnkiModalForTask}
       />
 
-      {/* Modal Lên lịch nhắc thông minh (Linear / Things 3 / Apple Reminders Assistant) */}
+      {/* Modal Lên lịch nhắc thông minh (Linear / Things 3 / Apple Reminders Assistant + AnkiWeb SRS) */}
       <SmartScheduleModal
         isOpen={Boolean(manager.scheduleTaskTarget)}
         onClose={manager.closeScheduleModal}
@@ -410,6 +444,55 @@ export default function App() {
             );
           }
         }}
+        onSelectAnkiSrs={(option, targetIso) => {
+          if (manager.scheduleTaskTarget) {
+            manager.handleSelectAnkiOption(
+              {
+                projectId: manager.scheduleTaskTarget.project.id,
+                projectName: manager.scheduleTaskTarget.project.name,
+                taskId: manager.scheduleTaskTarget.task.id,
+                title: manager.scheduleTaskTarget.task.title,
+                currentLevel: manager.scheduleTaskTarget.task.snoozeLevel || 1,
+                snoozeUntil: manager.scheduleTaskTarget.task.snoozeUntil,
+                isPinned: manager.scheduleTaskTarget.task.isPinned,
+                isNewTask: false,
+              },
+              option,
+              targetIso
+            );
+          }
+        }}
+      />
+
+      {/* Modal Tiêu điểm giải quyết quá tải việc (GTD Next Action & Spaced Snooze) */}
+      <DailyFocusModal
+        isOpen={manager.showDailyFocusModal}
+        onClose={() => manager.setShowDailyFocusModal(false)}
+        items={manager.dailyFocusQueue}
+        onToggleTaskDone={manager.toggleTaskDone}
+        onToggleSubTask={manager.toggleSubTask}
+        onTogglePinTask={(projId, taskId) => {
+          manager.togglePinTask(projId, taskId, { stopPropagation: () => {} } as any);
+        }}
+        onTogglePinSubTask={manager.togglePinSubTask}
+        onSnoozeTask={manager.handleSnoozeTask}
+        onSnoozeSubTask={manager.handleSnoozeSubTask}
+        onOpenDetail={(taskId, projId) => {
+          const p = manager.projects.find((item) => item.id === projId);
+          const t = p?.tasks.find((item) => item.id === taskId);
+          if (p && t) {
+            manager.openDetailModal(t, p.id);
+          }
+        }}
+      />
+
+      {/* Modal Lặp lại ngắt quãng thông minh (Anki SRS Spaced Repetition) */}
+      <AnkiSrsModal
+        isOpen={manager.isAnkiModalOpen}
+        onClose={manager.closeAnkiModal}
+        target={manager.ankiModalTarget}
+        onSelectSrsOption={manager.handleSelectAnkiOption}
+        onMarkTaskDone={manager.handleMarkAnkiTaskDone}
       />
     </div>
   );

@@ -64,6 +64,12 @@ export interface Translations {
     completedFilter: string;
     batchPaste: string;
     resetSample: string;
+    hideCompleted: string;
+    showCompleted: string;
+    hiddenCompletedCount: string;
+    allActiveOnly: string;
+    allWithCompleted: string;
+    longPressHint: string;
   };
   tasks: {
     addProjectPlaceholder: string;
@@ -111,6 +117,7 @@ export interface Translations {
     showAddProjectBar: string;
     showFilterTabs: string;
     showLanguageSwitcher: string;
+    hideCompletedInAll: string;
     languageTitle: string;
     languageDesc: string;
     resetToDefault: string;
@@ -268,6 +275,25 @@ export interface Translations {
     deleteProject: string;
     expandProject: string;
     collapseProject: string;
+  };
+  dailyFocus: {
+    modalTitle: string;
+    subtitle: string;
+    emptyQueue: string;
+    badgeCount: string;
+    buttonTooltip: string;
+    doNow: string;
+    markDone: string;
+    pinTop: string;
+    unpin: string;
+    snoozeTitle: string;
+    snoozeUntilLabel: string;
+    nextActionBadge: string;
+    parentBreadcrumb: string;
+    cancelSnooze: string;
+    snoozeBadge: string;
+    snoozePresetsTitle: string;
+    customDays: string;
   };
 }
 

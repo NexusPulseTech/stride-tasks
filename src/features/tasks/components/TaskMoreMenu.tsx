@@ -14,6 +14,7 @@ import {
   Eye,
   Calendar,
   Briefcase,
+  RotateCcw,
 } from 'lucide-react';
 import { Task, RecurrenceType } from '../../../types';
 import { PortalMenu } from '../../../components/ui/PortalMenu';
@@ -38,6 +39,7 @@ export interface TaskMoreMenuProps {
   onManuallyResetRecurring?: (projId: string, taskId: string) => void;
   onOpenDetail?: () => void;
   onOpenSchedule?: () => void;
+  onOpenAnkiSrs?: () => void;
 }
 
 export function TaskMoreMenu({
@@ -59,6 +61,7 @@ export function TaskMoreMenu({
   onManuallyResetRecurring,
   onOpenDetail,
   onOpenSchedule,
+  onOpenAnkiSrs,
 }: TaskMoreMenuProps) {
   const { t, language } = useLanguage();
 

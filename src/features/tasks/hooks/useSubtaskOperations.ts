@@ -315,6 +315,50 @@ export function useSubtaskOperations({
     showToast('Đã cập nhật ghim việc con!');
   };
 
+  const handleSnoozeSubTask = (
+    projId: string,
+    taskId: string,
+    subId: string,
+    snoozeUntil: string | null,
+    snoozeLevel?: number
+  ) => {
+    setProjects((prev) =>
+      prev.map((p) => {
+        if (p.id !== projId) return p;
+        return {
+          ...p,
+          tasks: p.tasks.map((task) => {
+            if (task.id !== taskId) return task;
+            const updateSnooze = (subs: SubTask[]): SubTask[] => {
+              return subs.map((s) => {
+                if (s.id === subId) {
+                  return {
+                    ...s,
+                    snoozeUntil: snoozeUntil || undefined,
+                    snoozeLevel: snoozeLevel !== undefined ? snoozeLevel : s.snoozeLevel,
+                  };
+                }
+                if (s.subtasks && s.subtasks.length > 0) {
+                  return { ...s, subtasks: updateSnooze(s.subtasks) };
+                }
+                return s;
+              });
+            };
+            return {
+              ...task,
+              subtasks: updateSnooze(task.subtasks),
+            };
+          }),
+        };
+      })
+    );
+    if (snoozeUntil) {
+      showToast('Đã lưu thời gian hoãn nhắc việc con!');
+    } else {
+      showToast('Đã hủy hoãn nhắc việc con!');
+    }
+  };
+
   return {
     subInputs,
     setSubInputs,
@@ -341,5 +385,6 @@ export function useSubtaskOperations({
     handleEditSubtaskTitle,
     handleReorderSubtask,
     togglePinSubTask,
+    handleSnoozeSubTask,
   };
 }

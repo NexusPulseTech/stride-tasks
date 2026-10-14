@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Plus, ClipboardPaste } from 'lucide-react';
-import { Task, StatusDefinition, RecurrenceType } from '../../../types';
+import { Task, SubTask, StatusDefinition, RecurrenceType } from '../../../types';
 import { countLeafSubtasks } from '../utils/subtaskTree';
 import { SubTaskRow } from './SubTaskRow';
 import { useLanguage } from '../../../i18n';
@@ -54,6 +54,7 @@ export interface SubtaskListProps {
   onSetSubTaskRecurrence?: (projId: string, taskId: string, subId: string, recurrence: RecurrenceType) => void;
   onManuallyResetRecurringSubTask?: (projId: string, taskId: string, subId: string) => void;
   onTogglePinSubTask?: (projId: string, taskId: string, subId: string) => void;
+  onOpenAnkiSrsForSubtask?: (sub: SubTask, projectId: string, taskId: string) => void;
   onOpenParentDetail?: () => void;
 }
 
@@ -79,6 +80,7 @@ export function SubtaskList({
   onSetSubTaskRecurrence,
   onManuallyResetRecurringSubTask,
   onTogglePinSubTask,
+  onOpenAnkiSrsForSubtask,
   onOpenParentDetail,
 }: SubtaskListProps) {
   const { t } = useLanguage();
@@ -262,6 +264,7 @@ export function SubtaskList({
             onSetSubTaskRecurrence={onSetSubTaskRecurrence}
             onManuallyResetRecurringSubTask={onManuallyResetRecurringSubTask}
             onTogglePinSubTask={onTogglePinSubTask}
+            onOpenAnkiSrsForSubtask={onOpenAnkiSrsForSubtask}
             onOpenParentDetail={onOpenParentDetail}
             isDragging={draggedSubId === sub.id}
             isOver={dragOverSub?.subId === sub.id}
@@ -276,75 +279,77 @@ export function SubtaskList({
         ))}
       </div>
 
-      {/* Ô nhập hoặc nút "Thêm việc con" dưới đáy danh sách */}
-      {isInputActive || isRootInputOpen ? (
-        <form onSubmit={handleRootSubmit} className="flex items-center gap-1.5 pt-1 animate-in fade-in duration-100">
-          <input
-            ref={rootInputRef}
-            type="text"
-            value={newSubTaskTitle}
-            onChange={(e) => onNewSubTaskTitleChange(e.target.value)}
-            onPaste={handleSubtaskPaste}
-            onKeyDown={(e) => {
-              if (e.key === 'Escape') {
+      {/* Ô nhập hoặc nút "Thêm việc con" dưới đáy danh sách - Cố định chiều cao h-7 chống nhảy layout */}
+      <div className="h-7 flex items-center w-full overflow-hidden">
+        {isInputActive || isRootInputOpen ? (
+          <form onSubmit={handleRootSubmit} className="h-7 flex items-center gap-1.5 flex-nowrap w-full overflow-hidden">
+            <input
+              ref={rootInputRef}
+              type="text"
+              value={newSubTaskTitle}
+              onChange={(e) => onNewSubTaskTitleChange(e.target.value)}
+              onPaste={handleSubtaskPaste}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  onCloseInput();
+                  setIsRootInputOpen(false);
+                }
+              }}
+              placeholder="Nhập tên việc con... (Enter để lưu, hoặc dán nhiều dòng)"
+              className="flex-1 min-w-0 h-6.5 px-2 bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-700 rounded-md text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-slate-800 dark:focus:border-slate-400 transition-colors shadow-2xs"
+            />
+            <button
+              type="submit"
+              disabled={!newSubTaskTitle.trim()}
+              className="h-6.5 px-2.5 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white disabled:opacity-40 text-white dark:text-slate-950 rounded-md text-[11px] font-medium cursor-pointer transition-colors shrink-0 whitespace-nowrap shadow-2xs"
+            >
+              Lưu
+            </button>
+            <button
+              type="button"
+              onClick={() => {
                 onCloseInput();
                 setIsRootInputOpen(false);
-              }
-            }}
-            placeholder="Nhập tên việc con... (Enter để lưu, hoặc dán nhiều dòng)"
-            className="flex-1 h-7 px-2 bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-700 rounded-md text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-slate-800 dark:focus:border-slate-400 transition-all shadow-2xs"
-          />
-          <button
-            type="submit"
-            disabled={!newSubTaskTitle.trim()}
-            className="h-7 px-2.5 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white disabled:opacity-40 text-white dark:text-slate-950 rounded-md text-[11px] font-medium cursor-pointer transition-colors shrink-0 shadow-2xs"
-          >
-            Lưu
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              onCloseInput();
-              setIsRootInputOpen(false);
-            }}
-            className="h-7 px-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-xs cursor-pointer rounded-md shrink-0 transition-colors"
-            title="Esc"
-          >
-            {t.common.cancel}
-          </button>
-        </form>
-      ) : (
-        <div className="flex items-center gap-1.5 pt-0.5">
-          <button
-            type="button"
-            onClick={() => setIsRootInputOpen(true)}
-            className="flex-1 flex items-center gap-1.5 py-1 px-1.5 text-[11px] text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100/60 dark:hover:bg-slate-800/40 rounded cursor-pointer transition-colors text-left font-normal select-none"
-          >
-            <Plus className="w-3 h-3 shrink-0 stroke-[1.75]" aria-hidden="true" />
-            <span>{t.subtaskMenu.addSubtask}</span>
-          </button>
-          <button
-            type="button"
-            onClick={async () => {
-              try {
-                if (navigator.clipboard && navigator.clipboard.readText) {
-                  const clipText = await navigator.clipboard.readText();
-                  if (clipText && clipText.trim()) {
-                    onAddSubTask(projectId, task.id, clipText, null);
-                    return;
+              }}
+              className="h-6.5 px-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-xs cursor-pointer rounded-md shrink-0 whitespace-nowrap transition-colors"
+              title="Esc"
+            >
+              {t.common.cancel}
+            </button>
+          </form>
+        ) : (
+          <div className="h-7 flex items-center gap-1.5 flex-nowrap w-full overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setIsRootInputOpen(true)}
+              className="flex-1 min-w-0 h-6.5 flex items-center gap-1.5 px-1.5 text-[11px] text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100/60 dark:hover:bg-slate-800/40 rounded cursor-pointer transition-colors text-left font-normal select-none truncate"
+            >
+              <Plus className="w-3 h-3 shrink-0 stroke-[1.75]" aria-hidden="true" />
+              <span className="truncate">{t.subtaskMenu.addSubtask}</span>
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  if (navigator.clipboard && navigator.clipboard.readText) {
+                    const clipText = await navigator.clipboard.readText();
+                    if (clipText && clipText.trim()) {
+                      onAddSubTask(projectId, task.id, clipText, null);
+                      return;
+                    }
                   }
-                }
-              } catch (err) {}
-              onOpenBatchPasteForTask?.(projectId, task.id, null, task.title);
-            }}
-            className="flex items-center gap-1 py-1 px-2 text-[10.5px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 bg-slate-100/80 hover:bg-slate-200/80 dark:bg-slate-800/70 dark:hover:bg-slate-700/70 rounded cursor-pointer transition-colors font-medium select-none shrink-0 shadow-2xs"
-            title={t.subtaskMenu.batchPaste}
-          >
-            <ClipboardPaste className="w-3 h-3 shrink-0" strokeWidth={1.5} />
-            <span>{t.subtaskMenu.batchPaste}</span>
-          </button>
-        </div>
-      )}
+                } catch (err) {}
+                onOpenBatchPasteForTask?.(projectId, task.id, null, task.title);
+              }}
+              className="h-6.5 flex items-center gap-1 px-2 text-[10.5px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 bg-slate-100/80 hover:bg-slate-200/80 dark:bg-slate-800/70 dark:hover:bg-slate-700/70 rounded cursor-pointer transition-colors font-medium select-none shrink-0 whitespace-nowrap shadow-2xs"
+              title={t.subtaskMenu.batchPaste}
+            >
+              <ClipboardPaste className="w-3 h-3 shrink-0" strokeWidth={1.5} />
+              <span>{t.subtaskMenu.batchPaste}</span>
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

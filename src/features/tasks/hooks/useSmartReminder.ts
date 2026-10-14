@@ -14,11 +14,14 @@ interface UseSmartReminderProps {
 }
 
 export function useSmartReminder({ projects, isMuted, showToast }: UseSmartReminderProps) {
+  // Mặc định BẬT (true) vì mọi task chưa hoàn thành đều cần được nhắc cho đến khi Done
   const [reminderEnabled, setReminderEnabled] = useState<boolean>(() => {
     try {
-      return localStorage.getItem(REMINDER_KEY) === 'true';
+      const saved = localStorage.getItem(REMINDER_KEY);
+      if (saved === 'false') return false;
+      return true;
     } catch (e) {
-      return false;
+      return true;
     }
   });
 
@@ -35,6 +38,8 @@ export function useSmartReminder({ projects, isMuted, showToast }: UseSmartRemin
     visible: boolean;
     pendingCount: number;
     topTaskTitle: string;
+    projectId?: string;
+    taskId?: string;
   } | null>(null);
 
   const bannerTimerRef = useRef<number | null>(null);
@@ -53,20 +58,22 @@ export function useSmartReminder({ projects, isMuted, showToast }: UseSmartRemin
     } catch (e) {}
   }, []);
 
-  // 1. Kiểm tra chính xác các công việc có lịch hẹn cụ thể (task.reminderAt)
+  // 1. Kiểm tra chính xác các công việc có lịch hẹn cụ thể (task.reminderAt hoặc hết hạn snoozeUntil)
   const checkScheduledReminders = useCallback(() => {
     const currentProjects = projectsRef.current;
     const now = Date.now();
 
     for (const p of currentProjects) {
       for (const t of p.tasks) {
-        if (t.status === 'done' || !t.reminderAt) continue;
-        const reminderTime = new Date(t.reminderAt).getTime();
+        if (t.status === 'done') continue;
+        const targetTimeStr = t.reminderAt || t.snoozeUntil;
+        if (!targetTimeStr) continue;
+        const reminderTime = new Date(targetTimeStr).getTime();
         if (isNaN(reminderTime)) continue;
 
         // Nếu đã đến giờ (hoặc vừa qua trong vòng 15 phút) và chưa bắn thông báo đợt này
         const isDue = reminderTime <= now && now - reminderTime <= 15 * 60 * 1000;
-        const key = `${t.id}_${t.reminderAt}`;
+        const key = `${t.id}_${targetTimeStr}`;
 
         if (isDue && !notifiedReminderIdsRef.current.has(key)) {
           notifiedReminderIdsRef.current.add(key);
@@ -84,47 +91,68 @@ export function useSmartReminder({ projects, isMuted, showToast }: UseSmartRemin
           setInAppBanner({
             visible: true,
             pendingCount: 1,
-            topTaskTitle: `Đến giờ hẹn: ${t.title}`,
+            topTaskTitle: t.title,
+            projectId: p.id,
+            taskId: t.id,
           });
 
           if (bannerTimerRef.current) window.clearTimeout(bannerTimerRef.current);
           bannerTimerRef.current = window.setTimeout(() => {
             setInAppBanner((prev) => (prev ? { ...prev, visible: false } : null));
-          }, 10000);
+          }, 12000);
           return;
         }
       }
     }
   }, []);
 
-  // 2. Nhắc nhở định kỳ tổng quát khi có việc tồn đọng (prioritize: overdue / today > pinned > doing)
+  // 2. Nhắc nhở định kỳ tổng quát khi có việc chưa hoàn thành & không đang trong kỳ hoãn cấp số nhân
   const triggerReminderCheck = useCallback(() => {
     const currentProjects = projectsRef.current;
-    const pendingTasks = currentProjects.flatMap((p) => p.tasks).filter((t) => t.status !== 'done');
-    if (pendingTasks.length === 0) {
+    const now = Date.now();
+
+    const activePendingList: { task: Project['tasks'][number]; projectId: string }[] = [];
+    for (const p of currentProjects) {
+      for (const t of p.tasks) {
+        if (t.status === 'done') continue;
+        // Nếu đang trong thời gian hoãn cấp số nhân Anki SRS (snoozeUntil > now) thì chưa làm phiền
+        if (t.snoozeUntil) {
+          const snoozeMs = new Date(t.snoozeUntil).getTime();
+          if (!isNaN(snoozeMs) && snoozeMs > now) continue;
+        }
+        activePendingList.push({ task: t, projectId: p.id });
+      }
+    }
+
+    if (activePendingList.length === 0) {
       setInAppBanner(null);
       return;
     }
 
-    const now = Date.now();
-    // Ưu tiên: Việc có lịch hẹn hôm nay/quá hạn > Việc được ghim > Việc đang làm > Việc đầu tiên
-    const topTask =
-      pendingTasks.find((t) => {
+    // Ưu tiên: Việc hết hạn hoãn / có lịch hẹn hôm nay > Việc được ghim > Việc đang làm > Việc đầu tiên
+    const topEntry =
+      activePendingList.find(({ task: t }) => {
+        if (t.snoozeUntil) {
+          const s = new Date(t.snoozeUntil).getTime();
+          if (!isNaN(s) && s <= now) return true;
+        }
         if (!t.reminderAt) return false;
         const d = new Date(t.reminderAt).getTime();
         return !isNaN(d) && d <= now + 2 * 60 * 60 * 1000;
       }) ||
-      pendingTasks.find((t) => t.isPinned) ||
-      pendingTasks.find((t) => t.status === 'doing') ||
-      pendingTasks[0];
+      activePendingList.find(({ task: t }) => t.isPinned) ||
+      activePendingList.find(({ task: t }) => t.status === 'doing') ||
+      activePendingList[0];
+
+    const topTask = topEntry.task;
 
     playChime(isMutedRef.current);
 
     // Gửi Web Notification hệ thống (nếu được cấp quyền)
     if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
       try {
-        new Notification('Stride Tasks - Nhắc nhở tập trung', {
-          body: `Bạn còn ${pendingTasks.length} công việc chưa hoàn thành! Việc ưu tiên: "${topTask.title.slice(0, 36)}..."`,
+        new Notification('Stride Tasks - Nhắc việc thông minh', {
+          body: `Bạn còn ${activePendingList.length} công việc cần xử lý! Ưu tiên: "${topTask.title.slice(0, 40)}"`,
           icon: '/stride-tasks-icon.svg',
         });
       } catch (e) {}
@@ -133,14 +161,16 @@ export function useSmartReminder({ projects, isMuted, showToast }: UseSmartRemin
     // Hiển thị In-App Banner tinh tế nếu tab đang active
     setInAppBanner({
       visible: true,
-      pendingCount: pendingTasks.length,
+      pendingCount: activePendingList.length,
       topTaskTitle: topTask.title,
+      projectId: topEntry.projectId,
+      taskId: topTask.id,
     });
 
     if (bannerTimerRef.current) window.clearTimeout(bannerTimerRef.current);
     bannerTimerRef.current = window.setTimeout(() => {
       setInAppBanner((prev) => (prev ? { ...prev, visible: false } : null));
-    }, 8000);
+    }, 10000);
   }, []);
 
   const toggleReminder = useCallback(async () => {
