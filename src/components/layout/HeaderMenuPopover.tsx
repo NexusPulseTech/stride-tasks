@@ -17,7 +17,6 @@ import {
   EyeOff,
   Eye,
   Check,
-  FolderArchive,
   Trash2,
   RotateCcw,
 } from 'lucide-react';
@@ -43,7 +42,6 @@ export interface HeaderMenuPopoverProps {
   onOpenGuideModal: () => void;
   onOpenFeedback: () => void;
   onDownloadHtml: () => void;
-  onDownloadSourceZip?: () => void;
   onClearSampleData?: () => void;
   onResetSample?: () => void;
 }
@@ -65,7 +63,6 @@ export function HeaderMenuPopover({
   onOpenGuideModal,
   onOpenFeedback,
   onDownloadHtml,
-  onDownloadSourceZip,
   onClearSampleData,
   onResetSample,
 }: HeaderMenuPopoverProps) {
@@ -339,24 +336,6 @@ export function HeaderMenuPopover({
             >
               <RotateCcw className="w-3.5 h-3.5 text-slate-400 shrink-0" />
               <span>Khôi phục dữ liệu mẫu ban đầu</span>
-            </button>
-          )}
-
-          {/* Tải mã nguồn ZIP dự án */}
-          {onDownloadSourceZip && (
-            <button
-              type="button"
-              onClick={() => {
-                onClose();
-                onDownloadSourceZip();
-              }}
-              className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg hover:bg-slate-100/80 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200 transition-colors text-left cursor-pointer"
-            >
-              <span className="flex items-center gap-2">
-                <FolderArchive className="w-3.5 h-3.5 text-slate-400" />
-                <span>{language === 'vi' ? 'Tải trọn bộ mã nguồn (.zip)' : 'Download Source Code (.zip)'}</span>
-              </span>
-              <span className="text-[10px] text-slate-400 font-mono">v{APP_VERSION}</span>
             </button>
           )}
 

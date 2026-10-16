@@ -35,7 +35,6 @@ export interface AppHeaderProps {
   onToggleMute: () => void;
   onOpenGuideModal: () => void;
   onDownloadHtml: () => void;
-  onDownloadSourceZip?: () => void;
   themeMode: ThemeMode;
   onCycleTheme: () => void;
   onClearSampleData?: () => void;
@@ -62,7 +61,6 @@ export function AppHeader({
   onToggleMute,
   onOpenGuideModal,
   onDownloadHtml,
-  onDownloadSourceZip,
   themeMode,
   onCycleTheme,
   onClearSampleData,
@@ -206,7 +204,6 @@ export function AppHeader({
             onOpenGuideModal={onOpenGuideModal}
             onOpenFeedback={onOpenFeedback}
             onDownloadHtml={onDownloadHtml}
-            onDownloadSourceZip={onDownloadSourceZip}
             onClearSampleData={onClearSampleData}
             onResetSample={onResetSample}
           />

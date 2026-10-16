@@ -41,7 +41,6 @@ export const vi: Translations = {
     soundLabel: 'Âm thanh hoàn thành',
     backupLabel: 'Sao lưu & Khôi phục (JSON)',
     downloadHtmlLabel: 'Tải tệp HTML độc lập chạy offline',
-    downloadSourceZipLabel: 'Tải trọn bộ mã nguồn (.zip)',
     guideLabel: 'Hướng dẫn sử dụng',
     mobileGuideLabel: 'Cài đặt trên điện thoại (PWA)',
     feedbackLabel: 'Góp ý & Báo lỗi',

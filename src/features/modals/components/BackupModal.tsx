@@ -18,7 +18,6 @@ import {
   AlertCircle,
   Zap,
   HelpCircle,
-  FolderArchive,
 } from 'lucide-react';
 import { Project } from '../../../types';
 import { useLanguage } from '../../../i18n';
@@ -51,7 +50,6 @@ interface BackupModalProps {
   onRestoreSnapshot?: (projects: Project[], label?: string) => void;
   onDirectPasteRestore?: (rawJson: string) => void;
   onGetFullBackupJson?: () => string;
-  onDownloadSourceZip?: () => void;
   onDownloadHtml?: () => void;
   initialTab?: 'backup' | 'vault' | 'transfer';
 }
@@ -128,7 +126,6 @@ export function BackupModal({
   onRestoreSnapshot,
   onDirectPasteRestore,
   onGetFullBackupJson,
-  onDownloadSourceZip,
   onDownloadHtml,
   initialTab = 'backup',
 }: BackupModalProps) {
@@ -505,28 +502,6 @@ export function BackupModal({
                 </button>
               </div>
 
-              {/* Mục 5: Tải trọn bộ mã nguồn (.ZIP) v2.2.0 */}
-              {onDownloadSourceZip && (
-                <div className="p-3 bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/70 dark:border-blue-900/50 rounded-xl flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="text-xs font-semibold text-blue-950 dark:text-blue-200 flex items-center gap-1.5">
-                      <FolderArchive className="w-3.5 h-3.5 shrink-0 text-blue-600 dark:text-blue-400" strokeWidth={1.5} />
-                      <span>Tải trọn bộ mã nguồn TaskTodo (.ZIP)</span>
-                    </div>
-                    <p className="text-[11px] text-blue-800/80 dark:text-blue-300/80 mt-0.5">
-                      Bao gồm toàn bộ mã nguồn React/TypeScript, logic Smart Scheduling, Pinned & DnD
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={onDownloadSourceZip}
-                    className="h-7.5 px-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg flex items-center gap-1.5 cursor-pointer transition-all shadow-xs active:scale-[0.98] shrink-0"
-                  >
-                    <Download className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
-                    <span>Tải .zip</span>
-                  </button>
-                </div>
-              )}
             </>
           )}
 

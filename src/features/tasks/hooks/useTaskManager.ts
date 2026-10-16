@@ -683,16 +683,6 @@ export function useTaskManager() {
     celebration.showToast('Đang tải file HTML offline...');
   };
 
-  const downloadSourceZip = () => {
-    const a = document.createElement('a');
-    a.href = `/tasktodo-v${APP_VERSION}.zip`;
-    a.download = `tasktodo-v${APP_VERSION}.zip`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    celebration.showToast('Đang tải tệp mã nguồn (.zip)...');
-  };
-
   // 4. Xuất bản sao lưu toàn diện (Full Snapshot: Projects + History + Custom Statuses)
   const getFullBackupJsonString = (): string => {
     let totalTasksCount = 0;
@@ -996,7 +986,6 @@ export function useTaskManager() {
     handleMobileSubmitTask,
     resetSample,
     downloadHtml,
-    downloadSourceZip,
     exportDataJson,
     importDataJson,
     totalTasks,

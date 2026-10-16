@@ -86,7 +86,6 @@ export default function App() {
         onToggleMute={manager.toggleMute}
         onOpenGuideModal={() => manager.setShowGuideModal(true)}
         onDownloadHtml={manager.downloadHtml}
-        onDownloadSourceZip={manager.downloadSourceZip}
         themeMode={theme.themeMode}
         onCycleTheme={theme.cycleTheme}
         onClearSampleData={manager.clearSampleData}
@@ -388,7 +387,6 @@ export default function App() {
         onRestoreSnapshot={manager.handleRestoreSnapshot}
         onDirectPasteRestore={manager.handleDirectPasteRestore}
         onGetFullBackupJson={manager.getFullBackupJsonString}
-        onDownloadSourceZip={manager.downloadSourceZip}
         onDownloadHtml={manager.downloadHtml}
         showFeedbackModal={manager.showFeedbackModal}
         onCloseFeedbackModal={() => manager.setShowFeedbackModal(false)}
