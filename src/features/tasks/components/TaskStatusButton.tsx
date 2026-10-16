@@ -85,10 +85,10 @@ export function TaskStatusButton({
           e.stopPropagation();
           setIsOpen(!isOpen);
         }}
-        className={`shrink-0 whitespace-nowrap rounded-md border transition-all cursor-pointer select-none font-medium flex items-center gap-1 shadow-2xs ${
+        className={`shrink-0 whitespace-nowrap rounded-md border transition-colors cursor-pointer select-none font-medium flex items-center justify-between gap-1 shadow-2xs ${
           size === 'sm'
-            ? 'text-[10px] px-1.5 py-0.2 h-[22px]'
-            : 'text-[10.5px] px-1.5 sm:px-2 py-0.5 h-[24px]'
+            ? 'text-[10px] px-1.5 py-0.2 h-[22px] sm:w-[72px]'
+            : 'text-[10.5px] px-1.5 sm:px-2 py-0.5 h-[24px] sm:w-[78px]'
         } ${
           currentDef.category === 'done'
             ? 'text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-[#161b22]/40 border-slate-200/80 dark:border-slate-800'
@@ -99,8 +99,10 @@ export function TaskStatusButton({
         title={`${t.taskDetail.statusLabel} ${currentLabel}`}
         aria-label={`${t.taskDetail.statusLabel} ${currentLabel}`}
       >
-        {getStatusIcon(currentDef)}
-        <span className="hidden sm:inline truncate max-w-[85px]">{currentLabel}</span>
+        <span className="flex items-center gap-1 min-w-0 overflow-hidden">
+          {getStatusIcon(currentDef)}
+          <span className="hidden sm:inline truncate">{currentLabel}</span>
+        </span>
         <ChevronDown className="w-2.5 h-2.5 text-slate-400 shrink-0 opacity-70" />
       </button>
 

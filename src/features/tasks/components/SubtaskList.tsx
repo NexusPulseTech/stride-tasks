@@ -196,39 +196,48 @@ export function SubtaskList({
     <div className="space-y-1 mt-1 pt-1 border-t border-slate-100 dark:border-slate-800/80 text-xs">
       {totalLeafs > 1 && (
         <div className="flex items-center justify-end pb-0.5">
-          <div className="flex items-center gap-0.5 bg-slate-100 dark:bg-slate-800/80 p-0.5 rounded text-[10px] shrink-0">
+          <div className="w-[234px] sm:w-[252px] grid grid-cols-3 items-center gap-0.5 bg-slate-100 dark:bg-slate-800/80 p-0.5 rounded-md text-[10px] shrink-0 overflow-hidden">
             <button
               type="button"
               onClick={() => onFilterModeChange('all')}
-              className={`px-1.5 py-0.5 rounded transition-colors cursor-pointer ${
+              className={`h-5.5 px-1 rounded transition-colors cursor-pointer flex items-center justify-center gap-0.5 whitespace-nowrap overflow-hidden ${
                 filterMode === 'all'
                   ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 font-semibold shadow-2xs'
                   : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              {t.common.all} ({totalLeafs})
+              <span className="truncate">{t.common.all}</span>
+              <span className="font-mono tabular-nums text-[9.5px] opacity-80 shrink-0">
+                {totalLeafs > 99 ? '99+' : totalLeafs}
+              </span>
             </button>
             <button
               type="button"
               onClick={() => onFilterModeChange('active')}
-              className={`px-1.5 py-0.5 rounded transition-colors cursor-pointer ${
+              className={`h-5.5 px-1 rounded transition-colors cursor-pointer flex items-center justify-center gap-0.5 whitespace-nowrap overflow-hidden ${
                 filterMode === 'active'
                   ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 font-semibold shadow-2xs'
                   : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              {t.common.active} ({totalLeafs - doneLeafs})
+              <span className="truncate">{t.common.active}</span>
+              <span className="font-mono tabular-nums text-[9.5px] opacity-80 shrink-0">
+                {totalLeafs - doneLeafs > 99 ? '99+' : totalLeafs - doneLeafs}
+              </span>
             </button>
             <button
               type="button"
               onClick={() => onFilterModeChange('completed')}
-              className={`px-1.5 py-0.5 rounded transition-colors cursor-pointer ${
+              className={`h-5.5 px-1 rounded transition-colors cursor-pointer flex items-center justify-center gap-0.5 whitespace-nowrap overflow-hidden ${
                 filterMode === 'completed'
                   ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 font-semibold shadow-2xs'
                   : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              {t.common.completed} ({doneLeafs})
+              <span className="truncate">{t.common.completed}</span>
+              <span className="font-mono tabular-nums text-[9.5px] opacity-80 shrink-0">
+                {doneLeafs > 99 ? '99+' : doneLeafs}
+              </span>
             </button>
           </div>
         </div>

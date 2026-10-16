@@ -68,6 +68,7 @@ export function cascadeSubtaskCompleted(sub: SubTask, completed: boolean): SubTa
     ...sub,
     completed,
     status: completed ? 'done' : 'todo',
+    snoozeUntil: completed ? undefined : sub.snoozeUntil,
     lastCompletedDate: completed && sub.recurrence ? todayStr : sub.lastCompletedDate,
     recurrenceStreak: completed && sub.recurrence ? (sub.recurrenceStreak || 0) + 1 : sub.recurrenceStreak,
     subtasks: sub.subtasks
@@ -310,6 +311,7 @@ export function updateSubtaskStatusInTree(
         ...item,
         status: newStatus,
         completed: isDoneCategory,
+        snoozeUntil: isDoneCategory ? undefined : item.snoozeUntil,
       };
       if (isDoneCategory && item.subtasks) {
         return cascadeSubtaskCompleted(updatedItem, true);

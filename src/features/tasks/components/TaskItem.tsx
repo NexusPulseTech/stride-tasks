@@ -423,7 +423,7 @@ export function TaskItem({
                 snoozeLevel: sub.snoozeLevel,
                 snoozeUntil: sub.snoozeUntil,
                 isPinned: sub.isPinned,
-              } as Task, projId);
+              } as Task, projId, tId);
             } : undefined}
             onOpenParentDetail={onOpenDetail ? () => onOpenDetail(task, projectId) : undefined}
           />

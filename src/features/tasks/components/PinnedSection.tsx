@@ -52,7 +52,7 @@ interface PinnedSectionProps {
   onAddSubTask?: (projId: string, taskId: string, title?: string, parentSubId?: string | null) => void;
   onOpenDetail?: (task: Task, projectId: string) => void;
   onOpenSchedule?: (task: Task, project: Project) => void;
-  onOpenAnkiSrs?: (task: Task, projectId: string) => void;
+  onOpenAnkiSrs?: (task: Task, projectId: string, parentTaskId?: string) => void;
   statuses?: StatusDefinition[];
 }
 
@@ -509,7 +509,8 @@ export function PinnedSection({
                                       snoozeUntil: subtask.snoozeUntil,
                                       isPinned: subtask.isPinned,
                                     } as Task),
-                                project.id
+                                project.id,
+                                isTaskType ? undefined : task.id
                               );
                             }
                           }}

@@ -92,8 +92,8 @@ export default function App() {
         onResetSample={manager.resetSample}
       />
 
-      {/* Nội dung tập trung Core */}
-      <main className="max-w-2xl w-full mx-auto px-3.5 sm:px-4 py-4 pb-24 sm:pb-10 space-y-3.5 overflow-x-hidden min-w-0">
+      {/* Nội dung tập trung Core - Tối ưu mọi màn hình từ 320px đến iPhone 17 Pro Max & Desktop */}
+      <main className="max-w-2xl w-full mx-auto px-2.5 sm:px-4 py-3.5 sm:py-4 pb-24 sm:pb-10 space-y-3 overflow-x-hidden min-w-0">
         {/* Bản đồ nhịp độ (Heatmap & Bảng xóa/sửa lịch sử) */}
         {viewPref.preferences.showStatsPanel && !viewPref.preferences.zenMode && (
           <StatsPanel
@@ -339,12 +339,8 @@ export default function App() {
       <ReminderBanner
         banner={manager.reminder.inAppBanner}
         onDismiss={manager.reminder.dismissBanner}
-        onReviewTask={(projectId, taskId) => {
-          const p = manager.projects.find((item) => item.id === projectId);
-          const t = p?.tasks.find((item) => item.id === taskId);
-          if (p && t) {
-            manager.openAnkiModalForTask(t, p.id);
-          }
+        onReviewTask={() => {
+          manager.setShowDailyFocusModal(true);
         }}
       />
 
@@ -462,11 +458,12 @@ export default function App() {
         }}
       />
 
-      {/* Modal Tiêu điểm giải quyết quá tải việc (GTD Next Action & Spaced Snooze) */}
+      {/* Modal Tiêu điểm giải quyết quá tải việc (GTD Next Action & AnkiWeb Spaced Snooze) */}
       <DailyFocusModal
         isOpen={manager.showDailyFocusModal}
         onClose={() => manager.setShowDailyFocusModal(false)}
         items={manager.dailyFocusQueue}
+        snoozedItems={manager.snoozedFocusQueue}
         onToggleTaskDone={manager.toggleTaskDone}
         onToggleSubTask={manager.toggleSubTask}
         onTogglePinTask={(projId, taskId) => {

@@ -26,7 +26,7 @@ import { useStatusManager } from './useStatusManager';
 import { useActivityLog, CompletedItemLog } from '../../analytics';
 import { clearAllPersistentData } from '../../../utils/persistentStorage';
 import { PinnedItem } from '../components/PinnedSection';
-import { getDailyFocusQueue, ActionableItem, AnkiSrsOption } from '../utils/spacedSnooze';
+import { getDailyFocusQueue, getSnoozedItemsQueue, ActionableItem, AnkiSrsOption } from '../utils/spacedSnooze';
 import { AnkiSrsTargetItem } from '../components/AnkiSrsModal';
 
 export function useTaskManager() {
@@ -194,91 +194,32 @@ export function useTaskManager() {
   const dnd = useTaskDnd(crud.setProjects);
   const projectDnd = useProjectDnd(crud.setProjects);
 
-  // 1. Khi tạo công việc mới -> tự động bật Anki SRS modal để người dùng chọn lặp lại ngay từ đầu
-  onTaskCreatedCallbackRef.current = (projId: string, newTask: Task) => {
-    const proj = crud.projects.find((p) => p.id === projId);
-    setAnkiModalTarget({
-      projectId: projId,
-      projectName: proj?.name,
-      taskId: newTask.id,
-      title: newTask.title,
-      currentLevel: 1,
-      isNewTask: true,
-      isPinned: newTask.isPinned,
-    });
-    setIsAnkiModalOpen(true);
-  };
+  // 1. Khi tạo công việc mới -> mặc định ở Mức 1 (nhắc liên tục cho đến khi Done) mà không bật popup làm gián đoạn luồng nhập việc nhanh
+  onTaskCreatedCallbackRef.current = () => {};
 
-  // 2. Xử lý khi người dùng chọn 1 trong 3 Option của Anki SRS
+  // 2. Xử lý khi người dùng chọn 1 trong 3 Option của Anki SRS (Cập nhật nguyên tử 1 lần duy nhất)
   const handleSelectAnkiOption = useCallback(
     (target: AnkiSrsTargetItem, option: AnkiSrsOption, targetIso: string | null) => {
       if (target.subId) {
-        // Cập nhật cho subtask
         subtasks.handleSnoozeSubTask(
           target.projectId,
           target.taskId,
           target.subId,
           targetIso,
-          option.nextLevel
+          option.nextLevel,
+          option.autoPin
         );
-        if (option.autoPin) {
-          crud.setProjects((prev) =>
-            prev.map((p) => {
-              if (p.id !== target.projectId) return p;
-              return {
-                ...p,
-                tasks: p.tasks.map((t) => {
-                  if (t.id !== target.taskId) return t;
-                  const updatePinInSubs = (subs: SubTask[]): SubTask[] => {
-                    return subs.map((s) => {
-                      if (s.id === target.subId) {
-                        return { ...s, isPinned: true, snoozeLevel: 1, snoozeUntil: undefined };
-                      }
-                      if (s.subtasks && s.subtasks.length > 0) {
-                        return { ...s, subtasks: updatePinInSubs(s.subtasks) };
-                      }
-                      return s;
-                    });
-                  };
-                  return { ...t, subtasks: updatePinInSubs(t.subtasks) };
-                }),
-              };
-            })
-          );
-        }
       } else {
-        // Cập nhật cho task
         crud.handleSnoozeTask(
           target.projectId,
           target.taskId,
           targetIso,
-          option.nextLevel
-        );
-        if (option.autoPin) {
-          crud.setProjects((prev) =>
-            prev.map((p) => {
-              if (p.id !== target.projectId) return p;
-              return {
-                ...p,
-                tasks: p.tasks.map((t) => {
-                  if (t.id !== target.taskId) return t;
-                  return { ...t, isPinned: true, snoozeLevel: 1, snoozeUntil: undefined };
-                }),
-              };
-            })
-          );
-        }
-      }
-
-      if (option.optionNumber === 1) {
-        celebration.showToast('Đã ghim làm ngay & giữ Mức 1 (nhắc liên tục đến khi hoàn thành)!');
-      } else {
-        celebration.showToast(
-          `Đã dời nhắc lại sau ${option.days} ngày (Lên Mức ${option.nextLevel})!`
+          option.nextLevel,
+          option.autoPin
         );
       }
     },
-    [crud, subtasks, celebration]
+    [crud, subtasks]
   );
 
   const handleMarkAnkiTaskDone = useCallback(
@@ -294,19 +235,35 @@ export function useTaskManager() {
   );
 
   const openAnkiModalForTask = useCallback(
-    (task: Task, projectId: string) => {
+    (taskOrSub: Task | SubTask, projectId: string, parentTaskId?: string) => {
       const proj = crud.projects.find((p) => p.id === projectId);
-      setAnkiModalTarget({
-        projectId,
-        projectName: proj?.name,
-        taskId: task.id,
-        title: task.title,
-        currentLevel: task.snoozeLevel || 1,
-        snoozeUntil: task.snoozeUntil,
-        isPinned: task.isPinned,
-        isNewTask: false,
-        path: [task.title],
-      });
+      if (parentTaskId) {
+        const parentTask = proj?.tasks.find((t) => t.id === parentTaskId);
+        setAnkiModalTarget({
+          projectId,
+          projectName: proj?.name,
+          taskId: parentTaskId,
+          subId: taskOrSub.id,
+          title: taskOrSub.title,
+          currentLevel: taskOrSub.snoozeLevel || 1,
+          snoozeUntil: taskOrSub.snoozeUntil,
+          isPinned: taskOrSub.isPinned,
+          isNewTask: false,
+          path: parentTask ? [parentTask.title, taskOrSub.title] : [taskOrSub.title],
+        });
+      } else {
+        setAnkiModalTarget({
+          projectId,
+          projectName: proj?.name,
+          taskId: taskOrSub.id,
+          title: taskOrSub.title,
+          currentLevel: taskOrSub.snoozeLevel || 1,
+          snoozeUntil: taskOrSub.snoozeUntil,
+          isPinned: taskOrSub.isPinned,
+          isNewTask: false,
+          path: [taskOrSub.title],
+        });
+      }
       setIsAnkiModalOpen(true);
     },
     [crud.projects]
@@ -314,109 +271,15 @@ export function useTaskManager() {
 
   const openAnkiModalForSubtask = useCallback(
     (sub: SubTask, projectId: string, taskId: string) => {
-      const proj = crud.projects.find((p) => p.id === projectId);
-      const task = proj?.tasks.find((t) => t.id === taskId);
-      setAnkiModalTarget({
-        projectId,
-        projectName: proj?.name,
-        taskId,
-        subId: sub.id,
-        title: sub.title,
-        currentLevel: sub.snoozeLevel || 1,
-        snoozeUntil: sub.snoozeUntil,
-        isPinned: sub.isPinned,
-        isNewTask: false,
-        path: task ? [task.title, sub.title] : [sub.title],
-      });
-      setIsAnkiModalOpen(true);
+      openAnkiModalForTask(sub, projectId, taskId);
     },
-    [crud.projects]
+    [openAnkiModalForTask]
   );
 
   const closeAnkiModal = useCallback(() => {
     setIsAnkiModalOpen(false);
     setAnkiModalTarget(null);
   }, []);
-
-  // Tự động kiểm tra định kỳ các việc (và việc con) chưa Done đang đến hạn nhắc cấp số nhân (due snooze review)
-  useEffect(() => {
-    const checkDueAnkiReviews = () => {
-      if (isAnkiModalOpen || selectedDetailId || scheduleTaskTarget || showMobileAddModal) {
-        return;
-      }
-      const now = Date.now();
-      for (const p of crud.projects) {
-        for (const t of p.tasks) {
-          if (isDoneStatus(t.status, statusManager.statuses)) continue;
-
-          // Kiểm tra subtask đệ quy trước (Bottom-up GTD Next Action)
-          const findDueSub = (subs: SubTask[], path: string[]): { sub: SubTask; path: string[] } | null => {
-            for (const s of subs) {
-              if (s.completed) continue;
-              if (s.subtasks && s.subtasks.length > 0) {
-                const deeper = findDueSub(s.subtasks, [...path, s.title]);
-                if (deeper) return deeper;
-              }
-              if (s.snoozeUntil) {
-                const dueTime = new Date(s.snoozeUntil).getTime();
-                const reviewKey = `${s.id}_${s.snoozeUntil}`;
-                if (!isNaN(dueTime) && dueTime <= now && !dismissedReviewIdsRef.current.has(reviewKey)) {
-                  return { sub: s, path };
-                }
-              }
-            }
-            return null;
-          };
-
-          if (t.subtasks && t.subtasks.length > 0) {
-            const dueSubResult = findDueSub(t.subtasks, [t.title]);
-            if (dueSubResult) {
-              const reviewKey = `${dueSubResult.sub.id}_${dueSubResult.sub.snoozeUntil}`;
-              dismissedReviewIdsRef.current.add(reviewKey);
-              setAnkiModalTarget({
-                projectId: p.id,
-                projectName: p.name,
-                taskId: t.id,
-                subId: dueSubResult.sub.id,
-                title: dueSubResult.sub.title,
-                currentLevel: dueSubResult.sub.snoozeLevel || 1,
-                snoozeUntil: dueSubResult.sub.snoozeUntil,
-                isPinned: dueSubResult.sub.isPinned,
-                isNewTask: false,
-                path: dueSubResult.path,
-              });
-              setIsAnkiModalOpen(true);
-              return;
-            }
-          }
-
-          if (t.snoozeUntil) {
-            const dueTime = new Date(t.snoozeUntil).getTime();
-            const reviewKey = `${t.id}_${t.snoozeUntil}`;
-            if (!isNaN(dueTime) && dueTime <= now && !dismissedReviewIdsRef.current.has(reviewKey)) {
-              dismissedReviewIdsRef.current.add(reviewKey);
-              setAnkiModalTarget({
-                projectId: p.id,
-                projectName: p.name,
-                taskId: t.id,
-                title: t.title,
-                currentLevel: t.snoozeLevel || 1,
-                snoozeUntil: t.snoozeUntil,
-                isPinned: t.isPinned,
-                isNewTask: false,
-              });
-              setIsAnkiModalOpen(true);
-              return;
-            }
-          }
-        }
-      }
-    };
-
-    checkDueAnkiReviews();
-    const timer = window.setInterval(checkDueAnkiReviews, 30 * 1000);
-    return () => window.clearInterval(timer);
-  }, [crud.projects, isAnkiModalOpen, selectedDetailId, scheduleTaskTarget, showMobileAddModal, statusManager.statuses]);
 
   useEffect(() => {
     const handleGlobalClick = () => setActiveMenuTaskId(null);
@@ -856,7 +719,11 @@ export function useTaskManager() {
   const uncompletedCount = totalTasks - totalDone;
 
   const dailyFocusQueue = useMemo(() => {
-    return getDailyFocusQueue(crud.projects, statusManager.statuses, 5);
+    return getDailyFocusQueue(crud.projects, statusManager.statuses, 100);
+  }, [crud.projects, statusManager.statuses]);
+
+  const snoozedFocusQueue = useMemo(() => {
+    return getSnoozedItemsQueue(crud.projects, statusManager.statuses);
   }, [crud.projects, statusManager.statuses]);
 
   const filteredProjects = crud.projects
@@ -1022,6 +889,7 @@ export function useTaskManager() {
     handleProjectDrop: projectDnd.handleProjectDrop,
     handleProjectDragEnd: projectDnd.handleProjectDragEnd,
     dailyFocusQueue,
+    snoozedFocusQueue,
     showDailyFocusModal,
     setShowDailyFocusModal,
     handleSnoozeTask: crud.handleSnoozeTask,

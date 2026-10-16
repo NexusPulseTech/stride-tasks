@@ -88,7 +88,7 @@ export interface ProjectCardProps {
   onOpenDetail?: (task: Task, projectId: string) => void;
   onOpenSchedule?: (task: Task, projectId: string) => void;
   onTogglePinSubTask?: (projId: string, taskId: string, subId: string) => void;
-  onOpenAnkiSrs?: (task: Task, projectId: string) => void;
+  onOpenAnkiSrs?: (task: Task, projectId: string, parentTaskId?: string) => void;
   onMoveProject?: (projId: string, direction: 'up' | 'down') => void;
   isFirstProject?: boolean;
   isLastProject?: boolean;
@@ -384,25 +384,25 @@ export function ProjectCard({
                 value={taskInputValue}
                 onChange={(e) => onTaskInputChange(project.id, e.target.value)}
                 onPaste={(e) => onTaskInputPaste(project.id, e)}
-                placeholder="Nhập việc cần làm... (Enter để lưu)"
+                placeholder={t.tasks.addTaskPlaceholder}
                 className="flex-1 min-w-0 h-8 px-2.5 bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-lg text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-slate-800 dark:focus:border-slate-400 transition-colors shadow-2xs"
               />
               <button
                 type="submit"
                 disabled={!taskInputValue.trim()}
-                className="h-8 px-3 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white disabled:opacity-40 text-white dark:text-slate-950 rounded-lg text-xs font-medium cursor-pointer transition-colors shrink-0 whitespace-nowrap shadow-2xs inline-flex items-center gap-1"
+                className="h-8 w-8 sm:w-[74px] sm:px-2 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white disabled:opacity-40 text-white dark:text-slate-950 rounded-lg text-xs font-medium cursor-pointer transition-colors shrink-0 whitespace-nowrap shadow-2xs inline-flex items-center justify-center gap-1"
               >
                 <Plus className="w-3.5 h-3.5 shrink-0 stroke-[2]" aria-hidden="true" />
-                <span className="hidden sm:inline">Thêm</span>
+                <span className="hidden sm:inline truncate">{t.tasks.addProjectButton}</span>
               </button>
               <button
                 type="button"
                 onClick={() => onOpenBatchPaste(project)}
-                className="h-8 px-2.5 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-xs font-medium cursor-pointer transition-colors shrink-0 whitespace-nowrap shadow-2xs inline-flex items-center gap-1"
-                title="Dán nhanh danh sách công việc (từ Clipboard hoặc mở hộp thoại dán)"
+                className="h-8 w-8 sm:w-[92px] sm:px-2 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-xs font-medium cursor-pointer transition-colors shrink-0 whitespace-nowrap shadow-2xs inline-flex items-center justify-center gap-1"
+                title={t.projectHeader.batchPaste}
               >
                 <ClipboardPaste className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
-                <span className="hidden sm:inline">Dán nhanh</span>
+                <span className="hidden sm:inline truncate">{t.actionBar.batchPaste}</span>
               </button>
             </form>
           )}

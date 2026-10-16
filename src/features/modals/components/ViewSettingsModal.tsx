@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { X, Sliders, RotateCcw, EyeOff, Globe } from 'lucide-react';
 import { useLanguage } from '../../../i18n';
 import { ViewPreferences } from '../../../hooks/useViewPreferences';
@@ -24,11 +25,12 @@ export function ViewSettingsModal({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150"
+      style={{ zIndex: 9995 }}
+      className="fixed inset-0 z-[9995] bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div
@@ -271,6 +273,7 @@ export function ViewSettingsModal({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

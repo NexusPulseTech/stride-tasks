@@ -317,7 +317,8 @@ export function TaskDetailModal({
       role="dialog"
       aria-modal="true"
       aria-label={t.taskDetail.title}
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 dark:bg-black/70 backdrop-blur-xs animate-in fade-in duration-150"
+      style={{ zIndex: 9992 }}
+      className="fixed inset-0 z-[9992] flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 dark:bg-black/70 backdrop-blur-xs animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div

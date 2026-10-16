@@ -413,6 +413,7 @@ export function useTaskCRUD({
               status: nextTaskStatus,
               subtasks: updatedSubs,
               completedAt: nextTaskStatus === 'done' ? t.completedAt || new Date().toISOString() : undefined,
+              snoozeUntil: nextTaskStatus === 'done' ? undefined : t.snoozeUntil,
             };
           }),
         };
@@ -485,7 +486,8 @@ export function useTaskCRUD({
     projId: string,
     taskId: string,
     snoozeUntil: string | null,
-    snoozeLevel?: number
+    snoozeLevel?: number,
+    autoPin?: boolean
   ) => {
     setProjects((prev) =>
       prev.map((p) => {
@@ -498,13 +500,20 @@ export function useTaskCRUD({
               ...t,
               snoozeUntil: snoozeUntil || undefined,
               snoozeLevel: snoozeLevel !== undefined ? snoozeLevel : t.snoozeLevel,
+              isPinned: autoPin ? true : t.isPinned,
             };
           }),
         };
       })
     );
-    if (snoozeUntil) {
-      showToast('Đã lưu thời gian hoãn nhắc công việc!');
+    if (autoPin && !snoozeUntil) {
+      showToast('Đã ghim ưu tiên & đặt Nhắc lại ngay (Mức 1)!');
+    } else if (snoozeUntil) {
+      showToast(
+        snoozeLevel
+          ? `Đã hoãn nhắc công việc (Lên Mức ${snoozeLevel})!`
+          : 'Đã lưu thời gian hoãn nhắc công việc!'
+      );
     } else {
       showToast('Đã hủy hoãn nhắc công việc!');
     }

@@ -82,10 +82,12 @@ export function ActionBar({
     isLongPressRef.current = false;
   }, []);
 
+  const formatCount = (n: number) => (n > 99 ? '99+' : String(n));
+
   return (
-    <div className="w-full">
+    <div className="w-full overflow-hidden">
       {mobileSearchOpen ? (
-        <div className="h-9 flex items-center gap-1.5 bg-white dark:bg-[#161b22] border border-slate-200/90 dark:border-slate-800 rounded-xl px-2.5 shadow-2xs animate-in fade-in duration-100 w-full overflow-hidden">
+        <div className="h-8.5 flex items-center gap-1.5 bg-white dark:bg-[#161b22] border border-slate-200/90 dark:border-slate-800 rounded-lg px-2.5 shadow-2xs w-full overflow-hidden">
           <Search className="w-3.5 h-3.5 shrink-0 text-slate-400" strokeWidth={1.75} aria-hidden="true" />
           <input
             ref={mobileSearchRef}
@@ -116,11 +118,11 @@ export function ActionBar({
           </button>
         </div>
       ) : (
-        <div className="h-9 flex items-center justify-between gap-1.5 flex-nowrap w-full overflow-hidden">
-          {/* 3 tabs bộ lọc trạng thái (ẩn được theo View Preferences) */}
+        <div className="h-8.5 flex items-center justify-between gap-1 sm:gap-1.5 flex-nowrap w-full overflow-hidden">
+          {/* Khu vực 4 tabs lọc + nút ẩn việc xong: Cố định bằng Grid tỷ lệ chuẩn, không bao giờ tràn hay đẩy mất nút cuối */}
           {showFilterTabs ? (
-            <div className="flex items-center gap-1.5 shrink-0 flex-nowrap">
-              <div className="flex items-center gap-0.5 bg-slate-200/70 dark:bg-slate-800/80 p-0.5 rounded-lg text-[11px] sm:text-[11.5px] font-medium shrink-0 flex-nowrap">
+            <div className="flex items-center gap-1 sm:gap-1.5 flex-1 min-w-0 sm:flex-none flex-nowrap">
+              <div className="flex-1 min-w-0 sm:flex-none sm:w-[312px] h-8 grid grid-cols-[0.82fr_1.18fr_1.18fr_0.82fr] items-center gap-0.5 bg-slate-200/75 dark:bg-slate-800/85 p-0.5 rounded-lg text-[10.5px] sm:text-[11.5px] font-medium overflow-hidden">
                 <button
                   type="button"
                   onPointerDown={handleAllPointerDown}
@@ -128,13 +130,13 @@ export function ActionBar({
                   onPointerLeave={handleAllPointerCancel}
                   onPointerCancel={handleAllPointerCancel}
                   title={`${t.actionBar.allFilter} (${hideCompletedInAllView ? t.actionBar.allActiveOnly : t.actionBar.allWithCompleted}) • ${t.actionBar.longPressHint}`}
-                  className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer whitespace-nowrap shrink-0 relative select-none ${
+                  className={`h-7 px-1 rounded-md transition-colors cursor-pointer whitespace-nowrap min-w-0 overflow-hidden flex items-center justify-center relative select-none ${
                     filter === 'all'
                       ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-2xs font-semibold'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                   } ${holdingProgress ? 'ring-2 ring-amber-400/50' : ''}`}
                 >
-                  <span>{t.actionBar.allFilter}</span>
+                  <span className="truncate">{t.actionBar.allFilter}</span>
                   {filter === 'all' && hideCompletedInAllView && (
                     <span
                       className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-amber-500 pointer-events-none"
@@ -145,41 +147,49 @@ export function ActionBar({
                 <button
                   type="button"
                   onClick={() => onFilterChange('doing')}
-                  className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
+                  className={`h-7 px-1 rounded-md transition-colors cursor-pointer whitespace-nowrap min-w-0 overflow-hidden flex items-center justify-center gap-0.5 select-none ${
                     filter === 'doing'
                       ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-2xs font-semibold'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                   }`}
                 >
-                  <span>{t.actionBar.doingFilter}</span>
-                  {totalDoing > 0 && <span className="ml-1 font-bold font-mono tabular-nums">({totalDoing})</span>}
+                  <span className="truncate">{t.actionBar.doingFilter}</span>
+                  {totalDoing > 0 && (
+                    <span className="font-bold font-mono tabular-nums text-[9.5px] sm:text-[10px] opacity-80 shrink-0">
+                      {formatCount(totalDoing)}
+                    </span>
+                  )}
                 </button>
                 <button
                   type="button"
                   onClick={() => onFilterChange('scheduled')}
-                  className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
+                  className={`h-7 px-1 rounded-md transition-colors cursor-pointer whitespace-nowrap min-w-0 overflow-hidden flex items-center justify-center gap-0.5 select-none ${
                     filter === 'scheduled'
                       ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-2xs font-semibold'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                   }`}
                 >
-                  <span>{t.actionBar.scheduledFilter}</span>
-                  {totalScheduled > 0 && <span className="ml-1 font-bold font-mono tabular-nums">({totalScheduled})</span>}
+                  <span className="truncate">{t.actionBar.scheduledFilter}</span>
+                  {totalScheduled > 0 && (
+                    <span className="font-bold font-mono tabular-nums text-[9.5px] sm:text-[10px] opacity-80 shrink-0">
+                      {formatCount(totalScheduled)}
+                    </span>
+                  )}
                 </button>
                 <button
                   type="button"
                   onClick={() => onFilterChange('completed')}
-                  className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
+                  className={`h-7 px-1 rounded-md transition-colors cursor-pointer whitespace-nowrap min-w-0 overflow-hidden flex items-center justify-center select-none ${
                     filter === 'completed'
                       ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-2xs font-semibold'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                   }`}
                 >
-                  {t.actionBar.completedFilter}
+                  <span className="truncate">{t.actionBar.completedFilter}</span>
                 </button>
               </div>
 
-              {/* Nút bật/tắt nhanh ẩn việc đã xong: Cố định kích thước 32x32px & vị trí, triệt tiêu hiện tượng nhảy layout */}
+              {/* Nút bật/tắt nhanh ẩn việc đã xong: Cố định 32x32px */}
               {onToggleHideCompletedInAll && (
                 <button
                   type="button"
@@ -189,7 +199,7 @@ export function ActionBar({
                     }
                     onToggleHideCompletedInAll();
                   }}
-                  className={`relative w-8 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer shrink-0 border ${
+                  className={`relative w-8 h-8 rounded-lg flex items-center justify-center transition-colors cursor-pointer shrink-0 border ${
                     filter === 'all'
                       ? hideCompletedInAllView
                         ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 hover:bg-amber-500/25 border-amber-300/60 dark:border-amber-700/60 shadow-2xs'
@@ -199,9 +209,9 @@ export function ActionBar({
                   title={
                     filter === 'all'
                       ? hideCompletedInAllView
-                        ? `${t.actionBar.hideCompleted} (${hiddenDoneCount} việc đã ẩn) • Bấm để hiện lại`
+                        ? `${t.actionBar.hideCompleted} (${hiddenDoneCount}) • Bấm để hiện lại`
                         : `${t.actionBar.showCompleted} • Bấm để ẩn việc đã hoàn thành`
-                      : `${t.actionBar.hideCompleted} (Áp dụng cho tab Tất cả) • Bấm để chuyển sang Tất cả`
+                      : `${t.actionBar.hideCompleted}`
                   }
                   aria-label={hideCompletedInAllView ? t.actionBar.showCompleted : t.actionBar.hideCompleted}
                 >
@@ -211,13 +221,12 @@ export function ActionBar({
                     <Eye className="w-3.5 h-3.5 shrink-0" />
                   )}
 
-                  {/* Huy hiệu số việc đã ẩn: Absolute không gây co giãn layout (CLS = 0) */}
                   {filter === 'all' && hideCompletedInAllView && hiddenDoneCount > 0 && (
                     <span
-                      className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-amber-500 text-white font-mono text-[9px] font-bold flex items-center justify-center shadow-xs pointer-events-none"
+                      className="absolute -top-0.5 -right-0.5 min-w-[15px] h-3.5 px-0.5 rounded-full bg-amber-500 text-white font-mono text-[8.5px] font-bold flex items-center justify-center shadow-xs pointer-events-none tabular-nums"
                       aria-hidden="true"
                     >
-                      {hiddenDoneCount > 99 ? '99+' : hiddenDoneCount}
+                      {formatCount(hiddenDoneCount)}
                     </span>
                   )}
                 </button>
@@ -227,14 +236,14 @@ export function ActionBar({
             <div />
           )}
 
-          {/* Khu vực tìm kiếm & Tiêu điểm */}
-          <div className="flex items-center gap-1 shrink-0 flex-nowrap">
-            {/* Nút Tiêu điểm giải quyết quá tải việc */}
+          {/* Khu vực phải: Tiêu điểm hôm nay & Tìm kiếm (Khóa cứng kích thước, không bao giờ bị đẩy mất) */}
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 flex-nowrap">
+            {/* Nút Tiêu điểm & Giảm tải công việc */}
             {onOpenDailyFocus && (
               <button
                 type="button"
                 onClick={onOpenDailyFocus}
-                className={`h-8 px-2 sm:px-2.5 rounded-lg border text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs shrink-0 ${
+                className={`h-8 px-2 sm:w-[112px] sm:px-2 rounded-lg border text-xs font-medium flex items-center justify-center gap-1 transition-colors cursor-pointer shadow-2xs shrink-0 overflow-hidden whitespace-nowrap ${
                   dailyFocusCount > 0
                     ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-200 border-amber-300/80 dark:border-amber-800/80'
                     : 'bg-white dark:bg-[#161b22] border-slate-200/90 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
@@ -243,12 +252,12 @@ export function ActionBar({
                 aria-label={t.dailyFocus.buttonTooltip}
               >
                 <Target className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                <span className="hidden md:inline font-semibold text-[11.5px]">
-                  {t.dailyFocus.modalTitle.split('&')[0].trim()}
+                <span className="hidden sm:inline font-semibold text-[11px] truncate">
+                  {t.actionBar.allFilter === 'Tất cả' ? 'Tiêu điểm' : 'Focus'}
                 </span>
                 {dailyFocusCount > 0 && (
-                  <span className="font-mono tabular-nums font-bold text-[10px] px-1 py-0.2 bg-amber-500/20 dark:bg-amber-500/30 text-amber-800 dark:text-amber-200 rounded-full">
-                    {dailyFocusCount}
+                  <span className="font-mono tabular-nums font-bold text-[9.5px] px-1 py-0.2 bg-amber-500/20 dark:bg-amber-500/30 text-amber-800 dark:text-amber-200 rounded shrink-0">
+                    {formatCount(dailyFocusCount)}
                   </span>
                 )}
               </button>
@@ -265,16 +274,16 @@ export function ActionBar({
               <Search className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
             </button>
 
-            {/* Ô tìm kiếm cố định trên Desktop */}
-            <div className="hidden sm:flex items-center gap-1 flex-nowrap">
-              <div className="relative flex items-center">
+            {/* Ô tìm kiếm cố định w-[156px] trên Desktop (không tự phình to khi focus tránh đẩy lệch) */}
+            <div className="hidden sm:flex items-center shrink-0">
+              <div className="relative flex items-center w-[156px]">
                 <input
                   ref={desktopSearchRef}
                   type="text"
                   value={search}
                   onChange={(e) => onSearchChange(e.target.value)}
                   placeholder={t.actionBar.searchPlaceholder}
-                  className="w-44 focus:w-56 h-8 pl-3 pr-8 bg-white dark:bg-[#161b22] border border-slate-200/90 dark:border-slate-800 rounded-lg text-[11.5px] text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition-all truncate shadow-2xs"
+                  className="w-full h-8 pl-2.5 pr-6 bg-white dark:bg-[#161b22] border border-slate-200/90 dark:border-slate-800 focus:border-slate-800 dark:focus:border-slate-400 rounded-lg text-[11.5px] text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition-colors truncate shadow-2xs"
                 />
                 {search ? (
                   <button
@@ -287,23 +296,12 @@ export function ActionBar({
                     <X className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
                   </button>
                 ) : (
-                  <kbd className="absolute right-1.5 text-[9px] text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 rounded px-1 pointer-events-none hidden sm:inline font-mono">
+                  <kbd className="absolute right-1.5 text-[9px] text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 rounded px-1 pointer-events-none font-mono">
                     /
                   </kbd>
                 )}
               </div>
             </div>
-
-            {/* Nút khôi phục mẫu */}
-            <button
-              type="button"
-              onClick={onResetSample}
-              className="h-8 px-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors cursor-pointer shrink-0 hidden sm:flex items-center justify-center text-xs"
-              title={t.actionBar.resetSample}
-              aria-label={t.actionBar.resetSample}
-            >
-              <RotateCcw className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
-            </button>
           </div>
         </div>
       )}

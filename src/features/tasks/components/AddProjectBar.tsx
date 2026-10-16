@@ -26,10 +26,10 @@ export function AddProjectBar({
       />
       <button
         type="submit"
-        className="h-8.5 px-3 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white active:scale-[0.98] text-white dark:text-slate-950 text-[12px] font-medium rounded-lg transition-all shrink-0 shadow-xs cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+        className="h-8.5 w-[76px] sm:w-[82px] px-2 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white active:scale-[0.98] text-white dark:text-slate-950 text-[12px] font-medium rounded-lg transition-colors shrink-0 shadow-xs cursor-pointer whitespace-nowrap flex items-center justify-center gap-1"
       >
         <Plus className="w-3.5 h-3.5 shrink-0" strokeWidth={2} aria-hidden="true" />
-        <span>{t.tasks.addProjectButton}</span>
+        <span className="truncate">{t.tasks.addProjectButton}</span>
       </button>
     </form>
   );

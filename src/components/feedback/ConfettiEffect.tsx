@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 
 export function ConfettiEffect() {
   const pieces = Array.from({ length: 42 }).map((_, i) => {
@@ -10,8 +11,8 @@ export function ConfettiEffect() {
     return { id: i, color, left, delay, size };
   });
 
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
+  return createPortal(
+    <div style={{ zIndex: 10030 }} className="fixed inset-0 pointer-events-none z-[10030] overflow-hidden">
       {pieces.map((p) => (
         <div
           key={p.id}
@@ -25,6 +26,7 @@ export function ConfettiEffect() {
           }}
         />
       ))}
-    </div>
+    </div>,
+    document.body
   );
 }

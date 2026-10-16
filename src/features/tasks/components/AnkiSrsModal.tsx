@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   RotateCcw,
   X,
@@ -101,11 +102,12 @@ export function AnkiSrsModal({
     onClose();
   };
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150"
+      style={{ zIndex: 9998 }}
+      className="fixed inset-0 z-[9998] bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div
@@ -317,6 +319,7 @@ export function AnkiSrsModal({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -77,5 +77,5 @@ export interface TaskItemProps {
   onOpenDetail?: (task: Task, projectId: string) => void;
   onOpenSchedule?: (task: Task, projectId: string) => void;
   onTogglePinSubTask?: (projId: string, taskId: string, subId: string) => void;
-  onOpenAnkiSrs?: (task: Task, projectId: string) => void;
+  onOpenAnkiSrs?: (task: Task, projectId: string, parentTaskId?: string) => void;
 }

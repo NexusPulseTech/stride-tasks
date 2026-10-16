@@ -14,7 +14,8 @@ export function ConfirmDialog({ confirmDialog, onClose }: ConfirmDialogProps) {
   return createPortal(
     <div
       onClick={onClose}
-      className="fixed inset-0 z-[99999] bg-slate-950/40 dark:bg-black/70 backdrop-blur-[3px] flex items-center justify-center p-3.5 sm:p-4 animate-in fade-in duration-100"
+      style={{ zIndex: 10010 }}
+      className="fixed inset-0 z-[10010] bg-slate-950/40 dark:bg-black/70 backdrop-blur-[3px] flex items-center justify-center p-3.5 sm:p-4 animate-in fade-in duration-100"
     >
       <div
         onClick={(e) => e.stopPropagation()}

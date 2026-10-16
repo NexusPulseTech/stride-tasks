@@ -356,14 +356,12 @@ export function getAnkiSrs3Options(level: number = 1): [AnkiSrsOption, AnkiSrsOp
 
 export function getSpacedSnoozeOptions(currentLevel: number = 1): SnoozePresetOption[] {
   const options = getAnkiSrs3Options(currentLevel);
-  return options
-    .filter((opt) => opt.days > 0)
-    .map((opt) => ({
-      days: opt.days,
-      labelVi: opt.labelVi,
-      labelEn: opt.labelEn,
-      nextLevel: opt.nextLevel,
-    }));
+  return options.map((opt) => ({
+    days: opt.days,
+    labelVi: opt.labelVi,
+    labelEn: opt.labelEn,
+    nextLevel: opt.nextLevel,
+  }));
 }
 
 /**
@@ -379,14 +377,14 @@ export function calculateSnoozeTarget(days: number): string {
 
 /**
  * Lọc hàng đợi công việc cần tập trung hôm nay (Daily Focus Queue)
- * - Lọc ra top uncompleted items (lá con sâu nhất được ưu tiên)
+ * - Lọc ra toàn bộ uncompleted items (lá con sâu nhất được ưu tiên theo GTD)
  * - Loại bỏ các việc đang bị snooze trong tương lai
- * - Sắp xếp theo độ ưu tiên: Đến hẹn/Quá hạn > Ghim > Đang làm > Việc khác
+ * - Sắp xếp theo độ ưu tiên: Ghim > Đến hẹn/Quá hạn > Đang làm > Việc con sâu nhất
  */
 export function getDailyFocusQueue(
   projects: Project[],
   statuses: StatusDefinition[],
-  limit: number = 3
+  limit: number = 100
 ): ActionableItem[] {
   const allActionables: ActionableItem[] = [];
 
@@ -399,7 +397,7 @@ export function getDailyFocusQueue(
     }
   }
 
-  // Tách nhóm: Nhóm đang active (không bị hoãn hoặc hoãn đã hết hạn) và nhóm đang ngủ
+  // Tách nhóm: Nhóm đang active (không bị hoãn hoặc hoãn đã hết hạn)
   const now = Date.now();
   const activeItems = allActionables.filter((item) => {
     if (!item.snoozeUntil) return true;
@@ -430,6 +428,40 @@ export function getDailyFocusQueue(
   });
 
   return activeItems.slice(0, limit);
+}
+
+/**
+ * Lọc danh sách các việc đang trong thời gian hoãn đếm ngược Anki (snoozeUntil > now)
+ */
+export function getSnoozedItemsQueue(
+  projects: Project[],
+  statuses: StatusDefinition[]
+): ActionableItem[] {
+  const allActionables: ActionableItem[] = [];
+
+  for (const project of projects) {
+    for (const task of project.tasks) {
+      const actionable = resolveActionableItemForTask(task, project, statuses);
+      if (actionable) {
+        allActionables.push(actionable);
+      }
+    }
+  }
+
+  const now = Date.now();
+  const snoozedItems = allActionables.filter((item) => {
+    if (!item.snoozeUntil) return false;
+    const time = new Date(item.snoozeUntil).getTime();
+    return !isNaN(time) && time > now;
+  });
+
+  snoozedItems.sort((a, b) => {
+    const tA = new Date(a.snoozeUntil!).getTime();
+    const tB = new Date(b.snoozeUntil!).getTime();
+    return tA - tB;
+  });
+
+  return snoozedItems;
 }
 
 /**
