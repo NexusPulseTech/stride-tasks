@@ -83,7 +83,7 @@ export function useSmartReminder({ projects, isMuted, showToast }: UseSmartRemin
             try {
               new Notification(`Đến giờ làm: ${t.title}`, {
                 body: `Thuộc danh mục "${p.name}". Bấm vào ứng dụng để thực hiện ngay!`,
-                icon: '/stride-tasks-icon.svg',
+                icon: '/icon-192.png',
               });
             } catch (e) {}
           }
@@ -153,7 +153,7 @@ export function useSmartReminder({ projects, isMuted, showToast }: UseSmartRemin
       try {
         new Notification('Stride Tasks - Nhắc việc thông minh', {
           body: `Bạn còn ${activePendingList.length} công việc cần xử lý! Ưu tiên: "${topTask.title.slice(0, 40)}"`,
-          icon: '/stride-tasks-icon.svg',
+          icon: '/icon-192.png',
         });
       } catch (e) {}
     }

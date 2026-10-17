@@ -1,0 +1,14 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Stride Tasks app icon">
+  <!-- Khung Squircle & Nền Đỏ CIP -->
+  <rect width="100" height="100" rx="22" fill="#B20015" />
+
+  <!-- DNA Đa giác (Low-poly Facets) -->
+  <polygon points="0,0 60,0 35,40" fill="#9C0012" />
+  <polygon points="60,0 100,0 100,50 65,35" fill="#A80014" />
+  <polygon points="0,40 40,35 0,100" fill="#8B000F" />
+  <polygon points="100,50 60,100 100,100" fill="#940011" />
+  <polygon points="15,100 85,100 40,60" fill="#A30013" />
+
+  <!-- Biểu tượng "Pulse-Stride Check" -->
+  <path d="M25,50 L40,65 L75,30 L85,40 L40,85 L15,60 Z" fill="#FFFFFF" />
+</svg>

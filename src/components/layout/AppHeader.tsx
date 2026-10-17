@@ -75,7 +75,7 @@ export function AppHeader({
       <div className="max-w-2xl mx-auto px-2.5 sm:px-4 h-11 sm:h-12 flex items-center justify-between gap-1.5 sm:gap-2 w-full">
         {/* Left Zone: Brand & Compact Progress - Khóa kích thước cố định không đẩy nút bên phải */}
         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 overflow-hidden">
-          <div className="w-5.5 h-5.5 rounded-md bg-[#1d1d1f] dark:bg-white flex items-center justify-center text-white dark:text-slate-900 shrink-0 shadow-2xs">
+          <div className="w-5.5 h-5.5 rounded-md bg-[#B20015] flex items-center justify-center text-white shrink-0 shadow-2xs">
             <Check className="w-3.5 h-3.5 shrink-0" strokeWidth={2.5} aria-hidden="true" />
           </div>
           <span className="font-semibold text-[13px] sm:text-[13.5px] tracking-tight text-slate-900 dark:text-slate-100 truncate">

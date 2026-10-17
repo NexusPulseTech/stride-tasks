@@ -1,26 +1,26 @@
 <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Stride Tasks logo">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#B20015"/>
-      <stop offset="100%" stop-color="#8A0011"/>
-    </linearGradient>
-  </defs>
+  <!-- Khung bo tròn & Nền Đỏ CIP -->
+  <rect width="512" height="512" rx="112" fill="#B20015" />
 
-  <rect width="512" height="512" fill="url(#bg)"/>
+  <!-- DNA Đa giác Mở rộng -->
+  <polygon points="0,0 307,0 179,204" fill="#9C0012" />
+  <polygon points="307,0 512,0 512,256 332,179" fill="#A80014" />
+  <polygon points="0,204 204,179 0,512" fill="#8B000F" />
+  <polygon points="512,256 307,512 512,512" fill="#940011" />
+  <polygon points="76,512 435,512 204,307" fill="#A30013" />
 
-  <polygon points="0,0 230,0 176,170" fill="#9C0012" opacity="0.92"/>
-  <polygon points="230,0 512,0 512,240 320,160" fill="#A80014" opacity="0.9"/>
-  <polygon points="0,170 200,150 0,512" fill="#8B000F" opacity="0.95"/>
-  <polygon points="512,240 330,512 512,512" fill="#940011" opacity="0.94"/>
-  <polygon points="80,512 432,512 256,290" fill="#A30013" opacity="0.92"/>
+  <!-- Badge NEXUSPULSE ECOSYSTEM -->
+  <rect x="130" y="80" width="252" height="36" rx="18" fill="#FFFFFF" fill-opacity="0.15" />
+  <text x="256" y="103" font-family="Arial, sans-serif" font-weight="bold" font-size="14" fill="#FFFFFF" text-anchor="middle" letter-spacing="2">NEXUSPULSE ECOSYSTEM</text>
 
-  <rect x="152" y="84" width="208" height="24" rx="12" fill="#FFFFFF" fill-opacity="0.12"/>
-  <text x="256" y="103" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="11" fill="#FFFFFF" letter-spacing="2">NEXUSPULSE</text>
-
-  <g fill="#FFFFFF" font-family="Impact, 'Arial Black', sans-serif" letter-spacing="2">
-    <text x="256" y="248" text-anchor="middle" font-size="82">STRIDE</text>
-    <text x="256" y="334" text-anchor="middle" font-size="82">TASKS</text>
+  <!-- Biểu tượng Pulse-Stride Check (Scale cho bản 512x512) -->
+  <g transform="translate(136, 140) scale(2.4)">
+    <path d="M25,50 L40,65 L75,30 L85,40 L40,85 L15,60 Z" fill="#FFFFFF" />
   </g>
 
-  <text x="256" y="410" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-style="italic" font-size="18" fill="#FFFFFF" letter-spacing="1">the power of execution</text>
+  <!-- Typography Tên App & Slogan -->
+  <g fill="#FFFFFF" font-family="Impact, 'Arial Black', sans-serif" letter-spacing="2">
+    <text x="256" y="400" font-size="64" text-anchor="middle">STRIDE TASKS</text>
+  </g>
+  <text x="256" y="450" font-family="Arial, sans-serif" font-style="italic" font-weight="600" font-size="20" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">the power of execution</text>
 </svg>
