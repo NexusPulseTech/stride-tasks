@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, createContext, useContext } from 'react';
+import { useState, useEffect, useCallback, useRef, createContext, useContext } from 'react';
 import { Language, Translations } from './types';
 import { vi } from './vi';
 import { en } from './en';
@@ -63,6 +63,24 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
 export function useLanguage() {
   return useContext(LanguageContext);
+}
+
+/**
+ * Ref luôn trỏ tới bản dịch của ngôn ngữ HIỆN TẠI — dùng trong callback memo hóa / timer / effect chạy một lần,
+ * nơi đọc trực tiếp `t` sẽ bị đóng băng ở ngôn ngữ lúc tạo callback.
+ */
+export function useTranslationRef() {
+  const { t } = useContext(LanguageContext);
+  const ref = useRef<Translations>(t);
+  ref.current = t;
+  return ref;
+}
+
+/** Thay các placeholder dạng {name} trong chuỗi dịch, VD: formatMessage(t.store.globalBuy, { price: '$25.95' }) */
+export function formatMessage(template: string, vars: Record<string, string | number>): string {
+  return template.replace(/\{(\w+)\}/g, (match, key: string) =>
+    Object.prototype.hasOwnProperty.call(vars, key) ? String(vars[key]) : match
+  );
 }
 
 export * from './types';

@@ -1,10 +1,10 @@
 [package]
 name = "app"
-version = "1.0.6"
-description = "A Tauri App"
-authors = ["you"]
-license = ""
-repository = ""
+version = "3.0.0"
+description = "Stride Tasks — personal task manager with Kanban, Pomodoro and SM-2 spaced repetition"
+authors = ["NexusPulse Studio"]
+license = "MIT"
+repository = "https://github.com/NexusPulseTech/stride-tasks"
 edition = "2024"
 rust-version = "1.90"
 

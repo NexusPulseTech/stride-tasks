@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sun, Moon, Monitor } from 'lucide-react';
+import { Sun, Moon, Monitor, Crown } from 'lucide-react';
 import { ThemeMode } from '../../hooks';
 import { useLanguage } from '../../i18n';
 
@@ -8,6 +8,7 @@ interface AppFooterProps {
   onOpenGuide: () => void;
   onOpenBackup: () => void;
   onOpenFeedback: () => void;
+  onOpenStoreModal?: () => void;
   themeMode: ThemeMode;
   onSetThemeMode: (mode: ThemeMode) => void;
 }
@@ -17,10 +18,11 @@ export function AppFooter({
   onOpenGuide,
   onOpenBackup,
   onOpenFeedback,
+  onOpenStoreModal,
   themeMode,
   onSetThemeMode,
 }: AppFooterProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   return (
     <footer className="text-center text-[11px] text-slate-400 dark:text-slate-500 pt-6 pb-4 space-y-2.5">
@@ -76,6 +78,19 @@ export function AppFooter({
       </div>
 
       <div className="flex items-center justify-center gap-3 pt-1 text-slate-500 dark:text-slate-400 flex-wrap">
+        {onOpenStoreModal && (
+          <>
+            <button
+              type="button"
+              onClick={onOpenStoreModal}
+              className="hover:underline text-amber-600 dark:text-amber-400 font-semibold cursor-pointer inline-flex items-center gap-1"
+            >
+              <Crown className="w-3 h-3" />
+              <span>{t.store.entryLabel}</span>
+            </button>
+            <span aria-hidden="true">·</span>
+          </>
+        )}
         <button
           type="button"
           onClick={onOpenMobileGuide}
@@ -109,7 +124,16 @@ export function AppFooter({
         </button>
         <span aria-hidden="true">·</span>
         <a
-          href="https://github.com/PhuccNguyen/stride-tasks"
+          href="/privacy.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+        >
+          {language === 'vi' ? 'Bảo mật (Privacy)' : 'Privacy Policy'}
+        </a>
+        <span aria-hidden="true">·</span>
+        <a
+          href="https://github.com/NexusPulseTech/stride-tasks"
           target="_blank"
           rel="noopener noreferrer"
           className="hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer font-medium text-slate-600 dark:text-slate-300"

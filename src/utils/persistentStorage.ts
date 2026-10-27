@@ -282,8 +282,12 @@ export function loadProjectsSafely(): Project[] {
 }
 
 // ----------------------------------------------------
-// 7. Snapshot Vault: Giữ lại 20 bản sao lưu xoay vòng
+// 7. Snapshot Vault: Giữ lại 5 bản sao lưu xoay vòng (mỗi bản là 1 bản sao TOÀN BỘ workspace,
+//    nên số bản quyết định trực tiếp dung lượng localStorage còn lại cho dữ liệu thật)
 // ----------------------------------------------------
+export const SNAPSHOT_VAULT_LIMIT = 5;
+const SNAPSHOT_VAULT_PRUNE_ON_QUOTA = 2;
+
 export function saveSnapshotToVault(projects: Project[], label?: string): void {
   if (typeof window === 'undefined' || !Array.isArray(projects) || projects.length === 0) return;
   if (isSampleTemplate(projects)) return; // Không lưu snapshot của dữ liệu mẫu ban đầu
@@ -311,11 +315,18 @@ export function saveSnapshotToVault(projects: Project[], label?: string): void {
     }
 
     vault.unshift(newSnapshot);
-    if (vault.length > 20) {
-      vault = vault.slice(0, 20); // Giữ 20 bản gần nhất
+    if (vault.length > SNAPSHOT_VAULT_LIMIT) {
+      vault = vault.slice(0, SNAPSHOT_VAULT_LIMIT);
     }
 
-    localStorage.setItem(STRIDE_SNAPSHOT_VAULT_KEY, JSON.stringify(vault));
+    // Snapshot là dự phòng: hết chỗ thì bỏ qua lặng lẽ, KHÔNG được chiếm quota của dữ liệu chính
+    try {
+      localStorage.setItem(STRIDE_SNAPSHOT_VAULT_KEY, JSON.stringify(vault));
+    } catch (e) {
+      try {
+        localStorage.setItem(STRIDE_SNAPSHOT_VAULT_KEY, JSON.stringify(vault.slice(0, SNAPSHOT_VAULT_PRUNE_ON_QUOTA)));
+      } catch (err) {}
+    }
     // Lưu song song vào IndexedDB
     idbSet(STRIDE_SNAPSHOT_VAULT_KEY, vault);
   } catch (e) {}
@@ -380,24 +391,60 @@ export function subscribeCrossTabSync(onRemoteUpdate: () => void): () => void {
 }
 
 // ----------------------------------------------------
-// 9. Ghi đè an toàn (Anti-Wipe Guard with Quota Pruning)
+// 9. Ghi đè an toàn (Anti-Wipe Guard with Quota Pruning + cảnh báo người dùng)
 // ----------------------------------------------------
-function safeLocalStorageSet(key: string, value: string): void {
+/** App lắng nghe sự kiện này để hiện toast khi dữ liệu KHÔNG lưu được */
+export const STORAGE_ERROR_EVENT = 'stride:storage-error';
+export type StorageErrorReason = 'quota' | 'blocked';
+
+function isQuotaError(e: unknown): boolean {
+  const err = e as { name?: string; code?: number } | null;
+  return Boolean(
+    err &&
+      (err.name === 'QuotaExceededError' || err.name === 'NS_ERROR_DOM_QUOTA_REACHED' || err.code === 22 || err.code === 1014)
+  );
+}
+
+let lastStorageErrorAt = 0;
+function reportStorageError(reason: StorageErrorReason, key: string): void {
+  // Gom báo lỗi dồn dập (mỗi lần gõ phím có thể kích hoạt một lần lưu) thành tối đa 1 thông báo / 10 giây
+  const now = Date.now();
+  if (now - lastStorageErrorAt < 10000) return;
+  lastStorageErrorAt = now;
+  try {
+    window.dispatchEvent(new CustomEvent(STORAGE_ERROR_EVENT, { detail: { reason, key } }));
+  } catch (e) {}
+}
+
+/**
+ * Ghi localStorage an toàn: gặp QuotaExceededError thì dọn bớt Snapshot Vault rồi thử lại;
+ * vẫn thất bại thì phát STORAGE_ERROR_EVENT để UI cảnh báo. Trả về true nếu đã lưu.
+ */
+export function safeSetItem(key: string, value: string): boolean {
   try {
     localStorage.setItem(key, value);
-  } catch (e: any) {
-    // Nếu gặp QuotaExceededError, dọn dẹp các snapshot cũ trong vault rồi thử lại
-    if (e && (e.name === 'QuotaExceededError' || e.code === 22)) {
-      try {
-        const vault = getSnapshotVault();
-        if (vault.length > 5) {
-          const trimmed = vault.slice(0, 5);
-          localStorage.setItem(STRIDE_SNAPSHOT_VAULT_KEY, JSON.stringify(trimmed));
-          localStorage.setItem(key, value);
-        }
-      } catch (err) {}
+    return true;
+  } catch (e) {
+    if (!isQuotaError(e)) {
+      reportStorageError('blocked', key);
+      return false;
     }
   }
+  try {
+    const vault = getSnapshotVault();
+    if (vault.length > 0) {
+      localStorage.setItem(STRIDE_SNAPSHOT_VAULT_KEY, JSON.stringify(vault.slice(0, SNAPSHOT_VAULT_PRUNE_ON_QUOTA)));
+    }
+    localStorage.setItem(key, value);
+    return true;
+  } catch (err) {
+    reportStorageError(isQuotaError(err) ? 'quota' : 'blocked', key);
+    return false;
+  }
+}
+
+function safeLocalStorageSet(key: string, value: string): void {
+  safeSetItem(key, value);
 }
 
 export function saveProjectsSafely(projects: Project[], broadcast: boolean = true): void {

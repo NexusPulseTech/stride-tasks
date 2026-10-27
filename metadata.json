@@ -1,6 +1,6 @@
 {
-  "name": "TaskTodo",
-  "description": "Ứng dụng TaskTodo quản lý công việc cá nhân tối giản, trực quan. Hỗ trợ checklist, phân loại 3 trạng thái (Tất cả, Đang làm, Đã xong), dán nhanh đa cấp và lưu offline an toàn.",
+  "name": "TaskTodo – Quản Lý Công Việc Cá Nhân Trực Quan",
+  "description": "Ứng dụng TaskTodo quản lý công việc cá nhân tối giản, trực quan. Hỗ trợ checklist, phân loại 3 trạng thái thông minh và lưu offline an toàn.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }

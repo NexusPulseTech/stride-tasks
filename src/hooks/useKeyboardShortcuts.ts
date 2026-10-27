@@ -23,6 +23,8 @@ interface KeyboardShortcutsProps {
   setUndoState: (val: null) => void;
   desktopSearchRef: React.RefObject<HTMLInputElement | null>;
   onCycleTheme?: () => void;
+  onOpenCommandPalette?: () => void;
+  onToggleBoardView?: () => void;
 }
 
 export function useKeyboardShortcuts({
@@ -47,6 +49,8 @@ export function useKeyboardShortcuts({
   setUndoState,
   desktopSearchRef,
   onCycleTheme,
+  onOpenCommandPalette,
+  onToggleBoardView,
 }: KeyboardShortcutsProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -55,6 +59,15 @@ export function useKeyboardShortcuts({
         activeEl?.tagName === 'INPUT' ||
         activeEl?.tagName === 'TEXTAREA' ||
         (activeEl as HTMLElement)?.isContentEditable;
+
+      // Ctrl+K or Cmd+K: Open Command Palette (Linear & Godspeed style)
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        if (onOpenCommandPalette) {
+          e.preventDefault();
+          onOpenCommandPalette();
+          return;
+        }
+      }
 
       // Esc: Close dialogs, exit focus, clear search
       if (e.key === 'Escape') {
@@ -123,6 +136,14 @@ export function useKeyboardShortcuts({
         setIsFocusMode((prev) => !prev);
       }
 
+      // 'b' or 'B' to toggle Kanban Board / List View (when not in input)
+      if ((e.key === 'b' || e.key === 'B') && !isInput && !e.ctrlKey && !e.metaKey) {
+        if (onToggleBoardView) {
+          e.preventDefault();
+          onToggleBoardView();
+        }
+      }
+
       // 'd' or 'D' to cycle Dark / Light / System theme
       if ((e.key === 'd' || e.key === 'D') && !isInput && !e.ctrlKey && !e.metaKey) {
         if (onCycleTheme) {
@@ -156,5 +177,7 @@ export function useKeyboardShortcuts({
     setUndoState,
     desktopSearchRef,
     onCycleTheme,
+    onOpenCommandPalette,
+    onToggleBoardView,
   ]);
 }

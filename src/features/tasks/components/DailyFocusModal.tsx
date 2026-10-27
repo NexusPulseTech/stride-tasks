@@ -10,6 +10,9 @@ import {
   ChevronRight,
   RotateCcw,
   Layers,
+  Play,
+  Moon,
+  FileText,
 } from 'lucide-react';
 import {
   ActionableItem,
@@ -18,6 +21,8 @@ import {
   calculateSnoozeTarget,
   formatSnoozeCountdown,
 } from '../utils/spacedSnooze';
+import { Project } from '../../../types';
+import { isDoneStatus } from '../utils/statusCategory';
 import { useLanguage } from '../../../i18n';
 import { triggerHaptic } from '../../../utils';
 
@@ -26,6 +31,7 @@ export interface DailyFocusModalProps {
   onClose: () => void;
   items: ActionableItem[];
   snoozedItems?: ActionableItem[];
+  projects?: Project[];
   onToggleTaskDone: (projectId: string, taskId: string, completed: boolean) => void;
   onToggleSubTask: (projectId: string, taskId: string, subId: string, completed: boolean) => void;
   onTogglePinTask: (projectId: string, taskId: string) => void;
@@ -40,6 +46,9 @@ export interface DailyFocusModalProps {
     autoPin?: boolean
   ) => void;
   onOpenDetail?: (taskId: string, projectId: string) => void;
+  onStartFocusItem?: (item: ActionableItem) => void;
+  onExecuteShutdownRitual?: () => void;
+  onOpenMarkdownReport?: () => void;
 }
 
 export function DailyFocusModal({
@@ -47,6 +56,7 @@ export function DailyFocusModal({
   onClose,
   items,
   snoozedItems = [],
+  projects = [],
   onToggleTaskDone,
   onToggleSubTask,
   onTogglePinTask,
@@ -54,6 +64,9 @@ export function DailyFocusModal({
   onSnoozeTask,
   onSnoozeSubTask,
   onOpenDetail,
+  onStartFocusItem,
+  onExecuteShutdownRitual,
+  onOpenMarkdownReport,
 }: DailyFocusModalProps) {
   const { t, language } = useLanguage();
   const [activeTab, setActiveTab] = useState<'due' | 'snoozed'>('due');
@@ -180,6 +193,92 @@ export function DailyFocusModal({
               <X className="w-4 h-4" />
             </button>
           </div>
+
+          {/* Sunsama / Akiflow Workload Capacity & Burnout Guardrail Bar */}
+          {(() => {
+            let totalEstimatedMins = 0;
+            let totalFocusedMins = 0;
+            let activeDoingCount = 0;
+            let unestimatedCount = 0;
+            projects.forEach((p) => {
+              p.tasks.forEach((t) => {
+                totalFocusedMins += t.focusedMinutes || 0;
+                if (!isDoneStatus(t.status)) {
+                  // Chỉ cộng ước tính thật (đồng nhất với Thống kê & Báo cáo); việc chưa ước tính được đếm riêng
+                  if (t.estimatedMinutes) totalEstimatedMins += t.estimatedMinutes;
+                  else unestimatedCount += 1;
+                  if (t.status === 'doing' || t.status === 'review') {
+                    activeDoingCount += 1;
+                  }
+                }
+              });
+            });
+            const isOverloaded = totalEstimatedMins > 360; // > 6 hours realistic deep work cap
+            const estHours = Math.floor(totalEstimatedMins / 60);
+            const estRemMins = totalEstimatedMins % 60;
+
+            return (
+              <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2 flex-wrap">
+                <div className="min-w-0 space-y-0.5">
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-800 dark:text-slate-200">
+                    <span>
+                      {language === 'vi' ? 'Quỹ tải công việc:' : 'Workload Budget:'}
+                    </span>
+                    <span
+                      className={`font-mono tabular-nums ${
+                        isOverloaded
+                          ? 'text-rose-600 dark:text-rose-400'
+                          : 'text-emerald-600 dark:text-emerald-400'
+                      }`}
+                    >
+                      ~{estHours > 0 ? `${estHours}h ` : ''}{estRemMins}m
+                    </span>
+                    <span className="text-slate-400">·</span>
+                    <span className="font-mono tabular-nums text-amber-600 dark:text-amber-400">
+                      {totalFocusedMins}m Focus
+                    </span>
+                    {unestimatedCount > 0 && (
+                      <span className="text-[10px] font-normal text-slate-400">
+                        · {language === 'vi' ? `+${unestimatedCount} việc chưa ước tính` : `+${unestimatedCount} unestimated`}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500">
+                    {isOverloaded
+                      ? language === 'vi'
+                        ? 'Cảnh báo quá tải (>6h Deep Work) — hãy dùng phím 2 hoặc 3 để giãn lịch Anki SM-2'
+                        : 'Overbooked (>6h Deep Work) — use keys 2 or 3 to space out tasks via Anki SM-2'
+                      : language === 'vi'
+                      ? 'Khối lượng công việc trong ngưỡng an toàn (Chuẩn Sunsama Anti-Burnout)'
+                      : 'Workload within healthy daily capacity (Sunsama Anti-Burnout guardrail)'}
+                  </p>
+                </div>
+
+                {onExecuteShutdownRitual && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onExecuteShutdownRitual();
+                      if (onOpenMarkdownReport && activeDoingCount >= 0) {
+                        onClose();
+                        onOpenMarkdownReport();
+                      }
+                    }}
+                    className="h-7 px-2.5 rounded-lg bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-slate-900 text-[11px] font-semibold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0"
+                    title={
+                      language === 'vi'
+                        ? 'Chốt ca cuối ngày (Sunsama Shutdown Ritual): Dời việc đang làm dở sang 9h sáng mai & mở Báo cáo tổng kết ngày'
+                        : 'Daily Shutdown Ritual: Roll over unfinished tasks to tomorrow 9 AM & open Daily Standup report'
+                    }
+                  >
+                    <Moon className="w-3 h-3 shrink-0" />
+                    <span>{language === 'vi' ? 'Chốt ca cuối ngày' : 'Shutdown Ritual'}</span>
+                    <FileText className="w-3 h-3 opacity-75 shrink-0" />
+                  </button>
+                )}
+              </div>
+            );
+          })()}
 
           {/* Segmented Tabs: Cần xử lý ngay vs Đang hoãn đếm ngược (Cố định 2 cột bằng Grid) */}
           <div className="grid grid-cols-2 gap-1 p-0.5 bg-slate-200/75 dark:bg-slate-800/85 rounded-lg text-xs font-medium">
@@ -354,6 +453,17 @@ export function DailyFocusModal({
                     </div>
 
                     <div className="flex items-center gap-1 shrink-0">
+                      {onStartFocusItem && (
+                        <button
+                          type="button"
+                          onClick={() => onStartFocusItem(item)}
+                          className="h-6.5 px-1.5 rounded-md border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-[10.5px] font-medium flex items-center gap-1 transition-colors cursor-pointer shrink-0"
+                          title={language === 'vi' ? 'Chạy đồng hồ Focus Pomodoro 25 phút' : 'Start 25m Focus Pomodoro'}
+                        >
+                          <Play className="w-2.5 h-2.5 text-amber-500 fill-current shrink-0" />
+                          <span className="hidden xs:inline font-mono">25p</span>
+                        </button>
+                      )}
                       <button
                         type="button"
                         onClick={handleTogglePin}

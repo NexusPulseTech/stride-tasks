@@ -10,6 +10,7 @@ import {
   Calendar,
   Clock,
   RotateCcw,
+  Play,
 } from 'lucide-react';
 import { Task, Project, SubTask, StatusDefinition } from '../../../types';
 import { FormattedTaskText } from '../utils/formatters';
@@ -53,6 +54,8 @@ interface PinnedSectionProps {
   onOpenDetail?: (task: Task, projectId: string) => void;
   onOpenSchedule?: (task: Task, project: Project) => void;
   onOpenAnkiSrs?: (task: Task, projectId: string, parentTaskId?: string) => void;
+  onStartFocusTask?: (task: Task, project: Project) => void;
+  activeFocusTaskId?: string | null;
   statuses?: StatusDefinition[];
 }
 
@@ -303,6 +306,8 @@ export function PinnedSection({
   onOpenDetail,
   onOpenSchedule,
   onOpenAnkiSrs,
+  onStartFocusTask,
+  activeFocusTaskId,
   onChangeStatus,
   onChangeSubtaskStatus,
   statuses = [],
@@ -527,6 +532,12 @@ export function PinnedSection({
                       );
                     })()}
 
+                    {isTaskType && Boolean(task.focusedMinutes && task.focusedMinutes > 0) && (
+                      <span className="hidden sm:inline-flex items-center text-[10px] font-mono tabular-nums text-amber-600 dark:text-amber-400 px-1 py-0.5 shrink-0 whitespace-nowrap">
+                        {task.focusedMinutes}m
+                      </span>
+                    )}
+
                     {hasSubs && (
                       <button
                         type="button"
@@ -548,6 +559,24 @@ export function PinnedSection({
 
                 {/* Action Buttons: Basic icons w-6 h-6 */}
                 <div className="shrink-0 flex items-center gap-0.5 flex-nowrap">
+                  {isTaskType && !isDone && onStartFocusTask && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onStartFocusTask(task, project);
+                      }}
+                      className={`w-6 h-6 rounded cursor-pointer shrink-0 transition-colors hidden sm:inline-flex items-center justify-center ${
+                        activeFocusTaskId === task.id
+                          ? 'text-amber-600 dark:text-amber-400 bg-amber-100/70 dark:bg-amber-950/50'
+                          : 'text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                      }`}
+                      title={language === 'vi' ? 'Chạy đồng hồ Focus Pomodoro (25 phút)' : 'Start 25m Focus Pomodoro'}
+                    >
+                      <Play className="w-3 h-3 shrink-0 fill-current" strokeWidth={1.5} />
+                    </button>
+                  )}
+
                   {onOpenDetail && isTaskType && (
                     <button
                       type="button"

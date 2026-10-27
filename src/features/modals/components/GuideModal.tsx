@@ -116,12 +116,60 @@ export function GuideModal({ isOpen, onClose }: GuideModalProps) {
             </p>
           </div>
 
+          <div className="p-3 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200/70 dark:border-indigo-900/50 rounded-xl space-y-1">
+            <div className="font-semibold text-slate-900 dark:text-slate-100 text-[12px] flex items-center gap-1.5">
+              <span className="font-mono text-indigo-600 dark:text-indigo-400 text-[11px]">05.</span>
+              <span>Cú pháp Gõ Nhanh Thông Minh (Todoist NLP) & Chốt Ca Sunsama</span>
+            </div>
+            <p className="text-slate-600 dark:text-slate-300">
+              Khi thêm công việc mới ở cuối dự án hoặc trong <kbd className="font-mono text-[10px]">Ctrl + K</kbd>, bạn có thể bấm nút <strong>Gắn nhanh</strong> hoặc gõ trực tiếp các ký hiệu:
+            </p>
+            <ul className="list-disc pl-4 space-y-0.5 text-[11.5px] text-slate-500 dark:text-slate-400 pt-0.5">
+              <li>
+                <code className="font-mono text-indigo-600 dark:text-indigo-400">~15m</code>, <code className="font-mono text-indigo-600 dark:text-indigo-400">~30m</code>, <code className="font-mono text-indigo-600 dark:text-indigo-400">~1h</code>: Đặt quỹ thời gian dự kiến (Time-Budget) để đối chiếu với số phút chạy đồng hồ Pomodoro thực tế (<code className="font-mono">25/45m</code>).
+              </li>
+              <li>
+                <code className="font-mono text-amber-600 dark:text-amber-400">!pin</code>: Ghim thẳng lên khu vực Ưu tiên cao nhất (Top 3).
+              </li>
+              <li>
+                <code className="font-mono text-sky-600 dark:text-sky-400">#doing</code>, <code className="font-mono text-sky-600 dark:text-sky-400">#review</code>, <code className="font-mono text-sky-600 dark:text-sky-400">#done</code>: Phân bổ thẳng vào cột trạng thái tương ứng.
+              </li>
+              <li>
+                <code className="font-mono text-violet-600 dark:text-violet-400">@today</code>, <code className="font-mono text-violet-600 dark:text-violet-400">@tomorrow</code>, <code className="font-mono text-teal-600 dark:text-teal-400">@daily</code>: Lên lịch nhắc tự động hoặc thiết lập lặp lại hàng ngày.
+              </li>
+            </ul>
+          </div>
+
           <div className="p-3 bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 rounded-xl space-y-1">
             <div className="font-semibold text-slate-900 dark:text-slate-100 text-[12px] flex items-center gap-1.5">
-              <span className="font-mono text-slate-500 dark:text-slate-400 text-[11px]">05.</span>
-              <span>Phím tắt năng suất cao (Power User)</span>
+              <span className="font-mono text-slate-500 dark:text-slate-400 text-[11px]">06.</span>
+              <span>Phím tắt năng suất cao (Power User chuẩn Linear / Anki)</span>
             </div>
             <div className="grid grid-cols-2 gap-1.5 text-[11px] pt-1">
+              <div>
+                <kbd className="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-[10px]">
+                  Ctrl + K
+                </kbd>{' '}
+                Thanh Lệnh Nhanh
+              </div>
+              <div>
+                <kbd className="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-[10px]">
+                  B
+                </kbd>{' '}
+                Đổi Bảng Kanban 4 cột
+              </div>
+              <div>
+                <kbd className="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-[10px]">
+                  1 - 2 - 3
+                </kbd>{' '}
+                Chấm điểm Anki SM-2
+              </div>
+              <div>
+                <kbd className="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-[10px]">
+                  Shift + Enter
+                </kbd>{' '}
+                Chạy Focus 25p
+              </div>
               <div>
                 <kbd className="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-[10px]">
                   /

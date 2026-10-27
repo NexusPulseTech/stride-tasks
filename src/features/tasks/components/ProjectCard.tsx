@@ -1,9 +1,10 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Plus, ClipboardPaste, Check } from 'lucide-react';
 import { Project, Task, StatusDefinition, RecurrenceType, FilterType } from '../../../types';
 import { isDoneStatus } from '../utils/statusCategory';
 import { TaskItem } from './TaskItem';
 import { ProjectCardHeader } from './ProjectCardHeader';
+import { SmartCaptureHelperBar } from './SmartCaptureHelperBar';
 import { useLanguage } from '../../../i18n';
 
 export interface ProjectCardProps {
@@ -89,6 +90,8 @@ export interface ProjectCardProps {
   onOpenSchedule?: (task: Task, projectId: string) => void;
   onTogglePinSubTask?: (projId: string, taskId: string, subId: string) => void;
   onOpenAnkiSrs?: (task: Task, projectId: string, parentTaskId?: string) => void;
+  onStartFocusTask?: (task: Task, project: Project) => void;
+  activeFocusTaskId?: string | null;
   onMoveProject?: (projId: string, direction: 'up' | 'down') => void;
   isFirstProject?: boolean;
   isLastProject?: boolean;
@@ -168,6 +171,8 @@ export function ProjectCard({
   onOpenSchedule,
   onTogglePinSubTask,
   onOpenAnkiSrs,
+  onStartFocusTask,
+  activeFocusTaskId,
   onMoveProject,
   isFirstProject = false,
   isLastProject = false,
@@ -181,6 +186,7 @@ export function ProjectCard({
 }: ProjectCardProps) {
   const { t } = useLanguage();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isTaskInputFocused, setIsTaskInputFocused] = useState(false);
   const tasks = project.tasks;
   const countDone = tasks.filter((t) => isDoneStatus(t.status, statuses)).length;
   const pct = tasks.length > 0 ? Math.round((countDone / tasks.length) * 100) : 0;
@@ -342,6 +348,10 @@ export function ProjectCard({
                   onOpenSchedule={onOpenSchedule}
                   onTogglePinSubTask={onTogglePinSubTask}
                   onOpenAnkiSrs={onOpenAnkiSrs}
+                  onStartFocusTask={
+                    onStartFocusTask ? (t) => onStartFocusTask(t, project) : undefined
+                  }
+                  activeFocusTaskId={activeFocusTaskId}
                 />
               );
             })
@@ -368,43 +378,58 @@ export function ProjectCard({
             </div>
           )}
 
-          {/* Ô thêm việc dưới cùng - Cố định kích thước, không nhảy, không xuống dòng */}
+          {/* Ô thêm việc dưới cùng + Thanh Gắn Nhanh NLP Thông Minh */}
           {!isFocusMode && filter !== 'completed' && (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                onAddTask(project.id, e);
-                inputRef.current?.focus();
-              }}
-              className="flex items-center gap-1.5 pt-1 flex-nowrap w-full overflow-hidden"
-            >
-              <input
-                ref={inputRef}
-                type="text"
-                value={taskInputValue}
-                onChange={(e) => onTaskInputChange(project.id, e.target.value)}
-                onPaste={(e) => onTaskInputPaste(project.id, e)}
-                placeholder={t.tasks.addTaskPlaceholder}
-                className="flex-1 min-w-0 h-8 px-2.5 bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-lg text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-slate-800 dark:focus:border-slate-400 transition-colors shadow-2xs"
-              />
-              <button
-                type="submit"
-                disabled={!taskInputValue.trim()}
-                className="h-8 w-8 sm:w-[74px] sm:px-2 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white disabled:opacity-40 text-white dark:text-slate-950 rounded-lg text-xs font-medium cursor-pointer transition-colors shrink-0 whitespace-nowrap shadow-2xs inline-flex items-center justify-center gap-1"
+            <div className="space-y-1.5 pt-1">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  onAddTask(project.id, e);
+                  inputRef.current?.focus();
+                }}
+                className="flex items-center gap-1.5 flex-nowrap w-full overflow-hidden"
               >
-                <Plus className="w-3.5 h-3.5 shrink-0 stroke-[2]" aria-hidden="true" />
-                <span className="hidden sm:inline truncate">{t.tasks.addProjectButton}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => onOpenBatchPaste(project)}
-                className="h-8 w-8 sm:w-[92px] sm:px-2 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-xs font-medium cursor-pointer transition-colors shrink-0 whitespace-nowrap shadow-2xs inline-flex items-center justify-center gap-1"
-                title={t.projectHeader.batchPaste}
-              >
-                <ClipboardPaste className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
-                <span className="hidden sm:inline truncate">{t.actionBar.batchPaste}</span>
-              </button>
-            </form>
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={taskInputValue}
+                  onFocus={() => setIsTaskInputFocused(true)}
+                  onBlur={() => setIsTaskInputFocused(false)}
+                  onChange={(e) => onTaskInputChange(project.id, e.target.value)}
+                  onPaste={(e) => onTaskInputPaste(project.id, e)}
+                  placeholder={t.tasks.addTaskPlaceholder}
+                  className="flex-1 min-w-0 h-8 px-2.5 bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-lg text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-slate-800 dark:focus:border-slate-400 transition-colors shadow-2xs"
+                />
+                <button
+                  type="submit"
+                  disabled={!taskInputValue.trim()}
+                  className="h-8 w-8 sm:w-[74px] sm:px-2 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white disabled:opacity-40 text-white dark:text-slate-950 rounded-lg text-xs font-medium cursor-pointer transition-colors shrink-0 whitespace-nowrap shadow-2xs inline-flex items-center justify-center gap-1"
+                >
+                  <Plus className="w-3.5 h-3.5 shrink-0 stroke-[2]" aria-hidden="true" />
+                  <span className="hidden sm:inline truncate">{t.tasks.addProjectButton}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onOpenBatchPaste(project)}
+                  className="h-8 w-8 sm:w-[92px] sm:px-2 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-xs font-medium cursor-pointer transition-colors shrink-0 whitespace-nowrap shadow-2xs inline-flex items-center justify-center gap-1"
+                  title={t.projectHeader.batchPaste}
+                >
+                  <ClipboardPaste className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
+                  <span className="hidden sm:inline truncate">{t.actionBar.batchPaste}</span>
+                </button>
+              </form>
+
+              {(isTaskInputFocused || taskInputValue.trim().length > 0) && (
+                <SmartCaptureHelperBar
+                  value={taskInputValue}
+                  onChange={(nextVal) => {
+                    onTaskInputChange(project.id, nextVal);
+                    inputRef.current?.focus();
+                  }}
+                  compact
+                />
+              )}
+            </div>
           )}
         </div>
       )}

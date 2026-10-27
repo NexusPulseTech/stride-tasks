@@ -105,7 +105,7 @@
     - [x] Hiện/Ẩn Thanh tạo nhanh dự án (Add Project Bar)
     - [x] Hiện/Ẩn Bộ lọc trạng thái (All / Doing / Completed)
     - [x] Hiện/Ẩn Nút âm thanh & trợ giúp
-  - Toàn bộ tùy chọn được lưu tự động vào `localStorage` (`stride_tasks_view_settings`).
+  - Toàn bộ tùy chọn được lưu tự động vào `localStorage` (`stride_tasks_view_preferences_v1`).
 
 ---
 

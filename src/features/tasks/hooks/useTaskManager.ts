@@ -13,7 +13,9 @@ import {
 } from '../../../types';
 import { INITIAL_PROJECTS, APP_VERSION } from '../../../constants';
 import { triggerHaptic, playChime } from '../../../utils';
+import { useTranslationRef, formatMessage } from '../../../i18n';
 import { parsePastedTasks, parsePastedHierarchy } from '../utils/batchParser';
+import { buildSmartTask, summarizeSmartTask } from '../utils/smartTaskParser';
 import { isDoingStatus, isDoneStatus } from '../utils/statusCategory';
 import { matchTaskDeep } from '../utils/searchHelper';
 import { useCelebrationAndStreak } from './useCelebrationAndStreak';
@@ -23,13 +25,48 @@ import { useSubtaskOperations } from './useSubtaskOperations';
 import { useTaskDnd } from './useTaskDnd';
 import { useProjectDnd } from './useProjectDnd';
 import { useStatusManager } from './useStatusManager';
-import { useActivityLog, CompletedItemLog } from '../../analytics';
+import { useActivityLog, CompletedItemLog } from '../../analytics/hooks/useActivityLog';
 import { clearAllPersistentData } from '../../../utils/persistentStorage';
 import { PinnedItem } from '../components/PinnedSection';
 import { getDailyFocusQueue, getSnoozedItemsQueue, ActionableItem, AnkiSrsOption } from '../utils/spacedSnooze';
 import { AnkiSrsTargetItem } from '../components/AnkiSrsModal';
+import { LICENSE_STORAGE_KEY, LICENSE_CHANGED_EVENT } from '../../../hooks/useProLicense';
+
+function readLicenseForBackup(): unknown {
+  try {
+    const raw = localStorage.getItem(LICENSE_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Chỉ chấp nhận bản ghi có token đã ký; useProLicense verify lại chữ ký Ed25519 ngay sau đó
+ * và tự loại bỏ nếu không hợp lệ (không còn chuyện chèn {"isPro": true} qua file backup).
+ */
+function restoreLicenseFromBackup(raw: unknown): void {
+  if (!raw || typeof raw !== 'object' || typeof (raw as { token?: unknown }).token !== 'string') return;
+  try {
+    localStorage.setItem(LICENSE_STORAGE_KEY, JSON.stringify(raw));
+  } catch {
+    return;
+  }
+  window.dispatchEvent(new Event(LICENSE_CHANGED_EVENT));
+}
+
+function readBackupLogArchive(parsed: unknown): Record<string, number> | undefined {
+  const archive = (parsed as { data?: { completedLogsArchive?: unknown } } | null)?.data?.completedLogsArchive;
+  if (!archive || typeof archive !== 'object' || Array.isArray(archive)) return undefined;
+  const clean: Record<string, number> = {};
+  for (const [day, count] of Object.entries(archive as Record<string, unknown>)) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(day) && typeof count === 'number' && count > 0) clean[day] = Math.floor(count);
+  }
+  return clean;
+}
 
 export function useTaskManager() {
+  const tRef = useTranslationRef();
   const [showStats, setShowStats] = useState(false);
   const [filter, setFilter] = useState<FilterType>('all');
   const [search, setSearch] = useState('');
@@ -229,7 +266,7 @@ export function useTaskManager() {
       } else {
         crud.toggleTaskDone(target.projectId, target.taskId, true);
       }
-      celebration.showToast('Chúc mừng bạn đã hoàn thành công việc!');
+      celebration.showToast(tRef.current.toast.taskCompletedCongrats);
     },
     [crud, subtasks, celebration]
   );
@@ -352,7 +389,7 @@ export function useTaskManager() {
             : p
         )
       );
-      celebration.showToast(`Đã thêm ${newTasks.length} công việc vào "${target.projectName}"!`);
+      celebration.showToast(formatMessage(tRef.current.toast.batchAddedToProject, { count: newTasks.length, project: target.projectName }));
     } else if (target.type === 'task' && target.taskId) {
       subtasks.handleAddSubTask(target.projectId, target.taskId, batchPasteText, null);
     } else if (target.type === 'subtask' && target.taskId && target.parentSubId) {
@@ -389,22 +426,25 @@ export function useTaskManager() {
             : p
         )
       );
-      celebration.showToast(`Đã tạo ${lines.length} việc mới!`);
+      celebration.showToast(formatMessage(tRef.current.toast.tasksCreated, { count: lines.length }));
     } else {
+      const { task: parsedTask, isDone } = buildSmartTask(raw, 'todo');
+      if (!parsedTask) {
+        celebration.showToast(tRef.current.toast.emptyTitle);
+        return;
+      }
       const newTask: Task = {
-        id: 't_' + Date.now(),
-        title: raw,
-        status: 'todo',
-        isPinned: mobileTaskPinned,
-        subtasks: [],
+        ...parsedTask,
+        isPinned: mobileTaskPinned || parsedTask.isPinned,
       };
       crud.setProjects((prev) =>
         prev.map((p) =>
           p.id === targetProjId ? { ...p, isExpanded: true, tasks: [...p.tasks, newTask] } : p
         )
       );
-      celebration.showToast('Đã thêm công việc!');
+      celebration.showToast(tRef.current.toast.taskAdded);
       const targetProj = crud.projects.find((p) => p.id === targetProjId);
+      if (isDone) onTaskDone(true, newTask, targetProj);
       setAnkiModalTarget({
         projectId: targetProjId,
         projectName: targetProj?.name,
@@ -434,7 +474,7 @@ export function useTaskManager() {
       onConfirm: () => {
         crud.setProjects(JSON.parse(JSON.stringify(INITIAL_PROJECTS)));
         activity.resetSeedActivityLogs();
-        celebration.showToast('Đã khôi phục dữ liệu mẫu thành công!');
+        celebration.showToast(tRef.current.toast.sampleRestored);
         setConfirmDialog(null);
         setShowBackupModal(false);
       },
@@ -444,7 +484,7 @@ export function useTaskManager() {
   // 2. Khôi phục từ bản tự động sao lưu của User (Luôn Confirm)
   const restoreAutoBackup = () => {
     if (!autoBackupData || !autoBackupData.projects || autoBackupData.projects.length === 0) {
-      celebration.showToast('Chưa có bản sao lưu tự động nào!');
+      celebration.showToast(tRef.current.toast.noAutoBackup);
       return;
     }
     const formattedDate = new Date(autoBackupData.timestamp).toLocaleString('vi-VN');
@@ -464,7 +504,7 @@ export function useTaskManager() {
         if (autoBackupData.customStatuses && Array.isArray(autoBackupData.customStatuses)) {
           statusManager.restoreCustomStatuses(autoBackupData.customStatuses);
         }
-        celebration.showToast('Đã khôi phục dữ liệu từ bản tự động thành công!');
+        celebration.showToast(tRef.current.toast.autoBackupRestored);
         setConfirmDialog(null);
         setShowBackupModal(false);
       },
@@ -473,7 +513,7 @@ export function useTaskManager() {
 
   const handleRestoreSnapshot = (projects: Project[], label?: string) => {
     crud.setProjects(projects);
-    celebration.showToast(`Đã khôi phục thành công: ${label || 'Bản sao lưu'}!`);
+    celebration.showToast(formatMessage(tRef.current.toast.snapshotRestored, { label: label || tRef.current.toast.snapshotDefaultLabel }));
     setShowBackupModal(false);
   };
 
@@ -495,23 +535,24 @@ export function useTaskManager() {
         incomingLogs = Array.isArray(parsed.completedLogs) ? parsed.completedLogs : null;
         incomingCustomStatuses = Array.isArray(parsed.customStatuses) ? parsed.customStatuses : null;
       } else {
-        celebration.showToast('Dữ liệu JSON không đúng định dạng!');
+        celebration.showToast(tRef.current.toast.jsonInvalidFormat);
         return;
       }
 
       crud.setProjects(incomingProjects);
       if (incomingLogs && Array.isArray(incomingLogs)) {
-        activity.saveLogs(incomingLogs);
+        activity.saveLogs(incomingLogs, readBackupLogArchive(parsed));
       }
       if (incomingCustomStatuses && Array.isArray(incomingCustomStatuses)) {
         statusManager.restoreCustomStatuses(incomingCustomStatuses);
       }
+      restoreLicenseFromBackup(parsed?.data?.proLicense);
 
       const totalRecovered = incomingProjects.reduce((a, b) => a + (b.tasks?.length || 0), 0);
-      celebration.showToast(`Đã đồng bộ thành công ${totalRecovered} công việc từ mã JSON.`);
+      celebration.showToast(formatMessage(tRef.current.toast.jsonSynced, { count: totalRecovered }));
       setShowBackupModal(false);
     } catch (e) {
-      celebration.showToast('Lỗi: Chuỗi dán vào không phải là JSON hợp lệ!');
+      celebration.showToast(tRef.current.toast.jsonParseError);
     }
   };
 
@@ -529,7 +570,7 @@ export function useTaskManager() {
         crud.setProjects([]);
         activity.clearAllActivityLogs();
         clearAllPersistentData();
-        celebration.showToast('Đã xóa toàn bộ dữ liệu!');
+        celebration.showToast(tRef.current.toast.allDataCleared);
         setConfirmDialog(null);
         setShowBackupModal(false);
       },
@@ -543,15 +584,16 @@ export function useTaskManager() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    celebration.showToast('Đang tải file HTML offline...');
+    celebration.showToast(tRef.current.toast.htmlDownloading);
   };
 
-  // 4. Xuất bản sao lưu toàn diện (Full Snapshot: Projects + History + Custom Statuses)
+  // 4. Xuất bản sao lưu toàn diện (Full Snapshot: Projects + History + Custom Statuses + Pro License)
   const getFullBackupJsonString = (): string => {
     let totalTasksCount = 0;
     crud.projects.forEach((p) => {
       totalTasksCount += (p.tasks || []).length;
     });
+
 
     const payload: StrideBackupPayload = {
       version: APP_VERSION,
@@ -568,6 +610,8 @@ export function useTaskManager() {
         projects: crud.projects,
         completedLogs: activity.completedLogs,
         customStatuses: statusManager.statuses.filter((s) => s.isCustom),
+        completedLogsArchive: activity.archivedDailyCounts,
+        proLicense: readLicenseForBackup(),
       },
     };
 
@@ -583,7 +627,7 @@ export function useTaskManager() {
     a.download = `tasktodo-full-backup-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    celebration.showToast('Đã xuất file sao lưu toàn diện (.JSON)!');
+    celebration.showToast(tRef.current.toast.backupExported);
   };
 
   // 5. Nhập file JSON sao lưu (Hỗ trợ cả Bản sao lưu toàn diện mới & Tệp định dạng cũ)
@@ -619,7 +663,7 @@ export function useTaskManager() {
           incomingCustomStatuses = Array.isArray(parsed.customStatuses) ? parsed.customStatuses : null;
           isFullSnapshot = !!incomingLogs;
         } else {
-          celebration.showToast('Tệp JSON không hợp lệ hoặc sai định dạng!');
+          celebration.showToast(tRef.current.toast.backupFileInvalid);
           return;
         }
 
@@ -638,18 +682,19 @@ export function useTaskManager() {
           onConfirm: () => {
             crud.setProjects(incomingProjects);
             if (incomingLogs && Array.isArray(incomingLogs)) {
-              activity.saveLogs(incomingLogs);
+              activity.saveLogs(incomingLogs, readBackupLogArchive(parsed));
             }
             if (incomingCustomStatuses && Array.isArray(incomingCustomStatuses)) {
               statusManager.restoreCustomStatuses(incomingCustomStatuses);
             }
-            celebration.showToast('Đã khôi phục toàn diện dữ liệu thành công!');
+            restoreLicenseFromBackup(parsed?.data?.proLicense);
+            celebration.showToast(tRef.current.toast.backupRestored);
             setConfirmDialog(null);
             setShowBackupModal(false);
           },
         });
       } catch (err) {
-        celebration.showToast('Lỗi đọc file JSON!');
+        celebration.showToast(tRef.current.toast.backupReadError);
       }
     };
     reader.readAsText(file);
@@ -696,7 +741,7 @@ export function useTaskManager() {
         crud.setProjects([]);
         activity.clearAllActivityLogs();
         clearAllPersistentData();
-        celebration.showToast('Đã xóa sạch dữ liệu mẫu. Không gian làm việc sẵn sàng.');
+        celebration.showToast(tRef.current.toast.sampleCleared);
         setConfirmDialog(null);
       },
     });
@@ -903,5 +948,30 @@ export function useTaskManager() {
     handleSelectAnkiOption,
     handleMarkAnkiTaskDone,
     openAnkiModal: openAnkiModalForTask,
+    addTaskFocusedMinutes: crud.addTaskFocusedMinutes,
+    setTaskEstimatedMinutes: crud.setTaskEstimatedMinutes,
+    executeDailyShutdownRitual: crud.executeDailyShutdownRitual,
+    handleQuickAddTaskToColumn: (projectId: string, title: string, status: string) => {
+      const trimmed = title.trim();
+      if (!trimmed) return;
+      triggerHaptic();
+      const { task: newTask, hasSmartTokens, isDone } = buildSmartTask(trimmed, status);
+      if (!newTask) {
+        celebration.showToast(tRef.current.toast.emptyTitle);
+        return;
+      }
+      crud.setProjects((prev) =>
+        prev.map((p) =>
+          p.id === projectId ? { ...p, isExpanded: true, tasks: [newTask, ...p.tasks] } : p
+        )
+      );
+      if (isDone || isDoneStatus(newTask.status, statusManager.statuses)) {
+        onTaskDone(true, { ...newTask, completedAt: newTask.completedAt || new Date().toISOString() }, crud.projects.find((p) => p.id === projectId));
+      }
+      const summary = hasSmartTokens ? summarizeSmartTask(newTask) : '';
+      celebration.showToast(
+        summary ? formatMessage(tRef.current.toast.quickAddedWithSummary, { title: newTask.title, summary }) : tRef.current.toast.quickAdded
+      );
+    },
   };
 }

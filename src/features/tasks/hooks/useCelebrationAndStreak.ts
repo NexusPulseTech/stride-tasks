@@ -2,8 +2,10 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { STREAK_KEY, MUTED_KEY, REMINDER_KEY } from '../../../constants';
 import { triggerHaptic, playChime } from '../../../utils';
 import { UndoAction, Project } from '../../../types';
+import { useTranslationRef, formatMessage } from '../../../i18n';
 
 export function useCelebrationAndStreak(projects?: Project[]) {
+  const tRef = useTranslationRef();
   const [streak, setStreak] = useState<number>(() => {
     try {
       const s = localStorage.getItem(STREAK_KEY);
@@ -67,7 +69,7 @@ export function useCelebrationAndStreak(projects?: Project[]) {
         triggerHaptic();
         undoFn();
         setUndoState(null);
-        showToast('Đã khôi phục thành công!');
+        showToast(tRef.current.toast.undoRestored);
       },
     });
     undoTimerRef.current = window.setTimeout(() => {
@@ -117,25 +119,26 @@ export function useCelebrationAndStreak(projects?: Project[]) {
             try {
               localStorage.setItem(REMINDER_KEY, 'true');
             } catch (e) {}
-            showToast('Đã bật nhắc nhở công việc đang dở!');
-            new Notification('Solo Checklist', {
-              body: 'Đã kích hoạt nhắc nhở! App sẽ giúp bạn theo dõi các việc dở dang.',
+            showToast(tRef.current.toast.remindersOn);
+            new Notification(tRef.current.reminder.notificationTitle, {
+              body: tRef.current.toast.remindersOn,
+              icon: '/icon-192.png',
             });
           } else {
-            showToast('Trình duyệt chưa cấp quyền thông báo');
+            showToast(tRef.current.toast.notifPermissionDenied);
           }
         } catch (e) {
-          showToast('Không thể bật thông báo');
+          showToast(tRef.current.toast.notifEnableFailed);
         }
       } else {
-        showToast('Thiết bị không hỗ trợ Web Notification');
+        showToast(tRef.current.toast.notifUnsupported);
       }
     } else {
       setReminderEnabled(false);
       try {
         localStorage.setItem(REMINDER_KEY, 'false');
       } catch (e) {}
-      showToast('Đã tắt nhắc nhở');
+      showToast(tRef.current.toast.remindersOff);
     }
   }, [reminderEnabled, showToast]);
 
@@ -150,8 +153,12 @@ export function useCelebrationAndStreak(projects?: Project[]) {
       if (pendingTasks.length > 0) {
         const topTask = pendingTasks.find((t) => t.isPinned || t.status === 'doing') || pendingTasks[0];
         try {
-          new Notification('Solo Checklist - Nhắc việc', {
-            body: `Bạn còn ${pendingTasks.length} việc chưa hoàn thành! Việc tiếp theo: "${topTask.title.slice(0, 32)}..."`,
+          new Notification(tRef.current.reminder.notificationTitle, {
+            body: formatMessage(tRef.current.reminder.notificationBody, {
+              count: pendingTasks.length,
+              task: topTask.title.slice(0, 32),
+            }),
+            icon: '/icon-192.png',
           });
         } catch (e) {}
       }

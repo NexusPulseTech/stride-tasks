@@ -1,23 +1,18 @@
 # Stride Tasks
 
 <p align="left">
-  <img src="https://img.shields.io/badge/Release-v1.0.6-emerald?style=flat-square" alt="Release v1.0.6" />
+  <img src="https://img.shields.io/badge/Release-v3.0.0-emerald?style=flat-square" alt="Release v3.0.0" />
   <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License MIT" />
   <img src="https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react&logoColor=black" alt="React 19" />
-  <img src="https://img.shields.io/badge/TypeScript-5.7+-3178c6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/TypeScript-7-3178c6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript 7" />
   <img src="https://img.shields.io/badge/TailwindCSS-v4-38bdf8?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS v4" />
-  <img src="https://img.shields.io/badge/Architecture-Local--First-success?style=flat-square" alt="Local-First" />
+  <img src="https://img.shields.io/badge/Architecture-Local--First%20%2B%20Ed25519%20License-success?style=flat-square" alt="Local-First + Ed25519 License" />
 </p>
 
-> **Ứng dụng quản lý công việc và dự án cá nhân tối giản, 100% Local-First và hoạt động Offline.**
-> Xây dựng theo nguyên lý thiết kế tối giản: cấu trúc việc con đệ quy (Recursive Subtask Tree), chu trình trạng thái dứt khoát (Linear Status Flow), bản đồ nhịp độ hoàn thành (Activity Rhythm Heatmap) và xuất báo cáo năng suất độ nét cao.
-
-[Web App](https://nexuspulsetech.github.io/stride-tasks/) · [Windows Desktop Release v1.0.6](https://github.com/NexusPulseTech/stride-tasks/releases/tag/v1.0.6)
-
-### Windows Installers
-
-- [Download Windows Desktop App (.exe)](https://github.com/NexusPulseTech/stride-tasks/releases/download/v1.0.6/Stride.Tasks_1.0.6_x64-setup.exe)
-- [Download Windows Installer (.msi)](https://github.com/NexusPulseTech/stride-tasks/releases/download/v1.0.6/Stride.Tasks_1.0.6_x64_en-US.msi)
+> **Ứng dụng quản lý công việc & thực thi tốc độ cao (Linear Execution Engine + Anki SM-2 SRS), 100% Local-First và hoạt động Offline.**  
+> Xây dựng theo nguyên lý thiết kế tối giản: nhập việc tự nhiên 1 dòng (**Smart NLP Quick-Capture**), hạch toán ngân sách thời gian (**Time-Budget ROI**), cây việc con đệ quy (**Recursive Subtask Tree**), chu trình trạng thái dứt khoát (**Linear Status Flow**), bản đồ nhịp độ (**Activity Rhythm Heatmap**), bảng Kanban 4 cột, đồng hồ Pomodoro với nhật ký Deep Work, và bản quyền PRO xác thực ngoại tuyến bằng chữ ký số **Ed25519** (paywall tắt mặc định — xem [`.env.example`](./.env.example)).
+>
+> 📄 **Báo cáo Phát hành Mới nhất (10/27/2026 — `v3.0.0`)**: Xem chi tiết tại [`docs/Release/2026-10-27-v3.0.0-omni-channel-and-execution-engine.md`](./docs/Release/2026-10-27-v3.0.0-omni-channel-and-execution-engine.md)
 
 ---
 
@@ -47,17 +42,13 @@
 - **Thao tác 1 chạm**: Chuyển trạng thái linh hoạt với chỉ báo màu sắc chuẩn mực.
 
 ### 5. Kiến Trúc Cục Bộ & Quyền Riêng Tư (Local-First & Offline)
-- **Lưu trữ an toàn trên thiết bị**: Toàn bộ dữ liệu được lưu trên `localStorage` của trình duyệt, không gửi dữ liệu ra máy chủ bên ngoài.
-- **Sao lưu snapshot toàn diện**: JSON schema v2 lưu dự án, việc con, lịch sử Heatmap/Streak và trạng thái tùy chỉnh; vẫn hỗ trợ nhập tệp dự án JSON cũ.
+- **Lưu trữ an toàn trên thiết bị**: Toàn bộ dữ liệu được lưu trên `localStorage` (kèm bản sao IndexedDB) của trình duyệt, không gửi dữ liệu công việc ra máy chủ bên ngoài. Lịch sử hoàn thành cũ hơn 90 ngày được tự động gộp thành số đếm theo ngày để không vượt hạn mức bộ nhớ.
+- **Sao lưu và phục hồi JSON**: Xuất và nhập toàn bộ trạng thái hệ thống chỉ với một tệp tin.
 - **Xuất bản dạng HTML đơn lẻ**: Tải tệp HTML độc lập để chạy mà không cần kết nối mạng hay cài đặt phần mềm phụ trợ.
 - **Hỗ trợ PWA**: Có thể cài đặt trực tiếp lên thiết bị di động (iOS / Android) và máy tính để bàn.
 
 ### 6. Giao Diện Tối Giản & Chuẩn Mực Thiết Kế
 - **Hệ thống màu sắc & Typography**: Tuân thủ nguyên tắc thị giác nghiêm ngặt, loại bỏ hoàn toàn các thành phần trang trí thừa thãi.
-- **Header responsive tối giản**: Hiển thị gọn trên desktop và thiết bị di động, loại bỏ các biểu tượng trang trí không cần thiết.
-- **Đa ngôn ngữ**: Chuyển đổi giao diện giữa Tiếng Việt và English.
-- **Lịch sử hoàn thành**: Quản lý bản ghi lịch sử, bao gồm chỉnh sửa và xóa.
-- **Bố cục ổn định**: Tránh dịch chuyển giao diện khi nội dung hoặc ngôn ngữ thay đổi.
 - **Chế độ hiển thị**: Hỗ trợ Sáng (Light), Tối (Dark) và Tự động theo hệ điều hành (System).
 - **Chế độ tập trung (Focus Mode)**: Lọc ẩn các mục đã hoàn thành để tối ưu hóa không gian làm việc cho các đầu việc ưu tiên.
 
@@ -68,9 +59,11 @@
 | Công nghệ | Phiên bản | Mục đích sử dụng |
 | :--- | :--- | :--- |
 | **React** | `19` | Thư viện UI nền tảng |
-| **TypeScript** | `7.0+` | Hệ thống kiểm soát kiểu tĩnh nghiêm ngặt |
+| **TypeScript** | `7` | Hệ thống kiểm soát kiểu tĩnh nghiêm ngặt |
 | **Tailwind CSS** | `4` | Khung styling Atomic CSS hiệu năng cao |
-| **Vite** | `8` | Công cụ đóng gói và máy chủ phát triển |
+| **Vite** | `8` | Công cụ đóng gói (Rolldown) và máy chủ phát triển |
+| **vite-plugin-pwa** | `2` | Service Worker Workbox (precache có revision hash) |
+| **@noble/ed25519** | `3` | Fallback xác thực chữ ký Ed25519 cho trình duyệt cũ |
 | **Lucide React** | `0.546+` | Hệ thống biểu tượng đồ họa tối giản |
 
 ---
@@ -78,7 +71,7 @@
 ## Cài Đặt & Khởi Chạy (Getting Started)
 
 ### Yêu cầu hệ thống
-- **Node.js**: Phiên bản `>= 18.0.0`
+- **Node.js**: Phiên bản `>= 22` (Vite 8 yêu cầu Node 20.19+; CI dùng Node 22)
 - **npm**, **pnpm**, **yarn** hoặc **bun**
 
 ### Các bước thực hiện
@@ -88,7 +81,7 @@
 git clone https://github.com/NexusPulseTech/stride-tasks.git
 cd stride-tasks
 
-# 2. Cài đặt các gói phụ thuộc
+# 2. Cài đặt các gói phụ thuộc (giống CI)
 npm install --legacy-peer-deps
 
 # 3. Khởi chạy máy chủ phát triển
@@ -107,11 +100,12 @@ npm run build
 
 | Phím tắt | Chức năng thực hiện |
 | :--- | :--- |
+| `Ctrl`/`⌘` + `K` | Mở Thanh lệnh nhanh (Command Palette) |
 | `/` | Mở nhanh ô tìm kiếm công việc |
-| `Alt` + `F` | Bật / tắt Chế độ tập trung (Focus Mode) |
-| `Alt` + `T` | Chuyển đổi giao diện (Sáng / Tối / Tự động) |
-| `Alt` + `B` | Mở hộp thoại Sao lưu & Phục hồi dữ liệu |
-| `Alt` + `N` | Thêm công việc mới nhanh (giao diện di động) |
+| `F` | Bật / tắt Chế độ tập trung (Focus Mode) |
+| `B` | Chuyển Danh sách ⇄ Bảng Kanban |
+| `D` | Chuyển giao diện (Sáng / Tối / Tự động) |
+| `Ctrl`/`⌘` + `Z` | Hoàn tác thao tác vừa thực hiện |
 | `Escape` | Đóng menu, đóng modal hoặc hủy chỉnh sửa tiêu đề |
 | `Enter` | Xác nhận và lưu tiêu đề đang chỉnh sửa |
 
@@ -122,14 +116,16 @@ npm run build
 ```text
 ├── public/                 # Tệp tĩnh, Web Manifest, standalone HTML
 ├── docs/                   # Thư mục tài liệu kiến trúc và hướng dẫn
+├── scripts/                # keygen.mjs (phát hành bản quyền Ed25519) & Cloudflare Worker mẫu
 ├── src/
 │   ├── components/         # Các thành phần giao diện dùng chung (Header, Footer, UI)
 │   ├── features/
 │   │   ├── analytics/      # Bản đồ nhịp độ (Activity Heatmap) & thống kê số liệu
-│   │   ├── focus/          # Chế độ tập trung (Focus Banner)
+│   │   ├── focus/          # Chế độ tập trung, đồng hồ Pomodoro & nhật ký Deep Work
 │   │   ├── modals/         # Hộp thoại hướng dẫn, sao lưu, phản hồi
 │   │   └── tasks/          # Cây công việc, việc con, kéo thả, thao tác CRUD
-│   ├── hooks/              # Custom hooks (Theme, phím tắt, tương tác)
+│   ├── config/             # Cấu hình thương mại (paywall, kênh thanh toán) đọc từ biến môi trường
+│   ├── hooks/              # Custom hooks (Theme, phím tắt, bản quyền PRO, PWA)
 │   ├── types/              # Định nghĩa kiểu dữ liệu TypeScript
 │   ├── utils/              # Tiện ích âm thanh, haptic feedback, clipboard
 │   ├── App.tsx             # Giao diện chính của ứng dụng

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Download, Copy, Check } from 'lucide-react';
 import { CompletedTaskItem } from '../utils/completedTasksHelper';
+import { useLanguage } from '../../../i18n';
 
 interface ShareProductivityModalProps {
   isOpen: boolean;
@@ -24,6 +25,7 @@ export function ShareProductivityModal({
   maxDayCount,
   showToast,
 }: ShareProductivityModalProps) {
+  const { t } = useLanguage();
   const [range, setRange] = useState<FlexRange>('week');
   const [isCopiedText, setIsCopiedText] = useState(false);
   const [isCopiedImage, setIsCopiedImage] = useState(false);
@@ -180,7 +182,7 @@ export function ShareProductivityModal({
     link.download = `bao-cao-nang-suat-${range}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
-    showToast('Đã tải ảnh thẻ về máy');
+    showToast(t.toast.shareImageDownloaded);
   };
 
   // Sao chép ảnh vào clipboard
@@ -200,7 +202,7 @@ export function ShareProductivityModal({
             ]);
             setIsCopiedImage(true);
             setTimeout(() => setIsCopiedImage(false), 2000);
-            showToast('Đã sao chép ảnh thẻ');
+            showToast(t.toast.shareImageCopied);
             return;
           } catch (err) {
             handleDownloadImage();
@@ -231,7 +233,7 @@ export function ShareProductivityModal({
       navigator.clipboard.writeText(fullText);
       setIsCopiedText(true);
       setTimeout(() => setIsCopiedText(false), 2000);
-      showToast('Đã sao chép văn bản tóm tắt');
+      showToast(t.toast.shareTextCopied);
     }
   };
 

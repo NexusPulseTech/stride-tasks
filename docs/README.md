@@ -33,14 +33,20 @@ docs/
 └── guides/                                    # Hướng dẫn vận hành & Kế thừa
     ├── user-guide.md                          # Cẩm nang người dùng cuối, Cú pháp Dán nhanh & Phím tắt
     └── maintenance-and-inheritance.md         # Hướng dẫn bàn giao, Kiểm thử hồi quy & Mở rộng tính năng
+
+├── Release/                                   # Nhật ký Phát hành & Kiến trúc Thương mại hóa (Changelog Hub)
+│   ├── README.md                              # Danh mục các đợt phát hành & Quy chuẩn Release Notes
+│   ├── 2026-10-27-v3.0.0-omni-channel-and-execution-engine.md # Báo cáo cập nhật 10/27/2026 (v2.5.0 -> v3.0.0)
+│   └── AI-AUDIT-AND-SYNC-PROMPT.md            # Prompt mẫu để AI rà soát & đồng bộ code ↔ tài liệu
 ```
 
 ---
 
 ## ⚡ Lộ Trình Đọc Nhanh Dành Cho Kỹ Sư Mới
 
-1. **Hiểu nhanh kiến trúc tổng thể**: Xem [architecture/system-overview.md](./architecture/system-overview.md).
-2. **Cơ chế Việc con vô hạn tầng**: Xem [architecture/recursive-subtasks.md](./architecture/recursive-subtasks.md) để nắm rõ toán học đằng sau 2 thuật toán **Cascade Down** và **Bubble Up Rollup**.
-3. **Quy chuẩn Giao diện & Trải nghiệm (Notion UX)**: Xem [design-system/notion-hierarchy-ux.md](./design-system/notion-hierarchy-ux.md).
-4. **Quy chuẩn Commit & Đóng góp**: Xem [development/contributing.md](./development/contributing.md) trước khi tạo bất kỳ commit nào.
-5. **Kế thừa & Bàn giao hệ thống**: Xem [guides/maintenance-and-inheritance.md](./guides/maintenance-and-inheritance.md).
+1. **Báo cáo Phát hành Mới nhất (10/27/2026 — `v3.0.0`)**: Xem [Release/2026-10-27-v3.0.0-omni-channel-and-execution-engine.md](./Release/2026-10-27-v3.0.0-omni-channel-and-execution-engine.md) để nắm rõ bộ NLP nhập việc nhanh, Kanban, Pomodoro & nhật ký Deep Work, và kiến trúc bản quyền Ed25519 + giá theo khu vực (VietQR / LemonSqueezy).
+2. **Hiểu nhanh kiến trúc tổng thể**: Xem [architecture/system-overview.md](./architecture/system-overview.md).
+3. **Cơ chế Việc con vô hạn tầng**: Xem [architecture/recursive-subtasks.md](./architecture/recursive-subtasks.md) để nắm rõ toán học đằng sau 2 thuật toán **Cascade Down** và **Bubble Up Rollup**.
+4. **Quy chuẩn Giao diện & Trải nghiệm (Notion UX)**: Xem [design-system/notion-hierarchy-ux.md](./design-system/notion-hierarchy-ux.md).
+5. **Quy chuẩn Commit & Đóng góp**: Xem [development/contributing.md](./development/contributing.md) trước khi tạo bất kỳ commit nào.
+6. **Kế thừa & Bàn giao hệ thống**: Xem [guides/maintenance-and-inheritance.md](./guides/maintenance-and-inheritance.md).

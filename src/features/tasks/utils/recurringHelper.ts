@@ -76,6 +76,7 @@ export function processDailyRecurrenceRollover(projects: Project[]): {
       let nextStatus = t.status;
       let nextSubs = t.subtasks;
       let nextLastCompletedDate = t.lastCompletedDate;
+      let taskRolledOver = false;
 
       // 1. Kiểm tra task cha có recurrence: chỉ làm mới nếu task đang ở trạng thái đã xong (done) hoặc có đánh dấu hoàn thành
       const isTaskDone = t.status === 'done' || Boolean(t.completedAt);
@@ -83,6 +84,7 @@ export function processDailyRecurrenceRollover(projects: Project[]): {
         nextStatus = 'todo';
         nextSubs = resetSubtasksForNewDay(t.subtasks);
         nextLastCompletedDate = undefined;
+        taskRolledOver = true;
         taskChanged = true;
         projectChanged = true;
         resetCount++;
@@ -143,9 +145,11 @@ export function processDailyRecurrenceRollover(projects: Project[]): {
         ? {
             ...t,
             status: nextStatus,
-            completedAt: undefined,
+            completedAt: taskRolledOver ? undefined : t.completedAt,
             lastCompletedDate: nextLastCompletedDate,
             subtasks: nextSubs,
+            // Chu kỳ mới: quỹ thời gian tính lại từ 0 (lịch sử Deep Work đã nằm trong focus log)
+            ...(taskRolledOver ? { focusedMinutes: undefined, pomodoroSessions: undefined } : {}),
           }
         : t;
     });
@@ -172,6 +176,8 @@ export function manuallyResetRecurringTask(projects: Project[], projId: string, 
           completedAt: undefined,
           lastCompletedDate: undefined,
           subtasks: resetSubtasksForNewDay(t.subtasks),
+          focusedMinutes: undefined,
+          pomodoroSessions: undefined,
         };
       }),
     };

@@ -38,6 +38,22 @@ export function ProjectCardHeader({
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(project.name);
 
+  const totalFocusedMinutes = project.tasks.reduce((sum, task) => sum + (task.focusedMinutes || 0), 0);
+  const totalEstimatedMinutes = project.tasks.reduce((sum, task) => sum + (task.estimatedMinutes || 0), 0);
+  // Tỷ lệ Thực tế/Dự kiến chỉ so trên các việc CÓ ước tính để không bị thổi phồng bởi việc chưa ước tính
+  const budgetFocusedMinutes = project.tasks.reduce(
+    (sum, task) => sum + (task.estimatedMinutes ? task.focusedMinutes || 0 : 0),
+    0
+  );
+  const timeBudgetLabel =
+    budgetFocusedMinutes > 0 && totalEstimatedMinutes > 0
+      ? `${budgetFocusedMinutes}/${totalEstimatedMinutes}m`
+      : totalFocusedMinutes > 0
+      ? `${totalFocusedMinutes}m`
+      : totalEstimatedMinutes > 0
+      ? `~${totalEstimatedMinutes}m`
+      : null;
+
   return (
     <div
       onClick={() => onToggleExpand(project.id)}
@@ -101,9 +117,17 @@ export function ProjectCardHeader({
             {project.name}
           </h2>
         )}
-        <span className="text-[11.5px] text-slate-400 dark:text-slate-500 shrink-0 font-normal whitespace-nowrap tabular-nums">
+        <span className="text-[11.5px] text-slate-400 dark:text-slate-500 shrink-0 font-mono whitespace-nowrap tabular-nums">
           · {countDone}/{totalTasks}
         </span>
+        {timeBudgetLabel && (
+          <span
+            className="text-[11px] text-indigo-600/80 dark:text-indigo-400/80 shrink-0 font-mono whitespace-nowrap tabular-nums hidden xs:inline"
+            title={`Thời gian Deep Work thực tế / Dự kiến của dự án (${timeBudgetLabel})`}
+          >
+            · ⏱ {timeBudgetLabel}
+          </span>
+        )}
       </div>
 
       <div

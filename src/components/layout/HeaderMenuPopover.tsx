@@ -17,9 +17,13 @@ import {
   Github,
   EyeOff,
   Eye,
-  Check,
   Trash2,
   RotateCcw,
+  Crown,
+  ShieldCheck,
+  Smartphone,
+  Command,
+  FileText,
 } from 'lucide-react';
 import { ThemeMode } from '../../hooks';
 import { ViewPreferences } from '../../hooks/useViewPreferences';
@@ -45,6 +49,12 @@ export interface HeaderMenuPopoverProps {
   onDownloadHtml: () => void;
   onClearSampleData?: () => void;
   onResetSample?: () => void;
+  isPro?: boolean;
+  onOpenStoreModal?: () => void;
+  canInstallPWA?: boolean;
+  onInstallPWA?: () => void;
+  onOpenCommandPalette?: () => void;
+  onOpenMarkdownReport?: () => void;
 }
 
 export function HeaderMenuPopover({
@@ -66,6 +76,12 @@ export function HeaderMenuPopover({
   onDownloadHtml,
   onClearSampleData,
   onResetSample,
+  isPro = false,
+  onOpenStoreModal,
+  canInstallPWA = false,
+  onInstallPWA,
+  onOpenCommandPalette,
+  onOpenMarkdownReport,
 }: HeaderMenuPopoverProps) {
   const popoverRef = useRef<HTMLDivElement>(null);
   const { t, language, setLanguage } = useLanguage();
@@ -294,6 +310,46 @@ export function HeaderMenuPopover({
 
         {/* Nhóm 3: Tiện ích dữ liệu & Ngoại tuyến */}
         <div className="pt-1 border-t border-slate-100 dark:border-slate-800/80 space-y-0.5">
+          {/* Command Palette Ctrl+K */}
+          {onOpenCommandPalette && (
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenCommandPalette();
+              }}
+              className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg hover:bg-slate-100/80 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200 transition-colors text-left cursor-pointer"
+            >
+              <span className="flex items-center gap-2">
+                <Command className="w-3.5 h-3.5 text-slate-400" />
+                <span>{language === 'vi' ? 'Thanh lệnh nhanh (Command)' : 'Command Palette'}</span>
+              </span>
+              <kbd className="text-[10px] font-mono text-slate-400 border border-slate-200 dark:border-slate-700 rounded px-1">
+                Ctrl+K
+              </kbd>
+            </button>
+          )}
+
+          {/* Xuất Báo cáo Tiến độ Markdown (Obsidian / Notion / Standup) */}
+          {onOpenMarkdownReport && (
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenMarkdownReport();
+              }}
+              className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg hover:bg-slate-100/80 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200 transition-colors text-left cursor-pointer"
+            >
+              <span className="flex items-center gap-2">
+                <FileText className="w-3.5 h-3.5 text-emerald-500" />
+                <span>{language === 'vi' ? 'Xuất báo cáo tiến độ (.MD)' : 'Export Markdown Report'}</span>
+              </span>
+              <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
+                Obsidian
+              </span>
+            </button>
+          )}
+
           {/* Backup / Restore JSON */}
           <button
             type="button"
@@ -363,6 +419,41 @@ export function HeaderMenuPopover({
             </button>
           )}
 
+          {/* Bản quyền PRO Vĩnh Viễn (Đa Nền Tảng & PPP) */}
+          {onOpenStoreModal && (
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenStoreModal();
+              }}
+              className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/25 transition-colors text-left cursor-pointer font-semibold"
+            >
+              <span className="flex items-center gap-2">
+                <Crown className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                <span>{t.store.entryLabel}</span>
+              </span>
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-600 dark:text-amber-300">
+                {isPro ? t.store.proActiveShort : 'PRO'}
+              </span>
+            </button>
+          )}
+
+          {/* Cài đặt ứng dụng PWA / Windows */}
+          {canInstallPWA && onInstallPWA && (
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onInstallPWA();
+              }}
+              className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-slate-100/80 dark:hover:bg-slate-800/60 text-emerald-600 dark:text-emerald-400 font-medium transition-colors text-left cursor-pointer"
+            >
+              <Smartphone className="w-3.5 h-3.5 shrink-0" />
+              <span>{language === 'vi' ? 'Cài đặt ứng dụng lên máy (App)' : 'Install Desktop / Mobile App'}</span>
+            </button>
+          )}
+
           {/* Tải trang HTML Offline */}
           {onDownloadHtml && (
             <button
@@ -377,6 +468,18 @@ export function HeaderMenuPopover({
               <span>{language === 'vi' ? 'Tải tệp HTML độc lập chạy offline' : 'Download Offline Single HTML'}</span>
             </button>
           )}
+
+          {/* Chính sách bảo mật */}
+          <a
+            href="/privacy.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={onClose}
+            className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-slate-100/80 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200 transition-colors text-left cursor-pointer no-underline"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
+            <span>{language === 'vi' ? 'Chính sách bảo mật' : 'Privacy Policy'}</span>
+          </a>
 
           {/* GitHub Repository */}
           <a

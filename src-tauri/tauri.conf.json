@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Stride Tasks",
-  "version": "1.0.6",
+  "version": "3.0.0",
   "identifier": "com.phucnguyen.stridetasks",
   "build": {
     "frontendDist": "../dist",
@@ -13,12 +13,13 @@
     "windows": [
       {
         "title": "Stride Tasks",
-        "width": 1200,
-        "height": 800,
-        "minWidth": 800,
-        "minHeight": 600,
+        "width": 1240,
+        "height": 820,
+        "minWidth": 360,
+        "minHeight": 560,
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": false,
+        "center": true
       }
     ],
     "security": {
@@ -28,6 +29,11 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "publisher": "NexusPulse Studio",
+    "copyright": "Copyright © 2026 NexusPulse Studio",
+    "category": "Productivity",
+    "shortDescription": "Personal task manager with Kanban, Pomodoro and SM-2 spaced repetition",
+    "longDescription": "Stride Tasks combines a 4-state task workflow, one-line quick capture, a Pomodoro focus timer and SM-2 spaced repetition. It runs 100% offline and keeps all data on your device.",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -35,6 +41,11 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
+    "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper"
+      }
+    },
     "android": {
       "debugApplicationIdSuffix": ".debug"
     }

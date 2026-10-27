@@ -6,7 +6,7 @@ export const MUTED_KEY = 'SOLO_MUTED_V1';
 export const REMINDER_KEY = 'SOLO_REMINDER_V1';
 export const ACTIVITY_KEY = 'SOLO_CHECKLIST_ACTIVITY_LOG_V1';
 export const COMPLETED_LOGS_KEY = 'SOLO_COMPLETED_LOGS_V2';
-export const APP_VERSION = '2.5.0';
+export const APP_VERSION = '3.0.0';
 
 export const INITIAL_PROJECTS: Project[] = [
   {
@@ -22,6 +22,9 @@ export const INITIAL_PROJECTS: Project[] = [
         isPinned: true,
         recurrence: 'daily',
         recurrenceStreak: 3,
+        estimatedMinutes: 30,
+        focusedMinutes: 25,
+        pomodoroSessions: 1,
         subtasks: [
           { id: 's_dh_1', title: 'Cắt video clip 45s khoảnh khắc game hay', completed: false, status: 'todo' },
           { id: 's_dh_2', title: 'Đăng lên X & YouTube Shorts kèm hashtag', completed: false, status: 'todo' },
@@ -32,6 +35,9 @@ export const INITIAL_PROJECTS: Project[] = [
         title: 'Phát triển Game Indie hoàn chỉnh (Mô hình 3 cấp việc lồng nhau)',
         status: 'doing',
         isPinned: true,
+        estimatedMinutes: 90,
+        focusedMinutes: 50,
+        pomodoroSessions: 2,
         subtasks: [
           {
             id: 's_phase_1',

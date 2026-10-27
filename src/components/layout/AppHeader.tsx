@@ -5,10 +5,8 @@ import {
   Target,
   Activity,
   Sliders,
-  Sun,
-  Moon,
-  Monitor,
   Globe,
+  Crown,
 } from 'lucide-react';
 import { ThemeMode } from '../../hooks';
 import { ViewPreferences } from '../../hooks/useViewPreferences';
@@ -39,6 +37,12 @@ export interface AppHeaderProps {
   onCycleTheme: () => void;
   onClearSampleData?: () => void;
   onResetSample?: () => void;
+  isPro?: boolean;
+  onOpenStoreModal?: () => void;
+  canInstallPWA?: boolean;
+  onInstallPWA?: () => void;
+  onOpenCommandPalette?: () => void;
+  onOpenMarkdownReport?: () => void;
 }
 
 export function AppHeader({
@@ -65,14 +69,25 @@ export function AppHeader({
   onCycleTheme,
   onClearSampleData,
   onResetSample,
+  isPro = false,
+  onOpenStoreModal,
+  canInstallPWA = false,
+  onInstallPWA,
+  onOpenCommandPalette,
+  onOpenMarkdownReport,
 }: AppHeaderProps) {
   const { t, language, toggleLanguage } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const isBoardMode = viewPreferences.workspaceViewMode === 'board';
 
   return (
     <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#0e131b]/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 pt-[env(safe-area-inset-top)] w-full transition-colors select-none">
-      <div className="max-w-2xl mx-auto px-2.5 sm:px-4 h-11 sm:h-12 flex items-center justify-between gap-1.5 sm:gap-2 w-full">
+      <div
+        className={`${
+          isBoardMode ? 'max-w-6xl' : 'max-w-2xl'
+        } mx-auto px-2.5 sm:px-4 h-11 sm:h-12 flex items-center justify-between gap-1.5 sm:gap-2 w-full transition-all`}
+      >
         {/* Left Zone: Brand & Compact Progress - Khóa kích thước cố định không đẩy nút bên phải */}
         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 overflow-hidden">
           <div className="w-5.5 h-5.5 rounded-md bg-[#B20015] flex items-center justify-center text-white shrink-0 shadow-2xs">
@@ -81,6 +96,11 @@ export function AppHeader({
           <span className="font-semibold text-[13px] sm:text-[13.5px] tracking-tight text-slate-900 dark:text-slate-100 truncate">
             {t.common.appTitle}
           </span>
+          {isPro && (
+            <span className="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 font-mono text-[9.5px] font-bold shrink-0">
+              PRO
+            </span>
+          )}
           <span className="text-[11px] sm:text-[11.5px] text-slate-400 dark:text-slate-500 font-normal shrink-0 font-mono tabular-nums">
             · {totalDone}/{totalTasks}
           </span>
@@ -88,6 +108,24 @@ export function AppHeader({
 
         {/* Right Zone: Essential Fast Actions + Unified Popover Menu (Cố định độ rộng từng nút) */}
         <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 relative flex-nowrap">
+          {/* Nút Trung tâm bản quyền PRO (chỉ hiện khi bật paywall hoặc đã là PRO) */}
+          {onOpenStoreModal && !viewPreferences.zenMode && (
+            <button
+              type="button"
+              onClick={onOpenStoreModal}
+              className={`h-7.5 px-2 rounded-lg border text-[11px] font-semibold transition-colors cursor-pointer shrink-0 flex items-center justify-center gap-1 shadow-2xs ${
+                isPro
+                  ? 'bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
+                  : 'bg-amber-500/10 dark:bg-amber-500/15 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/30'
+              }`}
+              title={t.store.entryTitle}
+              aria-label={t.store.entryTitle}
+            >
+              <Crown className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 shrink-0" strokeWidth={2} />
+              <span className="hidden xs:inline font-mono">{isPro ? t.store.proActiveShort : 'PRO'}</span>
+            </button>
+          )}
+
           {/* Streak Badge chuẩn chuyên nghiệp */}
           {viewPreferences.showStreakBadge && !viewPreferences.zenMode && (
             <div
@@ -193,6 +231,12 @@ export function AppHeader({
             onDownloadHtml={onDownloadHtml}
             onClearSampleData={onClearSampleData}
             onResetSample={onResetSample}
+            isPro={isPro}
+            onOpenStoreModal={onOpenStoreModal}
+            canInstallPWA={canInstallPWA}
+            onInstallPWA={onInstallPWA}
+            onOpenCommandPalette={onOpenCommandPalette}
+            onOpenMarkdownReport={onOpenMarkdownReport}
           />
         </div>
       </div>

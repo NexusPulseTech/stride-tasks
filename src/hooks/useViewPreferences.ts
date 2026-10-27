@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { WorkspaceViewMode } from '../types';
 
 export interface ViewPreferences {
   zenMode: boolean;               // Chế độ tối giản hoàn toàn
@@ -10,6 +11,7 @@ export interface ViewPreferences {
   showFilterTabs: boolean;        // Hiện bộ lọc Tất cả / Đang làm / Đã xong
   showLanguageSwitcher: boolean;  // Hiện nút chuyển EN/VI trên header
   hideCompletedInAllView: boolean; // Ẩn các task đã làm trong tab Tất cả (chống spam rác thị giác)
+  workspaceViewMode: WorkspaceViewMode; // Chế độ hiển thị: 'list' (Danh sách) | 'board' (Kanban 4 cột)
 }
 
 const VIEW_PREFERENCES_KEY = 'stride_tasks_view_preferences_v1';
@@ -24,6 +26,7 @@ const DEFAULT_PREFERENCES: ViewPreferences = {
   showFilterTabs: true,
   showLanguageSwitcher: true,   // Mặc định hiện nút đổi ngôn ngữ
   hideCompletedInAllView: true,  // Mặc định ẩn việc đã xong trong tab Tất cả theo đúng mong muốn của người dùng
+  workspaceViewMode: 'list',    // Mặc định chế độ Danh sách
 };
 
 export function useViewPreferences() {
@@ -40,6 +43,16 @@ export function useViewPreferences() {
   const updatePreference = useCallback(<K extends keyof ViewPreferences>(key: K, value: ViewPreferences[K]) => {
     setPreferences((prev) => {
       const next = { ...prev, [key]: value };
+      try {
+        localStorage.setItem(VIEW_PREFERENCES_KEY, JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
+  }, []);
+
+  const setWorkspaceViewMode = useCallback((mode: WorkspaceViewMode) => {
+    setPreferences((prev) => {
+      const next = { ...prev, workspaceViewMode: mode };
       try {
         localStorage.setItem(VIEW_PREFERENCES_KEY, JSON.stringify(next));
       } catch (e) {}
@@ -84,6 +97,7 @@ export function useViewPreferences() {
   return {
     preferences,
     updatePreference,
+    setWorkspaceViewMode,
     toggleZenMode,
     toggleHideCompletedInAll,
     resetPreferences,

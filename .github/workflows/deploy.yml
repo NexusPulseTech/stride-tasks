@@ -35,6 +35,15 @@ jobs:
 
       - name: Build production bundle
         run: npm run build
+        # Cấu hình thương mại công khai (Settings → Secrets and variables → Actions → Variables).
+        # Chưa khai báo → paywall tắt, mọi tính năng mở miễn phí.
+        env:
+          VITE_ENABLE_PAYWALL: ${{ vars.VITE_ENABLE_PAYWALL }}
+          VITE_VIETQR_IMAGE_URL: ${{ vars.VITE_VIETQR_IMAGE_URL }}
+          VITE_LEMONSQUEEZY_CHECKOUT_URL: ${{ vars.VITE_LEMONSQUEEZY_CHECKOUT_URL }}
+          VITE_LEMONSQUEEZY_CHECKOUT_URL_EMERGING: ${{ vars.VITE_LEMONSQUEEZY_CHECKOUT_URL_EMERGING }}
+          VITE_LICENSE_CLAIM_URL: ${{ vars.VITE_LICENSE_CLAIM_URL }}
+          VITE_SUPPORT_EMAIL: ${{ vars.VITE_SUPPORT_EMAIL }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

@@ -15,6 +15,8 @@ import {
   Calendar,
   Briefcase,
   RotateCcw,
+  Play,
+  Layers,
 } from 'lucide-react';
 import { Task, RecurrenceType } from '../../../types';
 import { PortalMenu } from '../../../components/ui/PortalMenu';
@@ -40,6 +42,7 @@ export interface TaskMoreMenuProps {
   onOpenDetail?: () => void;
   onOpenSchedule?: () => void;
   onOpenAnkiSrs?: () => void;
+  onStartFocusTask?: () => void;
 }
 
 export function TaskMoreMenu({
@@ -62,11 +65,12 @@ export function TaskMoreMenu({
   onOpenDetail,
   onOpenSchedule,
   onOpenAnkiSrs,
+  onStartFocusTask,
 }: TaskMoreMenuProps) {
   const { t, language } = useLanguage();
 
   return (
-    <PortalMenu isOpen={isOpen} onClose={onClose} triggerRef={triggerRef} widthClass="w-52">
+    <PortalMenu isOpen={isOpen} onClose={onClose} triggerRef={triggerRef} widthClass="w-56">
       {/* Xem chi tiết việc */}
       {onOpenDetail && (
         <button
@@ -79,6 +83,36 @@ export function TaskMoreMenu({
         >
           <Eye className="w-3.5 h-3.5 shrink-0 text-slate-500 dark:text-slate-400" strokeWidth={1.5} aria-hidden="true" />
           <span>{t.taskMenu.viewDetail}</span>
+        </button>
+      )}
+
+      {/* Chạy Đồng hồ Focus Pomodoro 25 phút */}
+      {onStartFocusTask && (
+        <button
+          type="button"
+          onClick={() => {
+            onStartFocusTask();
+            onClose();
+          }}
+          className="w-full text-left px-2.5 py-1.5 text-xs text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40 rounded-lg flex items-center gap-2 cursor-pointer transition-colors font-medium"
+        >
+          <Play className="w-3.5 h-3.5 shrink-0 text-amber-500 fill-current" strokeWidth={1.5} aria-hidden="true" />
+          <span>{language === 'vi' ? 'Chạy Focus Pomodoro (25p)' : 'Start Focus Pomodoro (25m)'}</span>
+        </button>
+      )}
+
+      {/* Lặp lại ngắt quãng Anki SM-2 */}
+      {onOpenAnkiSrs && (
+        <button
+          type="button"
+          onClick={() => {
+            onOpenAnkiSrs();
+            onClose();
+          }}
+          className="w-full text-left px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/80 rounded-lg flex items-center gap-2 cursor-pointer transition-colors"
+        >
+          <Layers className="w-3.5 h-3.5 shrink-0 text-sky-500 dark:text-sky-400" strokeWidth={1.5} aria-hidden="true" />
+          <span>{language === 'vi' ? 'Lặp lại ngắt quãng (Anki SM-2)' : 'Anki SM-2 Spaced Repetition'}</span>
         </button>
       )}
 

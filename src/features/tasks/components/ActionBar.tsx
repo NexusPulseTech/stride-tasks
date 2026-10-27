@@ -1,6 +1,6 @@
 import React, { useRef, useState, useCallback } from 'react';
-import { Search, RotateCcw, X, Eye, EyeOff, Target } from 'lucide-react';
-import { FilterType } from '../../../types';
+import { Search, RotateCcw, X, Eye, EyeOff, Target, LayoutGrid, List, Command } from 'lucide-react';
+import { FilterType, WorkspaceViewMode } from '../../../types';
 import { useLanguage } from '../../../i18n';
 import { triggerHaptic } from '../../../utils';
 
@@ -23,6 +23,9 @@ interface ActionBarProps {
   hiddenDoneCount?: number;
   dailyFocusCount?: number;
   onOpenDailyFocus?: () => void;
+  workspaceViewMode?: WorkspaceViewMode;
+  onWorkspaceViewModeChange?: (mode: WorkspaceViewMode) => void;
+  onOpenCommandPalette?: () => void;
 }
 
 export function ActionBar({
@@ -44,8 +47,11 @@ export function ActionBar({
   hiddenDoneCount = 0,
   dailyFocusCount = 0,
   onOpenDailyFocus,
+  workspaceViewMode = 'list',
+  onWorkspaceViewModeChange,
+  onOpenCommandPalette,
 }: ActionBarProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const longPressTimerRef = useRef<number | null>(null);
   const isLongPressRef = useRef(false);
   const [holdingProgress, setHoldingProgress] = useState(false);
@@ -236,14 +242,46 @@ export function ActionBar({
             <div />
           )}
 
-          {/* Khu vực phải: Tiêu điểm hôm nay & Tìm kiếm (Khóa cứng kích thước, không bao giờ bị đẩy mất) */}
+          {/* Khu vực phải: Chuyển List/Board, Tiêu điểm hôm nay, Ctrl+K & Tìm kiếm (Khóa cứng kích thước) */}
           <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 flex-nowrap">
+            {/* Nút chuyển đổi List View ⇄ Kanban Board View (Chuẩn Linear) */}
+            {onWorkspaceViewModeChange && (
+              <div className="h-8 p-0.5 bg-slate-200/75 dark:bg-slate-800/85 rounded-lg flex items-center gap-0.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => onWorkspaceViewModeChange('list')}
+                  className={`h-7 px-2 rounded-md text-[11px] font-medium flex items-center gap-1 transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
+                    workspaceViewMode === 'list'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs font-semibold'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                  title={language === 'vi' ? 'Chế độ Danh sách (Phím B)' : 'List View (Shortcut B)'}
+                >
+                  <List className="w-3.5 h-3.5 shrink-0" />
+                  <span className="hidden md:inline">{language === 'vi' ? 'Danh sách' : 'List'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onWorkspaceViewModeChange('board')}
+                  className={`h-7 px-2 rounded-md text-[11px] font-medium flex items-center gap-1 transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
+                    workspaceViewMode === 'board'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs font-semibold'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                  title={language === 'vi' ? 'Bảng Kanban 4 cột chuẩn Linear (Phím B)' : '4-Column Linear Kanban Board (Shortcut B)'}
+                >
+                  <LayoutGrid className="w-3.5 h-3.5 shrink-0" />
+                  <span className="hidden md:inline">Kanban</span>
+                </button>
+              </div>
+            )}
+
             {/* Nút Tiêu điểm & Giảm tải công việc */}
             {onOpenDailyFocus && (
               <button
                 type="button"
                 onClick={onOpenDailyFocus}
-                className={`h-8 px-2 sm:w-[112px] sm:px-2 rounded-lg border text-xs font-medium flex items-center justify-center gap-1 transition-colors cursor-pointer shadow-2xs shrink-0 overflow-hidden whitespace-nowrap ${
+                className={`h-8 px-2 sm:w-[106px] sm:px-2 rounded-lg border text-xs font-medium flex items-center justify-center gap-1 transition-colors cursor-pointer shadow-2xs shrink-0 overflow-hidden whitespace-nowrap ${
                   dailyFocusCount > 0
                     ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-200 border-amber-300/80 dark:border-amber-800/80'
                     : 'bg-white dark:bg-[#161b22] border-slate-200/90 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
@@ -263,6 +301,19 @@ export function ActionBar({
               </button>
             )}
 
+            {/* Nút Thanh Lệnh Nhanh Ctrl+K */}
+            {onOpenCommandPalette && (
+              <button
+                type="button"
+                onClick={onOpenCommandPalette}
+                className="h-8 px-2 rounded-lg bg-white dark:bg-[#161b22] border border-slate-200/90 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center justify-center gap-1 cursor-pointer shrink-0 shadow-2xs whitespace-nowrap"
+                title={language === 'vi' ? 'Thanh lệnh nhanh (Ctrl + K)' : 'Command Palette (Ctrl + K)'}
+              >
+                <Command className="w-3.5 h-3.5 shrink-0" />
+                <kbd className="hidden lg:inline text-[10px] font-mono text-slate-400">⌘K</kbd>
+              </button>
+            )}
+
             {/* Nút kính lúp trên Mobile */}
             <button
               type="button"
@@ -274,9 +325,9 @@ export function ActionBar({
               <Search className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
             </button>
 
-            {/* Ô tìm kiếm cố định w-[156px] trên Desktop (không tự phình to khi focus tránh đẩy lệch) */}
+            {/* Ô tìm kiếm cố định w-[142px] trên Desktop */}
             <div className="hidden sm:flex items-center shrink-0">
-              <div className="relative flex items-center w-[156px]">
+              <div className="relative flex items-center w-[142px]">
                 <input
                   ref={desktopSearchRef}
                   type="text"

@@ -9,6 +9,7 @@ import {
   Check,
 } from 'lucide-react';
 import { triggerHaptic } from '../../../utils';
+import { useLanguage } from '../../../i18n';
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -25,6 +26,7 @@ export function FeedbackModal({
   totalTasksCount,
   showToast,
 }: FeedbackModalProps) {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'bug' | 'feature'>('bug');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -63,16 +65,16 @@ export function FeedbackModal({
     const body = encodeURIComponent(getFullReportText());
     const mailtoUrl = `mailto:${targetEmail}?subject=${subject}&body=${body}`;
     window.location.href = mailtoUrl;
-    showToast('Đang mở ứng dụng Email để gửi...');
+    showToast(t.toast.feedbackOpeningEmail);
   };
 
   const handleOpenGithub = () => {
     triggerHaptic();
     const issueTitle = encodeURIComponent(`[${activeTab === 'bug' ? 'Bug' : 'Feedback'}] ${title.trim() || 'Phản hồi người dùng'}`);
     const issueBody = encodeURIComponent(getFullReportText());
-    const githubUrl = `https://github.com/PhuccNguyen/stride-tasks/issues/new?title=${issueTitle}&body=${issueBody}`;
+    const githubUrl = `https://github.com/NexusPulseTech/stride-tasks/issues/new?title=${issueTitle}&body=${issueBody}`;
     window.open(githubUrl, '_blank', 'noopener,noreferrer');
-    showToast('Đang mở trang tạo GitHub Issue...');
+    showToast(t.toast.feedbackOpeningGithub);
   };
 
   const handleCopyReport = () => {
@@ -80,7 +82,7 @@ export function FeedbackModal({
     if (navigator.clipboard) {
       navigator.clipboard.writeText(getFullReportText());
       setCopied(true);
-      showToast('Đã sao chép nội dung vào bộ nhớ tạm!');
+      showToast(t.toast.feedbackCopied);
       setTimeout(() => setCopied(false), 2500);
     }
   };

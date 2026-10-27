@@ -2,6 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { Undo2, X } from 'lucide-react';
 import { UndoAction } from '../../types';
+import { useLanguage } from '../../i18n';
 
 interface UndoSnackbarProps {
   undoState: UndoAction | null;
@@ -9,6 +10,7 @@ interface UndoSnackbarProps {
 }
 
 export function UndoSnackbar({ undoState, onDismiss }: UndoSnackbarProps) {
+  const { t } = useLanguage();
   if (!undoState) return null;
 
   return createPortal(
@@ -31,11 +33,11 @@ export function UndoSnackbar({ undoState, onDismiss }: UndoSnackbarProps) {
             type="button"
             onClick={undoState.undo}
             className="h-7 px-2.5 bg-white hover:bg-slate-100 active:scale-95 text-slate-950 font-medium text-[11.5px] rounded-lg flex items-center gap-1.5 shadow-xs cursor-pointer transition-all"
-            title="Hoàn tác thao tác vừa rồi (Ctrl+Z)"
-            aria-label="Hoàn tác thao tác vừa rồi"
+            title={t.toast.undoTooltip}
+            aria-label={t.toast.undoTooltip}
           >
             <Undo2 className="w-3.5 h-3.5 shrink-0" strokeWidth={2} aria-hidden="true" />
-            <span>Hoàn tác</span>
+            <span>{t.common.undo}</span>
             <span className="hidden sm:inline text-[9.5px] text-slate-500 font-normal ml-0.5">(Ctrl+Z)</span>
           </button>
 

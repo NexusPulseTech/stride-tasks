@@ -9,7 +9,8 @@ import {
   determineTaskStatusFromSubtasks,
 } from '../utils/subtaskTree';
 import { reorderSubtaskTree } from '../utils/subtaskReorder';
-import { triggerHaptic } from '../../../utils';
+import { triggerHaptic, truncateText } from '../../../utils';
+import { useTranslationRef, formatMessage } from '../../../i18n';
 
 interface SubtaskOperationsDeps {
   projects: Project[];
@@ -32,6 +33,7 @@ export function useSubtaskOperations({
   isMuted,
   onTaskDone,
 }: SubtaskOperationsDeps) {
+  const tRef = useTranslationRef();
   const [subInputs, setSubInputs] = useState<Record<string, string>>({});
   const [activeSubTaskId, setActiveSubTaskId] = useState<string | null>(null);
   const [expandedSubtasks, setExpandedSubtasks] = useState<Record<string, boolean>>({});
@@ -112,7 +114,7 @@ export function useSubtaskOperations({
         );
         setExpandedSubtasks((prev) => ({ ...prev, [taskId]: true }));
         if (textParam === undefined) setSubInputs((prev) => ({ ...prev, [taskId]: '' }));
-        showToast(`Đã dán nhanh ${parsedSubs.length} việc con!`);
+        showToast(formatMessage(tRef.current.toast.subPasted, { count: parsedSubs.length }));
         return;
       }
     }
@@ -141,7 +143,7 @@ export function useSubtaskOperations({
     );
     setExpandedSubtasks((prev) => ({ ...prev, [taskId]: true }));
     if (textParam === undefined) setSubInputs((prev) => ({ ...prev, [taskId]: '' }));
-    showToast(parentSubId ? 'Đã thêm việc con mới!' : 'Đã thêm việc con!');
+    showToast(parentSubId ? tRef.current.toast.subAddedNested : tRef.current.toast.subAdded);
   };
 
   const toggleSubTask = (projId: string, taskId: string, subId: string, isChecked: boolean) => {
@@ -186,7 +188,7 @@ export function useSubtaskOperations({
         onTaskDone?.(true, targetTask ? { ...targetTask, status: 'done' } : undefined, p);
         const remaining = p.tasks.filter((t) => t.id !== taskId && t.status !== 'done');
         if (remaining.length === 0) {
-          showToast(`Hoàn thành xuất sắc toàn bộ bước con của việc này!`);
+          showToast(tRef.current.toast.subAllDone);
         }
       }
     }
@@ -221,7 +223,7 @@ export function useSubtaskOperations({
     );
 
     if (deletedSub) {
-      triggerUndoableAction(`Đã xóa bước "${(deletedSub as SubTask).title.slice(0, 18)}..."`, () => {
+      triggerUndoableAction(formatMessage(tRef.current.toast.subDeleted, { title: truncateText((deletedSub as SubTask).title, 18) }), () => {
         setProjects((prev) =>
           prev.map((proj) => {
             if (proj.id !== projId) return proj;
@@ -262,7 +264,7 @@ export function useSubtaskOperations({
         };
       })
     );
-    showToast('Đã cập nhật tên việc con!');
+    showToast(tRef.current.toast.subRenamed);
   };
 
   const handleReorderSubtask = (
@@ -318,7 +320,7 @@ export function useSubtaskOperations({
         };
       })
     );
-    showToast('Đã cập nhật ghim việc con!');
+    showToast(tRef.current.toast.subPinUpdated);
   };
 
   const handleSnoozeSubTask = (
@@ -361,15 +363,11 @@ export function useSubtaskOperations({
       })
     );
     if (autoPin && !snoozeUntil) {
-      showToast('Đã ghim ưu tiên & đặt Nhắc lại ngay (Mức 1)!');
+      showToast(tRef.current.toast.pinnedAndReset);
     } else if (snoozeUntil) {
-      showToast(
-        snoozeLevel
-          ? `Đã hoãn nhắc việc con (Lên Mức ${snoozeLevel})!`
-          : 'Đã lưu thời gian hoãn nhắc việc con!'
-      );
+      showToast(snoozeLevel ? formatMessage(tRef.current.toast.subSnoozedLevel, { level: snoozeLevel }) : tRef.current.toast.subSnoozeSaved);
     } else {
-      showToast('Đã hủy hoãn nhắc việc con!');
+      showToast(tRef.current.toast.subSnoozeCancelled);
     }
   };
 

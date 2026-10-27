@@ -1,15 +1,20 @@
 import React, { useState, useMemo } from 'react';
 import { X, Share2 } from 'lucide-react';
+import { Project } from '../../../types';
 import { CompletedItemLog } from '../hooks/useActivityLog';
 import { ContributionHeatmap } from './ContributionHeatmap';
 import { CompletedTasksTable } from './CompletedTasksTable';
 import { ShareProductivityModal } from './ShareProductivityModal';
 import { HeatmapDay } from '../utils/heatmapHelper';
 import { formatLogsToTaskItems } from '../utils/completedTasksHelper';
+import type { FocusSummary } from '../../focus/utils/focusLog';
 
 interface StatsPanelProps {
   isOpen: boolean;
   onClose: () => void;
+  projects?: Project[];
+  /** Tổng hợp từ focus log append-only — không mất khi xóa việc hay khi việc lặp lại sang chu kỳ mới */
+  focusSummary?: FocusSummary;
   completedLogs: CompletedItemLog[];
   activityMap: Record<string, number>;
   todayCount: number;
@@ -25,6 +30,8 @@ interface StatsPanelProps {
 export function StatsPanel({
   isOpen,
   onClose,
+  projects = [],
+  focusSummary,
   completedLogs,
   activityMap,
   todayCount,
@@ -42,6 +49,22 @@ export function StatsPanel({
   // Chuyển đổi dữ liệu log hoàn thành (Single Source of Truth) sang định dạng hiển thị
   const completedTasks = useMemo(() => formatLogsToTaskItems(completedLogs), [completedLogs]);
 
+  // Time-Budget ROI của chu kỳ hiện tại: chỉ tính việc cấp 1 CÓ ước tính, cùng phạm vi cho cả tử số và mẫu số
+  const focusMetrics = useMemo(() => {
+    let budgetFocusedMinutes = 0;
+    let estimatedMinutes = 0;
+
+    projects.forEach((p) => {
+      p.tasks.forEach((t) => {
+        if (!t.estimatedMinutes) return;
+        estimatedMinutes += t.estimatedMinutes;
+        budgetFocusedMinutes += t.focusedMinutes || 0;
+      });
+    });
+
+    return { budgetFocusedMinutes, estimatedMinutes };
+  }, [projects]);
+
   if (!isOpen) return null;
 
   return (
@@ -53,7 +76,7 @@ export function StatsPanel({
             Nhịp độ & Lịch sử hoàn thành
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Dữ liệu đồng bộ trực tiếp từ các mục tiêu đã làm
+            Dữ liệu đồng bộ trực tiếp từ các mục tiêu đã làm & đồng hồ Pomodoro Deep Work
           </p>
         </div>
 
@@ -81,8 +104,8 @@ export function StatsPanel({
         </div>
       </div>
 
-      {/* 4 Chỉ số thực sự cần thiết: Hôm nay, Tuần này, Chuỗi ngày, Tổng hoàn thành */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-3 border-y border-slate-100 dark:border-slate-800/80">
+      {/* 5 Chỉ số cốt lõi: Hôm nay, Tuần này, Chuỗi ngày, Tổng hoàn thành, Deep Work Focus */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 py-3 border-y border-slate-100 dark:border-slate-800/80">
         <div>
           <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">
             Hôm nay
@@ -117,6 +140,23 @@ export function StatsPanel({
           <div className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-mono tabular-nums mt-0.5">
             {totalCompleted} <span className="text-xs font-normal text-slate-400 font-sans">việc</span>
           </div>
+        </div>
+
+        <div className="col-span-2 sm:col-span-1 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-800/60">
+          <span className="text-[11px] font-medium text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
+            Deep Work tuần này
+          </span>
+          <div className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 font-mono tabular-nums mt-0.5">
+            {focusSummary?.weekMinutes ?? 0}{' '}
+            <span className="text-xs font-normal text-slate-400 font-sans">
+              phút · {focusSummary?.completedSessions ?? 0} phiên hoàn tất
+            </span>
+          </div>
+          {focusMetrics.estimatedMinutes > 0 && (
+            <div className="text-[11px] text-slate-400 dark:text-slate-500 font-mono tabular-nums">
+              Quỹ thời gian: {focusMetrics.budgetFocusedMinutes}/{focusMetrics.estimatedMinutes} phút
+            </div>
+          )}
         </div>
       </div>
 

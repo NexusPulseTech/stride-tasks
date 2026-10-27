@@ -10,6 +10,7 @@ import {
   Calendar,
   Clock,
   RotateCcw,
+  Play,
 } from 'lucide-react';
 import { FormattedTaskText } from '../utils/formatters';
 import { getTaskSubtaskStats } from '../utils/subtaskTree';
@@ -52,12 +53,15 @@ export function TaskItem({
   onOpenSchedule,
   onTogglePinSubTask,
   onOpenAnkiSrs,
+  onStartFocusTask,
+  activeFocusTaskId,
 }: TaskItemProps) {
   const { t, language } = useLanguage();
   const moreButtonRef = useRef<HTMLButtonElement>(null);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editTitle, setEditTitle] = useState(task.title);
   const isDone = isDoneStatus(task.status, statuses);
+  const isCurrentlyFocused = activeFocusTaskId === task.id;
   const hasSubs = task.subtasks && task.subtasks.length > 0;
   const stats = getTaskSubtaskStats(task);
   const totalSubs = stats.leafTotal;
@@ -85,7 +89,9 @@ export function TaskItem({
       <div
         data-task-card="true"
         className={`group flex items-center gap-1.5 py-1 px-2 sm:px-2.5 min-h-[34px] rounded-lg border transition-colors duration-150 flex-nowrap w-full overflow-hidden ${
-          isDone
+          isCurrentlyFocused
+            ? 'bg-amber-50/50 dark:bg-amber-950/20 border-amber-400/80 dark:border-amber-600/70 text-slate-900 dark:text-slate-100 shadow-2xs'
+            : isDone
             ? 'bg-slate-50/60 dark:bg-[#161b22]/50 border-slate-100/90 dark:border-slate-800/80 text-slate-400 dark:text-slate-500'
             : 'bg-white dark:bg-[#161b22] border-slate-200/70 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-2xs text-slate-800 dark:text-slate-100'
         } ${isDragging ? 'border-dashed border-slate-400 dark:border-slate-600' : ''}`}
@@ -198,6 +204,28 @@ export function TaskItem({
 
           {!isEditingTitle && (
             <div className="flex items-center gap-1 shrink-0 flex-nowrap">
+              {isCurrentlyFocused && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-mono tabular-nums text-amber-700 dark:text-amber-300 bg-amber-100/80 dark:bg-amber-950/60 px-1.5 py-0.5 rounded font-semibold shrink-0 whitespace-nowrap">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  <span>FOCUS</span>
+                </span>
+              )}
+
+              {Boolean((task.focusedMinutes && task.focusedMinutes > 0) || task.estimatedMinutes) && !isCurrentlyFocused && (
+                <span
+                  className="hidden sm:inline-flex items-center text-[10px] font-mono tabular-nums text-amber-600 dark:text-amber-400 px-1 py-0.5 shrink-0 whitespace-nowrap"
+                  title={
+                    language === 'vi'
+                      ? `Đã tập trung ${task.focusedMinutes || 0}p${task.estimatedMinutes ? ` / Dự kiến ~${task.estimatedMinutes}p` : ''}`
+                      : `Focused ${task.focusedMinutes || 0}m${task.estimatedMinutes ? ` / Est ~${task.estimatedMinutes}m` : ''}`
+                  }
+                >
+                  {task.focusedMinutes
+                    ? `${task.focusedMinutes}${task.estimatedMinutes ? `/${task.estimatedMinutes}` : ''}m`
+                    : `~${task.estimatedMinutes}m`}
+                </span>
+              )}
+
               {task.isPinned && (
                 <span className="inline-flex items-center gap-1 text-[10px] text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/50 px-1.5 py-0.5 rounded font-medium shrink-0 whitespace-nowrap">
                   <Pin className="w-2.5 h-2.5 shrink-0 fill-current text-amber-600 dark:text-amber-400" strokeWidth={1.5} aria-hidden="true" />
@@ -287,6 +315,25 @@ export function TaskItem({
 
         {/* Các icon thao tác chuẩn basic, đồng nhất kích thước w-6 h-6, không xê dịch */}
         <div className="shrink-0 flex items-center gap-0.5 flex-nowrap">
+          {!isDone && onStartFocusTask && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onStartFocusTask(task, projectId);
+              }}
+              className={`w-6 h-6 rounded cursor-pointer shrink-0 transition-colors hidden sm:inline-flex items-center justify-center ${
+                isCurrentlyFocused
+                  ? 'text-amber-600 dark:text-amber-400 bg-amber-100/70 dark:bg-amber-950/50'
+                  : 'text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
+              title={language === 'vi' ? 'Chạy đồng hồ Focus Pomodoro (25 phút)' : 'Start 25m Focus Pomodoro'}
+              aria-label="Start Focus Pomodoro"
+            >
+              <Play className="w-3 h-3 shrink-0 fill-current" strokeWidth={1.5} />
+            </button>
+          )}
+
           {onOpenDetail && (
             <button
               type="button"
@@ -388,6 +435,7 @@ export function TaskItem({
               onOpenDetail={onOpenDetail ? () => onOpenDetail(task, projectId) : undefined}
               onOpenSchedule={onOpenSchedule ? () => onOpenSchedule(task, projectId) : undefined}
               onOpenAnkiSrs={onOpenAnkiSrs ? () => onOpenAnkiSrs(task, projectId) : undefined}
+              onStartFocusTask={onStartFocusTask ? () => onStartFocusTask(task, projectId) : undefined}
             />
           </div>
         </div>

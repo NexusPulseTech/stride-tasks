@@ -1,8 +1,8 @@
 # HỆ THỐNG TÀI LIỆU KIẾN TRÚC & HƯỚNG DẪN KỸ THUẬT (SYSTEM ARCHITECTURE & ENGINEERING MANUAL)
 
 > **Ứng dụng**: Quản Lý Công Việc & Dự Án Tối Giản (Solo Tasks Core)  
-> **Phiên bản kiến trúc**: v4.6.0 (Notion Caret Navigation, Infinite Subtasks & Enterprise Docs Hub)  
-> **Công nghệ chủ đạo**: React 19, TypeScript 5, Tailwind CSS v4, Vite, Local-First Architecture  
+> **Phiên bản ứng dụng**: v3.0.0 (Execution Engine: NLP Quick-Capture, Kanban, Pomodoro + Deep Work log, bản quyền Ed25519 ngoại tuyến)  
+> **Công nghệ chủ đạo**: React 19, TypeScript 7, Tailwind CSS v4, Vite 8 (Rolldown), vite-plugin-pwa (Workbox), Local-First Architecture  
 > **Quy chuẩn thiết kế**: Phỏng theo triết lý của **Notion, Linear, Apple Human Interface Guidelines (HIG), và GitHub Primer**.
 
 ---
@@ -26,6 +26,9 @@ Hệ thống tài liệu đã được tổ chức phân tầng chuyên nghiệp
 - **Hướng dẫn Vận hành (`docs/guides/`)**:
   - [Cẩm nang người dùng & Phím tắt](./docs/guides/user-guide.md)
   - [Tài liệu kế thừa cho kỹ sư kế tiếp](./docs/guides/maintenance-and-inheritance.md)
+- **Lịch sử Phát hành & Thương mại hóa (`docs/Release/`)**:
+  - [Trung tâm Nhật ký Phát hành (`docs/Release/README.md`)](./docs/Release/README.md)
+  - [Báo cáo Phát hành 10/27/2026 (`v2.5.0` → `v3.0.0` — Execution Engine & bản quyền Ed25519)](./docs/Release/2026-10-27-v3.0.0-omni-channel-and-execution-engine.md)
 
 ---
 

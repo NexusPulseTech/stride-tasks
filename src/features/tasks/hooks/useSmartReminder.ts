@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Project } from '../../../types';
 import { playChime } from '../../../utils';
+import { useTranslationRef, formatMessage } from '../../../i18n';
 
 export type ReminderIntervalMinutes = 15 | 30 | 60;
 
@@ -14,6 +15,7 @@ interface UseSmartReminderProps {
 }
 
 export function useSmartReminder({ projects, isMuted, showToast }: UseSmartReminderProps) {
+  const tRef = useTranslationRef();
   // Mặc định BẬT (true) vì mọi task chưa hoàn thành đều cần được nhắc cho đến khi Done
   const [reminderEnabled, setReminderEnabled] = useState<boolean>(() => {
     try {
@@ -81,8 +83,8 @@ export function useSmartReminder({ projects, isMuted, showToast }: UseSmartRemin
 
           if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
             try {
-              new Notification(`Đến giờ làm: ${t.title}`, {
-                body: `Thuộc danh mục "${p.name}". Bấm vào ứng dụng để thực hiện ngay!`,
+              new Notification(formatMessage(tRef.current.toast.scheduledNotificationTitle, { title: t.title }), {
+                body: formatMessage(tRef.current.toast.scheduledNotificationBody, { project: p.name }),
                 icon: '/icon-192.png',
               });
             } catch (e) {}
@@ -151,8 +153,11 @@ export function useSmartReminder({ projects, isMuted, showToast }: UseSmartRemin
     // Gửi Web Notification hệ thống (nếu được cấp quyền)
     if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
       try {
-        new Notification('Stride Tasks - Nhắc việc thông minh', {
-          body: `Bạn còn ${activePendingList.length} công việc cần xử lý! Ưu tiên: "${topTask.title.slice(0, 40)}"`,
+        new Notification(tRef.current.reminder.notificationTitle, {
+          body: formatMessage(tRef.current.reminder.notificationBody, {
+            count: activePendingList.length,
+            task: topTask.title.slice(0, 40),
+          }),
           icon: '/icon-192.png',
         });
       } catch (e) {}
@@ -183,7 +188,7 @@ export function useSmartReminder({ projects, isMuted, showToast }: UseSmartRemin
             try {
               localStorage.setItem(REMINDER_KEY, 'true');
             } catch (e) {}
-            showToastRef.current('Đã kích hoạt nhắc việc định kỳ!');
+            showToastRef.current(tRef.current.toast.periodicReminderOn);
             triggerReminderCheck();
             return;
           }
@@ -194,7 +199,7 @@ export function useSmartReminder({ projects, isMuted, showToast }: UseSmartRemin
       try {
         localStorage.setItem(REMINDER_KEY, 'true');
       } catch (e) {}
-      showToastRef.current('Đã bật nhắc nhở công việc (thông báo trong app)!');
+      showToastRef.current(tRef.current.toast.inAppReminderOn);
       triggerReminderCheck();
     } else {
       setReminderEnabled(false);
@@ -202,7 +207,7 @@ export function useSmartReminder({ projects, isMuted, showToast }: UseSmartRemin
         localStorage.setItem(REMINDER_KEY, 'false');
       } catch (e) {}
       setInAppBanner(null);
-      showToastRef.current('Đã tắt nhắc nhở công việc');
+      showToastRef.current(tRef.current.toast.taskRemindersOff);
     }
   }, [reminderEnabled, triggerReminderCheck]);
 
