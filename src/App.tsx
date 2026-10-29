@@ -11,18 +11,15 @@ import {
   PinnedSection,
   ProjectCard,
   ReminderBanner,
-  DailyFocusModal,
   useTaskManager,
 } from './features/tasks';
-import { TaskDetailModal } from './features/tasks/components/TaskDetailModal';
-import { SmartScheduleModal } from './features/tasks/components/SmartScheduleModal';
-import { AnkiSrsModal } from './features/tasks/components/AnkiSrsModal';
 import { EmergencyRecoveryBanner } from './features/tasks/components/EmergencyRecoveryBanner';
 import { isDoingStatus, isDoneStatus } from './features/tasks/utils/statusCategory';
 import { FocusBanner, ActiveFocusStrip, useFocusTimer, useFocusLog, FocusLogEvent } from './features/focus';
 import { ModalsContainer } from './features/modals';
 import type { PaywallTriggerContext } from './features/modals/components/StoreCommercialModal';
-import { PAYWALL_ENABLED } from './config/commerceConfig';
+import { PAYWALL_ENABLED, COMMERCE_CONFIG } from './config/commerceConfig';
+import { useSync } from './features/sync';
 import { STORAGE_ERROR_EVENT, StorageErrorReason } from './utils/persistentStorage';
 import { useLanguage, formatMessage } from './i18n';
 import { WorkspaceViewMode, Task, Project } from './types';
@@ -44,8 +41,25 @@ const CommandPaletteModal = lazy(() =>
 const MarkdownReportModal = lazy(() =>
   import('./features/modals/components/MarkdownReportModal').then((m) => ({ default: m.MarkdownReportModal }))
 );
+const TaskDetailModal = lazy(() =>
+  import('./features/tasks/components/TaskDetailModal').then((m) => ({ default: m.TaskDetailModal }))
+);
+const SmartScheduleModal = lazy(() =>
+  import('./features/tasks/components/SmartScheduleModal').then((m) => ({ default: m.SmartScheduleModal }))
+);
+const AnkiSrsModal = lazy(() =>
+  import('./features/tasks/components/AnkiSrsModal').then((m) => ({ default: m.AnkiSrsModal }))
+);
+const DailyFocusModal = lazy(() =>
+  import('./features/tasks/components/DailyFocusModal').then((m) => ({ default: m.DailyFocusModal }))
+);
+
+const SyncModal = lazy(() =>
+  import('./features/sync/components/SyncModal').then((m) => ({ default: m.SyncModal }))
+);
 
 const ACTIVATE_HASH_PREFIX = '#activate=';
+const SYNC_HASH_PREFIX = '#sync=';
 
 export default function App() {
   const { t } = useLanguage();
@@ -60,6 +74,20 @@ export default function App() {
   const [paywallTrigger, setPaywallTrigger] = useState<PaywallTriggerContext | null>(null);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [showMarkdownReport, setShowMarkdownReport] = useState(false);
+  const [showSyncModal, setShowSyncModal] = useState(false);
+  const [syncPrefillCode, setSyncPrefillCode] = useState<string | null>(null);
+
+  // Đồng bộ đa thiết bị mã hóa đầu-cuối (PRO). Ẩn hoàn toàn khi chưa cấu hình VITE_SYNC_API_URL
+  const canUseSync = proLicense.license.isPro || !PAYWALL_ENABLED;
+  const sync = useSync({
+    apiUrl: COMMERCE_CONFIG.syncApiUrl,
+    licenseToken: proLicense.licenseToken,
+    canUse: canUseSync,
+    getLocalSnapshot: manager.getSyncSnapshot,
+    applySnapshot: manager.applySyncSnapshot,
+    isLocalPristine: manager.isSyncPristine,
+    changeSignal: [manager.projects, manager.completedLogs, manager.statuses],
+  });
 
   const featureLabels: Record<ProFeatureKey | 'projectLimit', string> = {
     kanban: t.license.featureKanban,
@@ -96,17 +124,11 @@ export default function App() {
     [proLicense, openPaywall, manager]
   );
 
-  // Ghi phút tập trung: cập nhật quỹ thời gian của việc + focus log lịch sử; mỗi chu kỳ Pomodoro chỉ tốn 1 lượt thử
-  const consumedFocusCyclesRef = useRef<Set<number>>(new Set());
+  // Ghi phút tập trung: cập nhật quỹ thời gian của việc + focus log lịch sử (Pomodoro miễn phí)
   const handleLogFocusedMinutes = useCallback(
     (event: FocusLogEvent) => {
       manager.addTaskFocusedMinutes(event.projectId, event.taskId, event.minutes, event.completedSession);
       focusLog.recordFocus(event);
-      if (!consumedFocusCyclesRef.current.has(event.sessionId)) {
-        consumedFocusCyclesRef.current.add(event.sessionId);
-        const access = proLicense.consumeProFeature('pomodoro');
-        if (access.allowed && access.message) manager.showToast(access.message);
-      }
     },
     [manager, focusLog, proLicense]
   );
@@ -128,10 +150,6 @@ export default function App() {
 
   const handleStartFocusOnTask = useCallback(
     (task: Task, project: Project) => {
-      if (!proLicense.canUseProFeature('pomodoro')) {
-        openPaywall('pomodoro', proLicense.consumeProFeature('pomodoro').message);
-        return;
-      }
       focusTimer.startFocusForTask(task.id, project.id, task.title, project.name, 'work-25');
       manager.showToast(formatMessage(t.toast.focusStarted, { title: task.title.slice(0, 26) }));
     },
@@ -178,6 +196,13 @@ export default function App() {
     // Link kích hoạt có thể đến lúc tải trang HOẶC khi app đang mở (dán link vào cùng tab chỉ đổi hash)
     const consumeActivationHash = () => {
       const currentHash = window.location.hash;
+      if (currentHash.startsWith(SYNC_HASH_PREFIX)) {
+        // Link kết nối thiết bị: mở hộp thoại đồng bộ với mã điền sẵn (người dùng tự bấm Kết nối)
+        setSyncPrefillCode(decodeURIComponent(currentHash.slice(SYNC_HASH_PREFIX.length)));
+        setShowSyncModal(true);
+        window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
+        return;
+      }
       if (!currentHash.startsWith(ACTIVATE_HASH_PREFIX)) return;
       const token = currentHash.slice(ACTIVATE_HASH_PREFIX.length);
       // Xóa token khỏi thanh địa chỉ để không lộ qua lịch sử trình duyệt hay ảnh chụp màn hình
@@ -273,6 +298,8 @@ export default function App() {
         }}
         onOpenCommandPalette={() => setShowCommandPalette(true)}
         onOpenMarkdownReport={handleOpenMarkdownReportModal}
+        onOpenSync={sync.available ? () => setShowSyncModal(true) : undefined}
+        syncState={sync.enabled ? (sync.status === 'error' ? 'error' : 'on') : 'off'}
       />
 
       {/* Nội dung tập trung Core - Tự động mở rộng max-w-6xl khi bật Bảng Kanban 4 cột */}
@@ -425,7 +452,6 @@ export default function App() {
             onStartFocusTask={handleStartFocusOnTask}
             onQuickAddTaskToColumn={manager.handleQuickAddTaskToColumn}
             activeFocusTaskId={focusTimer.session?.taskId || null}
-            onBeforeMoveCard={() => guardProValue('kanban')}
           />
           </Suspense>
         ) : (
@@ -636,7 +662,10 @@ export default function App() {
         showToast={manager.showToast}
       />
 
-      {/* Modal xem & chỉnh sửa toàn diện chi tiết công việc (Không che giấu Text) */}
+      {/* Các modal nặng được tải theo yêu cầu (React.lazy) — chỉ mount khi người dùng thực sự mở */}
+      <Suspense fallback={null}>
+      {/* Modal xem & chỉnh sửa toàn diện chi tiết công việc */}
+      {manager.selectedDetailTask && (
       <TaskDetailModal
         isOpen={Boolean(manager.selectedDetailTask)}
         onClose={manager.closeDetailModal}
@@ -663,8 +692,10 @@ export default function App() {
         onStartFocusTask={handleStartFocusOnTask}
         onSetEstimatedMinutes={manager.setTaskEstimatedMinutes}
       />
+      )}
 
-      {/* Modal Lên lịch nhắc thông minh (Linear / Things 3 / Apple Reminders Assistant + AnkiWeb SRS) */}
+      {/* Modal Lên lịch nhắc thông minh */}
+      {manager.scheduleTaskTarget && (
       <SmartScheduleModal
         isOpen={Boolean(manager.scheduleTaskTarget)}
         onClose={manager.closeScheduleModal}
@@ -699,8 +730,10 @@ export default function App() {
           }
         }}
       />
+      )}
 
-      {/* Modal Tiêu điểm giải quyết quá tải việc (GTD Next Action & AnkiWeb Spaced Snooze) */}
+      {/* Modal Tiêu điểm giải quyết quá tải việc */}
+      {manager.showDailyFocusModal && (
       <DailyFocusModal
         isOpen={manager.showDailyFocusModal}
         onClose={() => manager.setShowDailyFocusModal(false)}
@@ -733,8 +766,10 @@ export default function App() {
         onExecuteShutdownRitual={manager.executeDailyShutdownRitual}
         onOpenMarkdownReport={handleOpenMarkdownReportModal}
       />
+      )}
 
-      {/* Modal Lặp lại ngắt quãng thông minh (Anki SRS Spaced Repetition) */}
+      {/* Modal Lặp lại ngắt quãng thông minh (Anki SRS) */}
+      {manager.isAnkiModalOpen && (
       <AnkiSrsModal
         isOpen={manager.isAnkiModalOpen}
         onClose={manager.closeAnkiModal}
@@ -742,6 +777,8 @@ export default function App() {
         onSelectSrsOption={manager.handleSelectAnkiOption}
         onMarkTaskDone={manager.handleMarkAnkiTaskDone}
       />
+      )}
+      </Suspense>
 
       {/* Các hộp thoại nặng được tải theo yêu cầu (React.lazy) */}
       <Suspense fallback={null}>
@@ -800,6 +837,29 @@ export default function App() {
         triggerContext={paywallTrigger}
         pro={proLicense}
         projects={manager.projects}
+        showToast={manager.showToast}
+      />
+      )}
+
+      {/* Đồng bộ đa thiết bị mã hóa đầu-cuối */}
+      {showSyncModal && sync.available && (
+      <SyncModal
+        isOpen={showSyncModal}
+        onClose={() => {
+          setShowSyncModal(false);
+          setSyncPrefillCode(null);
+        }}
+        sync={sync}
+        canUse={canUseSync}
+        prefillCode={syncPrefillCode}
+        onOpenUpgrade={
+          openStoreModal
+            ? () => {
+                setShowSyncModal(false);
+                openStoreModal();
+              }
+            : undefined
+        }
         showToast={manager.showToast}
       />
       )}

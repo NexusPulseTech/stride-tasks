@@ -26,7 +26,9 @@ import { useTaskDnd } from './useTaskDnd';
 import { useProjectDnd } from './useProjectDnd';
 import { useStatusManager } from './useStatusManager';
 import { useActivityLog, CompletedItemLog } from '../../analytics/hooks/useActivityLog';
-import { clearAllPersistentData } from '../../../utils/persistentStorage';
+import { clearAllPersistentData, isSampleTemplate } from '../../../utils/persistentStorage';
+import { readTombstones, writeTombstones } from '../../sync/tombstones';
+import type { SyncSnapshot } from '../../sync/syncMerge';
 import { PinnedItem } from '../components/PinnedSection';
 import { getDailyFocusQueue, getSnoozedItemsQueue, ActionableItem, AnkiSrsOption } from '../utils/spacedSnooze';
 import { AnkiSrsTargetItem } from '../components/AnkiSrsModal';
@@ -830,9 +832,32 @@ export function useTaskManager() {
     return list;
   });
 
+  // ── Đồng bộ đa thiết bị: chụp / áp trạng thái (dữ liệu mẫu & log mẫu không bao giờ được đồng bộ) ──
+  const isSyncPristine = (): boolean =>
+    crud.projects.length === 0 || isSampleTemplate(crud.projects);
+
+  const getSyncSnapshot = (): SyncSnapshot => ({
+    v: 1,
+    projects: isSampleTemplate(crud.projects) ? [] : crud.projects,
+    logs: activity.completedLogs.filter((log) => !log.id.startsWith('clog_seed_')),
+    archivedDailyCounts: activity.archivedDailyCounts,
+    customStatuses: statusManager.statuses.filter((st) => st.isCustom),
+    tombstones: readTombstones(),
+  });
+
+  const applySyncSnapshot = (snapshot: SyncSnapshot) => {
+    crud.applyRemoteProjects(snapshot.projects);
+    activity.saveLogs(snapshot.logs, snapshot.archivedDailyCounts);
+    statusManager.restoreCustomStatuses(snapshot.customStatuses);
+    writeTombstones(snapshot.tombstones);
+  };
+
   return {
     ...crud,
     ...subtasks,
+    isSyncPristine,
+    getSyncSnapshot,
+    applySyncSnapshot,
     ...dnd,
     ...celebration,
     ...activity,

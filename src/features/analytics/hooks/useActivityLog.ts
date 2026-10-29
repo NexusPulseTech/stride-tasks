@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { COMPLETED_LOGS_KEY } from '../../../constants';
 import { safeSetItem, idbGet, idbSet } from '../../../utils/persistentStorage';
+import { trackLogDeletions } from '../../sync/tombstones';
 
 export interface CompletedItemLog {
   id: string;
@@ -176,6 +177,7 @@ export function useActivityLog() {
   });
 
   const [completedLogs, setCompletedLogs] = useState<CompletedItemLog[]>(initialState.logs);
+  const logsRef = useRef<CompletedItemLog[]>(initialState.logs);
   const [archivedDailyCounts, setArchivedDailyCounts] = useState<Record<string, number>>(initialState.counts);
 
   const didMigrateRef = useRef(false);
@@ -224,6 +226,8 @@ export function useActivityLog() {
 
       setCompletedLogs((prev) => {
         // Tránh trùng lặp nếu task này đã vừa được đánh dấu done hôm nay
+        const replaced = prev.filter((item) => item.taskId === task.id && item.dateKey === dateKey);
+        trackLogDeletions(replaced.map((item) => item.id));
         const filtered = prev.filter(
           (item) => !(item.taskId === task.id && item.dateKey === dateKey)
         );
@@ -243,6 +247,7 @@ export function useActivityLog() {
       // Xóa log gần nhất của task này
       const index = prev.findIndex((item) => item.taskId === taskId);
       if (index === -1) return prev;
+      trackLogDeletions([prev[index].id]);
       const updated = [...prev];
       updated.splice(index, 1);
       try {
@@ -254,6 +259,7 @@ export function useActivityLog() {
 
   // Xóa một dòng log cụ thể khỏi lịch sử hoàn thành
   const deleteActivityLog = useCallback((logId: string) => {
+    trackLogDeletions([logId]);
     setCompletedLogs((prev) => {
       const updated = prev.filter((item) => item.id !== logId);
       try {
@@ -265,6 +271,7 @@ export function useActivityLog() {
 
   // Xóa sạch toàn bộ lịch sử hoàn thành (Clear all logs)
   const clearAllActivityLogs = useCallback(() => {
+    trackLogDeletions(logsRef.current.map((item) => item.id));
     setCompletedLogs([]);
     setArchivedDailyCounts({});
     safeSetItem(COMPLETED_LOGS_KEY, JSON.stringify([]));
@@ -279,6 +286,8 @@ export function useActivityLog() {
     safeSetItem(COMPLETED_LOGS_KEY, JSON.stringify(seed));
     persistArchivedCounts({});
   }, []);
+
+  logsRef.current = completedLogs;
 
   // Bản đồ nhịp độ (Heatmap) = log chi tiết gần đây + bộ đếm theo ngày của log đã lưu trữ
   const activityMap = useMemo(() => {

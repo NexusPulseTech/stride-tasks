@@ -11,3 +11,6 @@ coverage/
 .aistudio/
 # Tệp chứng chỉ bản quyền phát hành thử bằng scripts/keygen.mjs
 *.stride-license.json
+# Cấu hình Worker thật (chứa id KV/D1 của tài khoản) & trạng thái cục bộ của wrangler
+cloudflare-worker/wrangler.toml
+cloudflare-worker/.wrangler/

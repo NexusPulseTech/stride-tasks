@@ -22,16 +22,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: 'npm'
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
+
+      - name: Type check
+        run: npm run lint
 
       - name: Build production bundle
         run: npm run build
@@ -43,16 +46,17 @@ jobs:
           VITE_LEMONSQUEEZY_CHECKOUT_URL: ${{ vars.VITE_LEMONSQUEEZY_CHECKOUT_URL }}
           VITE_LEMONSQUEEZY_CHECKOUT_URL_EMERGING: ${{ vars.VITE_LEMONSQUEEZY_CHECKOUT_URL_EMERGING }}
           VITE_LICENSE_CLAIM_URL: ${{ vars.VITE_LICENSE_CLAIM_URL }}
+          VITE_SYNC_API_URL: ${{ vars.VITE_SYNC_API_URL }}
           VITE_SUPPORT_EMAIL: ${{ vars.VITE_SUPPORT_EMAIL }}
 
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v6
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: './dist'
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

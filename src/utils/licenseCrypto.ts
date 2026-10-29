@@ -6,7 +6,7 @@
  *
  * Bundle frontend CHỈ chứa public key → không ai tự tạo được token hợp lệ.
  * Private key nằm ngoài repo (.env.local / secret của Cloudflare Worker) và chỉ được dùng bởi
- * scripts/keygen.mjs hoặc scripts/cloudflare-sepay-worker.js.
+ * scripts/keygen.mjs hoặc cloudflare-worker/src/index.js.
  */
 
 export const LICENSE_TOKEN_PREFIX = 'STRIDE1';

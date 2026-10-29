@@ -31,7 +31,7 @@ export const PROJECT_LIMIT_BASELINE_KEY = 'STRIDE_PROJECT_LIMIT_BASELINE_V1';
 /** Phát sự kiện này sau khi ghi trực tiếp vào LICENSE_STORAGE_KEY (VD: khôi phục backup) để hook verify lại */
 export const LICENSE_CHANGED_EVENT = 'stride:license-changed';
 
-export const FREE_PROJECT_LIMIT = 3;
+export const FREE_PROJECT_LIMIT = 5;
 const TRIAL_PASSES = 3;
 const ORDER_MAX_AGE_MS = 72 * 60 * 60 * 1000;
 const CLAIM_POLL_INTERVAL_MS = 6000;
@@ -61,6 +61,7 @@ interface StoredLicenseRecord {
   seats?: number;
 }
 
+/** Kanban & Pomodoro miễn phí từ v3.1 (đối thủ đều cho miễn phí); trial chỉ còn cho báo cáo Markdown */
 export type ProFeatureKey = 'kanban' | 'pomodoro' | 'markdownReport';
 
 export interface ProTrialState {
@@ -473,6 +474,8 @@ export function useProLicense({ notify }: UseProLicenseOptions = {}) {
 
   return {
     license,
+    /** Token Ed25519 đã verify (gửi kèm khi đồng bộ để máy chủ xác nhận PRO) */
+    licenseToken: license.isPro && !license.isDevSimulation ? verifiedRef.current?.token ?? null : null,
     isVerifying,
     trials,
     isGrandfathered,

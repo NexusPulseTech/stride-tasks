@@ -26,7 +26,7 @@ Trước khi viết bất kỳ dòng code nào, bạn BẮT BUỘC phải thực
    - `src/hooks/useProLicense.ts` (verify khi khởi động, chống sửa dữ liệu, claim đơn tự động, soft-gate theo giá trị, grandfathering)
    - `src/config/commerceConfig.ts` (cờ `VITE_ENABLE_PAYWALL`, VietQR + LemonSqueezy, vùng giá)
    - `src/features/modals/components/StoreCommercialModal.tsx`
-   - `scripts/keygen.mjs`, `scripts/cloudflare-sepay-worker.js`
+   - `scripts/keygen.mjs`, `cloudflare-worker/src/index.js`
 
 ---
 

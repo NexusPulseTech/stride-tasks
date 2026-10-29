@@ -38,6 +38,8 @@ export const COMMERCE_CONFIG = {
   lemonSqueezyCheckoutUrl: readEnv(import.meta.env.VITE_LEMONSQUEEZY_CHECKOUT_URL),
   lemonSqueezyCheckoutUrlEmerging: readEnv(import.meta.env.VITE_LEMONSQUEEZY_CHECKOUT_URL_EMERGING),
   supportEmail: readEnv(import.meta.env.VITE_SUPPORT_EMAIL) || 'support@nexuspulsetech.xyz',
+  /** URL Worker đồng bộ mã hóa đầu-cuối (cloudflare-worker/). Rỗng → tính năng Sync bị ẩn */
+  syncApiUrl: readEnv(import.meta.env.VITE_SYNC_API_URL).replace(/\/+$/, ''),
   vnPriceVnd: 199000,
   appOrigin: 'https://tasks.nexuspulsetech.xyz',
 } as const;

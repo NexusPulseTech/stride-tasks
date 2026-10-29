@@ -8,6 +8,7 @@ Thư mục này lưu trữ toàn bộ lịch sử phát hành (Release Notes), n
 
 | Ngày phát hành | Phiên bản | Tiêu đề & Trọng tâm nâng cấp | Tài liệu chi tiết |
 | :--- | :---: | :--- | :--- |
+| **10/28/2026** | `v3.0.0` → `v3.1.0` | **Đồng bộ đa thiết bị mã hóa đầu-cuối (PRO) · Kanban & Pomodoro miễn phí · 5 dự án Free · ảnh & hồ sơ Microsoft Store** | [📄 Xem Báo Cáo 10/28/2026](./2026-10-28-v3.1.0-e2e-sync-and-freemium-rebalance.md) |
 | **10/27/2026** | `v2.5.0` → `v3.0.0` | **Execution Engine (NLP nhập nhanh 1 dòng, Kanban 4 cột, Pomodoro + nhật ký Deep Work, Time-Budget) & bản quyền PRO xác thực ngoại tuyến Ed25519 (paywall tắt mặc định)** — gộp các mốc nội bộ v2.8/v2.9 | [📄 Xem Báo Cáo Chi Tiết 10/27/2026](./2026-10-27-v3.0.0-omni-channel-and-execution-engine.md) |
 | **Trước 10/27/2026** | `v1.0.0` → `v2.5.0` | **Nền tảng Local-First Checklist, cây việc con đệ quy vô hạn tầng, trạng thái Linear, Heatmap nhịp độ, lịch nhắc thông minh & ôn tập ngắt quãng Anki SM-2** | [📄 Xem Tổng Quan Kiến Trúc Hệ Thống](../architecture/system-overview.md) |
 

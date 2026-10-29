@@ -8,7 +8,7 @@
  *   npm run keygen -- verify <token | link kích hoạt>
  *   npm run keygen -- check                Kiểm tra private key trong .env.local khớp public key đang nhúng trong app
  *
- * Định dạng token phải giữ ĐỒNG NHẤT với src/utils/licenseCrypto.ts và scripts/cloudflare-sepay-worker.js.
+ * Định dạng token phải giữ ĐỒNG NHẤT với src/utils/licenseCrypto.ts và cloudflare-worker/src/index.js.
  * Private key KHÔNG BAO GIỜ được in ra màn hình hay commit lên git (.env.local đã nằm trong .gitignore qua mẫu `.env*`).
  */
 import { generateKeyPairSync, createPrivateKey, createPublicKey, sign, verify } from 'node:crypto';

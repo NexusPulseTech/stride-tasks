@@ -1,6 +1,6 @@
 [package]
 name = "app"
-version = "3.0.0"
+version = "3.1.0"
 description = "Stride Tasks — personal task manager with Kanban, Pomodoro and SM-2 spaced repetition"
 authors = ["NexusPulse Studio"]
 license = "MIT"

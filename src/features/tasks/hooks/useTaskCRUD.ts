@@ -9,6 +9,7 @@ import { cascadeSubtaskCompleted, updateSubtaskStatusInTree, determineTaskStatus
 import { exportProjectToMarkdown } from '../utils/formatters';
 import { isDoneStatus } from '../utils/statusCategory';
 import { stampProjectsUpdatedAt } from '../utils/updatedAtStamp';
+import { trackProjectDeletions } from '../../sync/tombstones';
 import {
   loadProjectsSafely,
   saveProjectsSafely,
@@ -54,8 +55,16 @@ export function useTaskCRUD({
   const setProjects = useCallback<React.Dispatch<React.SetStateAction<Project[]>>>((action) => {
     setProjectsState((prev) => {
       const next = typeof action === 'function' ? action(prev) : action;
-      return stampProjectsUpdatedAt(prev, next);
+      const stamped = stampProjectsUpdatedAt(prev, next);
+      // Đồng bộ đang bật: mục biến mất khỏi cây được ghi tombstone để không hồi sinh từ thiết bị khác
+      trackProjectDeletions(prev, stamped);
+      return stamped;
     });
+  }, []);
+
+  /** Áp dữ liệu đã hợp nhất từ đồng bộ: giữ nguyên updatedAt/tombstone của kết quả hợp nhất */
+  const applyRemoteProjects = useCallback((next: Project[]) => {
+    setProjectsState(next);
   }, []);
 
   const tRef = useTranslationRef();
@@ -608,6 +617,7 @@ export function useTaskCRUD({
   return {
     projects,
     setProjects,
+    applyRemoteProjects,
     newProjectName,
     setNewProjectName,
     taskInputs,

@@ -52,9 +52,9 @@
   </head>
   <body>
     <div class="card">
-      <span class="badge">Stride Tasks • v3.0.0</span>
+      <span class="badge">Stride Tasks • v3.1.0</span>
       <h1>Chính Sách Bảo Mật / Privacy Policy — Stride Tasks</h1>
-      <p><strong>Cập nhật lần cuối (Last Updated):</strong> 27/10/2026 • <strong>Nhà phát hành (Publisher):</strong> NexusPulse Studio</p>
+      <p><strong>Cập nhật lần cuối (Last Updated):</strong> 28/10/2026 • <strong>Nhà phát hành (Publisher):</strong> NexusPulse Studio</p>
 
       <h2>1. Dữ liệu công việc chỉ nằm trên thiết bị của bạn (Local-First)</h2>
       <p>
@@ -71,7 +71,17 @@
         <li>Trong thời gian chờ thanh toán, ứng dụng chỉ gửi <strong>mã đơn hàng ngẫu nhiên</strong> tới máy chủ cấp bản quyền của chúng tôi (Cloudflare Workers) để nhận token kích hoạt. Không có dữ liệu công việc nào được gửi đi.</li>
       </ul>
 
-      <h2>3. Sao lưu &amp; Khôi phục Dữ liệu</h2>
+      <h2>3. Đồng bộ đa thiết bị (tùy chọn, mã hóa đầu-cuối)</h2>
+      <p>
+        Khi bạn chủ động bật <strong>Đồng bộ thiết bị</strong>, dữ liệu công việc được <strong>mã hóa ngay trên thiết bị</strong> bằng AES-256-GCM với khóa sinh từ <em>mã đồng bộ</em> của bạn. Mã này không bao giờ được gửi đi. Máy chủ (Cloudflare Workers + D1) chỉ lưu bản mã, một định danh kho dạng băm và thời điểm cập nhật — <strong>chúng tôi không thể đọc nội dung công việc của bạn</strong>. Bạn có thể ngắt đồng bộ hoặc xóa vĩnh viễn bản trên cloud bất kỳ lúc nào trong mục Đồng bộ thiết bị.
+      </p>
+
+      <h2>4. Thống kê truy cập ẩn danh</h2>
+      <p>
+        Trang web có thể dùng <strong>Cloudflare Web Analytics</strong> để đếm lượt truy cập tổng hợp (số lượt xem trang, quốc gia, loại thiết bị) nhằm cải thiện sản phẩm. Cloudflare công bố công cụ này không dùng cookie theo dõi hay định danh cá nhân. Thống kê này không bao gồm dữ liệu công việc của bạn.
+      </p>
+
+      <h2>5. Sao lưu &amp; Khôi phục Dữ liệu</h2>
       <p>
         Bạn có toàn quyền xuất toàn bộ dữ liệu sang tệp JSON, khôi phục từ tệp sao lưu, tải tệp chứng chỉ bản quyền <code>.stride-license.json</code> hoặc xóa trắng dữ liệu bất kỳ lúc nào trong mục <strong>Sao lưu &amp; Khôi phục</strong>.
       </p>
@@ -82,6 +92,8 @@
       <ul>
         <li><strong>Task data:</strong> stored only on your device (localStorage / IndexedDB). No account, no telemetry, never sold or uploaded.</li>
         <li><strong>Licensing:</strong> PRO licenses are Ed25519-signed tokens verified offline on the device.</li>
+        <li><strong>Optional sync:</strong> when you turn on device sync, data is encrypted on your device (AES-256-GCM, key derived from your sync code, which never leaves the device). The server stores only ciphertext, a hashed vault ID and timestamps; we cannot read your tasks. You can stop syncing or delete the cloud copy at any time.</li>
+        <li><strong>Analytics:</strong> the website may use Cloudflare Web Analytics for aggregate, cookieless page-view statistics. Task data is never included.</li>
         <li><strong>Payments:</strong> card payments are processed by LemonSqueezy (Merchant of Record); Vietnamese bank transfers are matched via SePay using a random order code. While a payment is pending, the app sends only that order code to our license service on Cloudflare Workers.</li>
         <li><strong>Contact &amp; Support:</strong> support@nexuspulsetech.xyz | <a href="https://tasks.nexuspulsetech.xyz/">https://tasks.nexuspulsetech.xyz/</a></li>
       </ul>

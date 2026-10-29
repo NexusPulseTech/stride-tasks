@@ -25,6 +25,7 @@ export default defineConfig(() => {
             '**/quan-ly-cong-viec.html',
             '**/google*.html',
             '**/stride-tasks-icon.svg',
+            '**/screenshots/**',
           ],
           navigateFallback: 'index.html',
           // Các trang HTML tĩnh độc lập phải được phục vụ đúng file, không bị thay bằng index.html
@@ -48,6 +49,8 @@ export default defineConfig(() => {
             groups: [
               { name: 'react-vendor', test: /node_modules[\\/](react|react-dom|scheduler)[\\/]/, priority: 20 },
               { name: 'icons', test: /node_modules[\\/]lucide-react[\\/]/, priority: 10 },
+              // Sync engine chỉ chạy khi người dùng bật đồng bộ → tách riêng để giữ chunk chính gọn
+              { name: 'sync-engine', test: /src[\\/]features[\\/]sync[\\/](syncCrypto|syncClient|syncMerge|tombstones)/, priority: 15 },
             ],
           },
         },

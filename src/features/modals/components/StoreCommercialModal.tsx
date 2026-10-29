@@ -15,6 +15,7 @@ import {
   FlaskConical,
   Copy,
   Loader2,
+  CheckCircle2,
 } from 'lucide-react';
 import { useLanguage, formatMessage } from '../../../i18n';
 import {
@@ -376,6 +377,29 @@ export function StoreCommercialModal({
                 </div>
               </div>
 
+              {/* Quyền lợi PRO — chỉ liệt kê tính năng đang thực sự hoạt động */}
+              {!license.isPro && PAYWALL_ENABLED && (
+                <div className="bg-[#131b29] border border-emerald-500/30 rounded-xl p-4 space-y-2.5 text-xs">
+                  <div className="font-bold text-emerald-300 uppercase tracking-wider">{s.benefitsTitle}</div>
+                  <ul className="space-y-1.5">
+                    {[
+                      COMMERCE_CONFIG.syncApiUrl ? s.benefitSync : null,
+                      s.benefitProjects,
+                      s.benefitReports,
+                      s.benefitSupport,
+                    ]
+                      .filter((item): item is string => Boolean(item))
+                      .map((item) => (
+                        <li key={item} className="flex items-start gap-2 text-slate-200">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                  </ul>
+                  <p className="text-[11px] text-slate-400">{s.freeIncludes}</p>
+                </div>
+              )}
+
               {/* Bảng giá theo vùng + đúng 1 nút mua cho vùng đang chọn */}
               {!license.isPro && PAYWALL_ENABLED && (
                 <div className="bg-[#131b29] border border-slate-800 rounded-xl p-4 space-y-3.5">
@@ -460,7 +484,7 @@ export function StoreCommercialModal({
                     <div className="text-xs font-bold uppercase tracking-wider text-slate-300">{s.trialsTitle}</div>
                     <p className="text-[11px] text-slate-400 mt-0.5">{s.trialsSubtitle}</p>
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                  <div className="grid grid-cols-2 gap-2.5 text-xs">
                     <div className="bg-[#0b0f17] border border-slate-800 rounded-lg p-2.5 font-mono tabular-nums text-slate-100">
                       {pro.isGrandfathered
                         ? s.trialProjectsGrandfathered
@@ -468,8 +492,6 @@ export function StoreCommercialModal({
                     </div>
                     {(
                       [
-                        ['kanban', s.trialKanban, 'text-sky-300'],
-                        ['pomodoro', s.trialPomodoro, 'text-amber-300'],
                         ['markdownReport', s.trialMarkdown, 'text-emerald-300'],
                       ] as const
                     ).map(([key, label, color]) => (

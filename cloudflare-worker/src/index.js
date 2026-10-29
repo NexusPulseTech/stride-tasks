@@ -10,11 +10,18 @@
  *   (event order_created) → ký token → lưu KV theo mã đơn → App claim như trên; nếu cấu hình Resend, gửi kèm
  *   email chứa link kích hoạt 1-click để khách dùng trên thiết bị khác.
  *
+ * Đồng bộ đa thiết bị (PRO, mã hóa đầu-cuối):
+ *   App mã hóa toàn bộ dữ liệu bằng AES-256-GCM với khóa sinh từ mã đồng bộ (không bao giờ gửi lên máy chủ),
+ *   rồi GET/PUT/DELETE /sync/v1/vaults/<vaultId>. Worker chỉ lưu bản mã trong D1 + version để khóa lạc quan
+ *   (PUT kèm expectedVersion; lệch → 409, app tự kéo lại & hợp nhất). Mỗi request kèm "Authorization: Bearer <token PRO>",
+ *   Worker xác minh chữ ký Ed25519 bằng public key (LICENSE_PUBLIC_KEY) và giới hạn số kho / bản quyền.
+ *
  * Định dạng token phải ĐỒNG NHẤT với src/utils/licenseCrypto.ts và scripts/keygen.mjs:
  *   STRIDE1.<base64url(JSON payload)>.<base64url(Ed25519(privateKey, "STRIDE1.<payload>"))>
  *
  * ── Triển khai ──────────────────────────────────────────────────────────────────────────────
- * 1. npm create cloudflare@latest stride-license   (chọn "Hello World" Worker), thay src/index.js bằng file này.
+ * Xem hướng dẫn đầy đủ: cloudflare-worker/README.md (wrangler.example.toml + schema.sql đi kèm).
+ * 1. cd cloudflare-worker && cp wrangler.example.toml wrangler.toml && npx wrangler d1 execute stride-sync --remote --file=schema.sql
  * 2. wrangler.toml:
  *      name = "stride-license"
  *      main = "src/index.js"
@@ -54,6 +61,8 @@ export default {
       if (request.method === 'POST' && url.pathname === '/webhook/sepay') return await handleSepay(request, env);
       if (request.method === 'POST' && url.pathname === '/webhook/lemonsqueezy') return await handleLemonSqueezy(request, env);
       if (request.method === 'GET' && url.pathname === '/claim') return withCors(request, env, await handleClaim(url, env));
+      const vaultMatch = url.pathname.match(/^\/sync\/v1\/vaults\/([0-9a-f]{64})$/);
+      if (vaultMatch) return withCors(request, env, await handleVault(request, env, vaultMatch[1]));
       return new Response('Not found', { status: 404 });
     } catch (err) {
       console.error('stride-license error', err);
@@ -156,6 +165,106 @@ async function handleClaim(url, env) {
   return json({ status: 'ready', token: record.token, activationUrl: `${appUrl(env)}/#activate=${record.token}` });
 }
 
+// ─── Đồng bộ mã hóa đầu-cuối (D1) ────────────────────────────────────────────────────────────
+// Giới hạn hàng D1 ~2 MB → bản mã base64 tối đa ~1,9 MB (dữ liệu đã nén gzip trước khi mã hóa nên dư dùng)
+const MAX_CIPHERTEXT_CHARS = 1_900_000;
+
+async function handleVault(request, env, vaultId) {
+  if (!env.DB) return json({ error: 'sync_not_configured' }, 503);
+  const license = await authorizeSync(request, env);
+  if (license.error) return json({ error: license.error, serverTime: new Date().toISOString() }, license.status);
+
+  if (request.method === 'GET') {
+    const row = await env.DB.prepare('SELECT version, iv, ciphertext, updated_at FROM vaults WHERE id = ?1').bind(vaultId).first();
+    const serverTime = new Date().toISOString();
+    if (!row) return json({ error: 'not_found', serverTime }, 404);
+    return json({ version: row.version, iv: row.iv, ciphertext: row.ciphertext, updatedAt: row.updated_at, serverTime });
+  }
+
+  if (request.method === 'DELETE') {
+    await env.DB.prepare('DELETE FROM vaults WHERE id = ?1').bind(vaultId).run();
+    return new Response(null, { status: 204 });
+  }
+
+  if (request.method === 'PUT') {
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return json({ error: 'invalid_json' }, 400);
+    }
+    const { expectedVersion, iv, ciphertext } = body || {};
+    if (!Number.isInteger(expectedVersion) || expectedVersion < 0) return json({ error: 'invalid_version' }, 400);
+    if (typeof iv !== 'string' || !/^[A-Za-z0-9+/]{16}$/.test(iv)) return json({ error: 'invalid_iv' }, 400);
+    if (typeof ciphertext !== 'string' || !/^[A-Za-z0-9+/]+={0,2}$/.test(ciphertext)) return json({ error: 'invalid_ciphertext' }, 400);
+    if (ciphertext.length > MAX_CIPHERTEXT_CHARS) return json({ error: 'too_large' }, 413);
+    const now = new Date().toISOString();
+
+    if (expectedVersion === 0) {
+      // Kho mới: kiểm tra hạn mức số kho trên mỗi bản quyền (chống chia sẻ một bản quyền cho quá nhiều người)
+      if (license.id) {
+        const limit = Number(env.SYNC_MAX_VAULTS_PER_LICENSE || 3);
+        const owned = await env.DB.prepare('SELECT COUNT(*) AS n FROM vaults WHERE license_id = ?1').bind(license.id).first();
+        if (owned && owned.n >= limit) return json({ error: 'vault_limit' }, 403);
+      }
+      const inserted = await env.DB.prepare(
+        'INSERT INTO vaults (id, version, iv, ciphertext, size, license_id, created_at, updated_at) VALUES (?1, 1, ?2, ?3, ?4, ?5, ?6, ?6) ON CONFLICT(id) DO NOTHING'
+      )
+        .bind(vaultId, iv, ciphertext, ciphertext.length, license.id, now)
+        .run();
+      if (!inserted.meta || inserted.meta.changes === 0) return json({ error: 'conflict' }, 409);
+      return json({ version: 1, serverTime: now });
+    }
+
+    const updated = await env.DB.prepare(
+      'UPDATE vaults SET version = version + 1, iv = ?2, ciphertext = ?3, size = ?4, updated_at = ?5 WHERE id = ?1 AND version = ?6'
+    )
+      .bind(vaultId, iv, ciphertext, ciphertext.length, now, expectedVersion)
+      .run();
+    if (!updated.meta || updated.meta.changes === 0) return json({ error: 'conflict' }, 409);
+    return json({ version: expectedVersion + 1, serverTime: now });
+  }
+
+  return json({ error: 'method_not_allowed' }, 405);
+}
+
+/** Đồng bộ chỉ dành cho PRO: xác minh token Ed25519 bằng public key (đặt SYNC_REQUIRE_LICENSE="false" để mở thử nghiệm) */
+async function authorizeSync(request, env) {
+  const header = request.headers.get('Authorization') || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
+  if (!token) {
+    return env.SYNC_REQUIRE_LICENSE === 'false' ? { id: null } : { error: 'license_required', status: 401 };
+  }
+  const payload = await verifyLicenseToken(env, token);
+  if (!payload) return { error: 'license_invalid', status: 402 };
+  return { id: String(payload.licenseKeyOrAddonId) };
+}
+
+let verifyKeyPromise = null;
+async function verifyLicenseToken(env, token) {
+  if (!env.LICENSE_PUBLIC_KEY) return null;
+  const [prefix, payloadB64, sigB64] = token.split('.');
+  if (prefix !== PREFIX || !payloadB64 || !sigB64) return null;
+  verifyKeyPromise ??= crypto.subtle.importKey('raw', base64UrlToBytes(env.LICENSE_PUBLIC_KEY), { name: 'Ed25519' }, false, ['verify']);
+  try {
+    const ok = await crypto.subtle.verify(
+      { name: 'Ed25519' },
+      await verifyKeyPromise,
+      base64UrlToBytes(sigB64),
+      new TextEncoder().encode(`${prefix}.${payloadB64}`)
+    );
+    if (!ok) return null;
+    const payload = JSON.parse(new TextDecoder().decode(base64UrlToBytes(payloadB64)));
+    return payload && payload.product === 'stride-tasks' ? payload : null;
+  } catch {
+    return null;
+  }
+}
+
+function base64UrlToBytes(input) {
+  return base64ToBytes(input.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - (input.length % 4)) % 4));
+}
+
 // ─── Ký token Ed25519 ─────────────────────────────────────────────────────────────────────────
 let signingKeyPromise = null;
 function getSigningKey(env) {
@@ -227,7 +336,8 @@ function withCors(request, env, response) {
   if (allowed.includes(origin)) {
     headers.set('Access-Control-Allow-Origin', origin);
     headers.set('Vary', 'Origin');
-    headers.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    headers.set('Access-Control-Allow-Methods', 'GET, PUT, DELETE, OPTIONS');
+    headers.set('Access-Control-Allow-Headers', 'Authorization, Content-Type');
     headers.set('Access-Control-Max-Age', '86400');
   }
   return new Response(response.body, { status: response.status, headers });

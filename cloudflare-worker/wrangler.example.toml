@@ -1,0 +1,32 @@
+# Sao chép thành wrangler.toml rồi điền id của KV / D1 (wrangler.toml đã được .gitignore bỏ qua).
+name = "stride-license"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+# Bản quyền chờ khách nhận sau thanh toán (SePay / LemonSqueezy)
+[[kv_namespaces]]
+binding = "LICENSES"
+id = "<id từ: npx wrangler kv namespace create LICENSES>"
+
+# Kho đồng bộ mã hóa đầu-cuối
+[[d1_databases]]
+binding = "DB"
+database_name = "stride-sync"
+database_id = "<id từ: npx wrangler d1 create stride-sync>"
+
+[vars]
+APP_URL = "https://tasks.nexuspulsetech.xyz"
+ALLOWED_ORIGINS = "https://tasks.nexuspulsetech.xyz,https://tauri.localhost,tauri://localhost"
+PRICE_VND = "199000"
+MAIL_FROM = "Stride Tasks <license@nexuspulsetech.xyz>"
+# Public key Ed25519 (công khai, trùng LICENSE_PUBLIC_KEY_B64URL trong src/utils/licenseCrypto.ts)
+LICENSE_PUBLIC_KEY = "NKyqP_mvnNyPll7Oqxz-oApOCdv0YWsWTffRbx4ZclE"
+SYNC_MAX_VAULTS_PER_LICENSE = "3"
+# Đặt "false" để mở đồng bộ không cần bản quyền (giai đoạn thử nghiệm)
+SYNC_REQUIRE_LICENSE = "true"
+
+# Bí mật — nạp bằng lệnh, KHÔNG ghi vào file này:
+#   npx wrangler secret put STRIDE_ED25519_PRIVATE_KEY
+#   npx wrangler secret put SEPAY_API_KEY
+#   npx wrangler secret put LEMONSQUEEZY_SIGNING_SECRET
+#   npx wrangler secret put RESEND_API_KEY          (tùy chọn)

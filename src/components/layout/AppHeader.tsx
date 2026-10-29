@@ -43,6 +43,8 @@ export interface AppHeaderProps {
   onInstallPWA?: () => void;
   onOpenCommandPalette?: () => void;
   onOpenMarkdownReport?: () => void;
+  onOpenSync?: () => void;
+  syncState?: 'off' | 'on' | 'error';
 }
 
 export function AppHeader({
@@ -75,6 +77,8 @@ export function AppHeader({
   onInstallPWA,
   onOpenCommandPalette,
   onOpenMarkdownReport,
+  onOpenSync,
+  syncState = 'off',
 }: AppHeaderProps) {
   const { t, language, toggleLanguage } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -237,6 +241,8 @@ export function AppHeader({
             onInstallPWA={onInstallPWA}
             onOpenCommandPalette={onOpenCommandPalette}
             onOpenMarkdownReport={onOpenMarkdownReport}
+            onOpenSync={onOpenSync}
+            syncState={syncState}
           />
         </div>
       </div>

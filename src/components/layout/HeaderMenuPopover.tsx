@@ -22,6 +22,7 @@ import {
   Crown,
   ShieldCheck,
   Smartphone,
+  Cloud,
   Command,
   FileText,
 } from 'lucide-react';
@@ -55,6 +56,8 @@ export interface HeaderMenuPopoverProps {
   onInstallPWA?: () => void;
   onOpenCommandPalette?: () => void;
   onOpenMarkdownReport?: () => void;
+  onOpenSync?: () => void;
+  syncState?: 'off' | 'on' | 'error';
 }
 
 export function HeaderMenuPopover({
@@ -82,6 +85,8 @@ export function HeaderMenuPopover({
   onInstallPWA,
   onOpenCommandPalette,
   onOpenMarkdownReport,
+  onOpenSync,
+  syncState = 'off',
 }: HeaderMenuPopoverProps) {
   const popoverRef = useRef<HTMLDivElement>(null);
   const { t, language, setLanguage } = useLanguage();
@@ -416,6 +421,29 @@ export function HeaderMenuPopover({
             >
               <RotateCcw className="w-3.5 h-3.5 text-slate-400 shrink-0" />
               <span>{t.header.restoreSampleData}</span>
+            </button>
+          )}
+
+          {/* Đồng bộ đa thiết bị mã hóa đầu-cuối */}
+          {onOpenSync && (
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenSync();
+              }}
+              className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg hover:bg-slate-100/80 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200 transition-colors text-left cursor-pointer"
+            >
+              <span className="flex items-center gap-2">
+                <Cloud className="w-3.5 h-3.5 text-sky-500 shrink-0" />
+                <span>{t.sync.menuLabel}</span>
+              </span>
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  syncState === 'on' ? 'bg-emerald-500' : syncState === 'error' ? 'bg-rose-500' : 'bg-slate-300 dark:bg-slate-600'
+                }`}
+                aria-hidden="true"
+              />
             </button>
           )}
 
