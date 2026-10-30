@@ -40,16 +40,18 @@ export const COMMERCE_CONFIG = {
   supportEmail: readEnv(import.meta.env.VITE_SUPPORT_EMAIL) || 'support@nexuspulsetech.xyz',
   /** URL Worker đồng bộ mã hóa đầu-cuối (cloudflare-worker/). Rỗng → tính năng Sync bị ẩn */
   syncApiUrl: readEnv(import.meta.env.VITE_SYNC_API_URL).replace(/\/+$/, ''),
-  vnPriceVnd: 199000,
+  vnPriceVnd: 149000,
   appOrigin: 'https://tasks.nexuspulsetech.xyz',
 } as const;
 
+// Giá Thành viên sáng lập cho 100 bản quyền đầu (docs/02-growth/marketing-kit/07-founding-offer-and-waitlist.md).
+// Hết 100 suất: 199.000₫ / $14.95 / $29, đổi cùng lúc với PRICE_VND của Worker và giá trên cổng thanh toán.
 export const PRICING_TIERS: Record<PricingRegionId, PricingTier> = {
   'vn-ppp': {
     id: 'vn-ppp',
     flag: '🇻🇳',
-    priceUsd: 7.95,
-    priceDisplay: '199.000₫',
+    priceUsd: 5.95,
+    priceDisplay: '149.000₫',
     channel: 'vietqr',
     checkoutUrl: COMMERCE_CONFIG.vietQrImageUrl,
     isAvailable: COMMERCE_CONFIG.vietQrImageUrl.length > 0,
@@ -58,8 +60,8 @@ export const PRICING_TIERS: Record<PricingRegionId, PricingTier> = {
   'emerging-ppp': {
     id: 'emerging-ppp',
     flag: '🌏',
-    priceUsd: 14.95,
-    priceDisplay: '$14.95',
+    priceUsd: 9.95,
+    priceDisplay: '$9.95',
     channel: 'lemonsqueezy',
     checkoutUrl: COMMERCE_CONFIG.lemonSqueezyCheckoutUrlEmerging,
     isAvailable: COMMERCE_CONFIG.lemonSqueezyCheckoutUrlEmerging.length > 0,
@@ -68,8 +70,8 @@ export const PRICING_TIERS: Record<PricingRegionId, PricingTier> = {
   'global-us': {
     id: 'global-us',
     flag: '🌎',
-    priceUsd: 25.95,
-    priceDisplay: '$25.95',
+    priceUsd: 19,
+    priceDisplay: '$19',
     channel: 'lemonsqueezy',
     checkoutUrl: COMMERCE_CONFIG.lemonSqueezyCheckoutUrl,
     isAvailable: COMMERCE_CONFIG.lemonSqueezyCheckoutUrl.length > 0,
@@ -77,7 +79,8 @@ export const PRICING_TIERS: Record<PricingRegionId, PricingTier> = {
   },
 };
 
-export const PRICING_REGION_ORDER: PricingRegionId[] = ['vn-ppp', 'emerging-ppp', 'global-us'];
+// Thị trường mục tiêu là quốc tế: bậc toàn cầu hiển thị trước
+export const PRICING_REGION_ORDER: PricingRegionId[] = ['global-us', 'emerging-ppp', 'vn-ppp'];
 
 export function getAvailableTiers(): PricingTier[] {
   return PRICING_REGION_ORDER.map((id) => PRICING_TIERS[id]).filter((tier) => tier.isAvailable);

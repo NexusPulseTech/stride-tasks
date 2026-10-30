@@ -385,6 +385,7 @@ export interface Translations {
     notConfigured: string;
     tamperedReset: string;
     claimActivated: string;
+    claimNeedsSupport: string;
     trialUsed: string;
     trialExhausted: string;
     projectLimit: string;

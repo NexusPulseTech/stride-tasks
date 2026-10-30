@@ -19,10 +19,34 @@ binding = "DB"
 database_name = "stride-sync"
 database_id = "<id từ: npx wrangler d1 create stride-sync>"
 
+# Giới hạn tần suất (đếm gần đúng theo từng vị trí Cloudflare; period chỉ nhận 10 hoặc 60)
+[[ratelimits]]
+name = "CLAIM_LIMITER"
+namespace_id = "1001"
+  [ratelimits.simple]
+  limit = 30
+  period = 60
+
+[[ratelimits]]
+name = "ORDER_LIMITER"
+namespace_id = "1002"
+  [ratelimits.simple]
+  limit = 10
+  period = 60
+
+[[ratelimits]]
+name = "SYNC_LIMITER"
+namespace_id = "1003"
+  [ratelimits.simple]
+  limit = 120
+  period = 60
+
 [vars]
 APP_URL = "https://tasks.nexuspulsetech.xyz"
 ALLOWED_ORIGINS = "https://tasks.nexuspulsetech.xyz,https://tauri.localhost,tauri://localhost"
-PRICE_VND = "199000"
+PRICE_VND = "149000"
+# Quy đổi USD ghi vào token (giá sáng lập 149.000₫)
+PRICE_VND_USD = "5.95"
 MAIL_FROM = "Stride Tasks <license@nexuspulsetech.xyz>"
 # Public key Ed25519 (công khai, trùng LICENSE_PUBLIC_KEY_B64URL trong src/utils/licenseCrypto.ts)
 LICENSE_PUBLIC_KEY = "NKyqP_mvnNyPll7Oqxz-oApOCdv0YWsWTffRbx4ZclE"

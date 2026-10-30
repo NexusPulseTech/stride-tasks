@@ -32,16 +32,24 @@
 
 | # | Mức | Khoảng trống | Hậu quả | Sửa ở |
 | :---: | :---: | :--- | :--- | :--- |
-| 1 | 🔴 | `/claim` trả token cho **bất kỳ ai biết mã đơn** (≈ 2³⁰ khả năng), không rate limit | Có thể dò & lấy token của người khác khi lượng đơn tăng | A04 |
-| 2 | 🔴 | Claim poll 6 giây × tối đa 72 giờ: một tab mở liên tục ≈ **14.400 request/ngày** | ~7 tab treo là cạn **100k request/ngày** của gói Free → toàn bộ API (kể cả sync) ngừng | A04 (backoff: 6s trong 10 phút → 60s → dừng sau 30 phút + nút "Kiểm tra lại") |
-| 3 | 🔴 | Không xử lý **hoàn tiền**: không có webhook refund, không danh sách thu hồi | Hoàn tiền xong vẫn dùng sync miễn phí | A04 |
+| 1 | ✅ đã sửa 2026-10-30 | `/claim` trả token cho **bất kỳ ai biết mã đơn** (≈ 2³⁰ khả năng), không rate limit | Có thể dò & lấy token của người khác khi lượng đơn tăng | A04 |
+| 2 | ✅ đã sửa 2026-10-30 | Claim poll 6 giây × tối đa 72 giờ: một tab mở liên tục ≈ **14.400 request/ngày** | ~7 tab treo là cạn **100k request/ngày** của gói Free → toàn bộ API (kể cả sync) ngừng | A04 (backoff: 6s trong 10 phút → 60s → dừng sau 30 phút + nút "Kiểm tra lại") |
+| 3 | ✅ đã sửa 2026-10-30 | Không xử lý **hoàn tiền**: không có webhook refund, không danh sách thu hồi | Hoàn tiền xong vẫn dùng sync miễn phí | A04 |
 | 4 | 🟠 | Không có kiểu/schema dùng chung; regex mã đơn, tên mã lỗi, giới hạn 1,9 MB khai báo **hai lần** | Lệch hợp đồng khi sửa một bên | B06 |
 | 5 | 🟠 | Worker JavaScript không type-check, không có test trong repo/CI (test đang nằm ngoài repo) | Lỗi lọt production | B01, B05 |
 | 6 | 🟠 | `fetch` phía client không có timeout (`AbortSignal.timeout`) | Mạng chập chờn → trạng thái "đang đồng bộ" treo | B05 (client) |
 | 7 | 🟡 | 3 hình dạng lỗi khác nhau (sync / webhook / claim) | Client phải xử lý đặc thù | B06 (RFC 9457) |
 | 8 | 🟡 | Không có `x-request-id`, không log có cấu trúc | Khó điều tra khi khách báo lỗi | B07 |
 | 9 | 🟡 | Không có môi trường staging; deploy Worker thủ công | Thử nghiệm trên production | B07 |
-| 10 | 🟡 | `pricePaidUsd: 7.95` cố định trong webhook SePay, không đọc từ cấu hình giá | Lệch khi đổi giá VN | A04 |
+| 10 | ✅ đã sửa 2026-10-30 | `pricePaidUsd: 7.95` cố định trong webhook SePay, không đọc từ cấu hình giá | Lệch khi đổi giá VN | A04 |
+
+### Đã sửa ở task A04a (Worker version `396e79ac`)
+
+- `/claim` bắt buộc `X-Claim-Secret`; chỉ người giữ bí mật 128 bit (đã đăng ký băm ở `POST /v1/orders`) nhận được token. Rate limit theo IP cho claim/đơn, theo bản quyền cho sync PUT.
+- Client hỏi dày 5 phút đầu, thưa dần, dừng sau 30 phút: tab mở 72 giờ chỉ còn 76 request (trước đây khoảng 43.200).
+- Hoàn tiền LemonSqueezy (`order_refunded`) ghi `revoked:<licenseId>`; sync trả `402 license_revoked`. VietQR hoàn tiền thủ công theo runbook.
+- Giá VietQR và quy đổi USD đọc từ `PRICE_VND`, `PRICE_VND_USD`.
+- Kiểm thử: Worker 33/33 (cục bộ), smoke production 14/14, lịch hỏi 7/7.
 
 ## 4. Điều kiện để kết luận "nền móng vững"
 

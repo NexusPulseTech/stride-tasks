@@ -386,6 +386,7 @@ export const en: Translations = {
     notConfigured: 'This build has no license verification key configured.',
     tamperedReset: 'License data on this device was modified, so it has been reset to the Free edition.',
     claimActivated: 'Payment received. Lifetime PRO was activated automatically!',
+    claimNeedsSupport: 'We could not activate PRO automatically for this order. Email support@nexuspulsetech.xyz with your order code and we will send your license.',
     trialUsed: 'PRO trial: {feature} · {count} passes left',
     trialExhausted: 'No trial passes left for "{feature}". Upgrade to Lifetime PRO ({price}) for unlimited use.',
     projectLimit: 'The Free edition supports up to {limit} projects. Upgrade to Lifetime PRO ({price}) for unlimited projects.',

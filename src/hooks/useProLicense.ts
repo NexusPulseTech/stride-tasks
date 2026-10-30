@@ -20,6 +20,7 @@ import {
   getAvailableTiers,
 } from '../config/commerceConfig';
 import { INITIAL_PROJECTS } from '../constants';
+import { generateClaimSecret, nextClaimDelay, sha256Hex } from './claimPolling';
 import { Project } from '../types';
 import { useLanguage, formatMessage } from '../i18n';
 
@@ -34,7 +35,7 @@ export const LICENSE_CHANGED_EVENT = 'stride:license-changed';
 export const FREE_PROJECT_LIMIT = 5;
 const TRIAL_PASSES = 3;
 const ORDER_MAX_AGE_MS = 72 * 60 * 60 * 1000;
-const CLAIM_POLL_INTERVAL_MS = 6000;
+const CLAIM_REQUEST_TIMEOUT_MS = 15_000;
 const SAMPLE_PROJECT_IDS: ReadonlySet<string> = new Set(INITIAL_PROJECTS.map((p) => p.id));
 
 export interface ProLicenseState {
@@ -76,6 +77,10 @@ export interface PendingOrder {
   code: string;
   region: PricingRegionId;
   createdAt: string;
+  /** Bí mật nhận bản quyền (chỉ trên thiết bị); Worker giữ SHA-256 của nó */
+  claimSecret?: string;
+  /** Đã đăng ký băm bí mật với Worker (POST /v1/orders) */
+  registered?: boolean;
 }
 
 export interface ActionResult {
@@ -312,7 +317,13 @@ export function useProLicense({ notify }: UseProLicenseOptions = {}) {
   // Đơn hàng VietQR / LemonSqueezy: mã đơn duy nhất + tự claim bản quyền từ Cloudflare Worker
   // ---------------------------------------------------------------------------
   const startOrder = useCallback((region: PricingRegionId): PendingOrder => {
-    const order: PendingOrder = { code: generateOrderCode(), region, createdAt: new Date().toISOString() };
+    const order: PendingOrder = {
+      code: generateOrderCode(),
+      region,
+      createdAt: new Date().toISOString(),
+      claimSecret: generateClaimSecret(),
+      registered: false,
+    };
     setPendingOrder(order);
     writeJson(PENDING_ORDER_STORAGE_KEY, order);
     return order;
@@ -327,36 +338,102 @@ export function useProLicense({ notify }: UseProLicenseOptions = {}) {
 
   useEffect(() => {
     if (!pendingOrder || license.isPro || !canAutoClaim) return;
+    const baseUrl = COMMERCE_CONFIG.licenseClaimUrl;
+    // Đơn cũ (trước khi có bí mật) được bổ sung bí mật để vẫn đăng ký được với Worker
+    let order: PendingOrder = pendingOrder.claimSecret ? pendingOrder : { ...pendingOrder, claimSecret: generateClaimSecret() };
     let cancelled = false;
+    let stopped = false;
+    let timer: number | undefined;
+    let windowStart = Date.now();
+
+    const ensureRegistered = async (): Promise<boolean> => {
+      if (order.registered) return true;
+      const res = await fetch(`${baseUrl}/v1/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderCode: order.code,
+          claimHash: await sha256Hex(order.claimSecret as string),
+          tier: order.region,
+          provider: order.region === 'vn-ppp' ? 'vietqr' : 'lemonsqueezy',
+        }),
+        cache: 'no-store',
+        signal: AbortSignal.timeout(CLAIM_REQUEST_TIMEOUT_MS),
+      });
+      if (!res.ok) return false;
+      // Ghi thẳng vào storage (không setState) để không khởi động lại effect và cửa sổ hỏi
+      order = { ...order, registered: true };
+      writeJson(PENDING_ORDER_STORAGE_KEY, order);
+      return true;
+    };
+
+    const schedule = () => {
+      if (cancelled) return;
+      const delay = nextClaimDelay(Date.now() - windowStart);
+      if (delay === null) {
+        stopped = true;
+        return;
+      }
+      timer = window.setTimeout(tick, delay);
+    };
+
     const tick = async () => {
-      if (document.visibilityState === 'hidden') return;
-      if (Date.now() - Date.parse(pendingOrder.createdAt) > ORDER_MAX_AGE_MS) {
+      if (cancelled) return;
+      if (Date.now() - Date.parse(order.createdAt) > ORDER_MAX_AGE_MS) {
         clearOrder();
         return;
       }
+      if (document.visibilityState === 'hidden') {
+        schedule();
+        return;
+      }
       try {
-        const res = await fetch(
-          `${COMMERCE_CONFIG.licenseClaimUrl}/claim?order=${encodeURIComponent(pendingOrder.code)}`,
-          { cache: 'no-store' }
-        );
-        if (!res.ok || cancelled) return;
-        const data = (await res.json()) as { status?: string; token?: string };
-        if (data.status === 'ready' && typeof data.token === 'string' && !cancelled) {
-          const result = await activateWithToken(data.token);
-          if (result.ok) {
-            clearOrder();
-            notifyRef.current?.(tRef.current.license.claimActivated);
+        if (await ensureRegistered()) {
+          const res = await fetch(`${baseUrl}/claim?order=${encodeURIComponent(order.code)}`, {
+            cache: 'no-store',
+            headers: { 'X-Claim-Secret': order.claimSecret as string },
+            signal: AbortSignal.timeout(CLAIM_REQUEST_TIMEOUT_MS),
+          });
+          if (cancelled) return;
+          if (res.status === 401 || res.status === 403) {
+            // Đơn không nhận tự động được (VD đã trả tiền trước khi đăng ký) → cần hỗ trợ thủ công
+            stopped = true;
+            notifyRef.current?.(tRef.current.license.claimNeedsSupport);
+            return;
+          }
+          if (res.ok) {
+            const data = (await res.json()) as { status?: string; token?: string };
+            if (data.status === 'ready' && typeof data.token === 'string' && !cancelled) {
+              const result = await activateWithToken(data.token);
+              if (result.ok) {
+                clearOrder();
+                notifyRef.current?.(tRef.current.license.claimActivated);
+                return;
+              }
+            }
           }
         }
       } catch {
-        // Mất mạng / Worker tạm lỗi → thử lại ở nhịp sau
+        // Mất mạng / Worker tạm lỗi / quá thời gian chờ → thử lại theo lịch
       }
+      schedule();
     };
-    tick();
-    const id = window.setInterval(tick, CLAIM_POLL_INTERVAL_MS);
+
+    // Quay lại tab sau khi cửa sổ hỏi đã dừng → mở cửa sổ hỏi mới
+    const resume = () => {
+      if (cancelled || !stopped || document.visibilityState !== 'visible') return;
+      stopped = false;
+      windowStart = Date.now();
+      void tick();
+    };
+    document.addEventListener('visibilitychange', resume);
+    window.addEventListener('focus', resume);
+    void tick();
     return () => {
       cancelled = true;
-      window.clearInterval(id);
+      window.clearTimeout(timer);
+      document.removeEventListener('visibilitychange', resume);
+      window.removeEventListener('focus', resume);
     };
   }, [pendingOrder, license.isPro, canAutoClaim, activateWithToken, clearOrder]);
 

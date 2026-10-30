@@ -111,20 +111,68 @@ paths:
         '402': { $ref: '#/components/responses/LicenseInvalid' }
         '503': { $ref: '#/components/responses/SyncNotConfigured' }
 
+  /v1/orders:
+    post:
+      tags: [licensing]
+      operationId: createOrder
+      summary: Đăng ký đơn chờ thanh toán kèm băm của bí mật nhận bản quyền
+      description: |
+        App gọi trước khi hiện VietQR hoặc mở checkout. Chỉ người giữ claimSecret (chưa bao giờ rời thiết bị)
+        mới nhận được token sau khi thanh toán. Idempotent: gửi lại cùng orderCode + claimHash trả 200.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateOrderRequest' }
+      responses:
+        '200':
+          description: Đơn đã được đăng ký trước đó với cùng claimHash
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CreateOrderResponse' }
+        '201':
+          description: Đã đăng ký đơn (giữ 7 ngày)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CreateOrderResponse' }
+        '400':
+          description: Dữ liệu không hợp lệ
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error: { type: string, enum: [invalid_json, invalid_order, invalid_claim_hash, invalid_tier] }
+        '409':
+          description: Mã đơn đã được đăng ký với claimHash khác
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: { const: order_exists }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
   /claim:
     get:
       tags: [licensing]
       operationId: claimLicense
       summary: App hỏi định kỳ để nhận token sau khi thanh toán
       description: |
-        ⚠️ Hiện tại bất kỳ ai biết mã đơn đều nhận được token (mã 30-bit, chưa rate limit).
-        Phiên bản kế tiếp yêu cầu header X-Claim-Secret, xem task A04.
+        Bắt buộc header X-Claim-Secret; Worker so SHA-256(secret) với claimHash đã đăng ký ở POST /v1/orders.
+        Client hỏi dày 5 phút đầu (6 giây), thưa dần (60 giây) tới phút 30 rồi dừng; mở lại cửa sổ thì hỏi tiếp.
       security: []
       parameters:
         - name: order
           in: query
           required: true
           schema: { $ref: '#/components/schemas/OrderCode' }
+        - name: X-Claim-Secret
+          in: header
+          required: true
+          schema: { type: string, pattern: '^[0-9a-f]{32,128}$' }
       responses:
         '200':
           description: Trạng thái đơn
@@ -143,6 +191,23 @@ paths:
                 required: [status]
                 properties:
                   status: { const: invalid }
+        '401':
+          description: Thiếu hoặc sai định dạng X-Claim-Secret
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { const: secret_required }
+        '403':
+          description: Bí mật không khớp, hoặc đơn được phát hành mà không có bí mật (cần hỗ trợ thủ công)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { const: forbidden }
+        '429': { $ref: '#/components/responses/RateLimited' }
 
   /webhook/sepay:
     post:
@@ -260,12 +325,39 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/SyncError' }
           example: { error: sync_not_configured }
+    RateLimited:
+      description: Vượt giới hạn tần suất (theo IP hoặc bản quyền, tính riêng từng vị trí Cloudflare)
+      headers:
+        Retry-After:
+          description: Số giây nên chờ trước khi thử lại
+          schema: { type: integer }
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error: { const: rate_limited }
+              status: { const: rate_limited }
 
   schemas:
     OrderCode:
       type: string
       pattern: '^STR[A-HJ-NP-Z2-9]{6}$'
       description: Mã đơn gắn vào nội dung chuyển khoản / custom data checkout (32^6 ≈ 2^30 khả năng).
+    CreateOrderRequest:
+      type: object
+      required: [orderCode, claimHash, tier, provider]
+      properties:
+        orderCode: { $ref: '#/components/schemas/OrderCode' }
+        claimHash: { type: string, pattern: '^[0-9a-f]{64}$', description: SHA-256 (hex) của claimSecret }
+        tier: { type: string, enum: [vn-ppp, emerging-ppp, global-us] }
+        provider: { type: string, enum: [vietqr, lemonsqueezy, polar] }
+    CreateOrderResponse:
+      type: object
+      required: [orderCode, status]
+      properties:
+        orderCode: { $ref: '#/components/schemas/OrderCode' }
+        status: { const: registered }
     VaultEnvelope:
       type: object
       required: [version, iv, ciphertext, updatedAt, serverTime]
@@ -294,7 +386,7 @@ components:
       properties:
         error:
           type: string
-          enum: [license_required, license_invalid, not_found, vault_limit, conflict, too_large, sync_not_configured, method_not_allowed]
+          enum: [license_required, license_invalid, license_revoked, not_found, vault_limit, conflict, too_large, rate_limited, sync_not_configured, method_not_allowed]
     SyncErrorWithTime:
       allOf:
         - $ref: '#/components/schemas/SyncError'

@@ -386,6 +386,7 @@ export const vi: Translations = {
     notConfigured: 'Ứng dụng chưa được cấu hình khóa xác thực bản quyền.',
     tamperedReset: 'Dữ liệu bản quyền trên thiết bị đã bị sửa nên được đặt lại về bản Miễn phí.',
     claimActivated: 'Đã nhận thanh toán. PRO trọn đời đã được kích hoạt tự động!',
+    claimNeedsSupport: 'Chưa kích hoạt tự động được PRO cho đơn này. Hãy gửi mã đơn tới support@nexuspulsetech.xyz, chúng tôi sẽ gửi bản quyền cho bạn.',
     trialUsed: 'Dùng thử PRO: {feature} · còn {count} lượt',
     trialExhausted: 'Đã hết lượt dùng thử "{feature}". Nâng cấp PRO trọn đời ({price}) để dùng không giới hạn.',
     projectLimit: 'Bản Miễn phí hỗ trợ tối đa {limit} dự án. Nâng cấp PRO trọn đời ({price}) để tạo không giới hạn.',

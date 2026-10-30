@@ -1,10 +1,11 @@
 /**
  * Cloudflare Worker MẪU, cấp bản quyền Stride Tasks PRO tự động 24/7 (kể cả 2 giờ sáng).
  *
- * Luồng VietQR (199.000₫):
- *   App tạo mã đơn STRxxxxxx → hiện QR (nội dung CK = mã đơn) → khách chuyển khoản
- *   → SePay gọi POST /webhook/sepay → Worker kiểm tra số tiền + mã đơn → ký token Ed25519 → lưu KV
- *   → App đang hỏi GET /claim?order=STRxxxxxx mỗi 6 giây → nhận token → tự kích hoạt PRO.
+ * Luồng VietQR (giá theo PRICE_VND):
+ *   App tạo mã đơn STRxxxxxx + bí mật nhận bản quyền (claimSecret, 128 bit, chỉ nằm trên thiết bị)
+ *   → POST /v1/orders gửi SHA-256(claimSecret) → hiện QR (nội dung CK = mã đơn) → khách chuyển khoản
+ *   → SePay gọi POST /webhook/sepay → Worker kiểm tra số tiền + mã đơn → ký token Ed25519 → lưu KV kèm claimHash
+ *   → App hỏi GET /claim?order=… với header X-Claim-Secret (dày 5 phút đầu, thưa dần, dừng sau 30 phút) → nhận token.
  * Luồng LemonSqueezy ($25.95 / $14.95):
  *   App mở checkout kèm checkout[custom][stride_ref]=STRxxxxxx → LemonSqueezy gọi POST /webhook/lemonsqueezy
  *   (event order_created) → ký token → lưu KV theo mã đơn → App claim như trên; nếu cấu hình Resend, gửi kèm
@@ -51,6 +52,14 @@ const PREFIX = 'STRIDE1';
 const ORDER_IN_TEXT = /STR[A-HJ-NP-Z2-9]{6}/;
 const ORDER_EXACT = /^STR[A-HJ-NP-Z2-9]{6}$/;
 const RECORD_TTL_SECONDS = 60 * 60 * 24 * 90;
+// Đơn chờ thanh toán (đã đăng ký claimHash) giữ 7 ngày
+const PENDING_TTL_SECONDS = 60 * 60 * 24 * 7;
+const CLAIM_HASH = /^[0-9a-f]{64}$/;
+const CLAIM_SECRET = /^[0-9a-f]{32,128}$/;
+const PRICING_TIERS = new Set(['vn-ppp', 'emerging-ppp', 'global-us']);
+const PROVIDERS = new Set(['vietqr', 'lemonsqueezy', 'polar']);
+// Danh sách thu hồi được cache trong isolate để mỗi lần đồng bộ không tốn một lượt đọc KV
+const REVOCATION_CACHE_MS = 60 * 1000;
 const DEFAULT_APP_URL = 'https://tasks.nexuspulsetech.xyz';
 
 export default {
@@ -60,7 +69,8 @@ export default {
       if (request.method === 'OPTIONS') return withCors(request, env, new Response(null, { status: 204 }));
       if (request.method === 'POST' && url.pathname === '/webhook/sepay') return await handleSepay(request, env);
       if (request.method === 'POST' && url.pathname === '/webhook/lemonsqueezy') return await handleLemonSqueezy(request, env);
-      if (request.method === 'GET' && url.pathname === '/claim') return withCors(request, env, await handleClaim(url, env));
+      if (request.method === 'POST' && url.pathname === '/v1/orders') return withCors(request, env, await handleCreateOrder(request, env));
+      if (request.method === 'GET' && url.pathname === '/claim') return withCors(request, env, await handleClaim(request, url, env));
       const vaultMatch = url.pathname.match(/^\/sync\/v1\/vaults\/([0-9a-f]{64})$/);
       if (vaultMatch) return withCors(request, env, await handleVault(request, env, vaultMatch[1]));
       return new Response('Not found', { status: 404 });
@@ -103,14 +113,22 @@ async function handleSepay(request, env) {
 
   const orderCode = match[0];
   if (!(await env.LICENSES.get(`order:${orderCode}`))) {
+    const pending = await env.LICENSES.get(`pending:${orderCode}`, 'json');
     const token = await issueToken(env, {
       licenseKeyOrAddonId: `VN-${orderCode}`,
-      pricePaidUsd: 7.95,
-      regionLabel: 'Vietnam PPP (199.000₫)',
+      pricePaidUsd: Number(env.PRICE_VND_USD || 7.95),
+      regionLabel: `Vietnam PPP (${price.toLocaleString('vi-VN')}₫)`,
     });
+    // Không có claimHash (app chưa đăng ký đơn) → claim tự động bị từ chối, cấp lại qua hỗ trợ theo mã đơn
     await env.LICENSES.put(
       `order:${orderCode}`,
-      JSON.stringify({ token, channel: 'sepay', transactionId: txId, createdAt: new Date().toISOString() }),
+      JSON.stringify({
+        token,
+        channel: 'sepay',
+        transactionId: txId,
+        claimHash: pending?.claimHash || null,
+        createdAt: new Date().toISOString(),
+      }),
       { expirationTtl: RECORD_TTL_SECONDS }
     );
   }
@@ -129,14 +147,21 @@ async function handleLemonSqueezy(request, env) {
   }
 
   const event = JSON.parse(raw);
-  if (event?.meta?.event_name !== 'order_created') return json({ ignored: true });
+  const eventName = event?.meta?.event_name;
+  const orderId = String(event.data?.id || '');
+  // Hoàn tiền → thu hồi quyền đồng bộ (tính năng offline không thu hồi được, xem ADR-0002)
+  if (eventName === 'order_refunded' && orderId) {
+    await revokeLicense(env, `LS-${orderId}`, 'refund');
+    return json({ ok: true, revoked: true });
+  }
+  if (eventName !== 'order_created') return json({ ignored: true });
   const attrs = event.data?.attributes || {};
   if (attrs.status !== 'paid') return json({ ignored: 'not_paid' });
 
-  const orderId = String(event.data?.id || '');
   const ref = String(event.meta?.custom_data?.stride_ref || '').toUpperCase();
   const recordKey = ORDER_EXACT.test(ref) ? `order:${ref}` : `lsorder:${orderId}`;
   if (await env.LICENSES.get(recordKey)) return json({ ok: true, duplicate: true });
+  const pending = ORDER_EXACT.test(ref) ? await env.LICENSES.get(`pending:${ref}`, 'json') : null;
 
   const pricePaidUsd = Math.round(Number(attrs.total_usd || 0)) / 100; // LemonSqueezy trả về cent
   const token = await issueToken(env, {
@@ -146,7 +171,13 @@ async function handleLemonSqueezy(request, env) {
   });
   await env.LICENSES.put(
     recordKey,
-    JSON.stringify({ token, channel: 'lemonsqueezy', orderId, createdAt: new Date().toISOString() }),
+    JSON.stringify({
+      token,
+      channel: 'lemonsqueezy',
+      orderId,
+      claimHash: pending?.claimHash || null,
+      createdAt: new Date().toISOString(),
+    }),
     { expirationTtl: RECORD_TTL_SECONDS }
   );
 
@@ -156,12 +187,54 @@ async function handleLemonSqueezy(request, env) {
   return json({ ok: true });
 }
 
+// ─── Đăng ký đơn chờ thanh toán ──────────────────────────────────────────────────────────────
+async function handleCreateOrder(request, env) {
+  if (!(await withinLimit(env.ORDER_LIMITER, `order:${clientIp(request)}`))) {
+    return json({ error: 'rate_limited' }, 429, { 'Retry-After': '60' });
+  }
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ error: 'invalid_json' }, 400);
+  }
+  const { orderCode, claimHash, tier, provider } = body || {};
+  if (typeof orderCode !== 'string' || !ORDER_EXACT.test(orderCode)) return json({ error: 'invalid_order' }, 400);
+  if (typeof claimHash !== 'string' || !CLAIM_HASH.test(claimHash)) return json({ error: 'invalid_claim_hash' }, 400);
+  if (!PRICING_TIERS.has(tier) || !PROVIDERS.has(provider)) return json({ error: 'invalid_tier' }, 400);
+
+  const key = `pending:${orderCode}`;
+  const existing = await env.LICENSES.get(key, 'json');
+  if (existing) {
+    return timingSafeEqual(existing.claimHash, claimHash)
+      ? json({ orderCode, status: 'registered' })
+      : json({ error: 'order_exists' }, 409);
+  }
+  await env.LICENSES.put(key, JSON.stringify({ claimHash, tier, provider, createdAt: new Date().toISOString() }), {
+    expirationTtl: PENDING_TTL_SECONDS,
+  });
+  return json({ orderCode, status: 'registered' }, 201);
+}
+
 // ─── App claim ────────────────────────────────────────────────────────────────────────────────
-async function handleClaim(url, env) {
+// Chỉ người giữ claimSecret (đã đăng ký băm ở /v1/orders) nhận được token
+async function handleClaim(request, url, env) {
+  if (!(await withinLimit(env.CLAIM_LIMITER, `claim:${clientIp(request)}`))) {
+    return json({ status: 'rate_limited' }, 429, { 'Retry-After': '60' });
+  }
   const order = (url.searchParams.get('order') || '').toUpperCase();
   if (!ORDER_EXACT.test(order)) return json({ status: 'invalid' }, 400);
+  const secret = (request.headers.get('X-Claim-Secret') || '').trim().toLowerCase();
+  if (!CLAIM_SECRET.test(secret)) return json({ status: 'secret_required' }, 401);
+  const claimHash = await sha256Hex(secret);
+
   const record = await env.LICENSES.get(`order:${order}`, 'json');
-  if (!record) return json({ status: 'pending' });
+  if (!record) {
+    const pending = await env.LICENSES.get(`pending:${order}`, 'json');
+    if (pending && !timingSafeEqual(pending.claimHash, claimHash)) return json({ status: 'forbidden' }, 403);
+    return json({ status: 'pending' });
+  }
+  if (!record.claimHash || !timingSafeEqual(record.claimHash, claimHash)) return json({ status: 'forbidden' }, 403);
   return json({ status: 'ready', token: record.token, activationUrl: `${appUrl(env)}/#activate=${record.token}` });
 }
 
@@ -187,6 +260,10 @@ async function handleVault(request, env, vaultId) {
   }
 
   if (request.method === 'PUT') {
+    // Giới hạn theo bản quyền (không theo IP, vì nhiều người có thể dùng chung IP)
+    if (!(await withinLimit(env.SYNC_LIMITER, `sync:${license.id || clientIp(request)}`))) {
+      return json({ error: 'rate_limited', serverTime: new Date().toISOString() }, 429, { 'Retry-After': '60' });
+    }
     let body;
     try {
       body = await request.json();
@@ -237,7 +314,26 @@ async function authorizeSync(request, env) {
   }
   const payload = await verifyLicenseToken(env, token);
   if (!payload) return { error: 'license_invalid', status: 402 };
-  return { id: String(payload.licenseKeyOrAddonId) };
+  const id = String(payload.licenseKeyOrAddonId);
+  if (await isRevoked(env, id)) return { error: 'license_revoked', status: 402 };
+  return { id };
+}
+
+// ─── Thu hồi bản quyền (hoàn tiền, token bị phát tán) ────────────────────────────────────────
+// Ghi thủ công khi cần: npx wrangler kv key put --binding LICENSES "revoked:<licenseId>" '{"reason":"refund"}' --remote
+const revocationCache = new Map();
+
+async function revokeLicense(env, licenseId, reason) {
+  await env.LICENSES.put(`revoked:${licenseId}`, JSON.stringify({ reason, revokedAt: new Date().toISOString() }));
+  revocationCache.set(licenseId, { revoked: true, at: Date.now() });
+}
+
+async function isRevoked(env, licenseId) {
+  const cached = revocationCache.get(licenseId);
+  if (cached && Date.now() - cached.at < REVOCATION_CACHE_MS) return cached.revoked;
+  const revoked = (await env.LICENSES.get(`revoked:${licenseId}`)) !== null;
+  revocationCache.set(licenseId, { revoked, at: Date.now() });
+  return revoked;
 }
 
 let verifyKeyPromise = null;
@@ -319,11 +415,27 @@ function appUrl(env) {
   return (env.APP_URL || DEFAULT_APP_URL).replace(/\/+$/, '');
 }
 
-function json(data, status = 200) {
+function json(data, status = 200, extraHeaders = {}) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' },
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...extraHeaders },
   });
+}
+
+// Rate Limiting binding (đếm gần đúng, theo từng vị trí Cloudflare); thiếu binding (chạy cục bộ/test) thì cho qua
+async function withinLimit(limiter, key) {
+  if (!limiter) return true;
+  const { success } = await limiter.limit({ key });
+  return success;
+}
+
+function clientIp(request) {
+  return request.headers.get('CF-Connecting-IP') || 'unknown';
+}
+
+async function sha256Hex(text) {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 function withCors(request, env, response) {
@@ -336,8 +448,9 @@ function withCors(request, env, response) {
   if (allowed.includes(origin)) {
     headers.set('Access-Control-Allow-Origin', origin);
     headers.set('Vary', 'Origin');
-    headers.set('Access-Control-Allow-Methods', 'GET, PUT, DELETE, OPTIONS');
-    headers.set('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+    headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    headers.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, X-Claim-Secret');
+    headers.set('Access-Control-Expose-Headers', 'Retry-After');
     headers.set('Access-Control-Max-Age', '86400');
   }
   return new Response(response.body, { status: response.status, headers });
