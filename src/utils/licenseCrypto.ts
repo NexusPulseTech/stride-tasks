@@ -150,9 +150,15 @@ export function normalizeLicenseToken(raw: string): string {
   return value.replace(/\s+/g, '');
 }
 
-/** Xác thực token Ed25519. Trả về null nếu sai định dạng, sai chữ ký hoặc payload không hợp lệ. */
-export async function verifyLicenseToken(raw: string): Promise<VerifiedLicense | null> {
-  if (!isLicensePublicKeyConfigured()) return null;
+/**
+ * Xác thực token Ed25519. Trả về null nếu sai định dạng, sai chữ ký hoặc payload không hợp lệ.
+ * `publicKeyB64Url` chỉ đổi khác mặc định trong test (cặp khóa sinh tạm, không dùng khóa thật).
+ */
+export async function verifyLicenseToken(
+  raw: string,
+  publicKeyB64Url: string = LICENSE_PUBLIC_KEY_B64URL
+): Promise<VerifiedLicense | null> {
+  if (!publicKeyB64Url) return null;
   const token = normalizeLicenseToken(raw);
   const parts = token.split('.');
   if (parts.length !== 3) return null;
@@ -161,7 +167,7 @@ export async function verifyLicenseToken(raw: string): Promise<VerifiedLicense |
 
   const payloadBytes = base64UrlToBytes(payloadB64);
   const signature = base64UrlToBytes(signatureB64);
-  const publicKey = base64UrlToBytes(LICENSE_PUBLIC_KEY_B64URL);
+  const publicKey = base64UrlToBytes(publicKeyB64Url);
   if (!payloadBytes || !signature || signature.length !== 64 || !publicKey || publicKey.length !== 32) {
     return null;
   }

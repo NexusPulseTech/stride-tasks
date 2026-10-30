@@ -36,6 +36,9 @@ jobs:
       - name: Type check
         run: npm run lint
 
+      - name: Unit tests
+        run: npm test
+
       - name: Build production bundle
         run: npm run build
         # Cấu hình thương mại công khai (Settings → Secrets and variables → Actions → Variables).

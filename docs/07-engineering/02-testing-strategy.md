@@ -22,6 +22,8 @@
 | `worker-sync.test.mjs` + adapter `node:sqlite` (17 ca) | `cloudflare-worker/test/vault.test.ts` (vitest-pool-workers) |
 | `prod-smoke.test.mjs` (14 ca) | `cloudflare-worker/test/smoke/prod-smoke.ts`: chạy tay hoặc sau deploy, đọc token test từ secret CI, **không** commit khóa |
 
+Tiến độ (2026-10-31, B01a): phần app đã vào repo (`syncMerge`, `syncCrypto`, `tombstones`, `claimPolling`, `licenseCrypto`), 35 ca, chạy bằng `npm test` và trong workflow deploy. Chưa chuyển: test Worker, smoke production.
+
 ## 3. Hành trình E2E bắt buộc
 
 1. Lần đầu mở app → nhập một dòng có cú pháp → việc được tạo đúng → hoàn thành → streak tăng.

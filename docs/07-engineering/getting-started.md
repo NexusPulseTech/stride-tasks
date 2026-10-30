@@ -1,8 +1,8 @@
 # 6. Getting Started & Development Workflow
 
 ## 6.1. Yêu Cầu Môi Trường (Prerequisites)
-- **Node.js**: v18.0.0 hoặc v20.x trở lên
-- **Trình quản lý gói**: `npm` hoặc `bun`
+- **Node.js**: 22 LTS (CI dùng Node 22)
+- **Trình quản lý gói**: `npm`, cài bằng `npm install --legacy-peer-deps`
 - **Port mặc định**: Cổng `3000` (theo ràng buộc môi trường AI Studio)
 
 ---
@@ -11,7 +11,7 @@
 
 ```bash
 # 1. Cài đặt toàn bộ thư viện phụ thuộc
-npm install
+npm install --legacy-peer-deps
 
 # 2. Khởi chạy Development Server (Port 3000)
 npm run dev
@@ -21,7 +21,13 @@ npm run lint
 
 # 4. Kiểm tra biên dịch TypeScript & đóng gói sản phẩm
 npm run build
+
+# 5. Chạy test (Vitest) và xem coverage
+npm test
+npm run test:coverage
 ```
+
+Test không đọc `.env.local` và không dùng khóa riêng thật: test bản quyền tự sinh cặp khóa Ed25519 tạm. Vitest ghim bản 4.1.12 vì `@cloudflare/vitest-pool-workers` (dùng cho test Worker) chưa hỗ trợ Vitest 5. Workflow deploy chạy `npm test`, test đỏ thì không deploy.
 
 ---
 
