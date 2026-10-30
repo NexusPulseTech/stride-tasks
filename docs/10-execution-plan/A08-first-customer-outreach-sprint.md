@@ -1,4 +1,6 @@
-# A08: Sprint outreach 14 ngày (khách trả tiền đầu tiên)
+# A08: Sprint outreach quốc tế 14 ngày (khách trả tiền đầu tiên)
+
+> **Từ 2026-10-30 (ADR-0009)**: kênh chính là X, Reddit, Show HN, Indie Hackers, thư mục phần mềm; tiếng Việt là kênh phụ. Lịch chi tiết: [../01-business/07-first-paying-customer-playbook.md](../01-business/07-first-paying-customer-playbook.md) v2.
 
 | Thuộc tính | Giá trị |
 | :--- | :--- |

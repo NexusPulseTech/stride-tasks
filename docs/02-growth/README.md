@@ -19,6 +19,7 @@
 | [04-launch-and-communities.md](./04-launch-and-communities.md) | Product Hunt, Show HN, Reddit, Indie Hackers, AlternativeTo, cộng đồng Việt Nam |
 | [05-app-store-optimization.md](./05-app-store-optimization.md) | ASO cho Microsoft Store / Google Play |
 | [06-ai-search-geo.md](./06-ai-search-geo.md) | Tối ưu cho ChatGPT/Perplexity/AI Overviews (GEO) |
+| [08-seo-status-and-plan.md](./08-seo-status-and-plan.md) | **Trạng thái SEO thật** (Search Console 2026-10-30) và kế hoạch SEO quốc tế |
 | [07-analytics-and-measurement.md](./07-analytics-and-measurement.md) | Công cụ đo không xâm phạm quyền riêng tư, quy ước UTM |
 | [marketing-kit/](./marketing-kit/README.md) | **Bộ kit thực thi**: kênh và mục đích, bio, kịch bản video, bài X, bài cộng đồng, lịch 30 ngày, ưu đãi sáng lập |
 | [store-listings/microsoft-store-listing.md](./store-listings/microsoft-store-listing.md) | Hồ sơ đăng Microsoft Store (nội dung listing, đóng gói PWABuilder) |

@@ -1,57 +1,56 @@
-# Lịch nội dung 30 ngày
+# Lịch nội dung 30 ngày (quốc tế là chính)
 
-> **Thuộc**: 02-growth/marketing-kit · **Trạng thái**: Active · **Cập nhật**: 2026-10-30
-> **Giả định**: tuần 1-2 PRO chưa mở bán (CTA = dùng miễn phí + vào Telegram giữ suất Founding). Khi thanh toán chạy (tasks A03-A05), CTA đổi sang mua suất Founding. Mã V*, E*, bài X số mấy lấy ở các file kịch bản trong thư mục này.
-> **Thời gian**: khoảng 60-90 phút/ngày.
+> **Thuộc**: 02-growth/marketing-kit · **Trạng thái**: v2 (ADR-0009) · **Cập nhật**: 2026-10-30
+> **Giả định**: tuần 1-2 Polar đang duyệt nên chưa bán quốc tế được (CTA = dùng miễn phí + theo dõi trên X). Khi Polar duyệt xong, CTA đổi sang mua suất sáng lập. Mã E*, V*, bài X số mấy lấy ở các file kịch bản trong thư mục này.
+> **Thời gian**: khoảng 60-90 phút/ngày. Tiếng Việt chiếm tối đa 30%.
 
-## Tuần 1: dựng kênh và gieo hạt
+## Tuần 1: tài khoản, thư mục, gieo hạt
 
-| Ngày | TikTok / Reels / Shorts | X | Facebook | Khác |
+| Ngày | X (EN) | Reddit / HN / IH | Video (EN) | Khác |
 | :---: | :--- | :--- | :--- | :--- |
-| 1 | Tạo tài khoản (Business), bio | Tạo tài khoản, bio, bài 1 | Tạo Page, bio | Tạo Telegram channel, gửi link cho dev |
-| 2 | V2 (gõ 1 dòng) | Bài 2 | Đăng V2 lên Page | Nhắn 10 người quen (mẫu playbook) |
-| 3 | V1 (học xong là quên) | Bài 3 | | Nhắn 10 người quen |
-| 4 | V4 (không cần tài khoản) | Bài 5 | Bài A vào 1 nhóm tự học | Nhắn 10 người quen |
-| 5 | | Bài 6 | | Tạo tài khoản Reddit, PH, IH; bình luận góp ý 3 bài |
-| 6 | V3 (Pomodoro) | Bài 4 | Đăng V3 lên Page | Viết bài Viblo |
-| 7 | Xem số liệu tuần | Bài 10 (câu hỏi) | | Tổng kết: nguồn truy cập nào tốt nhất |
+| 1 | Tạo tài khoản, bio, bài 1 | Tạo tài khoản Reddit, HN, PH, IH; bình luận góp ý 3 bài | | Đăng ký Polar, SePay |
+| 2 | Bài 2 | 2 bình luận hữu ích | | AlternativeTo + SaaSHub (C07) |
+| 3 | Bài 3 (E2E) | 2 bình luận | E1 (quên kiến thức) | Product Hunt trang "upcoming" |
+| 4 | Bài 5 (cú pháp 1 dòng) | 2 bình luận | | Topics cho repo GitHub |
+| 5 | Bài 6 (không tài khoản) | r/SideProject | E3 (airplane mode) | |
+| 6 | Bài 4 (chi phí $0) | 2 bình luận | | Viết bài kỹ thuật E2E (dev.to/site) |
+| 7 | Bài 10 (câu hỏi) | | | Tổng kết số liệu tuần |
 
-## Tuần 2: cộng đồng và câu chuyện
+## Tuần 2: Show HN và bài tổng hợp
 
-| Ngày | TikTok / Reels / Shorts | X | Facebook | Khác |
+| Ngày | X (EN) | Reddit / HN / IH | Video (EN) | Khác |
 | :---: | :--- | :--- | :--- | :--- |
-| 8 | V8 (câu chuyện founder) | Thread 2 (không tài khoản) | Bài B vào 1 nhóm IT | Đăng bài Viblo |
-| 9 | V5 (kế hoạch IELTS) | Bài 7 (giá) | | AlternativeTo listing |
-| 10 | | Bài 11 | Đăng V5 lên Page | r/SideProject |
-| 11 | V6 (Kanban) | Bài 13 (open source) | | Indie Hackers post |
-| 12 | V9 (3 lỗi Pomodoro) | Thread 1 (E2E sync) | Bài A vào nhóm thứ 2 | Spiderum |
-| 13 | E1 (đăng tiếng Anh) | Bài 9 (Lighthouse) | | Trả lời mọi bình luận |
-| 14 | Xem số liệu tuần | Bài 12 (số liệu thật) | | Tổng kết, chọn 2 dạng video tốt nhất |
+| 8 | Thread 1 (E2E sync) | **Show HN** (sáng giờ Mỹ) | | Trả lời mọi bình luận cả ngày |
+| 9 | Bài 13 (open source) | Trả lời tiếp HN | E2 (gõ 1 dòng) | 3 thư bài tổng hợp |
+| 10 | Bài 9 (Lighthouse) | Indie Hackers post | | 3 thư bài tổng hợp |
+| 11 | Bài 11 (SRS) | 2 bình luận | E4 (kế hoạch ôn thi) | Phỏng vấn 2 người dùng |
+| 12 | Thread 2 (không tài khoản) | r/GetStudying (nếu luật cho phép) | | 4 thư bài tổng hợp |
+| 13 | Bài 7 (giá) | | E5 (câu chuyện founder) | Viblo (VI, kênh phụ) |
+| 14 | Bài 12 (số liệu thật) | | | Tổng kết, chọn 2 dạng nội dung tốt nhất |
 
-## Tuần 3: mở bán (khi thanh toán đã chạy)
+## Tuần 3: mở bán (khi Polar đã duyệt)
 
 | Ngày | Việc |
 | :---: | :--- |
-| 15 | Tin Telegram mở bán (mẫu ở [05-community-posts.md](./05-community-posts.md) mục 7). X bài 14. Page thông báo. Đổi CTA trang đích sang "Mua suất sáng lập". |
-| 16 | V10 (mở bán) + bản tiếng Anh. Nhắn riêng người đã dùng 3 ngày trở lên. |
-| 17 | Show HN (sáng giờ Mỹ, tối giờ VN). Ở cạnh máy cả buổi để trả lời. |
-| 18 | Video theo dạng tốt nhất tuần 1-2. |
-| 19 | X: cập nhật số suất còn lại (số thật). |
-| 20 | Bài Facebook nhóm thứ 3 (chia sẻ kết quả học, không bán hàng). |
-| 21 | Tổng kết tuần: đơn hàng theo kênh, phản hồi, lý do từ chối mua. |
+| 15 | Mua thử + hoàn tiền thử. X bài 14 (mở bán). Đổi CTA trang đích sang "Buy the founding license". |
+| 16 | Nhắn riêng người dùng đã dùng 3 ngày trở lên (mẫu playbook). Indie Hackers cập nhật. |
+| 17 | Video theo dạng tốt nhất tuần 1-2 (bản EN). |
+| 18 | X: số suất sáng lập còn lại (số thật). |
+| 19-20 | Trả lời Reddit/HN, sửa lỗi người dùng báo. |
+| 21 | Tổng kết tuần: đơn theo kênh, lý do từ chối mua. |
 
-## Tuần 4: lặp lại cái hiệu quả
+## Tuần 4: lặp lại cái hiệu quả, chuẩn bị Product Hunt
 
 | Ngày | Việc |
 | :---: | :--- |
-| 22-27 | Mỗi ngày: 1 video theo 2 dạng tốt nhất, 1 bài X, trả lời bình luận. Phỏng vấn 15 phút với khách đầu tiên, xin testimonial. Thêm câu hỏi lặp lại vào FAQ trang đích. |
-| 28 | Chuẩn bị Product Hunt (task C04): gallery, maker comment, danh sách người ủng hộ. |
-| 29 | Bài Indie Hackers cập nhật số liệu tháng. |
-| 30 | Họp tổng kết với chính mình: giữ kênh nào, bỏ kênh nào, mục tiêu tháng sau. |
+| 22-27 | Mỗi ngày: 1 bài X, 1 nội dung theo dạng tốt nhất, 2 bình luận cộng đồng. Phỏng vấn khách đầu tiên, xin testimonial. |
+| 28 | Chuẩn bị Product Hunt (task C04): gallery, maker comment, danh sách người ủng hộ đã đồng ý. |
+| 29 | Indie Hackers: bài số liệu tháng. |
+| 30 | Tổng kết: giữ kênh nào, bỏ kênh nào, mục tiêu tháng sau. |
 
-## Bảng theo dõi hằng ngày (Google Sheet)
+## Bảng theo dõi hằng ngày
 
 | Ngày | Kênh | Nội dung | Link UTM | Lượt xem | Lượt bấm | Người dùng mới | Đơn |
 | :--- | :--- | :--- | :--- | :---: | :---: | :---: | :---: |
 
-Số liệu lượt bấm lấy từ Cloudflare Web Analytics (mục Referrers và Paths); đơn hàng từ dashboard cổng thanh toán.
+Số liệu lượt bấm lấy từ Cloudflare Web Analytics (Referrers, Paths); đơn hàng từ dashboard Polar/SePay.

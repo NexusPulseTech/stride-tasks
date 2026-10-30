@@ -4,25 +4,24 @@
 > **Mục tiêu**: đưa đúng người tới `tasks.nexuspulsetech.xyz/vi/` và `/en/`, giữ họ trong danh sách chờ, và chuyển họ thành khách mua PRO khi mở bán.
 > **Quy tắc văn phong**: viết như người thật nói chuyện. Không dùng dấu gạch dài, không phóng đại ("tốt nhất", "số 1", "cách mạng"), không số liệu bịa, không review giả.
 
-## 1. Chọn ít kênh, làm đều
+## 1. Chọn ít kênh, làm đều (quốc tế là chính, ADR-0009)
 
-Một người làm marketing một mình không thể làm tốt 8 kênh. Chọn 3 kênh chính, 2 kênh phụ:
-
-| Kênh | Ưu tiên | Mục đích cụ thể | Khán giả | Nhịp đăng | Chỉ số theo dõi |
+| Kênh | Ưu tiên | Mục đích cụ thể | Khán giả | Nhịp | Chỉ số |
 | :--- | :---: | :--- | :--- | :--- | :--- |
-| **TikTok** (tài khoản Business, tiếng Việt) | P1 | Cho sinh viên và người tự học thấy cách "ôn không quên" bằng video demo ngắn | Phân khúc A, C | 4 video/tuần | Lượt xem, lượt bấm link bio (UTM `tiktok`) |
-| **Facebook**: Page + đăng bài vào nhóm có sẵn | P1 | Kênh tin cậy nhất với người Việt; nơi trả lời hỗ trợ và thông báo mở bán | C | Page 3 bài/tuần; nhóm 1-2 bài/tuần (đúng luật nhóm) | Lượt bấm link, tin nhắn |
-| **X** (tiếng Anh, build in public) | P1 | Kết nối cộng đồng indie/dev quốc tế, chuẩn bị Product Hunt và Show HN | B | 1 bài/ngày | Follower, lượt bấm link |
-| **Telegram channel** (song ngữ) | P2 | Danh sách chờ mở bán Founding và tin cập nhật, không cần thu thập email | A, B, C | 1-2 tin/tuần | Số người theo dõi |
-| **YouTube** (Shorts + 1 video hướng dẫn) | P2 | Đăng lại video TikTok; video dài hướng dẫn để người tìm kiếm trên YouTube thấy | A | Đăng lại mọi video TikTok | Lượt xem |
-| Reddit, Hacker News, Product Hunt, Indie Hackers | P1 (tạo tài khoản sớm) | Launch quốc tế theo [../04-launch-and-communities.md](../04-launch-and-communities.md) | B | Theo lịch launch | Lượt truy cập theo UTM |
+| **X** (tiếng Anh, build in public) | P1 | Cộng đồng indie/dev quốc tế; nền cho Product Hunt và Show HN | B | 1 bài/ngày | Follower, lượt bấm link |
+| **Reddit** (tên thật) | P1 | Góp ý hữu ích ở r/productivity, r/GetStudying, r/Anki, r/selfhosted; tự giới thiệu ở r/SideProject | A, B | Bình luận hằng ngày, 1 bài/tuần | Truy cập nguồn `reddit` |
+| **Hacker News / Product Hunt / Indie Hackers** | P1 | Ngày ra mắt lớn, backlink, người dùng kỹ thuật | B | Theo lịch launch | Truy cập theo UTM |
+| **Thư mục phần mềm** (AlternativeTo, SaaSHub) | P1 | Người đang tìm app thay thế; backlink | A, B | Một lần, cập nhật khi có tính năng mới | Truy cập nguồn |
+| **YouTube Shorts + TikTok** (tiếng Anh) | P2 | Demo ngắn cho người học (study tips) | A | 3 video/tuần | Lượt xem, lượt bấm |
+| Facebook Page, Telegram (tiếng Việt) | P3 | Kênh phụ cho người dùng Việt | C | 1 bài/tuần | Tin nhắn, lượt bấm |
 
-Không làm lúc này: quảng cáo trả phí, Instagram riêng (đăng lại Reels từ TikTok là đủ), LinkedIn công ty, Zalo OA (xem lại khi có nhiều khách Việt cần hỗ trợ qua Zalo).
+Không làm lúc này: quảng cáo trả phí, Instagram riêng (đăng lại Shorts), LinkedIn công ty, Discord (mở khi có trên 100 người dùng hoạt động).
 
 ## 2. Việc founder cần làm (AI không tạo tài khoản thay được)
 
 Tạo theo thứ tự, mỗi tài khoản dùng tên hiển thị **Stride Tasks**, ảnh đại diện là `public/icon-512.png`, bio lấy ở [02-social-profiles.md](./02-social-profiles.md):
 
+- [ ] **X**, **Reddit**, **Product Hunt**, **Indie Hackers**, **Hacker News** (ưu tiên cao nhất vì thị trường quốc tế).
 - [ ] **TikTok**: tạo tài khoản rồi chuyển sang **Business** (Cài đặt → Tài khoản → Chuyển sang tài khoản doanh nghiệp) để thêm link website ngay, không cần chờ 1.000 follower. Lưu ý: tài khoản Business chỉ dùng thư viện nhạc thương mại, nên ưu tiên giọng đọc của bạn hoặc âm thanh gốc.
 - [ ] **Facebook Page** "Stride Tasks" (danh mục: Ứng dụng/Phần mềm).
 - [ ] **X**: handle gợi ý `@stridetasks` (nếu đã có người dùng thì `@stridetasksapp`).

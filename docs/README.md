@@ -1,7 +1,7 @@
 # Stride Tasks: Documentation Hub
 
 > **Cập nhật**: 2026-10-30 · **Phiên bản sản phẩm**: v3.1.0 · **Chủ sở hữu tài liệu**: Founder (NexusPulse)
-> **Mục tiêu số 1 hiện tại**: có **khách hàng trả tiền đầu tiên**: mọi kế hoạch khác xếp hàng sau mục tiêu này.
+> **Mục tiêu số 1 hiện tại**: có **khách hàng quốc tế trả tiền đầu tiên** (thị trường chính là quốc tế từ 2026-10-30, ADR-0009). Mọi kế hoạch khác xếp hàng sau mục tiêu này.
 
 Thư mục `docs/` được chia theo **miền trách nhiệm** (giống cách các công ty lớn tách tài liệu theo bounded context):
 mỗi thư mục đặc tả một chức năng, mỗi file giải quyết **một** chủ đề. Khi code, tài liệu là "hợp đồng", code phải khớp tài liệu,
@@ -15,7 +15,7 @@ nếu đổi thiết kế thì cập nhật tài liệu (hoặc ADR) trong cùng
 | :--- | :--- | :--- |
 | Kiếm tiền toàn cầu bằng cách nào? | Freemium local-first: lõi miễn phí, **PRO trọn đời** (đồng bộ E2E + không giới hạn dự án + báo cáo) với giá theo sức mua (PPP). Bán trực tiếp trên web qua **Merchant of Record** (lo thuế VAT toàn cầu) + VietQR cho Việt Nam. | [01-business/](./01-business/README.md) |
 | Bán ở đâu chuẩn nhất? | Thứ tự: **Web trực tiếp** (0% phí store) → **Microsoft Store** (đăng ký miễn phí, MS ký số MSIX miễn phí, app không phải game dùng cổng thanh toán riêng giữ 100%) → Google Play (TWA, cần Play Billing) → Apple (đánh giá sau). | [01-business/05-distribution-channels.md](./01-business/05-distribution-channels.md) |
-| SEO / nội dung thế nào để người ta biết? | Sửa ngay lỗi thương hiệu SEO ("TaskTodo" ≠ Stride Tasks), tách **trang marketing tĩnh EN/VI** khỏi SPA, xây cụm nội dung quanh 3 điểm khác biệt: *Pomodoro + ôn tập ngắt quãng SM-2 + offline/riêng tư*. | [02-growth/](./02-growth/README.md) |
+| SEO / nội dung thế nào để người ta biết? | **Hiện chưa lên top**: Search Console 3 tháng chỉ 5 lượt nhấp (truy vấn thương hiệu), sitemap lỗi "không thể tìm nạp" từ 04/10 (đã gửi lại 30/10), bot AI bị Cloudflare chặn (ADR-0010). Kế hoạch: nội dung tiếng Anh theo từ khóa ngách + thư mục + bài tổng hợp + Show HN. | [02-growth/08-seo-status-and-plan.md](./02-growth/08-seo-status-and-plan.md) |
 | Sản phẩm đã hoàn tất chưa? | **Đủ tốt để bán (MVP+) nhưng CHƯA thu tiền được**: paywall tắt, chưa nạp secret thanh toán, LemonSqueezy có rủi ro không chi trả về Việt Nam, thiếu Điều khoản/Chính sách hoàn tiền, chưa có analytics. | [03-product/01-readiness-audit.md](./03-product/01-readiness-audit.md) |
 | Backend ↔ frontend đã khớp, nền móng vững chưa? | **Khớp ở mức hành vi** (mã lỗi sync/claim ánh xạ đúng, test 14/14 trên production) nhưng **nền móng chưa vững**: hợp đồng API chỉ nằm ngầm trong code, Worker là JS không kiểm tra kiểu, không có test/CI cho logic, TS chưa `strict`, `/claim` chỉ bảo vệ bằng mã 30-bit, chưa xử lý hoàn tiền/thu hồi. | [05-api-contracts/02-fe-be-alignment-audit.md](./05-api-contracts/02-fe-be-alignment-audit.md) |
 

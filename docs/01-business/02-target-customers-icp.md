@@ -3,7 +3,9 @@
 > **Thuộc**: 01-business · **Trạng thái**: Draft v1, *giả thuyết, phải kiểm chứng bằng phỏng vấn* · **Cập nhật**: 2026-10-30
 > **Mục đích**: chọn đúng người để nói chuyện và bán trước. Sản phẩm mới không bán cho "tất cả mọi người".
 
-## 1. Ba phân khúc theo thứ tự ưu tiên
+## 1. Ba phân khúc
+
+> **Thứ tự ưu tiên từ 2026-10-30 (ADR-0009)**: B (riêng tư, toàn cầu) và A (tự học, toàn cầu) là chính; C (Việt Nam) là kênh phụ. Thông điệp và nội dung viết tiếng Anh trước.
 
 ### A. Người tự học / ôn thi (wedge chính)
 
