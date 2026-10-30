@@ -25,10 +25,11 @@ const PREFIX = 'STRIDE1';
 const DEFAULT_APP_URL = 'https://tasks.nexuspulsetech.xyz';
 const PUBKEY_LINE = /(\/\/ @stride-public-key-start\r?\n)[^\r\n]*(\r?\n\/\/ @stride-public-key-end)/;
 
+// Giá sáng lập (100 bản quyền đầu), phải khớp PRICING_TIERS trong src/config/commerceConfig.ts
 const REGION_PRESETS = {
-  'vn-ppp': { price: 7.95, label: 'Vietnam PPP (199.000₫)' },
-  'emerging-ppp': { price: 14.95, label: 'Emerging PPP ($14.95)' },
-  'global-us': { price: 25.95, label: 'Global ($25.95)' },
+  'vn-ppp': { price: 5.95, label: 'Vietnam PPP (149.000₫)' },
+  'emerging-ppp': { price: 9.95, label: 'Emerging PPP ($9.95)' },
+  'global-us': { price: 19, label: 'Global ($19)' },
   team: { price: 69, label: 'Team (honor-system)', plan: 'team', seats: 5 },
 };
 

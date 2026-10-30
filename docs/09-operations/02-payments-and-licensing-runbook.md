@@ -23,7 +23,7 @@
 ## 2. Cấp bản quyền thủ công (khi tự động lỗi)
 
 ```bash
-npm run keygen -- issue --id VN-STRXXXXXX --region vn-ppp --price 7.95 --label "Vietnam PPP (199.000₫)" --out STRXXXXXX.stride-license.json
+npm run keygen -- issue --id VN-STRXXXXXX --region vn-ppp --out STRXXXXXX.stride-license.json   # giá, nhãn lấy từ preset giá sáng lập; khách trả giá khác thì thêm --price, --label
 npm run keygen -- verify <token>     # kiểm tra trước khi gửi
 ```
 
