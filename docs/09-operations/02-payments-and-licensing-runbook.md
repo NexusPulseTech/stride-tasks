@@ -11,6 +11,15 @@
    `VITE_ENABLE_PAYWALL=true` · `VITE_VIETQR_IMAGE_URL=<mẫu img.vietqr.io có {amount} và {orderCode}>` · `VITE_LICENSE_CLAIM_URL=https://tasks-api.nexuspulsetech.xyz` · `VITE_SYNC_API_URL=https://tasks-api.nexuspulsetech.xyz` · `VITE_SUPPORT_EMAIL` · biến checkout của MoR.
 4. Chạy lại workflow Deploy → mua thử thật cả hai kênh → kích hoạt → hoàn tiền thử.
 
+## 1b. Cấu hình Polar (sandbox trước, production sau)
+
+1. **Products** → tạo "Stride Tasks PRO Lifetime": thanh toán một lần **$19** (toàn cầu); tạo thêm bản **$9.95** (thị trường mới nổi).
+2. **Checkout Links** → mỗi sản phẩm một link; **Success URL**: `https://tasks.nexuspulsetech.xyz/?checkout_id={CHECKOUT_ID}`.
+3. **Settings → Webhooks → Add endpoint**: URL `https://tasks-api.nexuspulsetech.xyz/webhooks/polar`, định dạng Raw, chọn sự kiện `order.paid` và `order.refunded`, lưu rồi sao chép secret (`whsec_…`).
+4. Founder tự nạp secret (không dán vào chat): trong thư mục `cloudflare-worker` chạy `npx --yes wrangler@4.151.0 secret put POLAR_WEBHOOK_SECRET` và dán secret khi được hỏi.
+5. Thử sandbox ở máy cục bộ: đặt `VITE_POLAR_CHECKOUT_URL` (link sandbox) trong `.env.local`, chạy `npm run dev`, mua bằng thẻ test của Polar, kiểm tra PRO được kích hoạt và hoàn tiền thu hồi được.
+6. **Không** đặt link sandbox vào GitHub Variables (người lạ có thể nhận PRO bằng thẻ test). Khi tài khoản production được duyệt: tạo lại sản phẩm, link, webhook ở polar.sh, thay secret, rồi mới đặt `VITE_POLAR_CHECKOUT_URL`, `VITE_POLAR_CHECKOUT_URL_EMERGING` trong GitHub Variables.
+
 ## 2. Cấp bản quyền thủ công (khi tự động lỗi)
 
 ```bash
