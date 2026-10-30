@@ -2,105 +2,63 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chính Sách Bảo Mật & Điều Khoản Bản Quyền (Privacy Policy) | Stride Tasks – NexusPulse Studio</title>
-    <style>
-      :root {
-        color-scheme: light dark;
-      }
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
-        max-width: 820px;
-        margin: 0 auto;
-        padding: 40px 20px 80px;
-        line-height: 1.65;
-        color: #0f172a;
-        background: #f8fafc;
-      }
-      @media (prefers-color-scheme: dark) {
-        body {
-          color: #e2e8f0;
-          background: #0b0f17;
-        }
-        .card {
-          background: #161b22 !important;
-          border-color: #1e293b !important;
-        }
-      }
-      .card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 16px;
-        padding: 32px;
-        margin-bottom: 24px;
-      }
-      h1 { font-size: 1.65rem; margin-top: 0; }
-      h2 { font-size: 1.15rem; margin-top: 1.5rem; }
-      .badge {
-        display: inline-block;
-        font-size: 12px;
-        font-weight: 600;
-        padding: 4px 10px;
-        border-radius: 6px;
-        background: #10b98120;
-        color: #10b981;
-        margin-bottom: 12px;
-      }
-      a { color: #3b82f6; text-decoration: none; }
-      a:hover { text-decoration: underline; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chính sách quyền riêng tư / Privacy Policy | Stride Tasks</title>
+    <meta name="description" content="Stride Tasks lưu dữ liệu công việc trên thiết bị của bạn; đồng bộ tùy chọn được mã hóa đầu-cuối. Your tasks stay on your device." />
+    <link rel="canonical" href="https://tasks.nexuspulsetech.xyz/privacy.html" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="stylesheet" href="/legal.css" />
   </head>
   <body>
-    <div class="card">
-      <span class="badge">Stride Tasks • v3.1.0</span>
-      <h1>Chính Sách Bảo Mật / Privacy Policy — Stride Tasks</h1>
-      <p><strong>Cập nhật lần cuối (Last Updated):</strong> 28/10/2026 • <strong>Nhà phát hành (Publisher):</strong> NexusPulse Studio</p>
+    <main class="card">
+      <span class="badge">Stride Tasks • Version 1.1</span>
+      <h1>Chính sách quyền riêng tư</h1>
+      <p class="meta"><strong>Cập nhật:</strong> 30/10/2026 · <strong>Đơn vị kiểm soát dữ liệu:</strong> NexusPulse Studio · <strong>Liên hệ:</strong> <a href="mailto:support@nexuspulsetech.xyz">support@nexuspulsetech.xyz</a></p>
+      <p class="meta"><a href="#en">English below ↓</a> · <a href="/terms.html">Điều khoản</a> · <a href="/refund.html">Hoàn tiền</a></p>
 
-      <h2>1. Dữ liệu công việc chỉ nằm trên thiết bị của bạn (Local-First)</h2>
-      <p>
-        Toàn bộ dự án, công việc, việc con, lịch nhắc, lịch ôn tập SM-2, nhật ký hoàn thành và nhật ký tập trung (Pomodoro) được lưu trong bộ nhớ cục bộ của trình duyệt / ứng dụng (<code>localStorage</code> và <code>IndexedDB</code>) trên chính thiết bị của bạn. Ứng dụng <strong>không có tài khoản, không thu thập telemetry, không gửi và không bán</strong> dữ liệu công việc của bạn. Xóa dữ liệu trang web của trình duyệt sẽ xóa dữ liệu này — hãy dùng chức năng Sao lưu JSON định kỳ.
-      </p>
+      <h2>1. Dữ liệu công việc chỉ nằm trên thiết bị của bạn</h2>
+      <p>Dự án, công việc, việc con, lịch nhắc, lịch ôn tập SM-2, nhật ký hoàn thành và nhật ký Pomodoro được lưu trong bộ nhớ cục bộ (<code>localStorage</code>, <code>IndexedDB</code>) trên thiết bị. Ứng dụng <strong>không có tài khoản</strong> và <strong>không gửi, không bán</strong> dữ liệu công việc. Xóa dữ liệu trang web của trình duyệt sẽ xóa dữ liệu này — hãy sao lưu JSON định kỳ hoặc bật đồng bộ.</p>
 
-      <h2>2. Bản quyền PRO &amp; thanh toán</h2>
-      <p>
-        Bản quyền PRO là một token có chữ ký số Ed25519, được <strong>xác thực hoàn toàn ngoại tuyến</strong> trên thiết bị và lưu cục bộ. Chúng tôi không lưu thông tin thẻ hay tài khoản ngân hàng của bạn. Khi bạn chủ động mua PRO:
-      </p>
+      <h2>2. Đồng bộ đa thiết bị (tùy chọn, mã hóa đầu-cuối)</h2>
+      <p>Khi bạn bật đồng bộ, dữ liệu được <strong>mã hóa ngay trên thiết bị</strong> (AES-256-GCM, khóa sinh từ <em>mã đồng bộ</em> — mã này không bao giờ rời thiết bị). Máy chủ (Cloudflare Workers + D1, đặt tại khu vực châu Á – Thái Bình Dương) chỉ lưu bản mã, mã định danh kho dạng băm, mã bản quyền và thời điểm cập nhật. <strong>Chúng tôi không thể đọc nội dung công việc của bạn.</strong> Bạn có thể ngắt đồng bộ hoặc xóa vĩnh viễn bản trên đám mây bất kỳ lúc nào.</p>
+
+      <h2>3. Mua bản quyền PRO</h2>
       <ul>
-        <li><strong>Thanh toán quốc tế</strong> được xử lý bởi <strong>LemonSqueezy</strong> (đơn vị bán hàng — Merchant of Record), theo chính sách bảo mật của LemonSqueezy. Chúng tôi nhận thông tin đơn hàng (mã đơn, số tiền, email mua hàng) để phát hành và gửi link kích hoạt.</li>
-        <li><strong>Chuyển khoản VietQR</strong>: mã QR được tạo từ số tiền và mã đơn hàng ngẫu nhiên (không chứa thông tin cá nhân). Giao dịch đến được đối chiếu qua dịch vụ thông báo biến động số dư (SePay) bằng nội dung chuyển khoản.</li>
-        <li>Trong thời gian chờ thanh toán, ứng dụng chỉ gửi <strong>mã đơn hàng ngẫu nhiên</strong> tới máy chủ cấp bản quyền của chúng tôi (Cloudflare Workers) để nhận token kích hoạt. Không có dữ liệu công việc nào được gửi đi.</li>
+        <li><strong>Thẻ quốc tế</strong>: do <strong>đơn vị bán hàng (Merchant of Record)</strong> ghi tại trang thanh toán (ví dụ Polar hoặc Paddle) xử lý theo chính sách riêng tư của họ. Chúng tôi nhận thông tin đơn (mã đơn, số tiền, quốc gia, email mua hàng) để phát hành và gửi lại bản quyền khi bạn cần.</li>
+        <li><strong>Chuyển khoản VietQR</strong>: mã QR chứa số tiền và mã đơn ngẫu nhiên. Giao dịch được đối chiếu qua dịch vụ thông báo biến động số dư <strong>SePay</strong>; nội dung chuyển khoản không khớp được lưu tối đa 90 ngày để đối soát.</li>
+        <li>Bản quyền là token ký số Ed25519, xác minh <strong>offline</strong> trên thiết bị và không chứa email. Trong lúc chờ thanh toán, app chỉ gửi mã đơn ngẫu nhiên tới máy chủ bản quyền của chúng tôi. Bản ghi đơn trên máy chủ được giữ 90 ngày; sổ sách giao dịch được lưu theo yêu cầu kế toán.</li>
       </ul>
 
-      <h2>3. Đồng bộ đa thiết bị (tùy chọn, mã hóa đầu-cuối)</h2>
-      <p>
-        Khi bạn chủ động bật <strong>Đồng bộ thiết bị</strong>, dữ liệu công việc được <strong>mã hóa ngay trên thiết bị</strong> bằng AES-256-GCM với khóa sinh từ <em>mã đồng bộ</em> của bạn. Mã này không bao giờ được gửi đi. Máy chủ (Cloudflare Workers + D1) chỉ lưu bản mã, một định danh kho dạng băm và thời điểm cập nhật — <strong>chúng tôi không thể đọc nội dung công việc của bạn</strong>. Bạn có thể ngắt đồng bộ hoặc xóa vĩnh viễn bản trên cloud bất kỳ lúc nào trong mục Đồng bộ thiết bị.
-      </p>
+      <h2>4. Thống kê truy cập</h2>
+      <p>Trang web dùng <strong>Cloudflare Web Analytics</strong> để đếm lượt xem trang tổng hợp (trang, nguồn giới thiệu, quốc gia, loại thiết bị). Công cụ này không dùng cookie và không theo dõi cá nhân; không bao gồm dữ liệu công việc.</p>
 
-      <h2>4. Thống kê truy cập ẩn danh</h2>
-      <p>
-        Trang web có thể dùng <strong>Cloudflare Web Analytics</strong> để đếm lượt truy cập tổng hợp (số lượt xem trang, quốc gia, loại thiết bị) nhằm cải thiện sản phẩm. Cloudflare công bố công cụ này không dùng cookie theo dõi hay định danh cá nhân. Thống kê này không bao gồm dữ liệu công việc của bạn.
-      </p>
+      <h2>5. Email hỗ trợ</h2>
+      <p>Thư gửi tới <code>support@nexuspulsetech.xyz</code> được Cloudflare Email Routing chuyển tiếp tới hộp thư của đội ngũ hỗ trợ. Chúng tôi chỉ dùng nội dung thư để trả lời bạn.</p>
 
-      <h2>5. Sao lưu &amp; Khôi phục Dữ liệu</h2>
-      <p>
-        Bạn có toàn quyền xuất toàn bộ dữ liệu sang tệp JSON, khôi phục từ tệp sao lưu, tải tệp chứng chỉ bản quyền <code>.stride-license.json</code> hoặc xóa trắng dữ liệu bất kỳ lúc nào trong mục <strong>Sao lưu &amp; Khôi phục</strong>.
-      </p>
+      <h2>6. Bên xử lý dữ liệu & chuyển dữ liệu ra nước ngoài</h2>
+      <p>Cloudflare (hạ tầng, thống kê, email), đơn vị bán hàng quốc tế (thanh toán thẻ), SePay (đối soát chuyển khoản). Một số bên đặt máy chủ ngoài Việt Nam; chúng tôi chỉ chuyển dữ liệu tối thiểu cần cho mục đích nêu trên.</p>
 
-      <hr style="border: 0; border-top: 1px solid #33415533; margin: 28px 0;" />
+      <h2>7. Quyền của bạn</h2>
+      <p>Theo Luật Bảo vệ dữ liệu cá nhân Việt Nam (Luật số 91/2025/QH15) và GDPR (nếu áp dụng), bạn có quyền được biết, truy cập, chỉnh sửa, xóa, hạn chế xử lý và rút lại đồng ý. Dữ liệu trên thiết bị do bạn tự quản lý (xuất/xóa trong app). Với dữ liệu đơn hàng hoặc thư hỗ trợ, gửi yêu cầu tới <a href="mailto:support@nexuspulsetech.xyz">support@nexuspulsetech.xyz</a> — chúng tôi phản hồi trong vòng 30 ngày.</p>
 
-      <h2>English Summary</h2>
-      <ul>
-        <li><strong>Task data:</strong> stored only on your device (localStorage / IndexedDB). No account, no telemetry, never sold or uploaded.</li>
-        <li><strong>Licensing:</strong> PRO licenses are Ed25519-signed tokens verified offline on the device.</li>
-        <li><strong>Optional sync:</strong> when you turn on device sync, data is encrypted on your device (AES-256-GCM, key derived from your sync code, which never leaves the device). The server stores only ciphertext, a hashed vault ID and timestamps; we cannot read your tasks. You can stop syncing or delete the cloud copy at any time.</li>
-        <li><strong>Analytics:</strong> the website may use Cloudflare Web Analytics for aggregate, cookieless page-view statistics. Task data is never included.</li>
-        <li><strong>Payments:</strong> card payments are processed by LemonSqueezy (Merchant of Record); Vietnamese bank transfers are matched via SePay using a random order code. While a payment is pending, the app sends only that order code to our license service on Cloudflare Workers.</li>
-        <li><strong>Contact &amp; Support:</strong> support@nexuspulsetech.xyz | <a href="https://tasks.nexuspulsetech.xyz/">https://tasks.nexuspulsetech.xyz/</a></li>
-      </ul>
+      <hr />
 
-      <p style="margin-top: 28px;">
-        <a href="/">← Quay lại ứng dụng Stride Tasks (Back to App)</a>
-      </p>
-    </div>
+      <h1 id="en" lang="en">Privacy Policy</h1>
+      <div lang="en">
+        <p class="meta"><strong>Updated:</strong> 30 October 2026 · <strong>Controller:</strong> NexusPulse Studio · <strong>Contact:</strong> <a href="mailto:support@nexuspulsetech.xyz">support@nexuspulsetech.xyz</a></p>
+        <ul>
+          <li><strong>Task data</strong> stays on your device (localStorage / IndexedDB). No account; we never upload or sell your tasks.</li>
+          <li><strong>Optional sync</strong> encrypts data on your device (AES-256-GCM, key derived from your sync code, which never leaves the device). The server (Cloudflare Workers + D1, Asia-Pacific) stores only ciphertext, a hashed vault ID, the license ID and timestamps. We cannot read your tasks. You can delete the cloud copy at any time.</li>
+          <li><strong>Payments</strong>: card payments are processed by the Merchant of Record named at checkout (e.g. Polar or Paddle) under their privacy policy; we receive order details (order number, amount, country, buyer email) to issue and re-send your license. Vietnamese bank transfers are matched through SePay using a random order code. Order records on our server are kept for 90 days; accounting records as required by law.</li>
+          <li><strong>Licenses</strong> are Ed25519-signed tokens verified offline and contain no email address.</li>
+          <li><strong>Analytics</strong>: Cloudflare Web Analytics, aggregate and cookieless; no task data.</li>
+          <li><strong>Support email</strong> is forwarded by Cloudflare Email Routing to our support inbox and used only to answer you.</li>
+          <li><strong>Processors &amp; transfers</strong>: Cloudflare, the Merchant of Record, SePay. Some are located outside Vietnam; only the minimum data needed is shared.</li>
+          <li><strong>Your rights</strong> (Vietnam Law No. 91/2025/QH15 on Personal Data Protection, GDPR where applicable): access, correction, deletion, restriction and withdrawal of consent. Email us; we reply within 30 days.</li>
+        </ul>
+      </div>
+      <p class="back"><a href="/">← Quay lại ứng dụng / Back to Stride Tasks</a></p>
+    </main>
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "cdc211628cfa42678191ea0e3f8d3ed5"}'></script>
   </body>
 </html>

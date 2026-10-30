@@ -264,6 +264,9 @@ export const en: Translations = {
     backupData: 'Backup Data',
     feedback: 'Feedback & Bugs',
     github: 'View Source on GitHub',
+    privacy: 'Privacy',
+    terms: 'Terms',
+    refund: 'Refunds',
   },
   projectHeader: {
     dragSort: 'Drag to reorder project',

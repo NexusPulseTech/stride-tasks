@@ -264,6 +264,9 @@ export const vi: Translations = {
     backupData: 'Sao lưu dữ liệu',
     feedback: 'Góp ý & Báo lỗi',
     github: 'Xem mã nguồn dự án trên GitHub',
+    privacy: 'Quyền riêng tư',
+    terms: 'Điều khoản',
+    refund: 'Hoàn tiền',
   },
   projectHeader: {
     dragSort: 'Kéo thả sắp xếp thứ tự danh mục',

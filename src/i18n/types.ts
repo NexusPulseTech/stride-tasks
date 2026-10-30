@@ -264,6 +264,9 @@ export interface Translations {
     backupData: string;
     feedback: string;
     github: string;
+    privacy: string;
+    terms: string;
+    refund: string;
   };
   projectHeader: {
     dragSort: string;

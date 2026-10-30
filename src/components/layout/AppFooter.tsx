@@ -22,7 +22,7 @@ export function AppFooter({
   themeMode,
   onSetThemeMode,
 }: AppFooterProps) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
   return (
     <footer className="text-center text-[11px] text-slate-400 dark:text-slate-500 pt-6 pb-4 space-y-2.5">
@@ -129,7 +129,25 @@ export function AppFooter({
           rel="noopener noreferrer"
           className="hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
         >
-          {language === 'vi' ? 'Bảo mật (Privacy)' : 'Privacy Policy'}
+          {t.footer.privacy}
+        </a>
+        <span aria-hidden="true">·</span>
+        <a
+          href="/terms.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+        >
+          {t.footer.terms}
+        </a>
+        <span aria-hidden="true">·</span>
+        <a
+          href="/refund.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+        >
+          {t.footer.refund}
         </a>
         <span aria-hidden="true">·</span>
         <a
