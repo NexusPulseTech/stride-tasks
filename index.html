@@ -2,10 +2,10 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="TaskTodo" />
+    <meta name="apple-mobile-web-app-title" content="Stride Tasks" />
     <meta name="theme-color" content="#ffffff" />
     <meta name="format-detection" content="telephone=no" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
@@ -14,20 +14,19 @@
     <link rel="manifest" href="/manifest.json" />
 
     <!-- SEO Primary Meta Tags -->
-    <title>TaskTodo – Quản Lý Công Việc Cá Nhân Trực Quan | NexusPulse</title>
-    <meta name="title" content="TaskTodo – Quản Lý Công Việc Cá Nhân Trực Quan | NexusPulse" />
-    <meta name="description" content="Ứng dụng TaskTodo quản lý công việc cá nhân tối giản, trực quan. Hỗ trợ checklist, phân loại 3 trạng thái (Tất cả, Đang làm, Đã xong), dán nhanh đa cấp và lưu offline an toàn." />
-    <meta name="keywords" content="tasktodo, task todo, quản lý công việc, quản lý công việc cá nhân, ứng dụng quản lý công việc, todo list, todo list online, nexuspulse tasks" />
+    <title>Stride Tasks — Quản lý công việc offline, Pomodoro &amp; ôn tập ngắt quãng</title>
+    <meta name="title" content="Stride Tasks — Quản lý công việc offline, Pomodoro &amp; ôn tập ngắt quãng" />
+    <meta name="description" content="Nhập việc bằng một dòng, tập trung với Pomodoro, ôn lại đúng lúc bằng SM-2. Chạy offline, không cần tài khoản, đồng bộ mã hóa đầu-cuối khi cần." />
     <meta name="author" content="NexusPulse Tech" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href="https://tasks.nexuspulsetech.xyz/" />
 
     <!-- OpenGraph / Facebook / Zalo Social Sharing -->
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="NexusPulse TaskTodo" />
+    <meta property="og:site_name" content="Stride Tasks" />
     <meta property="og:url" content="https://tasks.nexuspulsetech.xyz/" />
-    <meta property="og:title" content="TaskTodo – Quản Lý Công Việc Cá Nhân Trực Quan | NexusPulse" />
-    <meta property="og:description" content="Ứng dụng TaskTodo quản lý công việc cá nhân tối giản, trực quan. Hỗ trợ checklist, phân loại 3 trạng thái thông minh và lưu offline an toàn." />
+    <meta property="og:title" content="Stride Tasks — Quản lý công việc offline, Pomodoro &amp; ôn tập ngắt quãng" />
+    <meta property="og:description" content="Nhập việc bằng một dòng, tập trung với Pomodoro, ôn lại đúng lúc bằng SM-2. Chạy offline, không cần tài khoản, đồng bộ mã hóa đầu-cuối khi cần." />
     <meta property="og:image" content="https://tasks.nexuspulsetech.xyz/og-image.png" />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
@@ -38,8 +37,8 @@
     <!-- Twitter / X Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://tasks.nexuspulsetech.xyz/" />
-    <meta name="twitter:title" content="TaskTodo – Quản Lý Công Việc Cá Nhân Trực Quan | NexusPulse" />
-    <meta name="twitter:description" content="Ứng dụng TaskTodo quản lý công việc cá nhân tối giản, trực quan. Hỗ trợ checklist, phân loại 3 trạng thái thông minh và lưu offline an toàn." />
+    <meta name="twitter:title" content="Stride Tasks — Quản lý công việc offline, Pomodoro &amp; ôn tập ngắt quãng" />
+    <meta name="twitter:description" content="Nhập việc bằng một dòng, tập trung với Pomodoro, ôn lại đúng lúc bằng SM-2. Chạy offline, không cần tài khoản, đồng bộ mã hóa đầu-cuối khi cần." />
     <meta name="twitter:image" content="https://tasks.nexuspulsetech.xyz/og-image.png" />
     <meta name="twitter:image:alt" content="Stride Tasks – the power of execution | NexusPulse Ecosystem" />
 
@@ -47,27 +46,43 @@
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "NexusPulse TaskTodo",
-      "alternateName": ["TaskTodo", "Quản Lý Công Việc Cá Nhân", "NexusPulse Tasks"],
+      "@type": [
+        "SoftwareApplication",
+        "WebApplication"
+      ],
+      "name": "Stride Tasks",
+      "alternateName": [
+        "Stride",
+        "Stride Tasks by NexusPulse"
+      ],
       "url": "https://tasks.nexuspulsetech.xyz/",
       "image": "https://tasks.nexuspulsetech.xyz/og-image.png",
       "applicationCategory": "ProductivityApplication",
-      "operatingSystem": "All",
-      "inLanguage": "vi",
-      "description": "Ứng dụng TaskTodo quản lý công việc cá nhân tối giản, trực quan. Hỗ trợ checklist, phân loại 3 trạng thái (Tất cả, Đang làm, Đã xong), dán nhanh đa cấp và lưu offline an toàn.",
+      "operatingSystem": "Web, Windows, Android, iOS (PWA)",
+      "inLanguage": [
+        "vi",
+        "en"
+      ],
+      "description": "Nhập việc bằng một dòng, tập trung với Pomodoro, ôn lại đúng lúc bằng SM-2. Chạy offline, không cần tài khoản, đồng bộ mã hóa đầu-cuối khi cần.",
       "browserRequirements": "Requires JavaScript. Requires HTML5.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "NexusPulse",
+        "url": "https://nexuspulsetech.xyz/"
+      },
       "offers": {
         "@type": "Offer",
         "price": "0",
-        "priceCurrency": "VND"
+        "priceCurrency": "USD",
+        "description": "Bản miễn phí dùng mãi mãi"
       },
       "featureList": [
-        "Quản lý dự án và công việc cá nhân trực quan",
-        "Task todo với bộ lọc 3 trạng thái chuẩn hoá: Tất cả, Đang làm, Đã xong",
-        "Dán nhanh danh sách công việc thông minh (Quick Paste) tạo việc con đệ quy",
-        "Lưu trữ dữ liệu offline bảo mật trực tiếp trên trình duyệt",
-        "Hỗ trợ ghim công việc ưu tiên và chế độ tập trung"
+        "Nhập nhanh một dòng bằng ngôn ngữ tự nhiên (~45m @daily !pin)",
+        "Việc con nhiều cấp, Kanban 4 cột",
+        "Pomodoro kèm nhật ký Deep Work",
+        "Ôn tập ngắt quãng SM-2 cho công việc",
+        "Chạy offline, không cần tài khoản",
+        "Đồng bộ đa thiết bị mã hóa đầu-cuối (PRO)"
       ]
     }
     </script>
@@ -90,14 +105,15 @@
       <!-- Semantic crawlable HTML shell for Search Engines before React mounts -->
       <noscript>
         <main style="padding: 2rem; font-family: sans-serif; max-width: 800px; margin: 0 auto; line-height: 1.6;">
-          <h1>TaskTodo – Ứng Dụng Quản Lý Công Việc Cá Nhân Trực Quan</h1>
-          <p>Ứng dụng TaskTodo tối giản, trực quan giúp bạn quản lý dự án, theo dõi tiến độ công việc và lên kế hoạch hàng ngày hiệu quả.</p>
-          <h2>Tính năng chính của TaskTodo:</h2>
+          <h1>Stride Tasks — Quản lý công việc offline, Pomodoro &amp; ôn tập ngắt quãng</h1>
+          <p>Lên kế hoạch bằng một dòng, tập trung với Pomodoro, ôn lại đúng lúc bằng thuật toán SM-2. Dữ liệu nằm trên máy bạn, không cần tài khoản.</p>
           <ul>
-            <li><strong>Quản lý công việc 3 trạng thái:</strong> Tất cả (All), Đang làm (In Progress), Đã xong (Done).</li>
-            <li><strong>Dán nhanh thông minh (Quick Paste):</strong> Tự động phân tích danh sách và tạo cây việc con nhiều cấp độ.</li>
-            <li><strong>Lưu trữ offline an toàn:</strong> Dữ liệu công việc của bạn được lưu bảo mật ngay trên thiết bị.</li>
+            <li><strong>Nhập nhanh:</strong> <code>Ôn chương 3 ~45m @daily !pin</code> tạo việc có thời lượng, lặp lại và ghim.</li>
+            <li><strong>Tập trung:</strong> Pomodoro, nhật ký Deep Work, Kanban 4 cột, việc con nhiều cấp.</li>
+            <li><strong>Ghi nhớ:</strong> ôn tập ngắt quãng SM-2 cho công việc và chủ đề học.</li>
+            <li><strong>Riêng tư:</strong> chạy offline; đồng bộ đa thiết bị mã hóa đầu-cuối (PRO).</li>
           </ul>
+          <p lang="en">Offline-first task manager with Pomodoro and spaced repetition. No account needed. Enable JavaScript to open the app.</p>
         </main>
       </noscript>
     </div>

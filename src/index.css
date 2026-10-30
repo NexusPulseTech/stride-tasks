@@ -8,6 +8,15 @@
     color-scheme: light;
   }
 
+  /* iOS Safari tự phóng to khi focus ô nhập có chữ < 16px — giữ 16px thay cho việc khóa zoom (WCAG 1.4.4) */
+  @supports (-webkit-touch-callout: none) {
+    input,
+    textarea,
+    select {
+      font-size: max(16px, 1em);
+    }
+  }
+
   html.dark {
     color-scheme: dark;
   }
