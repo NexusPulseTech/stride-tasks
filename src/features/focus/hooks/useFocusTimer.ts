@@ -14,13 +14,15 @@ export interface FocusTimerSession {
   remainingSeconds: number;
   isRunning: boolean;
   targetEndTimeMs: number | null;
-  /** Định danh của chu kỳ đếm hiện tại — đổi mỗi khi bắt đầu lại / đổi preset */
+  /** Định danh của chu kỳ đếm hiện tại, đổi mỗi khi bắt đầu lại / đổi preset */
   startedAtMs: number;
-  /** true khi số phút của chu kỳ này đã được ghi — chặn ghi trùng */
+  /** true khi số phút của chu kỳ này đã được ghi, chặn ghi trùng */
   logged?: boolean;
 }
 
 const FOCUS_STORAGE_KEY = 'STRIDE_FOCUS_TIMER_V1';
+// Tiêu đề gốc trong index.html (phục vụ SEO); chỉ thay tiêu đề tab khi đồng hồ đang chạy
+const BASE_DOCUMENT_TITLE = typeof document !== 'undefined' ? document.title : 'Stride Tasks';
 
 export const FOCUS_PRESET_DURATIONS: Record<FocusPresetMode, { seconds: number; minutes: number; labelVi: string; labelEn: string }> = {
   'work-15': { seconds: 15 * 60, minutes: 15, labelVi: '15p Sprint', labelEn: '15m Sprint' },
@@ -35,7 +37,7 @@ export interface FocusLogEvent {
   minutes: number;
   /** true khi chạy hết chu kỳ, false khi dừng sớm / đổi preset giữa chừng */
   completedSession: boolean;
-  /** startedAtMs của chu kỳ — dùng để chỉ tính 1 lượt dùng thử cho mỗi chu kỳ */
+  /** startedAtMs của chu kỳ, dùng để chỉ tính 1 lượt dùng thử cho mỗi chu kỳ */
   sessionId: number;
 }
 
@@ -83,7 +85,7 @@ export function useFocusTimer({ isMuted, showToast, onLogFocusedMinutes }: UseFo
     const stored = readStoredSession();
     if (!stored) return null;
     // Phiên đã hết giờ trong lúc đóng tab: giữ nguyên trạng thái "đang chạy, logged=false" để effect bên dưới
-    // ghi bù đúng 1 lần rồi lưu lại — không đánh dấu logged ở đây (nếu không sẽ mất phút khi reload).
+    // ghi bù đúng 1 lần rồi lưu lại, không đánh dấu logged ở đây (nếu không sẽ mất phút khi reload).
     if (stored.isRunning && stored.targetEndTimeMs) {
       return { ...stored, remainingSeconds: remainingOf(stored) };
     }
@@ -164,14 +166,14 @@ export function useFocusTimer({ isMuted, showToast, onLogFocusedMinutes }: UseFo
 
   // Đồng bộ đồng hồ đếm ngược lên tiêu đề tab trình duyệt
   useEffect(() => {
-    const defaultTitle = 'Stride Tasks — Quản lý Công việc & Anki SRS';
+    const defaultTitle = BASE_DOCUMENT_TITLE;
     if (!session || !session.isRunning) {
       document.title = defaultTitle;
       return;
     }
     const mins = String(Math.floor(session.remainingSeconds / 60)).padStart(2, '0');
     const secs = String(session.remainingSeconds % 60).padStart(2, '0');
-    document.title = `⏳ ${mins}:${secs} · ${session.taskTitle.slice(0, 24)} — Stride Tasks`;
+    document.title = `⏳ ${mins}:${secs} · ${session.taskTitle.slice(0, 24)} | Stride Tasks`;
     return () => {
       document.title = defaultTitle;
     };
