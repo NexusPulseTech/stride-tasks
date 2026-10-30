@@ -355,7 +355,7 @@ export function useProLicense({ notify }: UseProLicenseOptions = {}) {
           orderCode: order.code,
           claimHash: await sha256Hex(order.claimSecret as string),
           tier: order.region,
-          provider: order.region === 'vn-ppp' ? 'vietqr' : 'lemonsqueezy',
+          provider: PRICING_TIERS[order.region].channel,
         }),
         cache: 'no-store',
         signal: AbortSignal.timeout(CLAIM_REQUEST_TIMEOUT_MS),

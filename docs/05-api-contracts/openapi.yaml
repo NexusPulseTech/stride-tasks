@@ -278,6 +278,47 @@ paths:
                 properties:
                   error: { const: invalid_signature }
 
+  /webhooks/polar:
+    post:
+      tags: [webhooks]
+      operationId: polarWebhook
+      summary: order.paid / order.refunded từ Polar (Merchant of Record quốc tế, ADR-0006)
+      description: |
+        Xác thực theo Standard Webhooks: HMAC-SHA256 trên "{webhook-id}.{webhook-timestamp}.{raw body}",
+        khóa là phần base64 sau tiền tố whsec_ (secret tạo từ 08/09/2026); thử thêm khóa UTF-8 của cả chuỗi
+        cho secret cũ. Từ chối nếu lệch thời gian quá 5 phút. Idempotent theo webhook-id.
+        Liên kết đơn qua data.metadata.reference_id (app mở Checkout Link kèm ?reference_id=<mã đơn>).
+      security:
+        - standardWebhooks: []
+      parameters:
+        - { name: webhook-id, in: header, required: true, schema: { type: string } }
+        - { name: webhook-timestamp, in: header, required: true, schema: { type: string, description: Unix giây } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PolarWebhookEvent' }
+      responses:
+        '202':
+          description: Đã xử lý, bỏ qua sự kiện khác, hoặc trùng lặp
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  duplicate: { type: boolean }
+                  revoked: { type: boolean }
+                  ignored: { type: string }
+        '403':
+          description: Chữ ký sai, quá hạn thời gian, hoặc Worker chưa cấu hình POLAR_WEBHOOK_SECRET (fail-closed)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: { const: invalid_signature }
+
 components:
   securitySchemes:
     licenseBearer:
@@ -290,6 +331,11 @@ components:
       in: header
       name: Authorization
       description: 'Giá trị "Apikey <SEPAY_API_KEY>", so sánh thời gian hằng.'
+    standardWebhooks:
+      type: apiKey
+      in: header
+      name: webhook-signature
+      description: 'Danh sách chữ ký cách nhau bởi dấu cách, dạng v1,<base64 HMAC-SHA256> (Standard Webhooks).'
     lemonSqueezySignature:
       type: apiKey
       in: header
@@ -417,6 +463,24 @@ components:
         code: { type: [string, 'null'] }
         content: { type: string }
         description: { type: string }
+    PolarWebhookEvent:
+      type: object
+      description: 'Chỉ liệt kê trường Worker dùng (nguồn polarsource/polar, server/polar/order/schemas.py).'
+      required: [type, data]
+      properties:
+        type: { type: string, examples: [order.paid, order.refunded] }
+        timestamp: { type: string, format: date-time }
+        data:
+          type: object
+          properties:
+            id: { type: string }
+            status: { type: string }
+            paid: { type: boolean }
+            total_amount: { type: integer, description: 'cent, sau giảm giá và thuế' }
+            refunded_amount: { type: integer, description: 'cent' }
+            currency: { type: string }
+            metadata: { type: object, additionalProperties: true, description: 'Có reference_id từ Checkout Link' }
+            customer: { type: object, properties: { email: { type: string } } }
     WebhookFailure:
       type: object
       required: [success, error]

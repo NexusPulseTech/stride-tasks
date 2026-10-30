@@ -7,7 +7,7 @@
  */
 
 export type PricingRegionId = 'vn-ppp' | 'emerging-ppp' | 'global-us';
-export type CheckoutChannel = 'vietqr' | 'lemonsqueezy';
+export type CheckoutChannel = 'vietqr' | 'lemonsqueezy' | 'polar';
 
 export interface PricingTier {
   id: PricingRegionId;
@@ -37,12 +37,21 @@ export const COMMERCE_CONFIG = {
   licenseClaimUrl: readEnv(import.meta.env.VITE_LICENSE_CLAIM_URL).replace(/\/+$/, ''),
   lemonSqueezyCheckoutUrl: readEnv(import.meta.env.VITE_LEMONSQUEEZY_CHECKOUT_URL),
   lemonSqueezyCheckoutUrlEmerging: readEnv(import.meta.env.VITE_LEMONSQUEEZY_CHECKOUT_URL_EMERGING),
+  /** Checkout Link của Polar (ADR-0006). Có giá trị thì ưu tiên hơn LemonSqueezy */
+  polarCheckoutUrl: readEnv(import.meta.env.VITE_POLAR_CHECKOUT_URL),
+  polarCheckoutUrlEmerging: readEnv(import.meta.env.VITE_POLAR_CHECKOUT_URL_EMERGING),
   supportEmail: readEnv(import.meta.env.VITE_SUPPORT_EMAIL) || 'support@nexuspulsetech.xyz',
   /** URL Worker đồng bộ mã hóa đầu-cuối (cloudflare-worker/). Rỗng → tính năng Sync bị ẩn */
   syncApiUrl: readEnv(import.meta.env.VITE_SYNC_API_URL).replace(/\/+$/, ''),
   vnPriceVnd: 149000,
   appOrigin: 'https://tasks.nexuspulsetech.xyz',
 } as const;
+
+/** Kênh thẻ quốc tế: Polar nếu đã cấu hình, nếu không dùng LemonSqueezy cũ */
+function cardChannel(polarUrl: string, lemonUrl: string): Pick<PricingTier, 'channel' | 'checkoutUrl' | 'isAvailable' | 'keyPrefix'> {
+  if (polarUrl) return { channel: 'polar', checkoutUrl: polarUrl, isAvailable: true, keyPrefix: 'PL' };
+  return { channel: 'lemonsqueezy', checkoutUrl: lemonUrl, isAvailable: lemonUrl.length > 0, keyPrefix: 'LS' };
+}
 
 // Giá Thành viên sáng lập cho 100 bản quyền đầu (docs/02-growth/marketing-kit/07-founding-offer-and-waitlist.md).
 // Hết 100 suất: 199.000₫ / $14.95 / $29, đổi cùng lúc với PRICE_VND của Worker và giá trên cổng thanh toán.
@@ -62,20 +71,14 @@ export const PRICING_TIERS: Record<PricingRegionId, PricingTier> = {
     flag: '🌏',
     priceUsd: 9.95,
     priceDisplay: '$9.95',
-    channel: 'lemonsqueezy',
-    checkoutUrl: COMMERCE_CONFIG.lemonSqueezyCheckoutUrlEmerging,
-    isAvailable: COMMERCE_CONFIG.lemonSqueezyCheckoutUrlEmerging.length > 0,
-    keyPrefix: 'LS',
+    ...cardChannel(COMMERCE_CONFIG.polarCheckoutUrlEmerging, COMMERCE_CONFIG.lemonSqueezyCheckoutUrlEmerging),
   },
   'global-us': {
     id: 'global-us',
     flag: '🌎',
     priceUsd: 19,
     priceDisplay: '$19',
-    channel: 'lemonsqueezy',
-    checkoutUrl: COMMERCE_CONFIG.lemonSqueezyCheckoutUrl,
-    isAvailable: COMMERCE_CONFIG.lemonSqueezyCheckoutUrl.length > 0,
-    keyPrefix: 'LS',
+    ...cardChannel(COMMERCE_CONFIG.polarCheckoutUrl, COMMERCE_CONFIG.lemonSqueezyCheckoutUrl),
   },
 };
 
@@ -121,6 +124,21 @@ export function buildVietQrImageUrl(template: string, amountVnd: number, orderCo
 
 export function isDynamicVietQr(template: string): boolean {
   return template.includes('{orderCode}');
+}
+
+/** Polar chép reference_id của Checkout Link vào metadata đơn, Worker dùng để nối với đơn chờ */
+export function buildPolarCheckoutUrl(baseUrl: string, orderCode: string): string {
+  try {
+    const url = new URL(baseUrl);
+    url.searchParams.set('reference_id', orderCode);
+    return url.toString();
+  } catch {
+    return baseUrl;
+  }
+}
+
+export function buildCardCheckoutUrl(tier: PricingTier, orderCode: string): string {
+  return tier.channel === 'polar' ? buildPolarCheckoutUrl(tier.checkoutUrl, orderCode) : buildLemonSqueezyCheckoutUrl(tier.checkoutUrl, orderCode);
 }
 
 /** Gắn mã đơn vào checkout LemonSqueezy qua custom data để Worker nhận lại trong webhook */

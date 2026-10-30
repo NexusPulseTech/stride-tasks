@@ -23,7 +23,7 @@ import {
   COMMERCE_CONFIG,
   PricingRegionId,
   PricingTier,
-  buildLemonSqueezyCheckoutUrl,
+  buildCardCheckoutUrl,
   buildVietQrImageUrl,
   isDynamicVietQr,
 } from '../../../config/commerceConfig';
@@ -147,7 +147,7 @@ export function StoreCommercialModal({
 
   const handleLemonSqueezyCheckout = (tier: PricingTier) => {
     const order = orderForTier(tier) || pro.startOrder(tier.id);
-    window.open(buildLemonSqueezyCheckoutUrl(tier.checkoutUrl, order.code), '_blank', 'noopener,noreferrer');
+    window.open(buildCardCheckoutUrl(tier, order.code), '_blank', 'noopener,noreferrer');
   };
 
   const renderVietQr = (tier: PricingTier) => {

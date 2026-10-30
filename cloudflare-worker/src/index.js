@@ -69,6 +69,7 @@ export default {
       if (request.method === 'OPTIONS') return withCors(request, env, new Response(null, { status: 204 }));
       if (request.method === 'POST' && url.pathname === '/webhook/sepay') return await handleSepay(request, env);
       if (request.method === 'POST' && url.pathname === '/webhook/lemonsqueezy') return await handleLemonSqueezy(request, env);
+      if (request.method === 'POST' && url.pathname === '/webhooks/polar') return await handlePolar(request, env);
       if (request.method === 'POST' && url.pathname === '/v1/orders') return withCors(request, env, await handleCreateOrder(request, env));
       if (request.method === 'GET' && url.pathname === '/claim') return withCors(request, env, await handleClaim(request, url, env));
       const vaultMatch = url.pathname.match(/^\/sync\/v1\/vaults\/([0-9a-f]{64})$/);
@@ -185,6 +186,105 @@ async function handleLemonSqueezy(request, env) {
     await sendActivationEmail(env, attrs.user_email, token).catch((err) => console.error('email failed', err));
   }
   return json({ ok: true });
+}
+
+// ─── Polar (Merchant of Record quốc tế, ADR-0006) ────────────────────────────────────────────
+// Chuẩn Standard Webhooks: phản hồi 202 nhanh (Polar chờ tối đa 10 giây, thử lại 10 lần, tắt endpoint sau 10 lỗi liên tiếp)
+const WEBHOOK_TOLERANCE_SECONDS = 5 * 60;
+const WEBHOOK_EVENT_TTL_SECONDS = 60 * 60 * 24 * 30;
+
+async function handlePolar(request, env) {
+  const raw = await request.text();
+  const webhookId = request.headers.get('webhook-id') || '';
+  const verified = await verifyStandardWebhook(
+    env.POLAR_WEBHOOK_SECRET,
+    webhookId,
+    request.headers.get('webhook-timestamp') || '',
+    raw,
+    request.headers.get('webhook-signature') || ''
+  );
+  if (!verified) return json({ error: 'invalid_signature' }, 403);
+
+  const seenKey = `polarevt:${webhookId}`;
+  if (await env.LICENSES.get(seenKey)) return json({ ok: true, duplicate: true }, 202);
+
+  const event = JSON.parse(raw);
+  const order = event?.data || {};
+  const orderId = String(order.id || '');
+  let result;
+  if (event?.type === 'order.paid' && orderId) {
+    result = await fulfillPolarOrder(env, order);
+  } else if (event?.type === 'order.refunded' && orderId) {
+    // Chỉ thu hồi khi hoàn toàn bộ; hoàn một phần vẫn giữ bản quyền
+    const total = Number(order.total_amount || 0);
+    const refunded = Number(order.refunded_amount || 0);
+    if (order.status === 'refunded' || (total > 0 && refunded >= total)) {
+      await revokeLicense(env, `PL-${orderId}`, 'refund');
+      result = { ok: true, revoked: true };
+    } else {
+      result = { ok: true, ignored: 'partial_refund' };
+    }
+  } else {
+    result = { ok: true, ignored: String(event?.type || 'unknown') };
+  }
+  await env.LICENSES.put(seenKey, '1', { expirationTtl: WEBHOOK_EVENT_TTL_SECONDS });
+  return json(result, 202);
+}
+
+async function fulfillPolarOrder(env, order) {
+  const orderId = String(order.id);
+  // App mở Checkout Link kèm ?reference_id=<mã đơn>, Polar chép vào metadata của phiên và đơn
+  const ref = String(order.metadata?.reference_id || '').toUpperCase();
+  const recordKey = ORDER_EXACT.test(ref) ? `order:${ref}` : `plorder:${orderId}`;
+  if (await env.LICENSES.get(recordKey)) return { ok: true, duplicate: true };
+  const pending = ORDER_EXACT.test(ref) ? await env.LICENSES.get(`pending:${ref}`, 'json') : null;
+  const isUsd = String(order.currency || 'usd').toLowerCase() === 'usd';
+  const token = await issueToken(env, {
+    licenseKeyOrAddonId: `PL-${orderId}`,
+    pricePaidUsd: isUsd ? Math.round(Number(order.total_amount || 0)) / 100 : 0,
+    regionLabel: pending?.tier === 'emerging-ppp' ? 'Emerging PPP (Polar)' : 'Global (Polar)',
+  });
+  await env.LICENSES.put(
+    recordKey,
+    JSON.stringify({ token, channel: 'polar', orderId, claimHash: pending?.claimHash || null, createdAt: new Date().toISOString() }),
+    { expirationTtl: RECORD_TTL_SECONDS }
+  );
+  const email = order.customer?.email;
+  if (env.RESEND_API_KEY && email) {
+    await sendActivationEmail(env, email, token).catch((err) => console.error('email failed', err));
+  }
+  return { ok: true };
+}
+
+/**
+ * Standard Webhooks: HMAC-SHA256 trên "{id}.{timestamp}.{body}", header dạng "v1,<base64> v1,<base64>".
+ * Secret Polar tạo từ 08/09/2026: khóa = base64-decode phần sau "whsec_"; secret cũ: khóa = UTF-8 của cả chuỗi.
+ */
+async function verifyStandardWebhook(secret, id, timestamp, body, signatureHeader) {
+  if (!secret || !id || !timestamp || !signatureHeader) return false;
+  const ts = Number(timestamp);
+  if (!Number.isFinite(ts) || Math.abs(Date.now() / 1000 - ts) > WEBHOOK_TOLERANCE_SECONDS) return false;
+  const signed = new TextEncoder().encode(`${id}.${timestamp}.${body}`);
+  const keys = [];
+  if (secret.startsWith('whsec_')) {
+    try {
+      keys.push(base64ToBytes(secret.slice('whsec_'.length)));
+    } catch {
+      // không phải base64 hợp lệ, thử cách cũ bên dưới
+    }
+  }
+  keys.push(new TextEncoder().encode(secret));
+  const provided = signatureHeader
+    .split(' ')
+    .map((part) => part.split(','))
+    .filter(([version, sig]) => version === 'v1' && sig)
+    .map(([, sig]) => sig);
+  for (const keyBytes of keys) {
+    const key = await crypto.subtle.importKey('raw', keyBytes, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+    const expected = bytesToBase64(new Uint8Array(await crypto.subtle.sign('HMAC', key, signed)));
+    if (provided.some((sig) => timingSafeEqual(sig, expected))) return true;
+  }
+  return false;
 }
 
 // ─── Đăng ký đơn chờ thanh toán ──────────────────────────────────────────────────────────────
@@ -478,6 +578,12 @@ function base64ToBytes(b64) {
   const out = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
   return out;
+}
+
+function bytesToBase64(bytes) {
+  let bin = '';
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin);
 }
 
 function bytesToBase64Url(bytes) {
