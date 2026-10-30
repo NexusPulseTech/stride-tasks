@@ -1,8 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://tasks.nexuspulsetech.xyz/</loc>
     <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tasks.nexuspulsetech.xyz/en/</loc>
+    <lastmod>2026-10-30</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tasks.nexuspulsetech.xyz/en/" />
+    <xhtml:link rel="alternate" hreflang="vi" href="https://tasks.nexuspulsetech.xyz/vi/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tasks.nexuspulsetech.xyz/en/" />
+  </url>
+  <url>
+    <loc>https://tasks.nexuspulsetech.xyz/vi/</loc>
+    <lastmod>2026-10-30</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tasks.nexuspulsetech.xyz/en/" />
+    <xhtml:link rel="alternate" hreflang="vi" href="https://tasks.nexuspulsetech.xyz/vi/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tasks.nexuspulsetech.xyz/en/" />
   </url>
   <url>
     <loc>https://tasks.nexuspulsetech.xyz/privacy.html</loc>

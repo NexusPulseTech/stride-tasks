@@ -26,10 +26,15 @@ export default defineConfig(() => {
             '**/google*.html',
             '**/stride-tasks-icon.svg',
             '**/screenshots/**',
+            // Trang marketing tĩnh: không đưa vào precache của app, luôn lấy bản mới từ mạng
+            '**/en/**',
+            '**/vi/**',
+            '**/site.css',
           ],
           navigateFallback: 'index.html',
           // Các trang HTML tĩnh độc lập phải được phục vụ đúng file, không bị thay bằng index.html
-          navigateFallbackDenylist: [/\/[^/?]+\.html$/, /\/sitemap\.xml$/, /\/robots\.txt$/],
+          // Trang tĩnh độc lập (kể cả /en/, /vi/) phải được phục vụ đúng file, không bị thay bằng index.html
+          navigateFallbackDenylist: [/\/[^/?]+\.html$/, /\/sitemap\.xml$/, /\/robots\.txt$/, /^\/(en|vi)(\/|$)/],
           cleanupOutdatedCaches: true,
           clientsClaim: true,
           skipWaiting: true,
