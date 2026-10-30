@@ -52,7 +52,7 @@ Trong lúc chờ: **ghi sổ mọi giao dịch** (xem [04-payments-and-merchant-
 
 ## 7. Giấy phép mã nguồn
 
-Repo đang **public** với giấy phép **MIT** → người khác được phép sao chép, gỡ paywall và bán lại hợp pháp. Đây là quyết định chiến lược cần chủ sản phẩm chọn, xem [../04-architecture/adr/0008-source-license-strategy.md](../04-architecture/adr/0008-source-license-strategy.md).
+Repo **public**. Từ 2026-10-31 mã mới theo **FSL-1.1-MIT**: cấm dùng để làm sản phẩm hoặc dịch vụ thương mại cạnh tranh; mỗi phiên bản thành MIT sau 2 năm. Các bản trước ngày đó (gồm v3.1.0) vẫn là MIT, nên vẫn có thể bị sao chép hợp pháp. Chi tiết: [../04-architecture/adr/0008-source-license-strategy.md](../04-architecture/adr/0008-source-license-strategy.md).
 
 ## Nguồn (xác minh 2026-10-30)
 

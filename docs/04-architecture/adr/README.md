@@ -18,7 +18,7 @@
 | [0005](./0005-modular-monolith-first.md) | Thiết kế microservices-ready, tách dịch vụ khi đạt điều kiện | Proposed |
 | [0006](./0006-polar-as-international-mor.md) | Polar thay LemonSqueezy làm MoR quốc tế | Proposed |
 | [0007](./0007-static-marketing-site-same-origin.md) | Trang marketing tĩnh (Astro) cùng origin với app | Proposed |
-| [0008](./0008-source-license-strategy.md) | Chiến lược giấy phép mã nguồn (MIT hay thay đổi) | Proposed, **cần founder quyết** |
+| [0008](./0008-source-license-strategy.md) | Chiến lược giấy phép mã nguồn (MIT hay thay đổi) | Accepted 2026-10-31: `FSL-1.1-MIT` |
 | [0009](./0009-international-first-market-focus.md) | Thị trường quốc tế là mục tiêu chính | Accepted |
 | [0010](./0010-allow-ai-search-and-assistant-crawlers.md) | Cho phép bot AI tìm kiếm và trợ lý đọc site | Accepted (chờ thực thi) |
 

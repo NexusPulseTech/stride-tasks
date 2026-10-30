@@ -54,7 +54,7 @@
 | Objection | Answer |
 | :--- | :--- |
 | "There are free apps already" | The free version is free forever. PRO is for sync and unlimited projects, and it's a one-time price lower than one year of most subscriptions. |
-| "What if you stop working on it?" | Your data stays on your device and exports to JSON anytime. The app runs offline without our server. The code is open source. |
+| "What if you stop working on it?" | Your data stays on your device and exports to JSON anytime. The app runs offline without our server. The source code is public, and each version becomes MIT-licensed two years after release. |
 | "Is my data safe?" | Everything is encrypted on your device before sync. Our server only stores ciphertext. You can read the code. |
 | "Not sure it fits me" | 14-day refund, no questions asked. |
 

@@ -6,7 +6,7 @@
 | Ưu tiên | P2 |
 | Ước lượng | 0,5 ngày (sau khi founder chọn) |
 | Phụ thuộc | Founder quyết định ADR-0008 |
-| Trạng thái | ☐ Todo |
+| Trạng thái | ☑ Xong (2026-10-31) |
 
 ## Mục tiêu
 Giấy phép cho các phiên bản tiếp theo phản ánh chiến lược kinh doanh (MIT / AGPL-3.0 / source-available có thời hạn).
@@ -18,4 +18,9 @@ Giấy phép cho các phiên bản tiếp theo phản ánh chiến lược kinh 
 4. ADR-0008 → Accepted.
 
 ## Tiêu chí nghiệm thu
-- [ ] `LICENSE`, README, `package.json` nhất quán; ADR Accepted.
+- [x] `LICENSE.md` (FSL-1.1-MIT), README, `package.json`, OpenAPI nhất quán; ADR-0008 Accepted.
+
+## Kết quả (2026-10-31)
+- Founder chọn FSL-1.1-MIT, giữ repo public. `LICENSE` (MIT) thay bằng `LICENSE.md` từ văn bản gốc của fsl.software.
+- Trang đích EN đổi "Open source" thành "Source available"; tài liệu marketing bỏ chữ "open source" và bỏ OpenAlternative.
+- Release notes: ghi khi phát hành v3.2.0.

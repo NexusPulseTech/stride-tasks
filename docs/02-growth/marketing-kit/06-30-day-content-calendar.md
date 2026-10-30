@@ -9,7 +9,7 @@
 | Ngày | X (EN) | Reddit / HN / IH | Video (EN) | Khác |
 | :---: | :--- | :--- | :--- | :--- |
 | 1 | Tạo tài khoản, bio, bài 1 | Tạo tài khoản Reddit, HN, PH, IH; bình luận góp ý 3 bài | | Đăng ký Polar, SePay |
-| 2 | Bài 2 | 2 bình luận hữu ích | | AlternativeTo, SaaSHub, OpenAlternative (C07, [08-directory-listings.md](./08-directory-listings.md)) |
+| 2 | Bài 2 | 2 bình luận hữu ích | | AlternativeTo, SaaSHub (C07, [08-directory-listings.md](./08-directory-listings.md)) |
 | 3 | Bài 3 (E2E) | 2 bình luận | E1 (quên kiến thức) | Product Hunt: theo dõi, góp ý sản phẩm khác (không còn trang "coming soon"; lên lịch launch ở C04) |
 | 4 | Bài 5 (cú pháp 1 dòng) | 2 bình luận | | ✅ Topics cho repo GitHub (xong 2026-10-30) |
 | 5 | Bài 6 (không tài khoản) | r/SideProject | E3 (airplane mode) | |
@@ -21,7 +21,7 @@
 | Ngày | X (EN) | Reddit / HN / IH | Video (EN) | Khác |
 | :---: | :--- | :--- | :--- | :--- |
 | 8 | Thread 1 (E2E sync) | **Show HN** (sáng giờ Mỹ) | | Trả lời mọi bình luận cả ngày |
-| 9 | Bài 13 (open source) | Trả lời tiếp HN | E2 (gõ 1 dòng) | 3 thư bài tổng hợp |
+| 9 | Bài 13 (mã nguồn công khai) | Trả lời tiếp HN | E2 (gõ 1 dòng) | 3 thư bài tổng hợp |
 | 10 | Bài 9 (Lighthouse) | Indie Hackers post | | 3 thư bài tổng hợp |
 | 11 | Bài 11 (SRS) | 2 bình luận | E4 (kế hoạch ôn thi) | Phỏng vấn 2 người dùng |
 | 12 | Thread 2 (không tài khoản) | r/GetStudying (nếu luật cho phép) | | 4 thư bài tổng hợp |

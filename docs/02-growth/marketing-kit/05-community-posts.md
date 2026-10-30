@@ -71,7 +71,7 @@ How it works:
 
 Limitations: no native mobile apps yet (it's a PWA), reminders when the app is closed are limited by the web platform, and conflict resolution is last-writer-wins.
 
-The code is open source. I'd really like feedback on the sync design and on the first-run experience.
+The source code is public on GitHub. I'd really like feedback on the sync design and on the first-run experience.
 ```
 
 ## 4. Indie Hackers

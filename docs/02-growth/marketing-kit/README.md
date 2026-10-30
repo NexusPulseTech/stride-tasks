@@ -11,7 +11,7 @@
 | **X** (tiếng Anh, build in public) | P1 | Cộng đồng indie/dev quốc tế; nền cho Product Hunt và Show HN | B | 1 bài/ngày | Follower, lượt bấm link |
 | **Reddit** (tên thật) | P1 | Góp ý hữu ích ở r/productivity, r/GetStudying, r/Anki, r/selfhosted; tự giới thiệu ở r/SideProject | A, B | Bình luận hằng ngày, 1 bài/tuần | Truy cập nguồn `reddit` |
 | **Hacker News / Product Hunt / Indie Hackers** | P1 | Ngày ra mắt lớn, backlink, người dùng kỹ thuật | B | Theo lịch launch | Truy cập theo UTM |
-| **Thư mục phần mềm** (AlternativeTo, SaaSHub, OpenAlternative) | P1 | Người đang tìm app thay thế; backlink. Nội dung dán sẵn: [08-directory-listings.md](./08-directory-listings.md) | A, B | Một lần, cập nhật khi có tính năng mới | Truy cập nguồn |
+| **Thư mục phần mềm** (AlternativeTo, SaaSHub) | P1 | Người đang tìm app thay thế; backlink. Nội dung dán sẵn: [08-directory-listings.md](./08-directory-listings.md) | A, B | Một lần, cập nhật khi có tính năng mới | Truy cập nguồn |
 | **YouTube Shorts + TikTok** (tiếng Anh) | P2 | Demo ngắn cho người học (study tips) | A | 3 video/tuần | Lượt xem, lượt bấm |
 | Facebook Page, Telegram (tiếng Việt) | P3 | Kênh phụ cho người dùng Việt | C | 1 bài/tuần | Tin nhắn, lượt bấm |
 
@@ -52,7 +52,7 @@ Tạo theo thứ tự, mỗi tài khoản dùng tên hiển thị **Stride Tasks
 | [05-community-posts.md](./05-community-posts.md) | Bài Facebook group, Reddit, Show HN, Indie Hackers, Viblo, Spiderum, Telegram |
 | [06-30-day-content-calendar.md](./06-30-day-content-calendar.md) | Lịch 30 ngày theo từng ngày |
 | [07-founding-offer-and-waitlist.md](./07-founding-offer-and-waitlist.md) | Cơ chế 100 suất Founding, danh sách chờ, thông báo mở bán |
-| [08-directory-listings.md](./08-directory-listings.md) | Nội dung từng ô form cho AlternativeTo, SaaSHub, OpenAlternative, Product Hunt, Indie Hackers |
+| [08-directory-listings.md](./08-directory-listings.md) | Nội dung từng ô form cho AlternativeTo, SaaSHub, Product Hunt, Indie Hackers |
 
 ## Nguồn (xác minh 2026-10-30)
 

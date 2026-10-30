@@ -4,7 +4,7 @@
 
 ## 1. Quan điểm
 
-- Mục tiêu **không** phải chống sao chép tuyệt đối (bất khả thi với app offline + mã nguồn MIT công khai). Mục tiêu là: người trung thực mua dễ dàng; lạm dụng **không tốn tiền hạ tầng của mình**; dịch vụ có chi phí (đồng bộ) được bảo vệ.
+- Mục tiêu **không** phải chống sao chép tuyệt đối (bất khả thi với app offline có mã nguồn công khai). Mục tiêu là: người trung thực mua dễ dàng; lạm dụng **không tốn tiền hạ tầng của mình**; dịch vụ có chi phí (đồng bộ) được bảo vệ.
 - Không dùng DRM xâm phạm (định danh phần cứng, kiểm tra online bắt buộc), đi ngược định vị riêng tư.
 
 ## 2. Biện pháp
@@ -28,4 +28,4 @@
 
 ## 4. Liên quan giấy phép mã nguồn
 
-Với MIT, một bản fork có thể gỡ paywall hợp pháp; dịch vụ đồng bộ của Stride vẫn yêu cầu token hợp lệ. Lựa chọn thay đổi giấy phép: [ADR-0008](../04-architecture/adr/0008-source-license-strategy.md).
+Các bản đến v3.1.0 là MIT nên fork và gỡ paywall là hợp pháp; mã từ 2026-10-31 theo FSL-1.1-MIT cấm dùng cho sản phẩm cạnh tranh, nhưng đó là ràng buộc pháp lý chứ không phải rào kỹ thuật. Dịch vụ đồng bộ của Stride luôn yêu cầu token hợp lệ. Lựa chọn thay đổi giấy phép: [ADR-0008](../04-architecture/adr/0008-source-license-strategy.md).

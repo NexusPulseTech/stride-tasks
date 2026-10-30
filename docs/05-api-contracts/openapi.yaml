@@ -11,8 +11,8 @@ info:
     - Lỗi không lường trước trả 500 {"success": false, "error": "internal_error"}.
     - Mô hình lỗi mục tiêu (RFC 9457) xem docs/05-api-contracts/01-error-model.md.
   license:
-    name: MIT
-    identifier: MIT
+    name: FSL-1.1-MIT
+    identifier: FSL-1.1-MIT
 servers:
   - url: https://tasks-api.nexuspulsetech.xyz
     description: production

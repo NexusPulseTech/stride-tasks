@@ -10,7 +10,7 @@
 | :--- | :--- |
 | Tên | Stride Tasks (luôn ghi đủ hai chữ, tránh trùng các app "Stride" khác) |
 | Website | `https://tasks.nexuspulsetech.xyz/en/?utm_source=<tên-trang>&utm_medium=directory&utm_campaign=listing` |
-| Mã nguồn | `https://github.com/NexusPulseTech/stride-tasks` (giấy phép MIT) |
+| Mã nguồn | `https://github.com/NexusPulseTech/stride-tasks` (giấy phép FSL-1.1-MIT: mã công khai, mỗi phiên bản thành MIT sau 2 năm; không phải "open source") |
 | Email hỗ trợ | `support@nexuspulsetech.xyz` (dùng được để xác minh domain) |
 | Giá | Freemium. Chỉ ghi giá PRO khi PRO đã mở bán thật: $19 trọn đời cho 100 bản quyền sáng lập, sau đó $29 |
 | Nền tảng | Web, PWA cài được trên Windows, macOS, Linux, Android, iOS |
@@ -36,7 +36,7 @@ Quy định chính trong [FAQ chính thức](https://alternativeto.net/faq):
 | Website | link mục 0 với `utm_source=alternativeto` |
 | Source code | link GitHub |
 | Platforms | Online, Progressive Web App, Windows, Mac, Linux, Android, iPhone, iPad |
-| License | Open Source (MIT) |
+| License | Không chọn Open Source vì FSL không phải giấy phép OSI. Nếu form bắt chọn, chọn Proprietary; mô tả đã ghi rõ mã nguồn công khai |
 | Pricing | Freemium |
 | Tags / features | Works offline, No registration required, Privacy focused, End-to-end encryption, Pomodoro, Spaced repetition, Kanban board, Subtasks, Dark mode, Markdown support |
 | Alternative to | 6 app ở mục 0 |
@@ -57,7 +57,7 @@ There is no account and no sign-up. Your data stays in your browser or desktop a
 
 Free features: natural-language quick capture, nested subtasks, a 4-column Kanban board, Pomodoro timer and deep-work log, SM-2 reviews, activity heatmap and streaks, 3 Markdown reports, command palette, light and dark themes, English and Vietnamese.
 
-The optional PRO lifetime license adds end-to-end encrypted sync across devices (AES-256-GCM, the server only stores ciphertext), unlimited projects and unlimited Markdown reports. The source code is public under the MIT license.
+The optional PRO lifetime license adds end-to-end encrypted sync across devices (AES-256-GCM, the server only stores ciphertext), unlimited projects and unlimited Markdown reports. The source code is public on GitHub under the Functional Source License, and each version becomes MIT-licensed two years after release.
 ```
 
 ## 2. SaaSHub
@@ -73,17 +73,9 @@ The optional PRO lifetime license adds end-to-end encrypted sync across devices 
 | Categories | chọn mục gần nhất đang có: Task Management, To-Do List, Pomodoro, Personal Productivity |
 | Competitors | 6 app ở mục 0 |
 
-## 3. OpenAlternative
+## 3. OpenAlternative (không đủ điều kiện)
 
-Thư mục chuyên về bản thay thế mã nguồn mở cho phần mềm thương mại, hợp vì repo dùng MIT. Theo mô tả của bên thứ ba (chưa xác minh trên trang chính chủ), form hỏi: tên người gửi, email, tên dự án, website, link repo, sản phẩm thương mại được thay thế; tiêu chí: mã nguồn mở, còn bảo trì, có tiếng Anh, là lựa chọn thay thế rõ ràng. Kiểm tra điều kiện và chi phí tại `openalternative.co/submit` trước khi gửi.
-
-| Ô | Nội dung |
-| :--- | :--- |
-| Project | `Stride Tasks` |
-| Website | link mục 0 với `utm_source=openalternative` |
-| Repository | link GitHub |
-| Alternative to | Todoist (thêm TickTick nếu form cho chọn nhiều) |
-| Description | 2 đoạn đầu của bản mục 1 |
+Thư mục này chỉ nhận phần mềm mã nguồn mở. Từ 2026-10-31 Stride dùng FSL-1.1-MIT ([ADR-0008](../../04-architecture/adr/0008-source-license-strategy.md)) nên không gửi. Xem lại khi có phiên bản đã chuyển sang MIT.
 
 ## 4. Product Hunt (task C04, khi PRO đã mở bán)
 
@@ -98,7 +90,7 @@ Offline task manager with Pomodoro and spaced repetition
 
 **Description** (dưới 500 ký tự)
 ```
-Stride Tasks is an offline-first task manager for people who study and do deep work. Type one line to create a task, focus with the built-in Pomodoro timer, and get SM-2 spaced-repetition reviews so you keep what you learn. No account, your data stays on your device, and it installs as an app on any platform. Optional PRO adds end-to-end encrypted sync for a one-time payment. Open source under MIT.
+Stride Tasks is an offline-first task manager for people who study and do deep work. Type one line to create a task, focus with the built-in Pomodoro timer, and get SM-2 spaced-repetition reviews so you keep what you learn. No account, your data stays on your device, and it installs as an app on any platform. Optional PRO adds end-to-end encrypted sync for a one-time payment. The source code is public.
 ```
 
 **Maker first comment** (founder sửa theo giọng mình trước khi đăng)
@@ -114,7 +106,7 @@ Stride puts them in one place:
 • No account, works offline, data stays on your device
 • Optional PRO: end-to-end encrypted sync, pay once
 
-The code is open source (MIT), so you can check how the encryption works.
+The source code is public on GitHub, so you can check how the encryption works.
 
 I'd love your feedback: what would make you switch from the to-do app you use today?
 ```
@@ -129,6 +121,5 @@ Chưa xác minh được Indie Hackers hiện còn mục tạo trang sản phẩ
 | :--- | :--- | :--- | :--- | :--- |
 | AlternativeTo | | | | |
 | SaaSHub | | | | |
-| OpenAlternative | | | | |
 | Product Hunt | | | | Theo C04 |
 | Indie Hackers | | | | |

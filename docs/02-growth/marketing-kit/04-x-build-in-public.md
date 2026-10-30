@@ -17,7 +17,7 @@
 10. **Question**: "Students and self-learners: how do you decide what to review today? Genuinely curious, it shapes what I build next."
 11. **Behind the scenes**: "Spaced repetition for tasks works like this in Stride: when a review is due you pick how it went, and the next review moves further out. Simple, but it's the part people love most."
 12. **Metrics** (khi có số thật): "Week 1 numbers: X visitors, Y people created 3+ tasks, Z joined the founding list. Small, but real."
-13. **Open source**: "Stride's code is public on GitHub. If you care about privacy, you shouldn't have to trust me. You can read the sync code yourself."
+13. **Source available**: "Stride's code is public on GitHub. If you care about privacy, you shouldn't have to trust me. You can read the sync code yourself."
 14. **Founding** (khi mở bán): "Founding offer is live: Lifetime PRO for $19 for the first 100 licenses, then $29. 14-day refund, no questions. Thank you to everyone who tested early."
 15. **Thank you**: "First paying customer today. Someone I've never met decided Stride was worth paying for. I'm not going to pretend that doesn't feel amazing."
 
@@ -29,7 +29,7 @@
 4. Keys via HKDF-SHA256, data gzipped then encrypted with AES-256-GCM, vault ID as associated data.
 5. Writes use optimistic concurrency: PUT with the expected version, 409 means another device wrote first, so pull, merge, retry.
 6. Merge is last-writer-wins per task with tombstones (90-day TTL) so deleted items don't come back.
-7. Result: the server only stores ciphertext. Tested end to end on production. Code is open source (link in reply).
+7. Result: the server only stores ciphertext. Tested end to end on production. The code is public (link in reply).
 
 ## Thread 2: "Why my task app has no account"
 

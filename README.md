@@ -2,7 +2,7 @@
 
 <p align="left">
   <img src="https://img.shields.io/badge/Release-v3.1.0-emerald?style=flat-square" alt="Release v3.1.0" />
-  <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License MIT" />
+  <img src="https://img.shields.io/badge/License-FSL--1.1--MIT-blue?style=flat-square" alt="License FSL-1.1-MIT" />
   <img src="https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react&logoColor=black" alt="React 19" />
   <img src="https://img.shields.io/badge/TypeScript-7-3178c6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript 7" />
   <img src="https://img.shields.io/badge/TailwindCSS-v4-38bdf8?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS v4" />
@@ -147,4 +147,6 @@ Tham khảo thêm các tài liệu thiết kế chi tiết:
 
 ## Bản Quyền (License)
 
-Dự án được phân phối theo giấy phép [MIT License](./LICENSE). Hoàn toàn tự do sử dụng cho mục đích cá nhân và thương mại.
+Từ ngày 2026-10-31, mã nguồn phát hành theo [Functional Source License 1.1, MIT Future License](./LICENSE.md) (`FSL-1.1-MIT`): bạn được dùng, sao chép, sửa và học từ mã nguồn cho mọi mục đích, trừ việc dùng nó để làm sản phẩm hoặc dịch vụ thương mại cạnh tranh với Stride Tasks. Mỗi phiên bản tự chuyển sang giấy phép MIT sau 2 năm kể từ ngày phát hành. Các phiên bản và commit trước ngày đó (gồm v3.1.0) đã phát hành theo MIT và giữ nguyên MIT.
+
+Since 2026-10-31 the source code is released under the Functional Source License 1.1, MIT Future License (`FSL-1.1-MIT`). You may use, copy, modify and learn from it for any purpose except a competing commercial product or service. Each version becomes MIT-licensed two years after its release. Versions and commits before that date, including v3.1.0, were released under MIT and stay MIT.

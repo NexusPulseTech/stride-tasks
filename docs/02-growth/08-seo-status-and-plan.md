@@ -43,7 +43,7 @@ Google nói rõ: thu thập dữ liệu mất **"từ vài ngày đến vài tu�
 
 | Cụm | Ví dụ | Trang đích |
 | :--- | :--- | :--- |
-| Offline, riêng tư | offline todo app no account · private task manager open source | `/en/features/offline-private/` |
+| Offline, riêng tư | offline todo app no account · private task manager no account | `/en/features/offline-private/` |
 | Ôn tập ngắt quãng | todo app with spaced repetition · study planner spaced repetition | `/en/features/spaced-repetition/` |
 | Pomodoro + task | pomodoro todo app offline · pomodoro task manager free | `/en/features/pomodoro/` |
 | Thay thế | todoist alternative offline · ticktick alternative no account · super productivity alternative | `/en/compare/…` |

@@ -48,7 +48,7 @@ Ký hiệu: ☐ Todo · ◐ In progress · ☑ Done · ⏸ Blocked (ghi lý do)
 | [D02](./D02-desktop-release-pipeline.md) | Pipeline desktop: ký số, auto-update, đồng bộ phiên bản | P2 | 2-3 ngày | B03 | ☐ |
 | [D03](./D03-apple-platforms-evaluation.md) | Đánh giá iOS/macOS | P3 | 0,5 ngày | doanh thu | ☐ |
 | [D04](./D04-pricing-evolution-subscription.md) | Tiến hóa mô hình giá | P3 | 1 ngày | ≥ 50 đơn | ☐ |
-| [D05](./D05-source-license-decision.md) | Quyết định giấy phép mã nguồn | P2 | 0,5 ngày | founder | ☐ |
+| [D05](./D05-source-license-decision.md) | Quyết định giấy phép mã nguồn | P2 | 0,5 ngày | founder | ☑ 2026-10-31 |
 
 ## 3. Đồ thị phụ thuộc
 
@@ -80,11 +80,11 @@ flowchart LR
 | # | Quyết định | Ảnh hưởng task |
 | :---: | :--- | :--- |
 | 1 | Duyệt ADR-0005 (modular monolith), ADR-0006 (Polar), ADR-0007 (site tĩnh cùng origin) | A03, A04, A06, D01 |
-| 2 | Chọn giấy phép mã nguồn (ADR-0008) | D05 |
+| 2 | ✅ Chọn giấy phép mã nguồn (ADR-0008): `FSL-1.1-MIT`, chốt 2026-10-31 | D05 |
 | 3 | Tự tạo tài khoản & KYC: **Polar** (payout Stripe Connect), **SePay**, Microsoft Partner Center, (sau) Google Play Console, *AI không thể tạo tài khoản/nhập giấy tờ thay bạn* | A03, A05, C05, C06 |
 | 4 | Thông tin nhận tiền VietQR (ngân hàng, số tài khoản, tên) | A05 |
 | 5 | Cho phép tạo bản ghi DNS staging, token API Cloudflare cho CI, bật branch protection/secret scanning trên GitHub | B03, B07 |
-| 6 | Mức ưu đãi Founding Member (đề xuất −30%, 100 suất) | A03, A06 |
+| 6 | ✅ Giá sáng lập cho 100 bản quyền đầu: $19 / $9.95 / 149.000₫, chốt 2026-10-30 | A03, A06 |
 
 ## 5. Cách làm một task (cho người & AI agent)
 
