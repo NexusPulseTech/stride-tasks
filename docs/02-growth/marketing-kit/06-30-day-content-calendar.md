@@ -9,9 +9,9 @@
 | Ngày | X (EN) | Reddit / HN / IH | Video (EN) | Khác |
 | :---: | :--- | :--- | :--- | :--- |
 | 1 | Tạo tài khoản, bio, bài 1 | Tạo tài khoản Reddit, HN, PH, IH; bình luận góp ý 3 bài | | Đăng ký Polar, SePay |
-| 2 | Bài 2 | 2 bình luận hữu ích | | AlternativeTo + SaaSHub (C07) |
-| 3 | Bài 3 (E2E) | 2 bình luận | E1 (quên kiến thức) | Product Hunt trang "upcoming" |
-| 4 | Bài 5 (cú pháp 1 dòng) | 2 bình luận | | Topics cho repo GitHub |
+| 2 | Bài 2 | 2 bình luận hữu ích | | AlternativeTo, SaaSHub, OpenAlternative (C07, [08-directory-listings.md](./08-directory-listings.md)) |
+| 3 | Bài 3 (E2E) | 2 bình luận | E1 (quên kiến thức) | Product Hunt: theo dõi, góp ý sản phẩm khác (không còn trang "coming soon"; lên lịch launch ở C04) |
+| 4 | Bài 5 (cú pháp 1 dòng) | 2 bình luận | | ✅ Topics cho repo GitHub (xong 2026-10-30) |
 | 5 | Bài 6 (không tài khoản) | r/SideProject | E3 (airplane mode) | |
 | 6 | Bài 4 (chi phí $0) | 2 bình luận | | Viết bài kỹ thuật E2E (dev.to/site) |
 | 7 | Bài 10 (câu hỏi) | | | Tổng kết số liệu tuần |

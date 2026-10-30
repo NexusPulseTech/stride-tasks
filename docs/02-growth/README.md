@@ -21,5 +21,5 @@
 | [06-ai-search-geo.md](./06-ai-search-geo.md) | Tối ưu cho ChatGPT/Perplexity/AI Overviews (GEO) |
 | [08-seo-status-and-plan.md](./08-seo-status-and-plan.md) | **Trạng thái SEO thật** (Search Console 2026-10-30) và kế hoạch SEO quốc tế |
 | [07-analytics-and-measurement.md](./07-analytics-and-measurement.md) | Công cụ đo không xâm phạm quyền riêng tư, quy ước UTM |
-| [marketing-kit/](./marketing-kit/README.md) | **Bộ kit thực thi**: kênh và mục đích, bio, kịch bản video, bài X, bài cộng đồng, lịch 30 ngày, ưu đãi sáng lập |
+| [marketing-kit/](./marketing-kit/README.md) | **Bộ kit thực thi**: kênh và mục đích, bio, kịch bản video, bài X, bài cộng đồng, lịch 30 ngày, ưu đãi sáng lập, nội dung thư mục phần mềm |
 | [store-listings/microsoft-store-listing.md](./store-listings/microsoft-store-listing.md) | Hồ sơ đăng Microsoft Store (nội dung listing, đóng gói PWABuilder) |

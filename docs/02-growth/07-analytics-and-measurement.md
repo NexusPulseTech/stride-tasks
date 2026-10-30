@@ -26,7 +26,7 @@ Không có công cụ analytics nào trong `index.html`/`src` → hiện **khôn
 
 ## 4. Quy ước chiến dịch (UTM)
 
-`?utm_source=<nơi đăng>&utm_medium=<community|social|email|store>&utm_campaign=<launch-2026-11|founding>`
+`?utm_source=<nơi đăng>&utm_medium=<community|social|email|store|directory>&utm_campaign=<launch-2026-11|founding|listing>`
 Ví dụ: `?utm_source=reddit-sideproject&utm_medium=community&utm_campaign=launch-2026-11`.
 Nếu công cụ không ghi nhận query string, dùng **đường dẫn trang đích riêng** cho chiến dịch lớn (VD `/en/?ref=hn` → xem trong báo cáo referrer).
 
