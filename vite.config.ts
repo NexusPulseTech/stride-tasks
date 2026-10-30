@@ -35,6 +35,8 @@ export default defineConfig(() => {
           // Các trang HTML tĩnh độc lập phải được phục vụ đúng file, không bị thay bằng index.html
           // Trang tĩnh độc lập (kể cả /en/, /vi/) phải được phục vụ đúng file, không bị thay bằng index.html
           navigateFallbackDenylist: [/\/[^/?]+\.html$/, /\/sitemap\.xml$/, /\/robots\.txt$/, /^\/(en|vi)(\/|$)/],
+          // Tham số phiên bản ?v= trên CSS tĩnh chỉ để phá cache CDN; khi offline vẫn khớp bản đã precache
+          ignoreURLParametersMatching: [/^utm_/, /^fbclid$/, /^v$/],
           cleanupOutdatedCaches: true,
           clientsClaim: true,
           skipWaiting: true,

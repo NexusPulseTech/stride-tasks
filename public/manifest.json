@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "Stride Tasks – Quản Lý Công Việc & Lặp Lại Ngắt Quãng",
+  "name": "Stride Tasks: Quản Lý Công Việc & Lặp Lại Ngắt Quãng",
   "short_name": "Stride Tasks",
-  "description": "Ứng dụng quản lý công việc cá nhân: nhập nhanh 1 dòng, Kanban, Pomodoro, lặp lại ngắt quãng SM-2 — chạy 100% offline trên thiết bị.",
+  "description": "Ứng dụng quản lý công việc cá nhân: nhập nhanh 1 dòng, Kanban, Pomodoro, lặp lại ngắt quãng SM-2, chạy 100% offline trên thiết bị.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

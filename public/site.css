@@ -1,4 +1,4 @@
-/* Trang marketing tĩnh (/en/, /vi/) — HTML thuần, không JS, dùng token ngữ nghĩa giống docs/08-design-system/02-design-tokens.md */
+/* Trang marketing tĩnh (/en/, /vi/): HTML thuần, không JS, dùng token ngữ nghĩa giống docs/08-design-system/02-design-tokens.md */
 :root {
   color-scheme: light dark;
   --surface: #ffffff;

@@ -1,4 +1,4 @@
-/* Kiểu dùng chung cho trang pháp lý tĩnh (terms, refund, privacy) — không phụ thuộc bundle app */
+/* Kiểu dùng chung cho trang pháp lý tĩnh (terms, refund, privacy), không phụ thuộc bundle app */
 :root {
   color-scheme: light dark;
   --surface: #f8fafc;
