@@ -24,14 +24,26 @@ const LanguageContext = createContext<LanguageContextType>({
   toggleLanguage: () => {},
 });
 
+/**
+ * Ngôn ngữ khởi tạo: lựa chọn đã lưu > tham số `?lang=` (từ trang đích) > ngôn ngữ trình duyệt > tiếng Anh.
+ * Mặc định tiếng Anh vì thị trường mục tiêu là quốc tế; người dùng có trình duyệt tiếng Việt vẫn thấy tiếng Việt.
+ */
+function detectInitialLanguage(): Language {
+  try {
+    const stored = localStorage.getItem(LANGUAGE_KEY);
+    if (stored === 'en' || stored === 'vi') return stored;
+  } catch (e) {}
+  try {
+    const fromUrl = new URLSearchParams(window.location.search).get('lang');
+    if (fromUrl === 'en' || fromUrl === 'vi') return fromUrl;
+    const preferred = navigator.languages?.length ? navigator.languages : [navigator.language];
+    if (preferred.some((l) => typeof l === 'string' && l.toLowerCase().startsWith('vi'))) return 'vi';
+  } catch (e) {}
+  return 'en';
+}
+
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>(() => {
-    try {
-      const stored = localStorage.getItem(LANGUAGE_KEY);
-      if (stored === 'en' || stored === 'vi') return stored;
-    } catch (e) {}
-    return 'en';
-  });
+  const [language, setLanguageState] = useState<Language>(detectInitialLanguage);
 
   const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang);
