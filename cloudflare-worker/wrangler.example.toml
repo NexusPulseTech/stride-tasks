@@ -3,6 +3,11 @@ name = "stride-license"
 main = "src/index.js"
 compatibility_date = "2026-10-01"
 
+# Domain riêng trên zone nexuspulsetech.xyz (Cloudflare tự tạo DNS + chứng chỉ SSL); tắt workers.dev để chỉ có 1 điểm vào
+workers_dev = false
+preview_urls = false
+routes = [{ pattern = "tasks-api.nexuspulsetech.xyz", custom_domain = true }]
+
 # Bản quyền chờ khách nhận sau thanh toán (SePay / LemonSqueezy)
 [[kv_namespaces]]
 binding = "LICENSES"

@@ -24,7 +24,7 @@ npx wrangler secret put LEMONSQUEEZY_SIGNING_SECRET
 npx wrangler deploy
 ```
 
-Sau khi deploy, khai báo URL Worker (VD `https://stride-license.<subdomain>.workers.dev`) vào GitHub
+Worker chạy ở domain riêng `https://tasks-api.nexuspulsetech.xyz` (khai báo trong `routes`, Cloudflare tự tạo DNS + SSL). Khai báo URL này vào GitHub
 **Settings → Secrets and variables → Actions → Variables**:
 
 - `VITE_LICENSE_CLAIM_URL` — tự kích hoạt sau thanh toán
