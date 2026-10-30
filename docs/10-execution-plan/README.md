@@ -19,13 +19,13 @@ Ký hiệu: ☐ Todo · ◐ In progress · ☑ Done · ⏸ Blocked (ghi lý do)
 
 | ID | Nhiệm vụ | Ưu tiên | Ước lượng | Phụ thuộc | Trạng thái |
 | :--- | :--- | :---: | :---: | :--- | :---: |
-| [A01](./A01-brand-and-seo-metadata-fix.md) | Sửa thương hiệu & SEO metadata | P0 | 0,5 ngày | - | ☐ |
-| [A02](./A02-legal-pages-terms-refund.md) | Trang Điều khoản, Hoàn tiền, cập nhật Quyền riêng tư | P0 | 0,5 ngày | - | ☐ |
+| [A01](./A01-brand-and-seo-metadata-fix.md) | Sửa thương hiệu & SEO metadata | P0 | 0,5 ngày | - | ☑ 2026-10-30 |
+| [A02](./A02-legal-pages-terms-refund.md) | Trang Điều khoản, Hoàn tiền, cập nhật Quyền riêng tư | P0 | 0,5 ngày | - | ☑ 2026-10-30 |
 | [A03](./A03-merchant-of-record-onboarding.md) | Đăng ký & cấu hình Merchant of Record (Polar) | P0 | 1-3 ngày (chờ duyệt) | A02 | ☐ |
 | [A04](./A04-checkout-webhook-and-claim-hardening.md) | Đơn hàng, webhook Polar, claim an toàn, hoàn tiền → thu hồi, backoff | P0 | 2 ngày | - | ☐ |
 | [A05](./A05-enable-payments-in-production.md) | Bật thanh toán production (secret, SePay, biến, mua thử) | P0 | 0,5 ngày | A01-A04 | ☐ |
-| [A06](./A06-landing-and-pricing-pages.md) | Trang đích + bảng giá EN/VI (Astro) | P0 | 1,5 ngày | A01 | ☐ |
-| [A07](./A07-privacy-friendly-analytics.md) | Đo lường không xâm phạm riêng tư | P0 | 0,5 ngày | A02 | ☐ |
+| [A06](./A06-landing-and-pricing-pages.md) | Trang đích + bảng giá EN/VI (HTML tĩnh; Astro chuyển sang C01) | P0 | 1,5 ngày | A01 | ☑ 2026-10-30 (Lighthouse 100/100/100) |
+| [A07](./A07-privacy-friendly-analytics.md) | Đo lường không xâm phạm riêng tư | P0 | 0,5 ngày | A02 | ◐ Web Analytics bật; chờ founder gửi sitemap lên Search Console/Bing |
 | [A08](./A08-first-customer-outreach-sprint.md) | Sprint outreach 14 ngày | P0 | 14 ngày | A05-A07 | ☐ |
 | [B01](./B01-test-suite-in-repo.md) | Bộ test trong repo (Vitest, Worker, E2E khung) | P1 | 2 ngày | - | ☐ |
 | [B02](./B02-lint-format-strict-typescript.md) | ESLint, Prettier, TS strict, dọn phụ thuộc | P1 | 2-3 ngày | B01 | ☐ |

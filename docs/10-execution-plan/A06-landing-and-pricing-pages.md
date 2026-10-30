@@ -8,6 +8,8 @@
 | Phụ thuộc | A01 |
 | Trạng thái | ☐ Todo |
 
+> **Đã làm 2026-10-30**: bản đầu dùng **HTML tĩnh** trong `public/en/`, `public/vi/` (không thêm phụ thuộc mới, nhanh hơn cho mục tiêu khách đầu tiên). Chuyển sang Astro khi số trang tăng (task C01). Lighthouse mobile `/vi/`: Accessibility 100, Best Practices 100, SEO 100.
+
 ## Mục tiêu
 `/en/` và `/vi/` là HTML tĩnh hoàn chỉnh (hero, 3 điểm khác biệt, cách hoạt động, giá, FAQ, CTA), `hreflang` hai chiều; gốc `/` chuyển metadata sang EN.
 

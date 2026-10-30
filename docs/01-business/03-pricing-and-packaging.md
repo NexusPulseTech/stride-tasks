@@ -27,12 +27,29 @@ Paywall đang **tắt** (`VITE_ENABLE_PAYWALL` chưa đặt) → hiện chưa th
 | Things 3 (Mac) | $49.99 một lần | Rẻ hơn, lại đa nền tảng |
 | Focus To-Do lifetime | $11.99 | Đắt hơn ở bậc global; bậc emerging/VN tương đương hoặc rẻ hơn |
 
-Kết luận: mức giá hiện tại **hợp lý, không cần đổi** trước khi có dữ liệu bán hàng thật.
+Kết luận: mức giá hiện tại nằm trong vùng hợp lý so với đối thủ.
 
-## 3. Quyết định đề xuất cho giai đoạn mở bán
+## 3. Quyết định giá mở bán (2026-10-30, đã công bố trên `/vi/` và `/en/`)
+
+| Bậc | Giá Thành viên sáng lập (100 bản quyền đầu) | Giá sau đó |
+| :--- | ---: | ---: |
+| Việt Nam (VietQR) | **149.000₫** | 199.000₫ |
+| Thị trường mới nổi | **$9.95** | $14.95 |
+| Quốc tế | **$19** | $29 |
+
+**Vì sao**: mục tiêu là *nhiều người trả tiền*, và chi phí biên mỗi khách gần bằng 0 (mục 3a), nên tối ưu tỉ lệ chuyển đổi thay vì giá mỗi đơn. Giá quốc tế sau ưu đãi nâng từ $25.95 lên $29 để có mốc neo tròn; vì chưa có ai mua ở giá cũ nên không ảnh hưởng khách nào. Chi tiết cơ chế và quy tắc trung thực: [../02-growth/marketing-kit/07-founding-offer-and-waitlist.md](../02-growth/marketing-kit/07-founding-offer-and-waitlist.md).
+
+### 3a. Chi phí biên mỗi khách dùng đồng bộ (ước tính)
+
+- App kéo đồng bộ mỗi 60 giây khi đang mở, đẩy khi có thay đổi (debounce 2,5 giây). Giả định 2 giờ dùng/ngày: ~120 GET + ~40 PUT ≈ **160 request/ngày** ≈ 4.800 request/tháng.
+- Workers Free: 100.000 request/ngày ⇒ khoảng **600 người dùng đồng bộ hoạt động mỗi ngày**.
+- Workers Paid ($5/tháng, gồm 10 triệu request/tháng, sau đó $0,30/triệu): mỗi khách thêm ≈ **$0,0015/tháng**.
+- Kết luận: bán trọn đời an toàn về chi phí hạ tầng; chi phí thật là thời gian hỗ trợ. Nên giảm tần suất kéo khi không có thay đổi (task cải tiến sau A04).
+
+## 3b. Các quyết định đi kèm
 
 1. **Giữ mô hình lifetime** trong giai đoạn đầu: giảm ma sát mua lần đầu, hợp văn hóa indie, có tiền lệ (Focus To-Do, Things).
-2. **Founding Member −30%** cho **100 khách đầu tiên** *hoặc* 30 ngày (cái nào đến trước), triển khai bằng mã giảm giá của Merchant of Record (VD `FOUNDER30`). Hiển thị số suất còn lại **thật**: không tạo khan hiếm giả.
+2. **Giá sáng lập cho 100 bản quyền đầu tiên** (bảng mục 3). Với Polar dùng sản phẩm/giá riêng cho đợt sáng lập; với VietQR đặt `PRICE_VND=149000` trong Worker. Hiển thị số suất còn lại **thật**: không tạo khan hiếm giả.
 3. **Hoàn tiền 14 ngày không cần lý do** → giảm lo lắng khi mua; MoR cũng yêu cầu có chính sách hoàn tiền.
 4. **PPP**: giữ 3 bậc. Gợi ý bậc theo quốc gia (header `CF-IPCountry` qua một endpoint nhỏ của Worker) nhưng vẫn cho người dùng tự chọn; chấp nhận rò rỉ nhỏ, chi phí chống gian lận lớn hơn doanh thu mất.
 5. **Không** thêm thuê bao trước 50 khách trả tiền. Sau đó đánh giá gói "Sync hằng năm" hoặc "lifetime + cập nhật theo năm" (task `D04`).

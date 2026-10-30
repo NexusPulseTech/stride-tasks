@@ -18,6 +18,10 @@ App là SPA render phía client ở `/`; bot tìm kiếm thấy giao diện app 
 
 Chọn phương án 3 cho giai đoạn hiện tại. Workbox phải loại các đường dẫn marketing khỏi `navigateFallback` và precache. Xem lại phương án 1 khi đã có tên miền thương hiệu riêng **và** đồng bộ đã bật (người dùng chuyển dữ liệu dễ dàng).
 
+## Ghi chú triển khai (2026-10-30)
+
+Giai đoạn đầu dùng HTML tĩnh viết tay cho `/en/` và `/vi/` (2 trang, không cần bộ sinh trang). Áp dụng Astro khi làm task C01 (nhiều trang tính năng, so sánh, blog). Quyết định cùng origin và loại trừ khỏi Service Worker giữ nguyên.
+
 ## Hệ quả
 
 - Tích cực: an toàn dữ liệu; trang marketing nhẹ, index tốt; dùng lại design token.
