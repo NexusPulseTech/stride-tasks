@@ -12,6 +12,7 @@
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
     "keygen": "node scripts/keygen.mjs",
+    "indexnow": "node scripts/indexnow.mjs",
     "desktop:dev": "tauri dev",
     "desktop:build": "vite build && tauri build"
   },
