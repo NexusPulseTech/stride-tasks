@@ -9,6 +9,7 @@
   --accent: #dc2626;
   --accent-strong: #b91c1c;
   --on-accent: #ffffff;
+  --accent-text: #b91c1c;
   --link: #1d4ed8;
   --radius-card: 16px;
   --radius-control: 10px;
@@ -22,6 +23,7 @@
     --text-muted: #94a3b8;
     --border: #1e293b;
     --link: #93c5fd;
+    --accent-text: #fca5a5;
     --shadow-raised: 0 10px 30px rgba(0, 0, 0, 0.35);
   }
 }
@@ -88,7 +90,7 @@ ul.features li { margin-bottom: 8px; break-inside: avoid; }
 .note { font-size: 0.92rem; color: var(--text-muted); margin: 4px 0 16px; }
 .plan ul { padding-left: 20px; margin: 0 0 20px; flex: 1; }
 .plan .btn { text-align: center; }
-.tag { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: #dc262618; color: var(--accent); margin-bottom: 8px; }
+.tag { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: #dc262618; color: var(--accent-text); margin-bottom: 8px; }
 
 details { border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; margin: 0 auto 10px; max-width: 820px; background: var(--surface); }
 summary { cursor: pointer; font-weight: 600; }
