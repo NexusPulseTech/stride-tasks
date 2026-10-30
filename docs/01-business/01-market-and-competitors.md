@@ -51,7 +51,7 @@
 
 1. Không đua tính năng với Todoist/TickTick. **Đua ở ngách**: "học + tập trung + riêng tư".
 2. Thông điệp chính luôn xoay quanh 3 điểm khác biệt mà đối thủ lớn **không có**: SM-2 cho việc, offline không tài khoản, đồng bộ E2E.
-3. Giá PRO lifetime $25.95 rẻ hơn **1 năm** TickTick/Todoist → lập luận bán hàng mạnh; Focus To-Do $11.99 là mốc thấp nhất người dùng đã quen trả.
+3. Giá PRO lifetime $19 (sáng lập), $29 sau đó, rẻ hơn **1 năm** TickTick/Todoist → lập luận bán hàng mạnh; Focus To-Do $11.99 là mốc thấp nhất người dùng đã quen trả.
 
 ## Nguồn (xác minh 2026-10-30)
 

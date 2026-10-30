@@ -13,8 +13,9 @@
 | `/` | "Đã thu thập dữ liệu, hiện chưa được lập chỉ mục" (bản cũ là SPA ít chữ, tên "TaskTodo") |
 | Sitemap | Gửi từ 2026-10-04 nhưng trạng thái **"Không thể tìm nạp", 0 trang**; sitemap `www` và `dinhhuong` cùng lỗi |
 | Việc đã làm hôm nay | Gửi lại sitemap (Google báo gửi thành công); yêu cầu lập chỉ mục `/en/`, `/vi/`, `/` |
-| Bot AI | Bị Cloudflare chặn ở cấp zone (403 cho GPTBot, PerplexityBot, ClaudeBot); quyết định mở ở ADR-0010 |
-| Bing | Chưa có trong Bing Webmaster Tools |
+| Bot AI | Đã mở (A09, ADR-0010): GPTBot, PerplexityBot, ClaudeBot, ChatGPT-User nhận 200. Trước đó Cloudflare chặn 403 ở cấp zone |
+| Bing | Đã nhập từ Search Console (A10): sitemap đang xử lý; đã gửi `/en/`, `/vi/`, `/`; IndexNow bật, lần gửi đầu HTTP 202 |
+| `llms.txt` | Đã đăng tại `/llms.txt` theo đề xuất llmstxt.org. Google Search không dùng file này để xếp hạng; Lighthouse có audit thử nghiệm cho trình duyệt agent. Giữ vì chi phí gần 0, không kỳ vọng tăng hạng |
 
 Google nói rõ: thu thập dữ liệu mất **"từ vài ngày đến vài tuần"**, yêu cầu lập chỉ mục nhiều lần cho cùng URL **không** nhanh hơn, và **"không ai có thể đảm bảo vị trí số 1"**.
 
@@ -31,8 +32,8 @@ Google nói rõ: thu thập dữ liệu mất **"từ vài ngày đến vài tu�
 | # | Việc | Khi nào | Chỉ số đạt |
 | :---: | :--- | :--- | :--- |
 | 1 | Kiểm tra lại Search Console: sitemap "Thành công", `/en/` đã lập chỉ mục | Sau 3-7 ngày | `/en/` có trên Google |
-| 2 | Bing Webmaster Tools: nhập site từ Search Console, gửi sitemap (task A10) | Khi founder đăng nhập | Site xuất hiện trong Bing |
-| 3 | Mở bot AI theo ADR-0010 (task A09) | Khi founder đăng nhập Cloudflare | GPTBot nhận 200 |
+| 2 | ✅ Bing Webmaster Tools: nhập site từ Search Console, gửi sitemap, bật IndexNow (task A10) | Xong 2026-10-30 | Site xuất hiện trong Bing |
+| 3 | ✅ Mở bot AI theo ADR-0010 (task A09) | Xong 2026-10-30 | GPTBot nhận 200 |
 | 4 | Trang nội dung tiếng Anh (task C01, C02): tính năng, so sánh, use case, template | Tuần 2-6 | 10+ trang EN được lập chỉ mục |
 | 5 | Thư mục và danh sách (task C07): AlternativeTo, SaaSHub, Product Hunt, Indie Hackers, các bài "best offline to-do apps" | Tuần 1-4 | 5+ liên kết trỏ về |
 | 6 | Trả lời hữu ích trên Reddit/HN ở các thread hỏi app offline, không tài khoản, có SRS (ghi rõ mình là người làm) | Liên tục | Lượt truy cập nguồn `reddit` |

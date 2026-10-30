@@ -6,7 +6,7 @@
 | Ưu tiên | P0 (thị trường quốc tế, AI search) |
 | Ước lượng | 0,2 ngày |
 | Phụ thuộc | Founder đăng nhập lại Cloudflare dashboard (phiên cũ đã hết hạn) |
-| Trạng thái | ⏳ Chờ đăng nhập |
+| Trạng thái | ☑ Xong (2026-10-30) |
 | Quyết định | [ADR-0010](../04-architecture/adr/0010-allow-ai-search-and-assistant-crawlers.md) |
 
 ## Mục tiêu
@@ -18,9 +18,9 @@ ChatGPT, Perplexity, Claude, Gemini đọc được `tasks.nexuspulsetech.xyz` �
 3. Kiểm tra (mục Xác minh). Ghi kết quả vào ADR-0010.
 
 ## Tiêu chí nghiệm thu
-- [ ] `GPTBot`, `PerplexityBot`, `ClaudeBot` nhận HTTP 200 trên `/en/`.
-- [ ] `robots.txt` không còn `Disallow` cho ChatGPT-User, Perplexity-User, Claude-User, Google-Extended.
-- [ ] Googlebot, Bingbot vẫn 200 (không ảnh hưởng SEO thường).
+- [x] `GPTBot`, `PerplexityBot`, `ClaudeBot` nhận HTTP 200 trên `/en/`.
+- [x] `robots.txt` không còn `Disallow` cho ChatGPT-User, Perplexity-User, Claude-User, Google-Extended.
+- [x] Googlebot, Bingbot vẫn 200 (không ảnh hưởng SEO thường).
 
 ## Xác minh
 ```bash
@@ -28,6 +28,11 @@ for ua in "GPTBot/1.1" "PerplexityBot/1.0" "ClaudeBot/1.0" "Googlebot/2.1"; do
   curl -s -o /dev/null -w "%{http_code} $ua\n" -A "$ua" https://tasks.nexuspulsetech.xyz/en/; done
 curl -s https://tasks.nexuspulsetech.xyz/robots.txt | grep -c "Cloudflare Managed"   # mong đợi 0
 ```
+
+## Kết quả (2026-10-30)
+- AI bot policies của zone: Search, Agent, Training = Allow; Bot Preference Sync bật.
+- `GPTBot`, `PerplexityBot`, `ClaudeBot`, `ChatGPT-User`, `Googlebot`, `bingbot`: HTTP 200 trên `/en/`.
+- `robots.txt` phục vụ đúng file của repo, không còn khối Cloudflare Managed.
 
 ## Rủi ro & rollback
 Áp dụng cho cả `www` và `dinhhuong` (founder đã chấp nhận). Rollback: bật lại policy Block trong cùng màn hình.

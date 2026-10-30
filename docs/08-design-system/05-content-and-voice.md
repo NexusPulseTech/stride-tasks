@@ -18,7 +18,7 @@
 2. **Lỗi = chuyện gì xảy ra + làm gì tiếp**: "Mã đồng bộ không đúng. Kiểm tra lại 26 ký tự trên thiết bị kia."
 3. **Câu ngắn**, một ý; tránh thuật ngữ (chỉ dùng "E2E" ở trang kỹ thuật).
 4. **Viết hoa kiểu câu** (sentence case) cho nút/tiêu đề tiếng Anh: "Open the app", không "Open The App".
-5. Số và ngày định dạng bằng `Intl` theo ngôn ngữ người dùng; tiền tệ có ký hiệu và đơn vị rõ (`199.000₫`, `$25.95`).
+5. Số và ngày định dạng bằng `Intl` theo ngôn ngữ người dùng; tiền tệ có ký hiệu và đơn vị rõ (`149.000₫`, `$19`).
 
 ## 3. Thuật ngữ thống nhất
 

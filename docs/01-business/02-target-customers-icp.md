@@ -21,7 +21,7 @@
 - **Ai**: lập trình viên, freelancer, nhà nghiên cứu, người làm nội dung.
 - **JTBD**: *"Tôi muốn danh sách việc **chạy offline, không cần tài khoản**, dữ liệu thuộc về tôi, và khi cần thì đồng bộ được mà không ai đọc được."*
 - **Vì sao Stride thắng**: local-first, E2E (máy chủ chỉ giữ bản mã), repo public để tự kiểm chứng.
-- **Sẵn sàng chi trả**: trung bình-cao → mức $25.95 hợp lý.
+- **Sẵn sàng chi trả**: trung bình-cao → mức $19 (sáng lập) rồi $29 hợp lý.
 - **Tụ tập ở đâu**: Hacker News, Lobsters, r/privacy, r/productivity, r/selfhosted (lân cận), dev.to, Viblo.
 
 ### C. Người dùng Việt Nam (thị trường sân nhà)

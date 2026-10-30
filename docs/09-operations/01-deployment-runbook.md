@@ -15,6 +15,17 @@
 4. Quét bundle production tìm mảnh khóa riêng (script quét bí mật, tự động hóa ở B03).
 5. **Rollback**: `git revert <commit>` → push `main` (Service Worker `autoUpdate` sẽ kéo bản mới ở lần mở tiếp theo).
 
+## 1a. Báo công cụ tìm kiếm khi thêm hoặc sửa trang (IndexNow)
+
+Chỉ làm khi trang tĩnh (trang đích, pháp lý, trang nội dung) được thêm, đổi nội dung hoặc xóa, sau khi deploy xong. Deploy code app thì không cần. Cập nhật `<lastmod>` trong `public/sitemap.xml` cùng lúc.
+
+```bash
+npm run indexnow -- check                                         # site thật trả đúng file khóa
+npm run indexnow -- submit https://tasks.nexuspulsetech.xyz/en/   # chỉ URL đã đổi; bỏ trống thì gửi cả sitemap
+```
+
+HTTP 200 hoặc 202 là đạt. Một lần gửi tới `api.indexnow.org` được chia sẻ cho mọi công cụ tham gia (Bing, Yandex, Seznam, Naver...). Google không dùng IndexNow: với Google, dựa vào sitemap và Search Console.
+
 ## 2. Worker (`stride-license`)
 
 Thực hiện trong `cloudflare-worker/` (cho tới khi có `worker.yml`: task B07):

@@ -21,14 +21,14 @@ Ký hiệu: ☐ Todo · ◐ In progress · ☑ Done · ⏸ Blocked (ghi lý do)
 | :--- | :--- | :---: | :---: | :--- | :---: |
 | [A01](./A01-brand-and-seo-metadata-fix.md) | Sửa thương hiệu & SEO metadata | P0 | 0,5 ngày | - | ☑ 2026-10-30 |
 | [A02](./A02-legal-pages-terms-refund.md) | Trang Điều khoản, Hoàn tiền, cập nhật Quyền riêng tư | P0 | 0,5 ngày | - | ☑ 2026-10-30 |
-| [A03](./A03-merchant-of-record-onboarding.md) | Đăng ký & cấu hình Merchant of Record (Polar) | P0 | 1-3 ngày (chờ duyệt) | A02 | ☐ |
+| [A03](./A03-merchant-of-record-onboarding.md) | Đăng ký & cấu hình Merchant of Record (Polar) | P0 | 1-3 ngày (chờ duyệt) | A02 | ◐ |
 | [A04](./A04-checkout-webhook-and-claim-hardening.md) | Đơn hàng, webhook Polar, claim an toàn, hoàn tiền → thu hồi, backoff | P0 | 2 ngày | - | ◐ A04a + A04b (code webhook Polar) xong 2026-10-30; chờ founder tạo sản phẩm, Checkout Link, webhook trong Polar để thử sandbox |
 | [A05](./A05-enable-payments-in-production.md) | Bật thanh toán production (secret, SePay, biến, mua thử) | P0 | 0,5 ngày | A01-A04 | ☐ |
 | [A06](./A06-landing-and-pricing-pages.md) | Trang đích + bảng giá EN/VI (HTML tĩnh; Astro chuyển sang C01) | P0 | 1,5 ngày | A01 | ☑ 2026-10-30 (Lighthouse 100/100/100) |
 | [A07](./A07-privacy-friendly-analytics.md) | Đo lường không xâm phạm riêng tư | P0 | 0,5 ngày | A02 | ☑ 2026-10-30 (Web Analytics; sitemap gửi lại, yêu cầu lập chỉ mục `/`, `/en/`, `/vi/`) |
 | [A08](./A08-first-customer-outreach-sprint.md) | Sprint outreach quốc tế 14 ngày (ADR-0009) | P0 | 14 ngày | A05-A07 | ☐ |
-| [A09](./A09-allow-ai-crawlers.md) | Mở bot AI tìm kiếm/trợ lý trên Cloudflare (ADR-0010) | P0 | 0,2 ngày | founder đăng nhập Cloudflare | ⏳ |
-| [A10](./A10-bing-webmaster-and-indexnow.md) | Bing Webmaster Tools + IndexNow | P1 | 0,2 ngày | founder đăng nhập Bing | ⏳ |
+| [A09](./A09-allow-ai-crawlers.md) | Mở bot AI tìm kiếm/trợ lý trên Cloudflare (ADR-0010) | P0 | 0,2 ngày | founder đăng nhập Cloudflare | ☑ |
+| [A10](./A10-bing-webmaster-and-indexnow.md) | Bing Webmaster Tools + IndexNow | P1 | 0,2 ngày | founder đăng nhập Bing | ☑ |
 | [B01](./B01-test-suite-in-repo.md) | Bộ test trong repo (Vitest, Worker, E2E khung) | P1 | 2 ngày | - | ☐ |
 | [B02](./B02-lint-format-strict-typescript.md) | ESLint, Prettier, TS strict, dọn phụ thuộc | P1 | 2-3 ngày | B01 | ☐ |
 | [B03](./B03-ci-quality-gates.md) | CI quality gates + chuỗi cung ứng | P1 | 1 ngày | B01, B02 | ☐ |
@@ -43,7 +43,7 @@ Ký hiệu: ☐ Todo · ◐ In progress · ☑ Done · ⏸ Blocked (ghi lý do)
 | [C04](./C04-launch-product-hunt-show-hn.md) | Launch Product Hunt & Show HN | P1 | 1 tuần chuẩn bị | A08, C01 | ☐ |
 | [C05](./C05-microsoft-store-submission.md) | Microsoft Store (PWA → MSIX) | P1 | 1-2 ngày + duyệt | A05 | ☐ |
 | [C06](./C06-google-play-twa-and-billing.md) | Google Play TWA + Play Billing | P2 | 1-2 tuần | C05, B05 | ☐ |
-| [C07](./C07-directories-and-listicle-outreach.md) | Thư mục phần mềm + xin vào bài tổng hợp (EN) | P1 | liên tục | A06 | ☐ |
+| [C07](./C07-directories-and-listicle-outreach.md) | Thư mục phần mềm + xin vào bài tổng hợp (EN) | P1 | liên tục | A06 | ◐ |
 | [D01](./D01-service-split-and-monorepo.md) | Tách dịch vụ + monorepo | P2 | 1-2 tuần | B06, B07 | ☐ |
 | [D02](./D02-desktop-release-pipeline.md) | Pipeline desktop: ký số, auto-update, đồng bộ phiên bản | P2 | 2-3 ngày | B03 | ☐ |
 | [D03](./D03-apple-platforms-evaluation.md) | Đánh giá iOS/macOS | P3 | 0,5 ngày | doanh thu | ☐ |

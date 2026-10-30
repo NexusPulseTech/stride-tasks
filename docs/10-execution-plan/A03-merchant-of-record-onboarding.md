@@ -6,7 +6,7 @@
 | Ưu tiên | P0 |
 | Ước lượng | 1-3 ngày (phần lớn là chờ duyệt) |
 | Phụ thuộc | A02 (trang pháp lý phải có trước khi nộp hồ sơ) |
-| Trạng thái | ☐ Todo |
+| Trạng thái | ◐ Đang làm |
 | Người làm | **Founder** (tạo tài khoản, xác minh danh tính, nhập thông tin ngân hàng, AI không làm thay) |
 
 ## Mục tiêu
@@ -20,8 +20,9 @@ LemonSqueezy chuyển sang Stripe Managed Payments (không hỗ trợ người b
 2. **Kiểm tra sớm nhất**: bước payout (Stripe Connect Express) có chấp nhận *cá nhân* tại Việt Nam không.
    - Được → tiếp tục.
    - Không → chuyển sang **Creem** (payout ngân hàng VN), rồi Paddle; ghi kết quả vào ADR-0006 và đổi tên task.
-3. Tạo sản phẩm *Stride Tasks PRO, Lifetime*, thanh toán một lần: bậc `global-us` **$25.95**, bậc `emerging-ppp` **$14.95** (2 sản phẩm hoặc 2 mức giá).
-4. Tạo mã giảm giá `FOUNDER30` (−30%, giới hạn 100 lượt, hạn 30 ngày).
+   - Kiểm tra 2026-10-30: Việt Nam có trong [danh sách payout chính thức của Polar](https://polar.sh/docs/merchant-of-record/supported-countries). Loại hình cá nhân chỉ biết chắc ở bước xác minh Stripe.
+3. Tạo sản phẩm theo [runbook mục 1b](../09-operations/02-payments-and-licensing-runbook.md): *Stride Tasks PRO Lifetime*, thanh toán một lần, giá sáng lập **$19** (`global-us`) và **$9.95** (`emerging-ppp`). Hết 100 bản quyền sáng lập thì đổi sang $29 và $14.95.
+4. Không cần mã giảm giá cho đợt sáng lập: giá sáng lập là giá niêm yết riêng ([../01-business/03-pricing-and-packaging.md](../01-business/03-pricing-and-packaging.md) mục 3b). Chỉ tạo mã khi có chiến dịch cụ thể.
 5. Cấu hình trang checkout: tên, logo, link Terms/Refund/Privacy, email hỗ trợ sản phẩm.
 6. Tạo tài khoản **sandbox** để test end-to-end trước production.
 7. Ghi lại (không phải bí mật): product/price ID → biến `[vars]` của Worker; (bí mật) access token & webhook secret → để dành cho A05 (`wrangler secret put`).
@@ -29,8 +30,12 @@ LemonSqueezy chuyển sang Stripe Managed Payments (không hỗ trợ người b
 
 ## Tiêu chí nghiệm thu
 - [ ] Payout onboarding hoàn tất (trạng thái "verified"/"active").
-- [ ] Mua thử trong sandbox thành công bằng thẻ test, áp được `FOUNDER30`.
+- [ ] Mua thử trong sandbox bằng thẻ test: webhook `order.paid` tới Worker, app nhận PRO; hoàn tiền thử thì bản quyền bị thu hồi.
 - [ ] Trang checkout hiển thị đúng giá, thuế, link pháp lý.
+
+## Tiến độ
+- Sandbox: founder đã tạo organization `nexuspulse` (sandbox.polar.sh).
+- Production (2026-10-30): đang ở bước "Let's get to know you". Founder tự điền họ tên, quốc gia, ngày sinh và tự đồng ý điều khoản; AI không nhập dữ liệu danh tính.
 
 ## Rủi ro & rollback
 Bị từ chối vì loại hình cá nhân → dùng Creem/Paddle; trong lúc chờ vẫn bán được ở Việt Nam bằng VietQR (A05).

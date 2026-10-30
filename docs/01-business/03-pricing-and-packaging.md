@@ -12,9 +12,9 @@
 
 | Bậc giá (PPP) | Giá | Ghi chú |
 | :--- | :--- | :--- |
-| `vn-ppp` | **199.000₫** (~$7.95) | VietQR |
-| `emerging-ppp` | **$14.95** | Thị trường mới nổi |
-| `global-us` | **$25.95** | Mặc định quốc tế |
+| `vn-ppp` | **149.000₫** (~$5.95) | VietQR. Giá sáng lập, sau 100 bản quyền: 199.000₫ |
+| `emerging-ppp` | **$9.95** | Thị trường mới nổi. Giá sáng lập, sau đó $14.95 |
+| `global-us` | **$19** | Mặc định quốc tế. Giá sáng lập, sau đó $29 |
 
 Paywall đang **tắt** (`VITE_ENABLE_PAYWALL` chưa đặt) → hiện chưa thu được đồng nào.
 
@@ -22,7 +22,7 @@ Paywall đang **tắt** (`VITE_ENABLE_PAYWALL` chưa đặt) → hiện chưa th
 
 | Đối thủ | Giá | Stride rẻ/đắt hơn? |
 | :--- | :--- | :--- |
-| TickTick | ≈ $35.99/năm | PRO lifetime $25.95 **rẻ hơn 1 năm** TickTick |
+| TickTick | ≈ $35.99/năm | PRO lifetime $19 (sáng lập), $29 sau đó: **rẻ hơn 1 năm** TickTick |
 | Todoist Pro | ≈ $60/năm | Rẻ hơn ~2,3 lần chỉ riêng năm đầu |
 | Things 3 (Mac) | $49.99 một lần | Rẻ hơn, lại đa nền tảng |
 | Focus To-Do lifetime | $11.99 | Đắt hơn ở bậc global; bậc emerging/VN tương đương hoặc rẻ hơn |

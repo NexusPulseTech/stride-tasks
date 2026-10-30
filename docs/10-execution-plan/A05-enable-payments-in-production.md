@@ -36,7 +36,7 @@ Người dùng thật mua được PRO bằng **VietQR** và **thẻ quốc tế
    | biến checkout Polar | theo A04 |
 
 5. Chạy lại workflow Deploy; kiểm tra bundle production không chứa khóa riêng (script quét).
-6. **Mua thật bằng tiền của chính mình**: (a) VietQR 199.000₫; (b) thẻ quốc tế qua Polar (có thể dùng `FOUNDER30`). Kiểm tra PRO kích hoạt, đồng bộ giữa 2 thiết bị, rồi **hoàn tiền** cả hai.
+6. **Mua thật bằng tiền của chính mình**: (a) VietQR 149.000₫ (giá sáng lập); (b) thẻ quốc tế qua Polar $19. Kiểm tra PRO kích hoạt, đồng bộ giữa 2 thiết bị, rồi **hoàn tiền** cả hai.
 7. Smoke test production + ghi nhật ký deploy ([../09-operations/01-deployment-runbook.md](../09-operations/01-deployment-runbook.md)).
 
 ## Tiêu chí nghiệm thu

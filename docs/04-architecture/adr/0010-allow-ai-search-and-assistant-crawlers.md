@@ -1,6 +1,6 @@
 # ADR-0010: Cho phép bot AI tìm kiếm và trợ lý đọc site
 
-- **Trạng thái**: Accepted (founder duyệt 2026-10-30); thực thi chờ founder đăng nhập lại Cloudflare
+- **Trạng thái**: Accepted (founder duyệt 2026-10-30); đã thực thi 2026-10-30 qua task [A09](../../10-execution-plan/A09-allow-ai-crawlers.md), bot AI nhận HTTP 200
 - **Ngày**: 2026-10-30
 - **Liên quan**: [../../02-growth/06-ai-search-geo.md](../../02-growth/06-ai-search-geo.md), [../../02-growth/08-seo-status-and-plan.md](../../02-growth/08-seo-status-and-plan.md)
 

@@ -29,7 +29,7 @@
 - [ ] Description (≤ 155 ký tự): `Plan in one line, focus with Pomodoro, review on time with SM-2. Offline-first, no account, optional end-to-end encrypted sync.`
 - [ ] Viewport: `width=device-width, initial-scale=1, viewport-fit=cover` (chống zoom input iOS bằng font ≥ 16px thay vì khóa zoom).
 - [ ] Xóa `meta keywords`.
-- [ ] JSON-LD `SoftwareApplication` (đồng loại `WebApplication`): `offers` gồm Free (`price: 0`) và PRO (`price: 25.95`, `priceCurrency: USD`), `inLanguage: ["en","vi"]`, `operatingSystem`, `applicationCategory: ProductivityApplication`. **Chỉ thêm `aggregateRating` khi có đánh giá thật.**
+- [ ] JSON-LD `SoftwareApplication` (đồng loại `WebApplication`): `offers` chỉ gồm Free (`price: 0`) cho tới khi PRO mở bán thật, khi đó thêm PRO (`price: 19`, `priceCurrency: USD`), `inLanguage: ["en","vi"]`, `operatingSystem`, `applicationCategory: ProductivityApplication`. **Chỉ thêm `aggregateRating` khi có đánh giá thật.**
 - [ ] `<noscript>` cập nhật đúng tính năng v3.1.
 
 ### Đợt 2: trang đích tĩnh (task `A06`, `C01`)
