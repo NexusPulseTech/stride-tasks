@@ -29,6 +29,14 @@ npm run test:coverage
 
 Test không đọc `.env.local` và không dùng khóa riêng thật: test bản quyền tự sinh cặp khóa Ed25519 tạm. Vitest ghim bản 4.1.12 vì `@cloudflare/vitest-pool-workers` (dùng cho test Worker) chưa hỗ trợ Vitest 5. Workflow deploy chạy `npm test`, test đỏ thì không deploy.
 
+Test Worker (chạy trong runtime Workers qua Miniflare, không cần tài khoản Cloudflare):
+
+```bash
+cd cloudflare-worker
+npm ci
+npm test
+```
+
 ---
 
 ## 6.3. Kiểm Thử Hệ Thống (Manual Verification Checklist)

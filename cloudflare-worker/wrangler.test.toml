@@ -1,0 +1,22 @@
+# Cấu hình chỉ dùng cho test (Miniflare chạy cục bộ). Không có ID thật, không có secret:
+# khóa Ed25519 và secret webhook do test sinh lúc chạy (test/helpers.js).
+name = "stride-license-test"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+[[kv_namespaces]]
+binding = "LICENSES"
+id = "test-licenses"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "stride-sync-test"
+database_id = "00000000-0000-0000-0000-000000000000"
+
+[vars]
+APP_URL = "https://tasks.nexuspulsetech.xyz"
+ALLOWED_ORIGINS = "https://tasks.nexuspulsetech.xyz,https://tauri.localhost,tauri://localhost"
+PRICE_VND = "149000"
+PRICE_VND_USD = "5.95"
+SYNC_MAX_VAULTS_PER_LICENSE = "3"
+SYNC_REQUIRE_LICENSE = "true"

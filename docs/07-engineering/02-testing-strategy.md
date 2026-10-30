@@ -9,7 +9,7 @@
 | :--- | :--- | :--- | :---: |
 | Unit | **Vitest** | Hàm thuần: parser nhập nhanh, rollup việc con, SM-2/hoãn thông minh, merge LWW + tombstone, mã hóa sync, xác minh token, policy hạn mức | ~70% |
 | Component | Vitest + **Testing Library** + jsdom | Nhập nhanh, hoàn thành việc, paywall chặn đúng lúc, modal đồng bộ | ~15% |
-| Integration (Worker) | **`@cloudflare/vitest-pool-workers`** (chạy trong runtime Workers thật, D1/KV cục bộ) | Route sync/claim/webhook, CAS 409, hạn mức kho, fail-closed | ~10% |
+| Integration (Worker) | **`@cloudflare/vitest-plugin`** (kế nhiệm `vitest-pool-workers`; chạy trong runtime Workers thật, D1/KV cục bộ) | Route sync/claim/webhook, CAS 409, hạn mức kho, fail-closed | ~10% |
 | Contract | Schema từ `openapi.yaml` / gói `contracts` | Mọi phản hồi Worker khớp hợp đồng; client parse đúng | bắt buộc cho mỗi endpoint |
 | E2E | **Playwright** | 5 hành trình quan trọng (mục 3) | ~5% |
 | Smoke production | Script `prod-smoke` (đã có, 14 bước) | Sau mỗi deploy Worker | mỗi lần deploy |
@@ -19,10 +19,10 @@
 | Test cũ (ngoài repo) | Vị trí mới |
 | :--- | :--- |
 | `sync-merge.test.mjs` (17 ca: hợp nhất, mã hóa, TTL tombstone) | `src/features/sync/__tests__/syncMerge.test.ts`, `syncCrypto.test.ts`, `tombstones.test.ts` |
-| `worker-sync.test.mjs` + adapter `node:sqlite` (17 ca) | `cloudflare-worker/test/vault.test.ts` (vitest-pool-workers) |
+| `worker-sync.test.mjs` + adapter `node:sqlite` (43 kiểm tra) | `cloudflare-worker/test/vault.test.js`, `orders-claim.test.js`, `polar.test.js` (26 ca, `@cloudflare/vitest-plugin`) |
 | `prod-smoke.test.mjs` (14 ca) | `cloudflare-worker/test/smoke/prod-smoke.ts`: chạy tay hoặc sau deploy, đọc token test từ secret CI, **không** commit khóa |
 
-Tiến độ (2026-10-31, B01a): phần app đã vào repo (`syncMerge`, `syncCrypto`, `tombstones`, `claimPolling`, `licenseCrypto`), 35 ca, chạy bằng `npm test` và trong workflow deploy. Chưa chuyển: test Worker, smoke production.
+Tiến độ (2026-10-31, B01a): phần app đã vào repo (`syncMerge`, `syncCrypto`, `tombstones`, `claimPolling`, `licenseCrypto`), 35 ca, chạy bằng `npm test` và trong workflow deploy. B01b (2026-10-31): test Worker đã vào repo, 26 ca, chạy bằng `npm test` trong `cloudflare-worker/` và workflow `worker-tests.yml`. Chưa chuyển: smoke production.
 
 ## 3. Hành trình E2E bắt buộc
 

@@ -1,0 +1,13 @@
+{
+  "name": "stride-license-worker",
+  "private": true,
+  "type": "module",
+  "license": "FSL-1.1-MIT",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "1.4.4",
+    "vitest": "4.1.12"
+  }
+}
