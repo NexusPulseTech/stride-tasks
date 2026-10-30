@@ -15,7 +15,7 @@ Trước khi viết bất kỳ dòng code nào, bạn BẮT BUỘC phải thực
 
 ## BƯỚC 1: ĐỒNG BỘ HÓA NGỮ CẢNH
 Đọc và đối chiếu trực tiếp tài liệu với mã nguồn (mã nguồn là sự thật; tài liệu nào lệch phải được báo cáo):
-1. **Tài liệu**: `docs/Release/2026-10-27-v3.0.0-omni-channel-and-execution-engine.md`, `docs/Release/README.md`, `docs/architecture/state-persistence.md`, `README.md`, `ARCHITECTURE.md`, `.env.example`.
+1. **Tài liệu**: `docs/Release/2026-10-27-v3.0.0-omni-channel-and-execution-engine.md`, `docs/Release/README.md`, `docs/04-architecture/state-persistence.md`, `README.md`, `ARCHITECTURE.md`, `.env.example`.
 2. **Execution Engine**:
    - `src/features/tasks/utils/smartTaskParser.ts` (cú pháp `~15m`, `~1giờ`, `!pin`/`!ghim`, `#doing`/`#danglam`, `@today`/`@ngaymai`, `@daily`/`@hangngay`; chặn tiêu đề rỗng)
    - `src/features/tasks/components/SmartCaptureHelperBar.tsx`, `KanbanBoardView.tsx`, `ProjectCardHeader.tsx`

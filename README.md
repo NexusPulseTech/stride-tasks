@@ -140,8 +140,8 @@ npm run build
 
 Tham khảo thêm các tài liệu thiết kế chi tiết:
 - [Sổ tay kiến trúc hệ thống (`ARCHITECTURE.md`)](./ARCHITECTURE.md)
-- [Cẩm nang sử dụng chi tiết (`docs/guides/user-guide.md`)](./docs/guides/user-guide.md)
-- [Quy chuẩn mô đun hóa mã nguồn (`docs/standards/file-size-and-modularity.md`)](./docs/standards/file-size-and-modularity.md)
+- [Cẩm nang sử dụng chi tiết (`docs/03-product/user-guide.md`)](./docs/03-product/user-guide.md)
+- [Quy chuẩn mô đun hóa mã nguồn (`docs/07-engineering/file-size-and-modularity.md`)](./docs/07-engineering/file-size-and-modularity.md)
 
 ---
 

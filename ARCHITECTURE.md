@@ -11,21 +11,21 @@
 Hệ thống tài liệu đã được tổ chức phân tầng chuyên nghiệp theo tiêu chuẩn các tập đoàn công nghệ lớn:
 
 - **[Bản Đồ Tài Liệu & Trung Tâm Điều Hướng (`docs/README.md`)](./docs/README.md)**
-- **Kiến trúc Kỹ thuật (`docs/architecture/`)**:
-  - [Tổng quan hệ thống & Luồng dữ liệu](./docs/architecture/system-overview.md)
-  - [Giải thuật Đệ quy Việc con vô hạn tầng](./docs/architecture/recursive-subtasks.md)
-  - [Lưu trữ LocalStorage, Undo & Audio Synth Engine](./docs/architecture/state-persistence.md)
-- **Hệ thống Thiết kế (`docs/design-system/`)**:
-  - [Notion Sub-items Tree & Caret Navigation UX](./docs/design-system/notion-hierarchy-ux.md)
-  - [React Portal & Quản lý Stacking Context Z-index](./docs/design-system/portal-layering.md)
-- **Quy chuẩn Phát triển & Chất lượng Code (`docs/development/` & `docs/standards/`)**:
-  - [Hướng dẫn cài đặt & Khởi chạy](./docs/development/getting-started.md)
-  - [Quy chuẩn Git Conventional Commits v1.0.0](./docs/development/contributing.md)
-  - [Quy chuẩn Kích thước file <= 300 dòng (SLOC) & Module hóa](./docs/standards/file-size-and-modularity.md)
-  - [Quy chuẩn Thiết kế Màu sắc (Color System) & Bảng màu Notion/Linear](./docs/standards/color-system-and-palette.md)
-- **Hướng dẫn Vận hành (`docs/guides/`)**:
-  - [Cẩm nang người dùng & Phím tắt](./docs/guides/user-guide.md)
-  - [Tài liệu kế thừa cho kỹ sư kế tiếp](./docs/guides/maintenance-and-inheritance.md)
+- **Kiến trúc Kỹ thuật (`docs/04-architecture/`)**:
+  - [Tổng quan hệ thống & Luồng dữ liệu](./docs/04-architecture/system-overview.md)
+  - [Giải thuật Đệ quy Việc con vô hạn tầng](./docs/04-architecture/recursive-subtasks.md)
+  - [Lưu trữ LocalStorage, Undo & Audio Synth Engine](./docs/04-architecture/state-persistence.md)
+- **Hệ thống Thiết kế (`docs/08-design-system/`)**:
+  - [Notion Sub-items Tree & Caret Navigation UX](./docs/08-design-system/notion-hierarchy-ux.md)
+  - [React Portal & Quản lý Stacking Context Z-index](./docs/08-design-system/portal-layering.md)
+- **Quy chuẩn Phát triển & Chất lượng Code (`docs/07-engineering/`)**:
+  - [Hướng dẫn cài đặt & Khởi chạy](./docs/07-engineering/getting-started.md)
+  - [Quy chuẩn Git Conventional Commits v1.0.0](./docs/07-engineering/contributing.md)
+  - [Quy chuẩn Kích thước file <= 300 dòng (SLOC) & Module hóa](./docs/07-engineering/file-size-and-modularity.md)
+  - [Quy chuẩn Thiết kế Màu sắc (Color System) & Bảng màu Notion/Linear](./docs/08-design-system/color-system-and-palette.md)
+- **Hướng dẫn Vận hành (`docs/03-product/` & `docs/09-operations/`)**:
+  - [Cẩm nang người dùng & Phím tắt](./docs/03-product/user-guide.md)
+  - [Tài liệu kế thừa cho kỹ sư kế tiếp](./docs/09-operations/maintenance-and-inheritance.md)
 - **Lịch sử Phát hành & Thương mại hóa (`docs/Release/`)**:
   - [Trung tâm Nhật ký Phát hành (`docs/Release/README.md`)](./docs/Release/README.md)
   - [Báo cáo Phát hành 10/27/2026 (`v2.5.0` → `v3.0.0` — Execution Engine & bản quyền Ed25519)](./docs/Release/2026-10-27-v3.0.0-omni-channel-and-execution-engine.md)

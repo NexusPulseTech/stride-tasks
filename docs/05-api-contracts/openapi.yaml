@@ -1,0 +1,333 @@
+openapi: 3.1.0
+info:
+  title: Stride Tasks Edge API
+  version: 1.0.0
+  summary: Hợp đồng HTTP công khai của Worker stride-license (khớp cloudflare-worker/src/index.js tại v3.1.0).
+  description: |
+    Contract-first: sửa file này TRƯỚC khi đổi code Worker hoặc client.
+    - CORS: chỉ các origin trong biến ALLOWED_ORIGINS được cấp Access-Control-Allow-Origin;
+      preflight OPTIONS trả 204 với GET, PUT, DELETE và header Authorization, Content-Type.
+    - Route không tồn tại trả 404 text/plain "Not found".
+    - Lỗi không lường trước trả 500 {"success": false, "error": "internal_error"}.
+    - Mô hình lỗi mục tiêu (RFC 9457) xem docs/05-api-contracts/01-error-model.md.
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+  - url: https://tasks-api.nexuspulsetech.xyz
+    description: production
+tags:
+  - name: sync
+    description: Kho đồng bộ mã hóa đầu-cuối (server chỉ lưu bản mã)
+  - name: licensing
+    description: Nhận token bản quyền sau thanh toán
+  - name: webhooks
+    description: Sự kiện từ cổng thanh toán (server-to-server)
+
+paths:
+  /sync/v1/vaults/{vaultId}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      tags: [sync]
+      operationId: getVault
+      summary: Đọc bản mã mới nhất của kho
+      security:
+        - licenseBearer: []
+      responses:
+        '200':
+          description: Kho tồn tại
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VaultEnvelope' }
+        '401': { $ref: '#/components/responses/LicenseRequired' }
+        '402': { $ref: '#/components/responses/LicenseInvalid' }
+        '404':
+          description: Kho chưa tồn tại (client tạo mới bằng PUT expectedVersion = 0)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SyncErrorWithTime' }
+              example: { error: not_found, serverTime: '2026-10-30T08:00:00.000Z' }
+        '503': { $ref: '#/components/responses/SyncNotConfigured' }
+    put:
+      tags: [sync]
+      operationId: putVault
+      summary: Ghi bản mã với khóa lạc quan (compare-and-swap theo version)
+      security:
+        - licenseBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PutVaultRequest' }
+      responses:
+        '200':
+          description: Ghi thành công
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PutVaultResponse' }
+        '400':
+          description: Dữ liệu không hợp lệ
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error:
+                    type: string
+                    enum: [invalid_json, invalid_version, invalid_iv, invalid_ciphertext]
+        '401': { $ref: '#/components/responses/LicenseRequired' }
+        '402': { $ref: '#/components/responses/LicenseInvalid' }
+        '403':
+          description: Bản quyền đã đạt số kho tối đa (SYNC_MAX_VAULTS_PER_LICENSE)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SyncError' }
+              example: { error: vault_limit }
+        '409':
+          description: Version không khớp (thiết bị khác vừa ghi) hoặc tạo trùng kho — client kéo lại, hợp nhất, thử lại
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SyncError' }
+              example: { error: conflict }
+        '413':
+          description: Bản mã vượt 1.900.000 ký tự
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SyncError' }
+              example: { error: too_large }
+        '503': { $ref: '#/components/responses/SyncNotConfigured' }
+    delete:
+      tags: [sync]
+      operationId: deleteVault
+      summary: Xóa bản sao trên đám mây
+      security:
+        - licenseBearer: []
+      responses:
+        '204':
+          description: Đã xóa (idempotent — xóa kho không tồn tại cũng trả 204)
+        '401': { $ref: '#/components/responses/LicenseRequired' }
+        '402': { $ref: '#/components/responses/LicenseInvalid' }
+        '503': { $ref: '#/components/responses/SyncNotConfigured' }
+
+  /claim:
+    get:
+      tags: [licensing]
+      operationId: claimLicense
+      summary: App hỏi định kỳ để nhận token sau khi thanh toán
+      description: |
+        ⚠️ Hiện tại bất kỳ ai biết mã đơn đều nhận được token (mã 30-bit, chưa rate limit).
+        Phiên bản kế tiếp yêu cầu header X-Claim-Secret — xem task A04.
+      security: []
+      parameters:
+        - name: order
+          in: query
+          required: true
+          schema: { $ref: '#/components/schemas/OrderCode' }
+      responses:
+        '200':
+          description: Trạng thái đơn
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ClaimPending'
+                  - $ref: '#/components/schemas/ClaimReady'
+        '400':
+          description: Mã đơn sai định dạng
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status: { const: invalid }
+
+  /webhook/sepay:
+    post:
+      tags: [webhooks]
+      operationId: sepayWebhook
+      summary: Biến động số dư (VietQR) từ SePay
+      security:
+        - sepayApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SepayTransaction' }
+      responses:
+        '200':
+          description: Đã nhận (idempotent theo id giao dịch). Giao dịch không khớp đơn vẫn trả 200 để SePay không gửi lại.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success]
+                properties:
+                  success: { const: true }
+                  duplicate: { type: boolean }
+                  matched: { type: boolean }
+                  ignored: { type: string, enum: [outgoing_transfer] }
+        '400':
+          description: Thiếu mã giao dịch
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WebhookFailure' }
+        '401':
+          description: Sai/thiếu API key (hoặc Worker chưa cấu hình SEPAY_API_KEY — fail-closed)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WebhookFailure' }
+
+  /webhook/lemonsqueezy:
+    post:
+      tags: [webhooks]
+      operationId: lemonSqueezyWebhook
+      deprecated: true
+      summary: order_created từ LemonSqueezy (sẽ thay bằng Polar — ADR-0006)
+      security:
+        - lemonSqueezySignature: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: true }
+      responses:
+        '200':
+          description: Đã xử lý hoặc bỏ qua (sự kiện khác order_created, đơn chưa paid, đơn trùng)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  duplicate: { type: boolean }
+                  ignored: { oneOf: [{ type: boolean }, { type: string }] }
+        '401':
+          description: Chữ ký HMAC sai hoặc chưa cấu hình secret
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: { const: invalid_signature }
+
+components:
+  securitySchemes:
+    licenseBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: 'STRIDE1.<base64url payload>.<base64url Ed25519 signature>'
+      description: Token PRO; Worker xác minh bằng LICENSE_PUBLIC_KEY. SYNC_REQUIRE_LICENSE="false" cho phép không token (chỉ thử nghiệm).
+    sepayApiKey:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'Giá trị "Apikey <SEPAY_API_KEY>", so sánh thời gian hằng.'
+    lemonSqueezySignature:
+      type: apiKey
+      in: header
+      name: X-Signature
+      description: HMAC-SHA256 (hex) của raw body với LEMONSQUEEZY_SIGNING_SECRET.
+
+  parameters:
+    VaultId:
+      name: vaultId
+      in: path
+      required: true
+      description: SHA-256("stride-vault-v1:" + mã đồng bộ), 64 ký tự hex thường. Sai định dạng → 404 route.
+      schema:
+        type: string
+        pattern: '^[0-9a-f]{64}$'
+
+  responses:
+    LicenseRequired:
+      description: Thiếu token PRO
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/SyncErrorWithTime' }
+          example: { error: license_required, serverTime: '2026-10-30T08:00:00.000Z' }
+    LicenseInvalid:
+      description: Token sai chữ ký / không hợp lệ
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/SyncErrorWithTime' }
+          example: { error: license_invalid, serverTime: '2026-10-30T08:00:00.000Z' }
+    SyncNotConfigured:
+      description: Worker chưa có binding D1
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/SyncError' }
+          example: { error: sync_not_configured }
+
+  schemas:
+    OrderCode:
+      type: string
+      pattern: '^STR[A-HJ-NP-Z2-9]{6}$'
+      description: Mã đơn gắn vào nội dung chuyển khoản / custom data checkout (32^6 ≈ 2^30 khả năng).
+    VaultEnvelope:
+      type: object
+      required: [version, iv, ciphertext, updatedAt, serverTime]
+      properties:
+        version: { type: integer, minimum: 1 }
+        iv: { type: string, pattern: '^[A-Za-z0-9+/]{16}$', description: IV AES-GCM 12 byte (base64) }
+        ciphertext: { type: string, description: 'gzip + AES-256-GCM, base64' }
+        updatedAt: { type: string, format: date-time }
+        serverTime: { type: string, format: date-time, description: Dùng để phát hiện lệch đồng hồ thiết bị }
+    PutVaultRequest:
+      type: object
+      required: [expectedVersion, iv, ciphertext]
+      properties:
+        expectedVersion: { type: integer, minimum: 0, description: '0 = tạo kho mới; >0 = phải bằng version hiện tại' }
+        iv: { type: string, pattern: '^[A-Za-z0-9+/]{16}$' }
+        ciphertext: { type: string, pattern: '^[A-Za-z0-9+/]+={0,2}$', maxLength: 1900000 }
+    PutVaultResponse:
+      type: object
+      required: [version, serverTime]
+      properties:
+        version: { type: integer, minimum: 1 }
+        serverTime: { type: string, format: date-time }
+    SyncError:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          enum: [license_required, license_invalid, not_found, vault_limit, conflict, too_large, sync_not_configured, method_not_allowed]
+    SyncErrorWithTime:
+      allOf:
+        - $ref: '#/components/schemas/SyncError'
+        - type: object
+          required: [serverTime]
+          properties:
+            serverTime: { type: string, format: date-time }
+    ClaimPending:
+      type: object
+      required: [status]
+      properties:
+        status: { const: pending }
+    ClaimReady:
+      type: object
+      required: [status, token, activationUrl]
+      properties:
+        status: { const: ready }
+        token: { type: string, description: Token STRIDE1 }
+        activationUrl: { type: string, format: uri, description: 'APP_URL/#activate=<token>' }
+    SepayTransaction:
+      type: object
+      description: Các trường Worker sử dụng (SePay gửi thêm trường khác).
+      properties:
+        id: { type: [integer, string] }
+        referenceCode: { type: string }
+        transferType: { type: string, enum: [in, out] }
+        transferAmount: { type: number, description: VND }
+        code: { type: [string, 'null'] }
+        content: { type: string }
+        description: { type: string }
+    WebhookFailure:
+      type: object
+      required: [success, error]
+      properties:
+        success: { const: false }
+        error: { type: string, enum: [unauthorized, missing_transaction_id] }
