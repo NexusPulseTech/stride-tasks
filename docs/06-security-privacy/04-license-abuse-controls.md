@@ -5,7 +5,7 @@
 ## 1. Quan điểm
 
 - Mục tiêu **không** phải chống sao chép tuyệt đối (bất khả thi với app offline + mã nguồn MIT công khai). Mục tiêu là: người trung thực mua dễ dàng; lạm dụng **không tốn tiền hạ tầng của mình**; dịch vụ có chi phí (đồng bộ) được bảo vệ.
-- Không dùng DRM xâm phạm (định danh phần cứng, kiểm tra online bắt buộc) — đi ngược định vị riêng tư.
+- Không dùng DRM xâm phạm (định danh phần cứng, kiểm tra online bắt buộc), đi ngược định vị riêng tư.
 
 ## 2. Biện pháp
 
@@ -23,7 +23,7 @@
 ## 3. Khi phát hiện token bị phát tán
 
 1. Thu hồi `license_id` đó cho sync (thêm vào `revocations`).
-2. Liên hệ người mua gốc (qua MoR) — cấp token mới nếu họ là nạn nhân.
+2. Liên hệ người mua gốc (qua MoR), cấp token mới nếu họ là nạn nhân.
 3. Không chặn tính năng offline (không làm được và không đáng).
 
 ## 4. Liên quan giấy phép mã nguồn

@@ -34,6 +34,6 @@
 
 ## 4. Quy tắc
 
-- Không mua/đổi đánh giá; không yêu cầu đánh giá 5 sao có điều kiện — vi phạm chính sách store.
-- Ghi chú phát hành (release notes) mỗi bản cập nhật — dùng lại nội dung từ `docs/Release/`.
+- Không mua/đổi đánh giá; không yêu cầu đánh giá 5 sao có điều kiện, vi phạm chính sách store.
+- Ghi chú phát hành (release notes) mỗi bản cập nhật, dùng lại nội dung từ `docs/Release/`.
 - Theo dõi từ khóa và số lượt cài theo tuần trong Partner Center / Play Console.

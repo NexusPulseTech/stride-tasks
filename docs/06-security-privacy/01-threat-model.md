@@ -10,11 +10,11 @@
 | **S**poofing | Giả token PRO | App, sync API | ✅ Chữ ký Ed25519, xác minh offline & trên server | Giữ khóa riêng an toàn (file 02) |
 | S | Giả webhook thanh toán | `/webhook/*` | ✅ API key / HMAC, fail-closed khi thiếu secret | Polar: Standard Webhooks + chống replay theo timestamp (A04) |
 | S | Mạo danh người mua để nhận token (đoán mã đơn) | `/claim` | ❌ Chỉ cần biết mã 30-bit | `claimSecret` 128-bit + rate limit (A04) |
-| **T**ampering | Sửa bản mã trên server | D1 | ✅ AES-GCM xác thực toàn vẹn, AAD = vaultId | — |
-| T | Sửa token/trạng thái PRO cục bộ | localStorage | ✅ Xác minh lại khi khởi động, sai → reset | — |
+| **T**ampering | Sửa bản mã trên server | D1 | ✅ AES-GCM xác thực toàn vẹn, AAD = vaultId | - |
+| T | Sửa token/trạng thái PRO cục bộ | localStorage | ✅ Xác minh lại khi khởi động, sai → reset | - |
 | T | Chuỗi cung ứng: dependency/action độc hại | Build, CI | ⚠️ Dependency dạng `^`, CI dùng `npm install` (không `npm ci`), `bun-version: latest`, action chưa ghim | `npm ci`, Dependabot, ghim phiên bản action, CodeQL (B03) |
 | **R**epudiation | Không chứng minh được đã phát hành token cho đơn nào | Worker | ⚠️ Bản ghi KV hết hạn sau 90 ngày | Sổ cái `orders` + `payment_events` lâu dài (A04/B05) |
-| **I**nformation disclosure | Server đọc dữ liệu người dùng | Sync | ✅ Chỉ bản mã; vaultId là hash, không suy ra mã | — |
+| **I**nformation disclosure | Server đọc dữ liệu người dùng | Sync | ✅ Chỉ bản mã; vaultId là hash, không suy ra mã | - |
 | I | XSS đánh cắp token PRO / mã đồng bộ trong localStorage | App web & Tauri | ⚠️ Không có CSP (GitHub Pages không đặt header; Tauri `csp: null`) | CSP qua `<meta http-equiv>` cho web + CSP trong `tauri.conf.json` (B04) |
 | I | Lộ khóa riêng qua repo public | Repo | ✅ `.env.local` gitignore, đã quét diff & bundle | Secret scanning + push protection của GitHub (B03) |
 | **D**enial of service | Cạn 100k request/ngày do poll claim | Worker | ❌ Poll 6s × 72h | Backoff + dừng (A04) |

@@ -1,7 +1,7 @@
 # Thị trường & đối thủ
 
 > **Thuộc**: 01-business · **Trạng thái**: Draft v1 · **Cập nhật**: 2026-10-30
-> **Mục đích**: biết mình đứng ở đâu so với đối thủ để chọn chỗ thắng được — không cạnh tranh "nhiều tính năng hơn Todoist".
+> **Mục đích**: biết mình đứng ở đâu so với đối thủ để chọn chỗ thắng được, không cạnh tranh "nhiều tính năng hơn Todoist".
 
 ## 1. Bối cảnh
 
@@ -16,7 +16,7 @@
 | TickTick | Thuê bao ≈ $35.99/năm | Có Pomodoro, lịch, habit | Bắt buộc tài khoản, dữ liệu trên cloud, không SRS |
 | Things 3 | Mua một lần: $49.99 (Mac), $19.99 (iPad), $9.99 (iPhone) | Thiết kế đẹp, mua một lần | Chỉ Apple, không Windows/Android/web |
 | Microsoft To Do | Miễn phí | Sẵn trên Windows, đồng bộ Microsoft | Đơn giản, không Pomodoro/SRS/Kanban, cần tài khoản Microsoft |
-| **Focus To-Do** | Freemium: Premium $1.99/tháng, **lifetime $11.99** (App Store) | Pomodoro + task; **trả tiền chủ yếu để đồng bộ** | Không SRS, không local-first E2E — *đây là đối thủ có mô hình giống Stride nhất* |
+| **Focus To-Do** | Freemium: Premium $1.99/tháng, **lifetime $11.99** (App Store) | Pomodoro + task; **trả tiền chủ yếu để đồng bộ** | Không SRS, không local-first E2E, *đây là đối thủ có mô hình giống Stride nhất* |
 | Super Productivity | Miễn phí, mã nguồn mở | Offline, time-tracking, cộng đồng dev | Không bán; UX thiên kỹ thuật |
 | Obsidian (tham chiếu mô hình) | App miễn phí, Sync ≈ $4/tháng (năm) | Chứng minh "local-first miễn phí + trả tiền cho sync" bán được | Không phải task manager |
 | Anki | Miễn phí (desktop/Android) | Thuật toán SRS chuẩn mực | Là flashcard, không quản lý công việc |
@@ -25,7 +25,7 @@
 ## 3. Định vị khác biệt của Stride
 
 **Câu định vị (đề xuất):**
-> *Stride Tasks là trình quản lý công việc offline-first cho người cần tập trung và ghi nhớ: lên kế hoạch bằng một dòng, làm bằng Pomodoro, ôn lại đúng lúc bằng SM-2 — dữ liệu ở trên máy bạn, đồng bộ mã hóa đầu-cuối khi cần.*
+> *Stride Tasks là trình quản lý công việc offline-first cho người cần tập trung và ghi nhớ: lên kế hoạch bằng một dòng, làm bằng Pomodoro, ôn lại đúng lúc bằng SM-2, dữ liệu ở trên máy bạn, đồng bộ mã hóa đầu-cuối khi cần.*
 
 | Thuộc tính | Stride | Todoist | TickTick | Focus To-Do | Things 3 |
 | :--- | :---: | :---: | :---: | :---: | :---: |

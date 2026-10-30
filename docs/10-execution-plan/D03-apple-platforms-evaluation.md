@@ -1,8 +1,8 @@
-# D03 — Đánh giá nền tảng Apple (iOS / macOS)
+# D03: Đánh giá nền tảng Apple (iOS / macOS)
 
 | Thuộc tính | Giá trị |
 | :--- | :--- |
-| Phase | D — Scale |
+| Phase | D: Scale |
 | Ưu tiên | P3 |
 | Ước lượng | 0,5 ngày đánh giá |
 | Điều kiện bắt đầu | Doanh thu ≥ $500/tháng **hoặc** ≥ 30% khách hỏi bản iOS/macOS |

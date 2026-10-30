@@ -1,7 +1,7 @@
 # Từ khóa & chiến lược nội dung
 
-> **Thuộc**: 02-growth · **Trạng thái**: Draft v1 — *danh sách từ khóa là giả thuyết, phải đo lượng tìm kiếm trước khi viết* · **Cập nhật**: 2026-10-30
-> **Mục đích**: viết ít nhưng trúng — mỗi trang phục vụ một ý định tìm kiếm rõ ràng và dẫn về app.
+> **Thuộc**: 02-growth · **Trạng thái**: Draft v1, *danh sách từ khóa là giả thuyết, phải đo lượng tìm kiếm trước khi viết* · **Cập nhật**: 2026-10-30
+> **Mục đích**: viết ít nhưng trúng, mỗi trang phục vụ một ý định tìm kiếm rõ ràng và dẫn về app.
 
 ## 1. Nguyên tắc
 
@@ -9,14 +9,14 @@
 2. **Kinh nghiệm thật (E-E-A-T)**: ảnh chụp màn hình thật, ví dụ thật, giọng founder; không viết chung chung kiểu AI.
 3. **Không trang mỏng hàng loạt**: trang dạng mẫu (template/so sánh) chỉ tạo khi có nội dung riêng đáng đọc.
 4. **Mỗi bài có đường dẫn nội bộ** tới trang tính năng liên quan + CTA mở app.
-5. **Đo bằng Search Console**: sau 4–6 tuần xem truy vấn nào có impressions để viết tiếp/sửa.
+5. **Đo bằng Search Console**: sau 4-6 tuần xem truy vấn nào có impressions để viết tiếp/sửa.
 
 ## 2. Cụm từ khóa (EN / VI)
 
 | Cụm | Ví dụ EN | Ví dụ VI | Loại trang | Ý định |
 | :--- | :--- | :--- | :--- | :--- |
 | Offline & riêng tư | offline todo app, todo app without account, private task manager, local-first task manager | app ghi chú việc cần làm offline, todo list không cần tài khoản | Tính năng + landing | Cao |
-| Ôn tập ngắt quãng | spaced repetition study planner, spaced repetition for tasks, revision timetable app | lặp lại ngắt quãng là gì, lịch ôn tập ngắt quãng, cách ôn thi không quên | Tính năng + blog + use case | Trung bình–cao |
+| Ôn tập ngắt quãng | spaced repetition study planner, spaced repetition for tasks, revision timetable app | lặp lại ngắt quãng là gì, lịch ôn tập ngắt quãng, cách ôn thi không quên | Tính năng + blog + use case | Trung bình-cao |
 | Pomodoro | pomodoro task manager, pomodoro timer with tasks | phương pháp pomodoro, app pomodoro | Tính năng + công cụ miễn phí | Trung bình |
 | Thay thế đối thủ | todoist alternative offline, ticktick alternative, focus to-do alternative | app thay thế todoist | So sánh | **Rất cao** |
 | Kế hoạch học tập | study planner app, exam study plan template, IELTS study plan | kế hoạch ôn thi, lộ trình tự học IELTS | Template + blog | Trung bình |
@@ -47,7 +47,7 @@ Công cụ kiểm chứng: Google Search Console, Google Keyword Planner, Bing W
 | 7 | Deep work log | Quản lý việc với Kanban cá nhân |
 | 8 | Tổng kết số liệu, viết lại 2 bài có impressions cao nhất | như bên trái |
 
-Nhịp: 1 bài EN + 1 bài VI mỗi tuần — bền vững cho một người.
+Nhịp: 1 bài EN + 1 bài VI mỗi tuần, bền vững cho một người.
 
 ## 5. Phân phối mỗi bài (repurpose)
 

@@ -1,8 +1,8 @@
-# A07 — Đo lường không xâm phạm riêng tư
+# A07: Đo lường không xâm phạm riêng tư
 
 | Thuộc tính | Giá trị |
 | :--- | :--- |
-| Phase | A — First Dollar |
+| Phase | A: First Dollar |
 | Ưu tiên | P0 |
 | Ước lượng | 0,5 ngày (giai đoạn 1) + 1 ngày (giai đoạn 2, tùy chọn) |
 | Phụ thuộc | A02 (privacy.html phải nêu công cụ đo trước khi bật) |

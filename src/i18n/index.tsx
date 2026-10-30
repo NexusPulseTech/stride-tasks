@@ -66,7 +66,7 @@ export function useLanguage() {
 }
 
 /**
- * Ref luôn trỏ tới bản dịch của ngôn ngữ HIỆN TẠI — dùng trong callback memo hóa / timer / effect chạy một lần,
+ * Ref luôn trỏ tới bản dịch của ngôn ngữ HIỆN TẠI, dùng trong callback memo hóa / timer / effect chạy một lần,
  * nơi đọc trực tiếp `t` sẽ bị đóng băng ở ngôn ngữ lúc tạo callback.
  */
 export function useTranslationRef() {

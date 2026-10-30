@@ -15,7 +15,7 @@
 | Modal lazy lớn nhất (`StatsPanel`) | 29,91 kB | 7,13 kB |
 | Precache Service Worker | 24 mục | 973,07 KiB |
 
-## 2. Ngân sách (CI chặn khi vượt — task B03)
+## 2. Ngân sách (CI chặn khi vượt: task B03)
 
 | Hạng mục | Ngân sách cứng | Mục tiêu |
 | :--- | ---: | ---: |
@@ -23,7 +23,7 @@
 | Mỗi chunk lazy (raw) | ≤ 35 kB | ≤ 30 kB |
 | CSS (raw) | ≤ 135 kB | ≤ 120 kB |
 | Precache Service Worker | ≤ 1,2 MiB | ≤ 1,0 MiB |
-| Trang marketing (JS) | ≤ 50 kB | 0–10 kB (Astro mặc định không JS) |
+| Trang marketing (JS) | ≤ 50 kB | 0-10 kB (Astro mặc định không JS) |
 
 ## 3. Core Web Vitals (đo p75 thực tế)
 

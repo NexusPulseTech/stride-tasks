@@ -1,8 +1,8 @@
-# B05 — Worker TypeScript + kiến trúc lục giác + timeout phía client
+# B05: Worker TypeScript + kiến trúc lục giác + timeout phía client
 
 | Thuộc tính | Giá trị |
 | :--- | :--- |
-| Phase | B — Foundation |
+| Phase | B: Foundation |
 | Ưu tiên | P1 |
 | Ước lượng | 3 ngày |
 | Phụ thuộc | B01, A04 |

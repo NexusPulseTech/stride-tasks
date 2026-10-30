@@ -1,7 +1,7 @@
 # Chuẩn viết code
 
 > **Thuộc**: 07-engineering · **Trạng thái**: Accepted · **Cập nhật**: 2026-10-30
-> **Áp dụng**: TypeScript/React ở client, TypeScript ở Worker (sau B05). Quy tắc được **máy kiểm tra** (ESLint, tsc, CI) — không dựa vào trí nhớ.
+> **Áp dụng**: TypeScript/React ở client, TypeScript ở Worker (sau B05). Quy tắc được **máy kiểm tra** (ESLint, tsc, CI), không dựa vào trí nhớ.
 
 ## 1. TypeScript
 
@@ -60,7 +60,7 @@ Script chuẩn: `npm run typecheck` (tsc), `npm run lint` (ESLint), `npm run for
 
 - Lỗi **dự kiến** (mạng, xung đột, dữ liệu sai) → giá trị trả về có kiểu (`Result`/mã lỗi union như `SyncErrorCode`), hiển thị thông báo i18n.
 - Lỗi **lập trình** → `throw`, để Error Boundary bắt.
-- Không nuốt lỗi im lặng; `catch {}` chỉ chấp nhận khi có chú thích lý do (VD hết quota cho dữ liệu phụ trợ — như `tombstones.ts`).
+- Không nuốt lỗi im lặng; `catch {}` chỉ chấp nhận khi có chú thích lý do (VD hết quota cho dữ liệu phụ trợ, như `tombstones.ts`).
 - Mọi `fetch` có timeout (`AbortSignal.timeout`) và xử lý offline.
 
 ## 5. React
@@ -70,7 +70,7 @@ Script chuẩn: `npm run typecheck` (tsc), `npm run lint` (ESLint), `npm run for
 - Không lưu state suy ra được; dùng `useMemo` chỉ khi đo thấy cần.
 - Key ổn định (id), không dùng index cho danh sách thay đổi thứ tự.
 - Modal/menu nổi dùng `PortalMenu`/portal chuẩn ([../08-design-system/portal-layering.md](../08-design-system/portal-layering.md)).
-- Mọi chuỗi hiển thị qua i18n; không ghép chuỗi bằng tay — dùng `formatMessage`.
+- Mọi chuỗi hiển thị qua i18n; không ghép chuỗi bằng tay, dùng `formatMessage`.
 
 ## 6. Bảo mật trong code
 
@@ -89,5 +89,5 @@ Script chuẩn: `npm run typecheck` (tsc), `npm run lint` (ESLint), `npm run for
 
 ## 8. Comment & ngôn ngữ
 
-- Comment giải thích **vì sao**, không lặp lại code làm gì; giữ mật độ comment như code xung quanh (code hiện dùng tiếng Việt — giữ nhất quán).
+- Comment giải thích **vì sao**, không lặp lại code làm gì; giữ mật độ comment như code xung quanh (code hiện dùng tiếng Việt, giữ nhất quán).
 - Tên biến/hàm bằng tiếng Anh.

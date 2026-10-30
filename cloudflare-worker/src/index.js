@@ -1,5 +1,5 @@
 /**
- * Cloudflare Worker MẪU — cấp bản quyền Stride Tasks PRO tự động 24/7 (kể cả 2 giờ sáng).
+ * Cloudflare Worker MẪU, cấp bản quyền Stride Tasks PRO tự động 24/7 (kể cả 2 giờ sáng).
  *
  * Luồng VietQR (199.000₫):
  *   App tạo mã đơn STRxxxxxx → hiện QR (nội dung CK = mã đơn) → khách chuyển khoản
@@ -43,7 +43,7 @@
  * 5. SePay: Webhook URL = https://<worker>/webhook/sepay, chứng thực "API Key".
  *    LemonSqueezy: Settings → Webhooks → URL https://<worker>/webhook/lemonsqueezy, sự kiện order_created.
  *
- * Lưu ý: đây là mẫu tham khảo — hãy đối chiếu tên trường webhook với tài liệu hiện hành của SePay/LemonSqueezy
+ * Lưu ý: đây là mẫu tham khảo, hãy đối chiếu tên trường webhook với tài liệu hiện hành của SePay/LemonSqueezy
  * và chạy thử bằng giao dịch thật giá trị nhỏ trước khi mở bán.
  */
 
@@ -304,7 +304,7 @@ async function sendActivationEmail(env, to, token) {
     body: JSON.stringify({
       from: env.MAIL_FROM || 'Stride Tasks <license@nexuspulsetech.xyz>',
       to: [to],
-      subject: 'Stride Tasks PRO — link kích hoạt / activation link',
+      subject: 'Stride Tasks PRO: link kích hoạt / activation link',
       html: `<p>Cảm ơn bạn đã mua Stride Tasks PRO! / Thank you for purchasing Stride Tasks PRO!</p>
 <p><a href="${link}">Kích hoạt PRO trên thiết bị này / Activate PRO on this device</a></p>
 <p>Mở link này trên từng thiết bị bạn dùng. Hãy giữ email này để kích hoạt lại khi cần.<br/>

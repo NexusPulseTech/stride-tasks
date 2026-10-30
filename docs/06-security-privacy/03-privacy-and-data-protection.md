@@ -1,7 +1,7 @@
 # Quyền riêng tư & bảo vệ dữ liệu cá nhân
 
 > **Thuộc**: 06-security-privacy · **Trạng thái**: Draft v1 · **Cập nhật**: 2026-10-30
-> **Luật liên quan**: Luật BVDLCN Việt Nam 91/2025/QH15 (hiệu lực 01/01/2026), GDPR, CCPA — chi tiết pháp lý ở [../01-business/06-legal-tax-compliance.md](../01-business/06-legal-tax-compliance.md). Trang công khai: `public/privacy.html`.
+> **Luật liên quan**: Luật BVDLCN Việt Nam 91/2025/QH15 (hiệu lực 01/01/2026), GDPR, CCPA, chi tiết pháp lý ở [../01-business/06-legal-tax-compliance.md](../01-business/06-legal-tax-compliance.md). Trang công khai: `public/privacy.html`.
 
 ## 1. Kiểm kê dữ liệu
 
@@ -14,7 +14,7 @@
 | Email, tên, quốc gia, thông tin thanh toán người mua | **MoR** (Polar/SePay/ngân hàng) | Xử lý thanh toán, hóa đơn, thuế | Theo chính sách MoR | MoR; founder xem trong dashboard |
 | Email người mua (nếu gửi link kích hoạt) | Dịch vụ email (Resend) | Gửi link kích hoạt/khôi phục | Theo chính sách nhà cung cấp | Nhà cung cấp email |
 | Lượt xem trang (tổng hợp) | Cloudflare Web Analytics | Đo lường | Theo Cloudflare | Founder |
-| Log kỹ thuật Worker | Cloudflare Workers Logs | Gỡ lỗi | Theo gói Cloudflare | Founder — **không log body, token, IP đầy đủ** |
+| Log kỹ thuật Worker | Cloudflare Workers Logs | Gỡ lỗi | Theo gói Cloudflare | Founder, **không log body, token, IP đầy đủ** |
 
 ## 2. Nguyên tắc
 

@@ -1,8 +1,8 @@
-# D05 — Quyết định giấy phép mã nguồn
+# D05: Quyết định giấy phép mã nguồn
 
 | Thuộc tính | Giá trị |
 | :--- | :--- |
-| Phase | D — Scale (nên quyết sớm, trước khi launch lớn) |
+| Phase | D: Scale (nên quyết sớm, trước khi launch lớn) |
 | Ưu tiên | P2 |
 | Ước lượng | 0,5 ngày (sau khi founder chọn) |
 | Phụ thuộc | Founder quyết định ADR-0008 |

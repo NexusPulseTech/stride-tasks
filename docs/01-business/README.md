@@ -1,7 +1,7 @@
-# 01 — Business Strategy
+# 01: Business Strategy
 
 > **Thuộc**: 01-business · **Trạng thái**: Draft v1 · **Cập nhật**: 2026-10-30
-> **Mục đích**: trả lời *bán cho ai, bán gì, giá bao nhiêu, thu tiền thế nào, bán ở đâu* — và con đường ngắn nhất tới khách trả tiền đầu tiên.
+> **Mục đích**: trả lời *bán cho ai, bán gì, giá bao nhiêu, thu tiền thế nào, bán ở đâu*, và con đường ngắn nhất tới khách trả tiền đầu tiên.
 
 ## Chiến lược một trang
 
@@ -23,7 +23,7 @@
 | [02-target-customers-icp.md](./02-target-customers-icp.md) | Phân khúc khách hàng, JTBD, persona, nơi họ tụ tập, kịch bản phỏng vấn |
 | [03-pricing-and-packaging.md](./03-pricing-and-packaging.md) | Gói Free/PRO, giá PPP, ưu đãi mở bán, thời điểm hiện paywall |
 | [04-payments-and-merchant-of-record.md](./04-payments-and-merchant-of-record.md) | So sánh cổng thanh toán/MoR, phí thực nhận, luồng tích hợp đề xuất |
-| [05-distribution-channels.md](./05-distribution-channels.md) | Web, Microsoft Store, Google Play, Apple, Linux — chi phí, luật thanh toán, thứ tự ưu tiên |
+| [05-distribution-channels.md](./05-distribution-channels.md) | Web, Microsoft Store, Google Play, Apple, Linux, chi phí, luật thanh toán, thứ tự ưu tiên |
 | [06-legal-tax-compliance.md](./06-legal-tax-compliance.md) | Trang pháp lý bắt buộc, quyền riêng tư, thuế (lưu ý tham vấn), thương hiệu |
 | [07-first-paying-customer-playbook.md](./07-first-paying-customer-playbook.md) | **Kế hoạch 14 ngày tới khách trả tiền đầu tiên** (quan trọng nhất) |
 | [08-kpis-and-unit-economics.md](./08-kpis-and-unit-economics.md) | Phễu chỉ số, mục tiêu, chi phí & điểm hòa vốn |

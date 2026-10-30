@@ -8,7 +8,7 @@
     color-scheme: light;
   }
 
-  /* iOS Safari tự phóng to khi focus ô nhập có chữ < 16px — giữ 16px thay cho việc khóa zoom (WCAG 1.4.4) */
+  /* iOS Safari tự phóng to khi focus ô nhập có chữ < 16px, nên giữ 16px thay cho việc khóa zoom (WCAG 1.4.4) */
   @supports (-webkit-touch-callout: none) {
     input,
     textarea,

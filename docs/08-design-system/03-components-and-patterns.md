@@ -8,15 +8,15 @@
 | Primitive | Biến thể | Trạng thái bắt buộc | Ghi chú |
 | :--- | :--- | :--- | :--- |
 | `Button` | `primary`, `secondary`, `ghost`, `danger`; cỡ `sm`/`md` | default, hover, focus-visible, active, disabled, loading | Nút chỉ có icon phải có `aria-label` |
-| `IconButton` | — | như trên | Vùng chạm ≥ 24×24 px (WCAG 2.5.8), khuyến nghị 44×44 trên mobile |
+| `IconButton` | - | như trên | Vùng chạm ≥ 24×24 px (WCAG 2.5.8), khuyến nghị 44×44 trên mobile |
 | `TextField` / `TextArea` | có nhãn, mô tả, lỗi | focus, invalid, disabled | Cỡ chữ ≥ 16px để iOS không tự zoom (thay cho khóa `user-scalable`) |
 | `Dialog` | modal, sheet (mobile) | mở/đóng, bẫy focus, `Esc` đóng, trả focus | Dựa trên portal chuẩn hiện có |
-| `Menu` / `Popover` | — | điều hướng phím mũi tên | Mở rộng `PortalMenu` |
+| `Menu` / `Popover` | - | điều hướng phím mũi tên | Mở rộng `PortalMenu` |
 | `Toast` / `Snackbar` | info, success, error, có hành động Undo | tự đóng, dừng khi hover/focus | Đã có `ToastNotification`, `UndoSnackbar` → chuẩn hóa API |
-| `Badge` / `StatusPill` | theo token `status-*` | — | Không dùng màu làm tín hiệu duy nhất (kèm chữ/icon) |
-| `Checkbox`, `Switch` | — | checked, mixed (việc con một phần), disabled | |
-| `EmptyState` | — | — | Tiêu đề + một hành động chính |
-| `Skeleton` | — | — | Chỉ cho dữ liệu mạng (đồng bộ), không cho dữ liệu cục bộ |
+| `Badge` / `StatusPill` | theo token `status-*` | - | Không dùng màu làm tín hiệu duy nhất (kèm chữ/icon) |
+| `Checkbox`, `Switch` | - | checked, mixed (việc con một phần), disabled | |
+| `EmptyState` | - | - | Tiêu đề + một hành động chính |
+| `Skeleton` | - | - | Chỉ cho dữ liệu mạng (đồng bộ), không cho dữ liệu cục bộ |
 
 ## 2. Mẫu tương tác chuẩn
 

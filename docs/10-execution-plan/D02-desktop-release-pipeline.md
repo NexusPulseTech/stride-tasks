@@ -1,10 +1,10 @@
-# D02 — Pipeline phát hành desktop
+# D02: Pipeline phát hành desktop
 
 | Thuộc tính | Giá trị |
 | :--- | :--- |
-| Phase | D — Scale |
+| Phase | D: Scale |
 | Ưu tiên | P2 |
-| Ước lượng | 2–3 ngày |
+| Ước lượng | 2-3 ngày |
 | Phụ thuộc | B03 |
 | Trạng thái | ☐ Todo |
 

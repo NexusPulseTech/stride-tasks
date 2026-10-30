@@ -1,4 +1,4 @@
-# 09 — Operations
+# 09: Operations
 
 > **Thuộc**: 09-operations · **Trạng thái**: Draft v1 · **Cập nhật**: 2026-10-30
 > **Mục đích**: làm đúng các việc vận hành lặp lại (deploy, bật thanh toán, xử lý sự cố, hỗ trợ khách) mà không cần nhớ.

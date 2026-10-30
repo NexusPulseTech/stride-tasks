@@ -40,7 +40,7 @@ export interface UseSyncOptions {
   /** URL Worker đồng bộ; rỗng → tính năng ẩn hoàn toàn */
   apiUrl: string;
   licenseToken: string | null;
-  /** Được phép dùng (PRO, hoặc paywall đang tắt — máy chủ vẫn là nơi quyết định cuối cùng) */
+  /** Được phép dùng (PRO, hoặc paywall đang tắt, máy chủ vẫn là nơi quyết định cuối cùng) */
   canUse: boolean;
   getLocalSnapshot: () => SyncSnapshot;
   applySnapshot: (snapshot: SyncSnapshot) => void;

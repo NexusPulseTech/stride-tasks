@@ -1,4 +1,4 @@
-# AI search (Generative Engine Optimization — GEO)
+# AI search (Generative Engine Optimization: GEO)
 
 > **Thuộc**: 02-growth · **Trạng thái**: Draft v1 · **Cập nhật**: 2026-10-30
 > **Mục đích**: tăng khả năng Stride được ChatGPT, Perplexity, Gemini, Google AI Overviews **nhắc tới** khi người dùng hỏi về app quản lý công việc offline / học bằng ôn tập ngắt quãng.
@@ -13,7 +13,7 @@
 
 | # | Việc | Ghi chú |
 | :---: | :--- | :--- |
-| 1 | **Không chặn** bot AI trong `robots.txt` (GPTBot, ClaudeBot, PerplexityBot, Google-Extended) | `robots.txt` hiện cho phép tất cả — giữ nguyên |
+| 1 | **Không chặn** bot AI trong `robots.txt` (GPTBot, ClaudeBot, PerplexityBot, Google-Extended) | `robots.txt` hiện cho phép tất cả, giữ nguyên |
 | 2 | Trang "sự thật" rõ ràng: *Stride là gì, giá bao nhiêu, chạy trên nền tảng nào, khác gì đối thủ* | Trang đích + trang giá + trang so sánh, viết câu khẳng định ngắn, dễ trích |
 | 3 | Thông tin thực thể **nhất quán** ở mọi nơi (tên, mô tả một câu, URL) | Website, Microsoft Store, GitHub repo, AlternativeTo, Product Hunt |
 | 4 | JSON-LD `SoftwareApplication` đúng | Xem [01-technical-seo-audit.md](./01-technical-seo-audit.md) |
@@ -24,7 +24,7 @@
 
 Hỏi 15 câu cố định trên ChatGPT (có tìm kiếm), Perplexity và Google, ví dụ:
 *"best offline todo app without account"*, *"spaced repetition planner for exam revision"*, *"Todoist alternative that works offline"*, *"app quản lý công việc offline tốt nhất"*.
-Ghi vào bảng: có được nhắc không, đối thủ nào được nhắc, nguồn được trích dẫn — để biết cần có mặt ở nguồn nào.
+Ghi vào bảng: có được nhắc không, đối thủ nào được nhắc, nguồn được trích dẫn, để biết cần có mặt ở nguồn nào.
 
 ## Nguồn (nguồn thứ ba, mang tính định hướng)
 

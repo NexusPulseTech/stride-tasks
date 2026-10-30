@@ -10,8 +10,8 @@
 
 ## Các phương án
 
-1. **Cloud-first, có tài khoản** — đồng bộ dễ, nhưng chi phí vận hành, trách nhiệm dữ liệu cá nhân lớn, mất điểm khác biệt.
-2. **Local-first, không tài khoản; đồng bộ là tùy chọn mã hóa đầu-cuối** — chi phí thấp, riêng tư, khác biệt; đồng bộ phức tạp hơn.
+1. **Cloud-first, có tài khoản**: đồng bộ dễ, nhưng chi phí vận hành, trách nhiệm dữ liệu cá nhân lớn, mất điểm khác biệt.
+2. **Local-first, không tài khoản; đồng bộ là tùy chọn mã hóa đầu-cuối**: chi phí thấp, riêng tư, khác biệt; đồng bộ phức tạp hơn.
 
 ## Quyết định
 

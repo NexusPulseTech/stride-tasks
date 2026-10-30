@@ -14,11 +14,11 @@
 | 409 | `conflict` | Version không khớp / tạo trùng | không phải lỗi: vòng lặp kéo-hợp nhất-ghi, hết lượt → `conflict_retry_exhausted` |
 | 413 | `too_large` | Bản mã > 1,9 MB | `too_large` |
 | 503 | `sync_not_configured` | Thiếu binding D1 | `server_error` |
-| — | (mạng lỗi) | fetch throw | `offline` |
-| — | (giải mã lỗi) | Sai mã đồng bộ / dữ liệu bị sửa | `decrypt_failed` |
+| - | (mạng lỗi) | fetch throw | `offline` |
+| - | (giải mã lỗi) | Sai mã đồng bộ / dữ liệu bị sửa | `decrypt_failed` |
 
 Webhook dùng dạng khác: `{ "success": false, "error": "unauthorized" | "missing_transaction_id" }` (SePay) và `{ "error": "invalid_signature" }` (LemonSqueezy). Claim dùng `{ "status": "invalid" }`.
-⇒ **Ba hình dạng lỗi khác nhau** — mục tiêu là thống nhất.
+⇒ **Ba hình dạng lỗi khác nhau**: mục tiêu là thống nhất.
 
 ## 2. Mục tiêu: RFC 9457 Problem Details
 
@@ -41,8 +41,8 @@ Quy tắc:
 
 1. `code` là **hợp đồng** (ổn định, snake_case); `title`/`detail` chỉ để người đọc, có thể đổi.
 2. Giữ trường `error` = `code` trong thời gian chuyển tiếp để client cũ không vỡ (expand → contract).
-3. `429 rate_limited` kèm header `Retry-After` (giây) — client hiện coi 429 là `server_error`; cần thêm `rate_limited` vào `SyncErrorCode` và chờ theo `Retry-After`.
-4. `402 license_revoked` (mới, khi hoàn tiền) — client hạ PRO và hiển thị thông báo lịch sự.
+3. `429 rate_limited` kèm header `Retry-After` (giây), client hiện coi 429 là `server_error`; cần thêm `rate_limited` vào `SyncErrorCode` và chờ theo `Retry-After`.
+4. `402 license_revoked` (mới, khi hoàn tiền), client hạ PRO và hiển thị thông báo lịch sự.
 5. Không lộ chi tiết nội bộ (stack trace, câu SQL) trong `detail`.
 
 ## 3. Bảng mã lỗi chuẩn (mục tiêu)
@@ -54,8 +54,8 @@ Quy tắc:
 | `license_invalid` | 402 | Không | `sync.errors.licenseRequired` |
 | `license_revoked` | 402 | Không | `sync.errors.licenseRevoked` |
 | `vault_limit` | 403 | Không | `sync.errors.vaultLimit` |
-| `not_found` | 404 | — | — |
-| `conflict` | 409 | Có (tự động) | — |
+| `not_found` | 404 | - | - |
+| `conflict` | 409 | Có (tự động) | - |
 | `too_large` | 413 | Không | `sync.errors.tooLarge` |
 | `rate_limited` | 429 | Có, sau `Retry-After` | `errors.rateLimited` |
 | `claim_secret_mismatch` | 403 | Không | `license.errors.claimMismatch` |
@@ -64,4 +64,4 @@ Quy tắc:
 
 ## Nguồn
 
-- RFC 9457 — Problem Details for HTTP APIs: <https://www.rfc-editor.org/rfc/rfc9457>
+- RFC 9457, Problem Details for HTTP APIs: <https://www.rfc-editor.org/rfc/rfc9457>

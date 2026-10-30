@@ -1,10 +1,10 @@
-# Stride Tasks — Documentation Hub
+# Stride Tasks: Documentation Hub
 
 > **Cập nhật**: 2026-10-30 · **Phiên bản sản phẩm**: v3.1.0 · **Chủ sở hữu tài liệu**: Founder (NexusPulse)
-> **Mục tiêu số 1 hiện tại**: có **khách hàng trả tiền đầu tiên** — mọi kế hoạch khác xếp hàng sau mục tiêu này.
+> **Mục tiêu số 1 hiện tại**: có **khách hàng trả tiền đầu tiên**: mọi kế hoạch khác xếp hàng sau mục tiêu này.
 
 Thư mục `docs/` được chia theo **miền trách nhiệm** (giống cách các công ty lớn tách tài liệu theo bounded context):
-mỗi thư mục đặc tả một chức năng, mỗi file giải quyết **một** chủ đề. Khi code, tài liệu là "hợp đồng" — code phải khớp tài liệu,
+mỗi thư mục đặc tả một chức năng, mỗi file giải quyết **một** chủ đề. Khi code, tài liệu là "hợp đồng", code phải khớp tài liệu,
 nếu đổi thiết kế thì cập nhật tài liệu (hoặc ADR) trong cùng commit.
 
 ---
@@ -33,7 +33,7 @@ docs/
 │   └── store-listings/       # Hồ sơ đăng store (Microsoft Store, …)
 ├── 03-product/               # Sản phẩm: đánh giá độ hoàn thiện, danh mục tính năng Free/PRO, roadmap, onboarding, user guide
 ├── 04-architecture/          # Kiến trúc: C4, nguyên lý SOLID/DDD/microservices, frontend, backend services, dữ liệu, cấu trúc repo
-│   └── adr/                  # Architecture Decision Records — mọi quyết định kiến trúc lớn được ghi tại đây
+│   └── adr/                  # Architecture Decision Records, mọi quyết định kiến trúc lớn được ghi tại đây
 ├── 05-api-contracts/         # Hợp đồng API (OpenAPI 3.1), mô hình lỗi, webhook/event, báo cáo khớp FE↔BE
 ├── 06-security-privacy/      # Mô hình mối đe dọa, quản lý khóa bí mật, quyền riêng tư & tuân thủ, chống lạm dụng bản quyền
 ├── 07-engineering/           # Chuẩn kỹ thuật: coding standard, test, CI/CD, quan sát hệ thống, ngân sách hiệu năng, git
@@ -68,7 +68,7 @@ docs/
 
 ## Bất biến của dự án (không được phá khi refactor)
 
-- Khóa localStorage: `SOLO_CORE_TASKS_V4`, `SOLO_CORE_STREAK_V4`, `SOLO_MUTED_V1`, `SOLO_REMINDER_V1`, `SOLO_CHECKLIST_ACTIVITY_LOG_V1`, `SOLO_COMPLETED_LOGS_V2`, `STRIDE_AUTO_BACKUP_DATA` (và các khóa `STRIDE_*_V1` khác) — xem [04-architecture/05-data-model-and-storage.md](./04-architecture/05-data-model-and-storage.md).
+- Khóa localStorage: `SOLO_CORE_TASKS_V4`, `SOLO_CORE_STREAK_V4`, `SOLO_MUTED_V1`, `SOLO_REMINDER_V1`, `SOLO_CHECKLIST_ACTIVITY_LOG_V1`, `SOLO_COMPLETED_LOGS_V2`, `STRIDE_AUTO_BACKUP_DATA` (và các khóa `STRIDE_*_V1` khác), xem [04-architecture/05-data-model-and-storage.md](./04-architecture/05-data-model-and-storage.md).
 - Tauri identifier `com.phucnguyen.stridetasks`; alias `@` → `./src`; cài đặt bằng `npm install --legacy-peer-deps`.
 - Khóa bí mật `STRIDE_ED25519_PRIVATE_KEY` **chỉ** nằm trong `.env.local` (gitignored) và Worker secret; repo là **public**.
 - `.aistudio/` không bao giờ được commit; `cloudflare-worker/wrangler.toml` (chứa ID thật) được gitignore.

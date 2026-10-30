@@ -8,7 +8,7 @@ export interface ParsedTaskMetadata {
   reminderAt?: string;
   recurrence?: Exclude<RecurrenceType, null>;
   hasSmartTokens: boolean;
-  /** true khi người dùng chỉ gõ toàn token (VD: "!pin ~15m") — nơi gọi phải chặn tạo việc */
+  /** true khi người dùng chỉ gõ toàn token (VD: "!pin ~15m"), nơi gọi phải chặn tạo việc */
   isTitleEmpty: boolean;
 }
 
@@ -88,7 +88,7 @@ export function parseSmartTaskInput(rawInput: string, now: Date = new Date()): P
   let working = (rawInput || '').normalize('NFC').trim();
   let hasSmartTokens = false;
 
-  // 1. Thời lượng dự kiến — cộng dồn mọi token
+  // 1. Thời lượng dự kiến, cộng dồn mọi token
   const time = stripTokens(working, TIME_TOKEN);
   let estimatedMinutes: number | undefined;
   let totalMinutes = 0;
@@ -116,7 +116,7 @@ export function parseSmartTaskInput(rawInput: string, now: Date = new Date()): P
     hasSmartTokens = true;
   }
 
-  // 3. Trạng thái — token cuối cùng thắng
+  // 3. Trạng thái, token cuối cùng thắng
   const statusParse = stripTokens(working, STATUS_TOKEN);
   let status: string | undefined;
   if (statusParse.matches.length > 0) {

@@ -39,7 +39,7 @@
 }
 ```
 
-Component viết `bg-surface text-text-muted border-border` — **một** class cho cả hai chế độ, bỏ được cặp `dark:`.
+Component viết `bg-surface text-text-muted border-border`: **một** class cho cả hai chế độ, bỏ được cặp `dark:`.
 *(Giá trị màu trên là minh họa, lấy chính xác từ [color-system-and-palette.md](./color-system-and-palette.md) và logo đỏ của commit `07a92ee` khi triển khai.)*
 
 ## 3. Bảng token tối thiểu
@@ -59,7 +59,7 @@ Component viết `bg-surface text-text-muted border-border` — **một** class 
 
 ## 4. Di chuyển (không big bang)
 
-1. Thêm `tokens.css` và các class semantic — không đổi giao diện.
+1. Thêm `tokens.css` và các class semantic, không đổi giao diện.
 2. Component **mới** bắt buộc dùng token; component cũ đổi dần khi chạm vào (task B08).
 3. Lint cảnh báo màu thô (`slate-`, `gray-`) trong file đã chuyển.
 4. Khi xong: xuất token sang gói `packages/design-tokens` để dùng chung với `site/` (Astro).

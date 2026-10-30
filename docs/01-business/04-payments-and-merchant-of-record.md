@@ -1,6 +1,6 @@
 # Thanh toán & Merchant of Record (MoR)
 
-> **Thuộc**: 01-business · **Trạng thái**: Draft v1 — *quyết định đề xuất, xem ADR-0006* · **Cập nhật**: 2026-10-30
+> **Thuộc**: 01-business · **Trạng thái**: Draft v1, *quyết định đề xuất, xem ADR-0006* · **Cập nhật**: 2026-10-30
 > **Mục đích**: chọn cổng thu tiền **nhận được tiền về Việt Nam** và **tự lo thuế VAT/GST toàn cầu** cho người bán cá nhân.
 
 ## 1. Vì sao cần Merchant of Record
@@ -20,8 +20,8 @@ Với người bán cá nhân ở Việt Nam (Stripe không mở trực tiếp c
 | Cổng | Vai trò | Phí giao dịch | Chi trả về Việt Nam | Ghi chú |
 | :--- | :--- | :--- | :--- | :--- |
 | **Polar** | MoR | Gói Starter (tổ chức tạo sau 27/05/2026): **5% + 50¢**, **+1,5%** thẻ ngoài Mỹ; không phí tháng | ✅ Việt Nam có trong danh sách payout (qua Stripe Connect Express) | Payout do Stripe tính: $2/tháng có payout + 0,25% + $0,25/lần + phí đổi tiền ≤ 1%; tranh chấp $15/vụ. Cá nhân (sole proprietor) bán được **nếu** Stripe Connect Express hỗ trợ loại "individual" ở VN → **phải kiểm tra khi onboard** |
-| **Creem** | MoR | **3,9% + 40¢** | ✅ (danh sách FAQ có Việt Nam) | Payout ngân hàng: **max(7 USD, 1%)**/lần, tối thiểu 50 USD, chi trả ngày 1 & 15 — đắt khi doanh thu còn nhỏ |
-| **Paddle** | MoR | ~5% + 50¢ | ✅ Việt Nam có trong danh sách quốc gia hỗ trợ | Duyệt hồ sơ chặt hơn (cần website, giá, điều khoản, chính sách hoàn tiền rõ) — tốt cho giai đoạn scale |
+| **Creem** | MoR | **3,9% + 40¢** | ✅ (danh sách FAQ có Việt Nam) | Payout ngân hàng: **max(7 USD, 1%)**/lần, tối thiểu 50 USD, chi trả ngày 1 & 15, đắt khi doanh thu còn nhỏ |
+| **Paddle** | MoR | ~5% + 50¢ | ✅ Việt Nam có trong danh sách quốc gia hỗ trợ | Duyệt hồ sơ chặt hơn (cần website, giá, điều khoản, chính sách hoàn tiền rõ), tốt cho giai đoạn scale |
 | Gumroad | MoR (từ 2025, theo nhiều nguồn) | 10% + 50¢ + phí xử lý | PayPal/ngân hàng (nguồn mâu thuẫn) | Phí cao, hợp sản phẩm tải về hơn là SaaS/app |
 | LemonSqueezy → Stripe Managed Payments | MoR | 5% + 50¢ (LS) / ~3,5% cộng thêm (SMP) | ❌ Việt Nam không thuộc nhóm hỗ trợ SMP | Rủi ro như mục 2 |
 | **SePay + VietQR** | Không phải MoR (bán nội địa) | Chuyển khoản liên ngân hàng miễn phí; trả phí gói SePay | ✅ Tiền vào thẳng tài khoản | **Đã tích hợp sẵn** trong Worker (`/webhook/sepay`); người bán tự kê khai thuế trong nước |
@@ -39,9 +39,9 @@ Creem rẻ hơn mỗi giao dịch nhưng **phí payout tối thiểu $7** ăn m�
 
 ## 5. Khuyến nghị
 
-1. **Việt Nam**: bật **VietQR qua SePay** ngay (code đã có) — đường ngắn nhất tới đơn hàng đầu tiên.
+1. **Việt Nam**: bật **VietQR qua SePay** ngay (code đã có), đường ngắn nhất tới đơn hàng đầu tiên.
 2. **Quốc tế**: **Polar** là lựa chọn chính (chi trả về VN, không phí tháng, API & webhook chuẩn *Standard Webhooks*, mã giảm giá, cổng khách hàng). **Dự phòng**: Creem → Paddle nếu Polar không duyệt được loại hình cá nhân ở VN.
-3. Thiết kế code theo **Strategy/Adapter** (`PaymentProvider`) để đổi cổng không phải sửa lõi — xem [../04-architecture/04-backend-services-cloudflare.md](../04-architecture/04-backend-services-cloudflare.md).
+3. Thiết kế code theo **Strategy/Adapter** (`PaymentProvider`) để đổi cổng không phải sửa lõi, xem [../04-architecture/04-backend-services-cloudflare.md](../04-architecture/04-backend-services-cloudflare.md).
 
 ## 6. Luồng tích hợp mục tiêu (an toàn hơn luồng hiện tại)
 
@@ -67,7 +67,7 @@ sequenceDiagram
 
 ## 7. Sổ sách
 
-- Mỗi đơn ghi một dòng sổ cái (thời gian, kênh, mã đơn, số tiền gộp, phí, thực nhận, quốc gia) — phục vụ kê khai thuế và đối soát payout.
+- Mỗi đơn ghi một dòng sổ cái (thời gian, kênh, mã đơn, số tiền gộp, phí, thực nhận, quốc gia), phục vụ kê khai thuế và đối soát payout.
 - Lưu bản xuất báo cáo payout hằng tháng của MoR.
 
 ## Nguồn (xác minh 2026-10-30)

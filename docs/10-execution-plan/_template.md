@@ -1,4 +1,4 @@
-# XNN — <Tên nhiệm vụ>
+# XNN: <Tên nhiệm vụ>
 
 | Thuộc tính | Giá trị |
 | :--- | :--- |
@@ -9,7 +9,7 @@
 | Trạng thái | ☐ Todo |
 
 ## Mục tiêu
-<Kết quả đo được sau khi xong — 1–2 câu.>
+<Kết quả đo được sau khi xong, 1-2 câu.>
 
 ## Vì sao
 <Vấn đề/bằng chứng dẫn tới task này.>

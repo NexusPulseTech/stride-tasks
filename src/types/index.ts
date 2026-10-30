@@ -20,7 +20,7 @@ export interface SubTask {
   isPinned?: boolean;
   snoozeUntil?: string; // ISO string thời điểm hết hoãn / đếm ngược nhắc lại
   snoozeLevel?: number; // Cấp độ hoãn lũy tiến (1 = 1 ngày, 2 = 3 ngày, 3 = 9 ngày...)
-  updatedAt?: string; // ISO — dự phòng cho cơ chế merge đồng bộ đa thiết bị theo từng mục
+  updatedAt?: string; // ISO, dự phòng cho cơ chế merge đồng bộ đa thiết bị theo từng mục
 }
 
 export interface Task {
@@ -41,7 +41,7 @@ export interface Task {
   focusedMinutes?: number; // Số phút tập trung của chu kỳ hiện tại (reset khi việc lặp lại sang chu kỳ mới; lịch sử nằm ở focus log)
   pomodoroSessions?: number; // Số phiên Pomodoro hoàn thành của chu kỳ hiện tại
   estimatedMinutes?: number; // Quỹ thời gian dự kiến (Time Budget chuẩn Sunsama / Akiflow)
-  updatedAt?: string; // ISO — dự phòng cho cơ chế merge đồng bộ đa thiết bị theo từng mục
+  updatedAt?: string; // ISO, dự phòng cho cơ chế merge đồng bộ đa thiết bị theo từng mục
 }
 
 export type WorkspaceViewMode = 'list' | 'board';
@@ -52,7 +52,7 @@ export interface Project {
   color?: string;
   isExpanded: boolean;
   tasks: Task[];
-  updatedAt?: string; // ISO — dự phòng cho cơ chế merge đồng bộ đa thiết bị theo từng mục
+  updatedAt?: string; // ISO, dự phòng cho cơ chế merge đồng bộ đa thiết bị theo từng mục
 }
 
 export interface ConfirmDialogState {
@@ -111,6 +111,6 @@ export interface StrideBackupPayload {
     customStatuses?: StatusDefinition[];
     streak?: { count: number; lastDate?: string } | number;
     completedLogsArchive?: Record<string, number>; // Bộ đếm hoàn thành theo ngày của log > 90 ngày
-    proLicense?: unknown; // Bản ghi license chứa token Ed25519 — luôn được verify lại khi khôi phục
+    proLicense?: unknown; // Bản ghi license chứa token Ed25519, luôn được verify lại khi khôi phục
   };
 }

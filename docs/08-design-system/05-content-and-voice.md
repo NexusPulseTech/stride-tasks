@@ -8,7 +8,7 @@
 | Thuộc tính | Là | Không là |
 | :--- | :--- | :--- |
 | Rõ ràng | "Đã lưu trên máy này" | "Dữ liệu đã được đồng bộ hóa vào bộ nhớ cục bộ" |
-| Bình tĩnh | "Chưa kết nối được — sẽ thử lại sau" | "LỖI! Đồng bộ thất bại!!!" |
+| Bình tĩnh | "Chưa kết nối được, sẽ thử lại sau" | "LỖI! Đồng bộ thất bại!!!" |
 | Tôn trọng | "Bạn có thể dùng bản miễn phí mãi mãi" | "Nâng cấp ngay kẻo lỡ!" |
 | Thật | "Máy chủ chỉ thấy bản mã" | "Bảo mật cấp quân đội" |
 
@@ -35,7 +35,7 @@
 
 ## 4. Quy tắc i18n
 
-- Mọi chuỗi hiển thị nằm trong từ điển có kiểu (`src/i18n/types.ts`) — thiếu khóa ở một ngôn ngữ là lỗi biên dịch (đã có).
+- Mọi chuỗi hiển thị nằm trong từ điển có kiểu (`src/i18n/types.ts`), thiếu khóa ở một ngôn ngữ là lỗi biên dịch (đã có).
 - Tham số qua `formatMessage` (`{region}`), không ghép chuỗi; số nhiều dùng `Intl.PluralRules`.
 - Thiết kế chịu chuỗi dài hơn ~40% (tiếng Đức) và dấu tiếng Việt (không cắt chiều cao dòng).
 - Ngôn ngữ mới thêm theo đợt ([../02-growth/03-keyword-and-content-strategy.md](../02-growth/03-keyword-and-content-strategy.md) và task C03); bản dịch máy phải được người bản ngữ rà trước khi phát hành.

@@ -1,10 +1,10 @@
-# D01 — Tách dịch vụ + monorepo
+# D01: Tách dịch vụ + monorepo
 
 | Thuộc tính | Giá trị |
 | :--- | :--- |
-| Phase | D — Scale |
-| Ưu tiên | P2 (chỉ khi đạt điều kiện tách — ADR-0005) |
-| Ước lượng | 1–2 tuần, nhiều PR |
+| Phase | D: Scale |
+| Ưu tiên | P2 (chỉ khi đạt điều kiện tách, ADR-0005) |
+| Ước lượng | 1-2 tuần, nhiều PR |
 | Phụ thuộc | B06, B07 |
 | Trạng thái | ☐ Todo |
 

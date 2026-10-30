@@ -93,9 +93,9 @@ export function StoreCommercialModal({
     id === 'vn-ppp' ? s.regionNoteVn : id === 'emerging-ppp' ? s.regionNoteEmerging : s.regionNoteGlobal;
 
   const formatDate = (iso?: string) => {
-    if (!iso) return '—';
+    if (!iso) return '-';
     const d = new Date(iso);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US');
+    return Number.isNaN(d.getTime()) ? '-' : d.toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US');
   };
 
   const handleActivateSubmit = async (e: React.FormEvent) => {
@@ -377,7 +377,7 @@ export function StoreCommercialModal({
                 </div>
               </div>
 
-              {/* Quyền lợi PRO — chỉ liệt kê tính năng đang thực sự hoạt động */}
+              {/* Quyền lợi PRO, chỉ liệt kê tính năng đang thực sự hoạt động */}
               {!license.isPro && PAYWALL_ENABLED && (
                 <div className="bg-[#131b29] border border-emerald-500/30 rounded-xl p-4 space-y-2.5 text-xs">
                   <div className="font-bold text-emerald-300 uppercase tracking-wider">{s.benefitsTitle}</div>
@@ -506,7 +506,7 @@ export function StoreCommercialModal({
                 </div>
               )}
 
-              {/* Công cụ nhà phát triển — không tồn tại trong bản build production */}
+              {/* Công cụ nhà phát triển, không tồn tại trong bản build production */}
               {pro.devTools && (
                 <div className="border border-dashed border-amber-500/40 rounded-xl p-3 space-y-2 text-xs">
                   <div className="font-semibold text-amber-300 flex items-center gap-1.5">

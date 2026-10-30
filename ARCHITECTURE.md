@@ -28,7 +28,7 @@ Hệ thống tài liệu đã được tổ chức phân tầng chuyên nghiệp
   - [Tài liệu kế thừa cho kỹ sư kế tiếp](./docs/09-operations/maintenance-and-inheritance.md)
 - **Lịch sử Phát hành & Thương mại hóa (`docs/Release/`)**:
   - [Trung tâm Nhật ký Phát hành (`docs/Release/README.md`)](./docs/Release/README.md)
-  - [Báo cáo Phát hành 10/27/2026 (`v2.5.0` → `v3.0.0` — Execution Engine & bản quyền Ed25519)](./docs/Release/2026-10-27-v3.0.0-omni-channel-and-execution-engine.md)
+  - [Báo cáo Phát hành 10/27/2026 (`v2.5.0` → `v3.0.0`: Execution Engine & bản quyền Ed25519)](./docs/Release/2026-10-27-v3.0.0-omni-channel-and-execution-engine.md)
 
 ---
 
@@ -186,7 +186,7 @@ Không chỉ riêng dropdown menu, toàn bộ các hộp thoại xác nhận và
 | Tiêu chuẩn | Quy định | Mục đích |
 | :--- | :--- | :--- |
 | **Độ dày nét chính** | `strokeWidth={1.5}` | Chuẩn xác, thanh mảnh theo phong cách Linear / Raycast. |
-| **Độ dày nét phụ** | `strokeWidth={1.75}` | Dành riêng cho icon nhỏ (12px–14px) như liên kết ngoài, đóng modal. |
+| **Độ dày nét phụ** | `strokeWidth={1.75}` | Dành riêng cho icon nhỏ (12px-14px) như liên kết ngoài, đóng modal. |
 | **Độ dày nét nhấn** | `strokeWidth={2.0 - 2.5}` | Dành riêng cho Checkbox hoàn thành và icon nút Tạo việc chính. |
 | **Xoay chuyển trạng thái** | `rotate-90 transition-transform` | Không hoán đổi thẻ DOM icon mà chỉ xoay `<ChevronRight>` bằng GPU CSS. |
 | **Giao diện Hệ thống** | `<Monitor>` | Chuẩn quốc tế thay cho `<Laptop>`. |

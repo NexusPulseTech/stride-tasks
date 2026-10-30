@@ -19,7 +19,7 @@ SePay coi phản hồi ngoài 2xx là thất bại và tự gửi lại → hand
 - Idempotency: bảng `payment_events(provider, event_id)`; trùng → trả 200 ngay.
 - Liên kết đơn: `metadata.stride_ref = orderCode` khi tạo checkout.
 
-## 3. Sự kiện nội bộ (khi tách dịch vụ — ADR-0005)
+## 3. Sự kiện nội bộ (khi tách dịch vụ: ADR-0005)
 
 Định dạng phong bì (envelope) theo tinh thần CloudEvents:
 

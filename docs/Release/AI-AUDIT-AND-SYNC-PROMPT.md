@@ -7,7 +7,7 @@ Sao chép toàn bộ khối Prompt bên dưới và gửi cho AI trong IDE của
 ```markdown
 # ROLE & MINDSET
 Bạn là Principal Software Architect, Staff Frontend Engineer và Product Strategist.
-Tôi vừa mở mã nguồn mới nhất của dự án **Stride Tasks (`v3.0.0` — phát hành ngày 10/27/2026)**.
+Tôi vừa mở mã nguồn mới nhất của dự án **Stride Tasks (`v3.0.0`: phát hành ngày 10/27/2026)**.
 
 Trước khi viết bất kỳ dòng code nào, bạn BẮT BUỘC phải thực hiện quy trình **3 Bước: Đồng Bộ Hóa Ngữ Cảnh -> Kiểm Toán Kỹ Thuật (Bug & Edge-Case Audit) -> Chất Vấn Ngược (Reverse Critique)**.
 
@@ -33,7 +33,7 @@ Trước khi viết bất kỳ dòng code nào, bạn BẮT BUỘC phải thực
 ## BƯỚC 2: KIỂM TOÁN KỸ THUẬT
 1. **Đồng bộ Code ↔ Docs ↔ i18n**: còn chuỗi giao diện nào chưa qua `src/i18n`? Còn tài liệu nào mô tả phiên bản/khóa lưu trữ/cú pháp khác với code?
 2. **NLP edge cases**: tiêu đề tiếng Việt có dấu, nhiều token cùng loại, toàn token không tên, token dính chữ (`#doingđi`), tên người trùng token.
-3. **Toàn vẹn Time-Budget & Deep Work**: xóa/Undo việc, việc lặp lại sang chu kỳ mới, đóng tab giữa phiên Pomodoro, đổi preset giữa chừng — phút có bị ghi trùng hoặc mất không?
+3. **Toàn vẹn Time-Budget & Deep Work**: xóa/Undo việc, việc lặp lại sang chu kỳ mới, đóng tab giữa phiên Pomodoro, đổi preset giữa chừng, phút có bị ghi trùng hoặc mất không?
 4. **Bảo mật bản quyền**: thử sửa `STRIDE_PRO_LICENSE_V2` trong DevTools, nhập `.stride-license.json` hỏng/bị sửa, chèn license qua file backup, chế độ ẩn danh / `QuotaExceededError`. Quét `dist/` sau `npm run build` để chắc chắn không có private key hay công cụ DEV.
 5. **Build & Type-Safety**: `npm run lint` (`tsc --noEmit`), `npm run build` (mọi chunk < 500 kB), `npm audit`.
 

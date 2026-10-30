@@ -7,7 +7,7 @@
 
 | Trang | Hiện trạng | Vì sao bắt buộc |
 | :--- | :--- | :--- |
-| Chính sách quyền riêng tư (`/privacy.html`) | ✅ Có (v3.1.0) — cần cập nhật khi thêm email/analytics | Luật dữ liệu cá nhân, yêu cầu của store & MoR |
+| Chính sách quyền riêng tư (`/privacy.html`) | ✅ Có (v3.1.0), cần cập nhật khi thêm email/analytics | Luật dữ liệu cá nhân, yêu cầu của store & MoR |
 | **Điều khoản sử dụng / EULA** (`/terms.html`) | ❌ Chưa có | MoR (Polar/Paddle) và store yêu cầu; xác định phạm vi giấy phép PRO trọn đời |
 | **Chính sách hoàn tiền** (`/refund.html`) | ❌ Chưa có | MoR yêu cầu; giảm lo lắng của người mua (đề xuất 14 ngày) |
 | Liên hệ / hỗ trợ | ⚠️ Chỉ có email trong cấu hình | Người mua cần kênh hỗ trợ rõ ràng |
@@ -31,11 +31,11 @@ Nội dung tối thiểu của **Điều khoản**: định nghĩa "PRO trọn �
 
 > ⚠️ Cần xác minh: một nguồn nêu **Luật An ninh mạng 116/2025/QH15** (hiệu lực 01/07/2026) có yêu cầu lưu trữ dữ liệu trong nước đối với một số nhà cung cấp dịch vụ trực tuyến. Kiểm tra văn bản gốc trước khi mở rộng tính năng thu thập dữ liệu người dùng Việt Nam.
 
-## 4. Thuế (Việt Nam) — danh sách cần hỏi chuyên gia
+## 4. Thuế (Việt Nam): danh sách cần hỏi chuyên gia
 
 1. Thu nhập từ MoR nước ngoài (Polar/Creem/Paddle chi trả về tài khoản cá nhân) được kê khai theo diện nào? Có cần đăng ký **hộ kinh doanh** không?
 2. Doanh thu VietQR trong nước (bán trực tiếp) phải kê khai/nộp thuế GTGT và TNCN thế nào, ngưỡng miễn thuế hiện hành là bao nhiêu?
-3. Quy định khấu trừ thuế với hoạt động kinh doanh trên nền tảng số: **Nghị định 117/2025/NĐ-CP** (hiệu lực 01/07/2025); một nguồn cho biết đã được thay bằng **Nghị định 252/2026/NĐ-CP** từ 01/07/2026 — **cần xác minh**.
+3. Quy định khấu trừ thuế với hoạt động kinh doanh trên nền tảng số: **Nghị định 117/2025/NĐ-CP** (hiệu lực 01/07/2025); một nguồn cho biết đã được thay bằng **Nghị định 252/2026/NĐ-CP** từ 01/07/2026, **cần xác minh**.
 4. Thời điểm nên chuyển sang công ty (chi phí kế toán vs lợi ích).
 
 Trong lúc chờ: **ghi sổ mọi giao dịch** (xem [04-payments-and-merchant-of-record.md](./04-payments-and-merchant-of-record.md) mục 7) và lưu chứng từ payout.
@@ -52,7 +52,7 @@ Trong lúc chờ: **ghi sổ mọi giao dịch** (xem [04-payments-and-merchant-
 
 ## 7. Giấy phép mã nguồn
 
-Repo đang **public** với giấy phép **MIT** → người khác được phép sao chép, gỡ paywall và bán lại hợp pháp. Đây là quyết định chiến lược cần chủ sản phẩm chọn — xem [../04-architecture/adr/0008-source-license-strategy.md](../04-architecture/adr/0008-source-license-strategy.md).
+Repo đang **public** với giấy phép **MIT** → người khác được phép sao chép, gỡ paywall và bán lại hợp pháp. Đây là quyết định chiến lược cần chủ sản phẩm chọn, xem [../04-architecture/adr/0008-source-license-strategy.md](../04-architecture/adr/0008-source-license-strategy.md).
 
 ## Nguồn (xác minh 2026-10-30)
 

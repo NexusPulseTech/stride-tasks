@@ -1,4 +1,4 @@
-# 06 — Security & Privacy
+# 06: Security & Privacy
 
 > **Thuộc**: 06-security-privacy · **Trạng thái**: Draft v1 · **Cập nhật**: 2026-10-30
 > **Lời hứa với người dùng**: *dữ liệu công việc ở trên máy bạn; khi đồng bộ, máy chủ chỉ thấy bản mã.* Mọi quyết định bảo mật phải giữ được lời hứa này.

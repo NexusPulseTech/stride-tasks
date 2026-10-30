@@ -1,4 +1,4 @@
-# Microsoft Store — hồ sơ đăng ứng dụng Stride Tasks
+# Microsoft Store: hồ sơ đăng ứng dụng Stride Tasks
 
 ## 1. Chuẩn bị (miễn phí cho cá nhân từ 09/2025)
 
@@ -25,24 +25,24 @@
 
 **Mô tả đầy đủ (VI)**:
 
-Stride Tasks giúp bạn làm xong việc mỗi ngày — không cần tài khoản, dữ liệu nằm trên máy bạn.
+Stride Tasks giúp bạn làm xong việc mỗi ngày, không cần tài khoản, dữ liệu nằm trên máy bạn.
 
 • Nhập nhanh 1 dòng bằng ngôn ngữ tự nhiên: `Ôn chương 3 ~45m @daily !pin`
 • Việc con nhiều cấp, kéo thả, trạng thái rõ ràng (Chờ → Đang làm → Duyệt → Xong)
 • Bảng Kanban 4 cột và đồng hồ Pomodoro có nhật ký Deep Work
-• Ôn tập ngắt quãng SM-2 cho công việc — không bỏ sót việc quan trọng
+• Ôn tập ngắt quãng SM-2 cho công việc, không bỏ sót việc quan trọng
 • Heatmap nhịp độ, chuỗi ngày liên tục, báo cáo Markdown cho Obsidian/Notion
 • Chạy offline 100%, sao lưu JSON bất kỳ lúc nào
 • PRO trọn đời: đồng bộ đa thiết bị mã hóa đầu-cuối, không giới hạn dự án, báo cáo không giới hạn
 
 **Full description (EN)**:
 
-Stride Tasks helps you get today's work done — no account needed, your data stays on your device.
+Stride Tasks helps you get today's work done, no account needed, your data stays on your device.
 
 • One-line natural-language capture: `Review chapter 3 ~45m @daily !pin`
 • Nested subtasks, drag & drop, clear statuses (To do → In progress → Review → Done)
 • 4-column Kanban and a Pomodoro timer with a Deep Work log
-• SM-2 spaced repetition for tasks — important work never slips
+• SM-2 spaced repetition for tasks, important work never slips
 • Activity heatmap, streaks, Markdown reports for Obsidian/Notion
 • 100% offline, JSON backup anytime
 • Lifetime PRO: end-to-end encrypted multi-device sync, unlimited projects, unlimited reports
@@ -55,4 +55,4 @@ Stride Tasks helps you get today's work done — no account needed, your data st
 
 ## 4. Thanh toán trong bản Store
 
-Ứng dụng không phải game được dùng cổng thanh toán riêng và giữ 100% doanh thu (theo công bố của Microsoft — kiểm tra lại mục chính sách 10.8 trong Partner Center trước khi nộp). Bản Store dùng cùng luồng VietQR / LemonSqueezy và kích hoạt bằng link/tệp chứng chỉ như bản web.
+Ứng dụng không phải game được dùng cổng thanh toán riêng và giữ 100% doanh thu (theo công bố của Microsoft, kiểm tra lại mục chính sách 10.8 trong Partner Center trước khi nộp). Bản Store dùng cùng luồng VietQR / LemonSqueezy và kích hoạt bằng link/tệp chứng chỉ như bản web.

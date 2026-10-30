@@ -86,7 +86,7 @@ paths:
               schema: { $ref: '#/components/schemas/SyncError' }
               example: { error: vault_limit }
         '409':
-          description: Version không khớp (thiết bị khác vừa ghi) hoặc tạo trùng kho — client kéo lại, hợp nhất, thử lại
+          description: Version không khớp (thiết bị khác vừa ghi) hoặc tạo trùng kho, client kéo lại, hợp nhất, thử lại
           content:
             application/json:
               schema: { $ref: '#/components/schemas/SyncError' }
@@ -106,7 +106,7 @@ paths:
         - licenseBearer: []
       responses:
         '204':
-          description: Đã xóa (idempotent — xóa kho không tồn tại cũng trả 204)
+          description: Đã xóa (idempotent, xóa kho không tồn tại cũng trả 204)
         '401': { $ref: '#/components/responses/LicenseRequired' }
         '402': { $ref: '#/components/responses/LicenseInvalid' }
         '503': { $ref: '#/components/responses/SyncNotConfigured' }
@@ -118,7 +118,7 @@ paths:
       summary: App hỏi định kỳ để nhận token sau khi thanh toán
       description: |
         ⚠️ Hiện tại bất kỳ ai biết mã đơn đều nhận được token (mã 30-bit, chưa rate limit).
-        Phiên bản kế tiếp yêu cầu header X-Claim-Secret — xem task A04.
+        Phiên bản kế tiếp yêu cầu header X-Claim-Secret, xem task A04.
       security: []
       parameters:
         - name: order
@@ -175,7 +175,7 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/WebhookFailure' }
         '401':
-          description: Sai/thiếu API key (hoặc Worker chưa cấu hình SEPAY_API_KEY — fail-closed)
+          description: Sai/thiếu API key (hoặc Worker chưa cấu hình SEPAY_API_KEY, fail-closed)
           content:
             application/json:
               schema: { $ref: '#/components/schemas/WebhookFailure' }
@@ -185,7 +185,7 @@ paths:
       tags: [webhooks]
       operationId: lemonSqueezyWebhook
       deprecated: true
-      summary: order_created từ LemonSqueezy (sẽ thay bằng Polar — ADR-0006)
+      summary: order_created từ LemonSqueezy (sẽ thay bằng Polar, ADR-0006)
       security:
         - lemonSqueezySignature: []
       requestBody:

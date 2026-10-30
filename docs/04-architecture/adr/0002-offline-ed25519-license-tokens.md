@@ -10,9 +10,9 @@ App không có tài khoản (ADR-0001) và phải chạy offline, nên không th
 
 ## Các phương án
 
-1. **Kiểm tra online mỗi lần khởi động** — chặn được chia sẻ, nhưng hỏng trải nghiệm offline.
-2. **Token ký số, xác minh offline bằng public key nhúng trong app** — offline hoàn toàn; không thu hồi được ở phía client.
-3. **Mã kích hoạt kèm tài khoản** — trái ADR-0001.
+1. **Kiểm tra online mỗi lần khởi động**: chặn được chia sẻ, nhưng hỏng trải nghiệm offline.
+2. **Token ký số, xác minh offline bằng public key nhúng trong app**: offline hoàn toàn; không thu hồi được ở phía client.
+3. **Mã kích hoạt kèm tài khoản**: trái ADR-0001.
 
 ## Quyết định
 
@@ -22,4 +22,4 @@ Token dạng `STRIDE1.<base64url payload>.<base64url chữ ký Ed25519>`; payloa
 
 - Tích cực: PRO hoạt động offline; không lưu dữ liệu cá nhân trong token.
 - Tiêu cực: **không thu hồi được tính năng offline** khi hoàn tiền/chia sẻ token. Giảm thiểu: tính năng phụ thuộc server (sync) kiểm tra danh sách thu hồi; hạn mức kho đồng bộ theo bản quyền.
-- Việc tiếp: quy trình xoay khóa (rotation) nếu khóa riêng bị lộ — xem [../../06-security-privacy/02-secrets-and-key-management.md](../../06-security-privacy/02-secrets-and-key-management.md).
+- Việc tiếp: quy trình xoay khóa (rotation) nếu khóa riêng bị lộ, xem [../../06-security-privacy/02-secrets-and-key-management.md](../../06-security-privacy/02-secrets-and-key-management.md).

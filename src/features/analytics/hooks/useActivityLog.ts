@@ -158,7 +158,7 @@ async function appendRawArchiveToIdb(archived: CompletedItemLog[]): Promise<void
 }
 
 export function useActivityLog() {
-  // Khởi tạo thuần (StrictMode có thể gọi 2 lần) — việc ghi migration được thực hiện trong effect bên dưới
+  // Khởi tạo thuần (StrictMode có thể gọi 2 lần), việc ghi migration được thực hiện trong effect bên dưới
   const [initialState] = useState(() => {
     let stored: CompletedItemLog[] | null = null;
     try {

@@ -51,7 +51,7 @@
 
 ---
 
-### HẠNG MỤC 2: HỖ TRỢ ĐA NGÔN NGỮ (TIẾNG VIỆT & TIẾNG ANH) — CHỐNG NHẢY GIAO DIỆN (ZERO LAYOUT SHIFT)
+### HẠNG MỤC 2: HỖ TRỢ ĐA NGÔN NGỮ (TIẾNG VIỆT & TIẾNG ANH): CHỐNG NHẢY GIAO DIỆN (ZERO LAYOUT SHIFT)
 #### 1. Nghiên cứu vấn đề Layout Shift khi đổi ngôn ngữ
 - Tiếng Anh và Tiếng Việt có độ dài từ khác biệt lớn:
   - *"Đang làm"* (8 ký tự) vs *"In Progress"* (11 ký tự).
@@ -87,7 +87,7 @@
 
 ---
 
-### HẠNG MỤC 4: BẢNG TÙY BIẾN HIỂN THỊ — CHẾ ĐỘ ZEN MODE (PROGRESSIVE DISCLOSURE)
+### HẠNG MỤC 4: BẢNG TÙY BIẾN HIỂN THỊ: CHẾ ĐỘ ZEN MODE (PROGRESSIVE DISCLOSURE)
 #### 1. Nghiên cứu hành vi: Giải quyết cảm giác "ngợp nút"
 - Người dùng khi mới vào trang thường bị choáng ngợp bởi hàng loạt nút bấm:
   - *Focus Mode, Reminder, Stats Panel, Backup, Guide, Mute, Theme, Add Project Bar, Filter Tabs, Search, Batch Paste...*

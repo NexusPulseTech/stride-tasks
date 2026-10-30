@@ -20,7 +20,7 @@
 | :--- | :--- |
 | `sync-merge.test.mjs` (17 ca: hợp nhất, mã hóa, TTL tombstone) | `src/features/sync/__tests__/syncMerge.test.ts`, `syncCrypto.test.ts`, `tombstones.test.ts` |
 | `worker-sync.test.mjs` + adapter `node:sqlite` (17 ca) | `cloudflare-worker/test/vault.test.ts` (vitest-pool-workers) |
-| `prod-smoke.test.mjs` (14 ca) | `cloudflare-worker/test/smoke/prod-smoke.ts` — chạy tay hoặc sau deploy, đọc token test từ secret CI, **không** commit khóa |
+| `prod-smoke.test.mjs` (14 ca) | `cloudflare-worker/test/smoke/prod-smoke.ts`: chạy tay hoặc sau deploy, đọc token test từ secret CI, **không** commit khóa |
 
 ## 3. Hành trình E2E bắt buộc
 

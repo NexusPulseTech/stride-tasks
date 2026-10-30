@@ -1,5 +1,5 @@
 /**
- * Stride Tasks — xác thực bản quyền ngoại tuyến bằng chữ ký Ed25519 (bất đối xứng).
+ * Stride Tasks, xác thực bản quyền ngoại tuyến bằng chữ ký Ed25519 (bất đối xứng).
  *
  * Token: STRIDE1.<base64url(JSON payload)>.<base64url(chữ ký 64 byte)>
  * Chữ ký = Ed25519(privateKey, UTF-8 của chuỗi "STRIDE1.<payload>")
@@ -40,7 +40,7 @@ export interface VerifiedLicense {
 export interface LicenseCertificateFile {
   format: 'stride-license';
   version: 1;
-  /** Token đã ký — trường DUY NHẤT được dùng để xác thực */
+  /** Token đã ký, trường DUY NHẤT được dùng để xác thực */
   token: string;
   /** Các trường dưới đây chỉ để con người đọc; khi nhập lại sẽ lấy từ payload đã verify */
   licenseKeyOrAddonId: string;

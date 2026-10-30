@@ -1,5 +1,5 @@
 /**
- * Cấu hình thương mại tập trung — đọc từ biến môi trường Vite LÚC BUILD (xem .env.example).
+ * Cấu hình thương mại tập trung, đọc từ biến môi trường Vite LÚC BUILD (xem .env.example).
  *
  * Paywall mặc định TẮT: khi VITE_ENABLE_PAYWALL !== 'true', mọi tính năng (NLP, Kanban, Pomodoro,
  * Command Palette, Markdown Report, không giới hạn dự án) mở cho tất cả người dùng và mọi nút mua bị ẩn.

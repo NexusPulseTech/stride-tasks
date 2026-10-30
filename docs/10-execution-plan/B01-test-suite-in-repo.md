@@ -1,11 +1,11 @@
-# B01 — Bộ test trong repo
+# B01: Bộ test trong repo
 
 | Thuộc tính | Giá trị |
 | :--- | :--- |
-| Phase | B — Foundation |
+| Phase | B: Foundation |
 | Ưu tiên | P1 |
 | Ước lượng | 2 ngày |
-| Phụ thuộc | — |
+| Phụ thuộc | - |
 | Trạng thái | ☐ Todo |
 
 ## Mục tiêu
@@ -17,7 +17,7 @@ Repo không có test tự động; test v3.1.0 nằm ngoài repo → không bả
 ## Các bước
 1. devDependencies: `vitest`, `@vitest/coverage-v8`, `@testing-library/react`, `@testing-library/user-event`, `jsdom` (ghim phiên bản).
 2. `vitest.config.ts` dùng lại alias `@` → `./src`; môi trường `jsdom` cho component, `node` cho domain.
-3. Chuyển test sync sang `src/features/sync/__tests__/` (`syncMerge`, `syncCrypto`, `tombstones` — gồm ca TTL 90 ngày).
+3. Chuyển test sync sang `src/features/sync/__tests__/` (`syncMerge`, `syncCrypto`, `tombstones`: gồm ca TTL 90 ngày).
 4. Characterization test cho: parser nhập nhanh (`~45m @daily !pin`), rollup việc con (`subtaskTree.ts`), SM-2/hoãn thông minh (`spacedSnooze.ts`), policy hạn mức Free (`FREE_PROJECT_LIMIT`, dự án mẫu, grandfathering), xác minh token (`licenseCrypto.ts`, dùng cặp khóa **test** sinh trong test, không dùng khóa thật).
 5. Worker: `@cloudflare/vitest-pool-workers` với cấu hình test riêng (`cloudflare-worker/wrangler.test.toml`, binding cục bộ, không ID thật); chuyển 17 ca vault.
 6. Smoke test production → `cloudflare-worker/test/smoke/` chạy thủ công với token test đọc từ biến môi trường.

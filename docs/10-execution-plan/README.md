@@ -1,4 +1,4 @@
-# 10 — Kế hoạch thực thi (Execution Plan)
+# 10: Kế hoạch thực thi (Execution Plan)
 
 > **Thuộc**: 10-execution-plan · **Trạng thái**: Active · **Cập nhật**: 2026-10-30
 > **Mục tiêu số 1**: **khách hàng trả tiền đầu tiên**. Phase A là đường găng (critical path); Phase B chạy song song nhưng **không được chặn** Phase A.
@@ -19,30 +19,30 @@ Ký hiệu: ☐ Todo · ◐ In progress · ☑ Done · ⏸ Blocked (ghi lý do)
 
 | ID | Nhiệm vụ | Ưu tiên | Ước lượng | Phụ thuộc | Trạng thái |
 | :--- | :--- | :---: | :---: | :--- | :---: |
-| [A01](./A01-brand-and-seo-metadata-fix.md) | Sửa thương hiệu & SEO metadata | P0 | 0,5 ngày | — | ☐ |
-| [A02](./A02-legal-pages-terms-refund.md) | Trang Điều khoản, Hoàn tiền, cập nhật Quyền riêng tư | P0 | 0,5 ngày | — | ☐ |
-| [A03](./A03-merchant-of-record-onboarding.md) | Đăng ký & cấu hình Merchant of Record (Polar) | P0 | 1–3 ngày (chờ duyệt) | A02 | ☐ |
-| [A04](./A04-checkout-webhook-and-claim-hardening.md) | Đơn hàng, webhook Polar, claim an toàn, hoàn tiền → thu hồi, backoff | P0 | 2 ngày | — | ☐ |
-| [A05](./A05-enable-payments-in-production.md) | Bật thanh toán production (secret, SePay, biến, mua thử) | P0 | 0,5 ngày | A01–A04 | ☐ |
+| [A01](./A01-brand-and-seo-metadata-fix.md) | Sửa thương hiệu & SEO metadata | P0 | 0,5 ngày | - | ☐ |
+| [A02](./A02-legal-pages-terms-refund.md) | Trang Điều khoản, Hoàn tiền, cập nhật Quyền riêng tư | P0 | 0,5 ngày | - | ☐ |
+| [A03](./A03-merchant-of-record-onboarding.md) | Đăng ký & cấu hình Merchant of Record (Polar) | P0 | 1-3 ngày (chờ duyệt) | A02 | ☐ |
+| [A04](./A04-checkout-webhook-and-claim-hardening.md) | Đơn hàng, webhook Polar, claim an toàn, hoàn tiền → thu hồi, backoff | P0 | 2 ngày | - | ☐ |
+| [A05](./A05-enable-payments-in-production.md) | Bật thanh toán production (secret, SePay, biến, mua thử) | P0 | 0,5 ngày | A01-A04 | ☐ |
 | [A06](./A06-landing-and-pricing-pages.md) | Trang đích + bảng giá EN/VI (Astro) | P0 | 1,5 ngày | A01 | ☐ |
 | [A07](./A07-privacy-friendly-analytics.md) | Đo lường không xâm phạm riêng tư | P0 | 0,5 ngày | A02 | ☐ |
-| [A08](./A08-first-customer-outreach-sprint.md) | Sprint outreach 14 ngày | P0 | 14 ngày | A05–A07 | ☐ |
-| [B01](./B01-test-suite-in-repo.md) | Bộ test trong repo (Vitest, Worker, E2E khung) | P1 | 2 ngày | — | ☐ |
-| [B02](./B02-lint-format-strict-typescript.md) | ESLint, Prettier, TS strict, dọn phụ thuộc | P1 | 2–3 ngày | B01 | ☐ |
+| [A08](./A08-first-customer-outreach-sprint.md) | Sprint outreach 14 ngày | P0 | 14 ngày | A05-A07 | ☐ |
+| [B01](./B01-test-suite-in-repo.md) | Bộ test trong repo (Vitest, Worker, E2E khung) | P1 | 2 ngày | - | ☐ |
+| [B02](./B02-lint-format-strict-typescript.md) | ESLint, Prettier, TS strict, dọn phụ thuộc | P1 | 2-3 ngày | B01 | ☐ |
 | [B03](./B03-ci-quality-gates.md) | CI quality gates + chuỗi cung ứng | P1 | 1 ngày | B01, B02 | ☐ |
-| [B04](./B04-error-boundary-and-csp.md) | Error Boundary + CSP web/Tauri | P1 | 1 ngày | — | ☐ |
+| [B04](./B04-error-boundary-and-csp.md) | Error Boundary + CSP web/Tauri | P1 | 1 ngày | - | ☐ |
 | [B05](./B05-worker-typescript-hexagonal.md) | Worker TypeScript + kiến trúc lục giác + timeout client | P1 | 3 ngày | B01, A04 | ☐ |
 | [B06](./B06-shared-contracts-package.md) | Gói `contracts` + `sync-core` dùng chung (npm workspaces) | P1 | 2 ngày | B05 | ☐ |
 | [B07](./B07-worker-cicd-staging-observability.md) | CI/CD Worker, staging, log, rate limit | P1 | 1,5 ngày | B05 | ☐ |
 | [B08](./B08-split-oversized-modules.md) | Tách 29 file > 300 dòng (từng PR) | P2 | liên tục | B01, B02 | ☐ |
 | [C01](./C01-marketing-site-ssg-i18n.md) | Site marketing đầy đủ (tính năng, so sánh, blog) | P1 | 3 ngày | A06 | ☐ |
 | [C02](./C02-content-pillars-and-comparison-pages.md) | Trụ cột nội dung & trang so sánh (8 tuần) | P1 | liên tục | C01 | ☐ |
-| [C03](./C03-localization-wave-1.md) | Bản địa hóa đợt 1 | P2 | 3–5 ngày | A07 (dữ liệu) | ☐ |
+| [C03](./C03-localization-wave-1.md) | Bản địa hóa đợt 1 | P2 | 3-5 ngày | A07 (dữ liệu) | ☐ |
 | [C04](./C04-launch-product-hunt-show-hn.md) | Launch Product Hunt & Show HN | P1 | 1 tuần chuẩn bị | A08, C01 | ☐ |
-| [C05](./C05-microsoft-store-submission.md) | Microsoft Store (PWA → MSIX) | P1 | 1–2 ngày + duyệt | A05 | ☐ |
-| [C06](./C06-google-play-twa-and-billing.md) | Google Play TWA + Play Billing | P2 | 1–2 tuần | C05, B05 | ☐ |
-| [D01](./D01-service-split-and-monorepo.md) | Tách dịch vụ + monorepo | P2 | 1–2 tuần | B06, B07 | ☐ |
-| [D02](./D02-desktop-release-pipeline.md) | Pipeline desktop: ký số, auto-update, đồng bộ phiên bản | P2 | 2–3 ngày | B03 | ☐ |
+| [C05](./C05-microsoft-store-submission.md) | Microsoft Store (PWA → MSIX) | P1 | 1-2 ngày + duyệt | A05 | ☐ |
+| [C06](./C06-google-play-twa-and-billing.md) | Google Play TWA + Play Billing | P2 | 1-2 tuần | C05, B05 | ☐ |
+| [D01](./D01-service-split-and-monorepo.md) | Tách dịch vụ + monorepo | P2 | 1-2 tuần | B06, B07 | ☐ |
+| [D02](./D02-desktop-release-pipeline.md) | Pipeline desktop: ký số, auto-update, đồng bộ phiên bản | P2 | 2-3 ngày | B03 | ☐ |
 | [D03](./D03-apple-platforms-evaluation.md) | Đánh giá iOS/macOS | P3 | 0,5 ngày | doanh thu | ☐ |
 | [D04](./D04-pricing-evolution-subscription.md) | Tiến hóa mô hình giá | P3 | 1 ngày | ≥ 50 đơn | ☐ |
 | [D05](./D05-source-license-decision.md) | Quyết định giấy phép mã nguồn | P2 | 0,5 ngày | founder | ☐ |
@@ -78,7 +78,7 @@ flowchart LR
 | :---: | :--- | :--- |
 | 1 | Duyệt ADR-0005 (modular monolith), ADR-0006 (Polar), ADR-0007 (site tĩnh cùng origin) | A03, A04, A06, D01 |
 | 2 | Chọn giấy phép mã nguồn (ADR-0008) | D05 |
-| 3 | Tự tạo tài khoản & KYC: **Polar** (payout Stripe Connect), **SePay**, Microsoft Partner Center, (sau) Google Play Console — *AI không thể tạo tài khoản/nhập giấy tờ thay bạn* | A03, A05, C05, C06 |
+| 3 | Tự tạo tài khoản & KYC: **Polar** (payout Stripe Connect), **SePay**, Microsoft Partner Center, (sau) Google Play Console, *AI không thể tạo tài khoản/nhập giấy tờ thay bạn* | A03, A05, C05, C06 |
 | 4 | Thông tin nhận tiền VietQR (ngân hàng, số tài khoản, tên) | A05 |
 | 5 | Cho phép tạo bản ghi DNS staging, token API Cloudflare cho CI, bật branch protection/secret scanning trên GitHub | B03, B07 |
 | 6 | Mức ưu đãi Founding Member (đề xuất −30%, 100 suất) | A03, A06 |

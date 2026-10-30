@@ -10,9 +10,9 @@ App là SPA render phía client ở `/`; bot tìm kiếm thấy giao diện app 
 
 ## Các phương án
 
-1. **Marketing ở domain gốc, app chuyển sang `app.` subdomain** (chuẩn của Todoist/Linear) — đổi origin ⇒ người dùng hiện tại mất dữ liệu nếu không có công cụ chuyển.
-2. **Prerender toàn bộ SPA** — phức tạp, nội dung app vẫn không phải nội dung marketing.
-3. **Trang tĩnh sinh bằng Astro ở các đường dẫn `/en/`, `/vi/`, … trên cùng origin; app giữ ở `/`** — không đổi origin, không phá PWA, SEO tốt.
+1. **Marketing ở domain gốc, app chuyển sang `app.` subdomain** (chuẩn của Todoist/Linear), đổi origin ⇒ người dùng hiện tại mất dữ liệu nếu không có công cụ chuyển.
+2. **Prerender toàn bộ SPA**: phức tạp, nội dung app vẫn không phải nội dung marketing.
+3. **Trang tĩnh sinh bằng Astro ở các đường dẫn `/en/`, `/vi/`, … trên cùng origin; app giữ ở `/`**: không đổi origin, không phá PWA, SEO tốt.
 
 ## Quyết định
 

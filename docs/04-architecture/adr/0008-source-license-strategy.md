@@ -1,6 +1,6 @@
 # ADR-0008: Chiến lược giấy phép mã nguồn
 
-- **Trạng thái**: Proposed — **cần founder quyết định** (ảnh hưởng kinh doanh, không thuần kỹ thuật)
+- **Trạng thái**: Proposed, **cần founder quyết định** (ảnh hưởng kinh doanh, không thuần kỹ thuật)
 - **Ngày**: 2026-10-30
 - **Liên quan**: `LICENSE` (MIT), [../../01-business/06-legal-tax-compliance.md](../../01-business/06-legal-tax-compliance.md), task D05
 
@@ -14,7 +14,7 @@ Repo `NexusPulseTech/stride-tasks` **public** với giấy phép **MIT**. MIT ch
 | :--- | :--- | :--- |
 | 1. Giữ MIT | Thân thiện cộng đồng tối đa | Đối thủ có thể clone & bán; không ngăn được |
 | 2. **AGPL-3.0** cho phiên bản mới | Vẫn là mã nguồn mở; bản phái sinh chạy dịch vụ phải công bố mã → khó đóng gói bán kín | Một số doanh nghiệp tránh AGPL |
-| 3. **Source-available có thời hạn** (VD Functional Source License — tự chuyển sang Apache/MIT sau 2 năm) | Chặn cạnh tranh thương mại trực tiếp, vẫn minh bạch | Không còn "open source" theo định nghĩa OSI |
+| 3. **Source-available có thời hạn** (VD Functional Source License, tự chuyển sang Apache/MIT sau 2 năm) | Chặn cạnh tranh thương mại trực tiếp, vẫn minh bạch | Không còn "open source" theo định nghĩa OSI |
 | 4. Đóng mã (private repo) | Bảo vệ tối đa | Mất lợi thế niềm tin, phải xử lý lịch sử đã public |
 
 ## Lưu ý pháp lý

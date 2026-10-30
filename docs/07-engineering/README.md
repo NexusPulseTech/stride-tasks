@@ -1,4 +1,4 @@
-# 07 — Engineering Standards
+# 07: Engineering Standards
 
 > **Thuộc**: 07-engineering · **Trạng thái**: Accepted (chuẩn bắt buộc) · **Cập nhật**: 2026-10-30
 > **Định nghĩa "Done" cho mọi PR**: type-check + lint + test + build xanh; không giảm coverage; không vượt ngân sách bundle; tài liệu/ADR/OpenAPI liên quan đã cập nhật; không lộ bí mật.

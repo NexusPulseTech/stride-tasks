@@ -10,9 +10,9 @@ Người dùng PRO cần dùng nhiều thiết bị mà vẫn giữ lời hứa 
 
 ## Các phương án
 
-1. **CRDT đầy đủ (Automerge/Yjs)** — hợp nhất mạnh, nhưng thay đổi toàn bộ mô hình dữ liệu, bundle lớn, phức tạp.
-2. **Snapshot mã hóa + hợp nhất LWW theo từng entity + tombstone, ghi bằng CAS theo version** — đơn giản, đủ cho dữ liệu cá nhân, server chỉ là kho bản mã.
-3. **Server giữ dữ liệu rõ và hợp nhất** — trái lời hứa riêng tư.
+1. **CRDT đầy đủ (Automerge/Yjs)**: hợp nhất mạnh, nhưng thay đổi toàn bộ mô hình dữ liệu, bundle lớn, phức tạp.
+2. **Snapshot mã hóa + hợp nhất LWW theo từng entity + tombstone, ghi bằng CAS theo version**: đơn giản, đủ cho dữ liệu cá nhân, server chỉ là kho bản mã.
+3. **Server giữ dữ liệu rõ và hợp nhất**: trái lời hứa riêng tư.
 
 ## Quyết định
 

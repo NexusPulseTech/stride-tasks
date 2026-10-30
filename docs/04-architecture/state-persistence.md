@@ -4,7 +4,7 @@
 
 Hệ thống hoạt động theo nguyên tắc **Local-First**: Toàn bộ dữ liệu được lưu tức thì vào `localStorage` (đồng thời mirror sang IndexedDB `NexusPulseTasksDB` để khôi phục khi trình duyệt dọn localStorage), sẵn sàng hoạt động 100% offline. Khi khởi động, app gọi `navigator.storage.persist()` để xin quyền lưu trữ bền vững (hạn chế việc Safari/Chrome tự xóa dữ liệu).
 
-### Bảng Lưu Trữ Khóa (Storage Keys) — khớp mã nguồn v3.0.0
+### Bảng Lưu Trữ Khóa (Storage Keys): khớp mã nguồn v3.0.0
 | Khóa (Key) | Mục Đích | Kiểu Dữ Liệu |
 |---|---|---|
 | `SOLO_CORE_TASKS_V4` | Danh sách dự án, công việc và cây subtask | `Project[]` |

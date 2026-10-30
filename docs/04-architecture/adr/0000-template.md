@@ -11,8 +11,8 @@
 
 ## Các phương án đã cân nhắc
 
-1. **Phương án A** — ưu / nhược.
-2. **Phương án B** — ưu / nhược.
+1. **Phương án A**: ưu / nhược.
+2. **Phương án B**: ưu / nhược.
 
 ## Quyết định
 

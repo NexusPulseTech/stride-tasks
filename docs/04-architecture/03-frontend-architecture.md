@@ -8,7 +8,7 @@
 ```
 src/
 ├── App.tsx               # composition root + nhiều logic (869 dòng)
-├── components/           # layout/, ui/, feedback/ — dùng chung
+├── components/           # layout/, ui/, feedback/, dùng chung
 ├── config/ constants/    # cấu hình thương mại, hằng số khóa lưu trữ
 ├── features/             # analytics/, focus/, modals/, sync/, tasks/  (mỗi feature có index.ts)
 ├── hooks/                # useProLicense.ts (501 dòng), …
@@ -26,7 +26,7 @@ src/
 ├── app/                          # composition root: providers, ErrorBoundary, ModalHost, chọn adapter
 ├── features/
 │   └── <context>/                # tasks | focus | review | insights | sync | entitlements | billing-ui
-│       ├── domain/               # entity, value object, policy, hàm thuần — KHÔNG React/DOM
+│       ├── domain/               # entity, value object, policy, hàm thuần, KHÔNG React/DOM
 │       ├── application/          # use case (command/query) + port (interface)
 │       ├── infrastructure/       # adapter: storage, http, crypto
 │       ├── ui/                   # component + hook React (mỏng, gọi use case)
@@ -52,15 +52,15 @@ src/
 
 ## 4. Quản lý trạng thái
 
-- Giữ mô hình hiện tại (hook + state cục bộ + persistence) — **không** thêm Redux.
+- Giữ mô hình hiện tại (hook + state cục bộ + persistence), **không** thêm Redux.
 - State phức tạp dùng `useReducer` với reducer thuần nằm ở `domain/` (test không cần React).
-- Chỉ cân nhắc thư viện store nhẹ (VD Zustand) khi prop drilling vượt 3 tầng ở ≥ 3 nơi — phải có ADR.
+- Chỉ cân nhắc thư viện store nhẹ (VD Zustand) khi prop drilling vượt 3 tầng ở ≥ 3 nơi, phải có ADR.
 - Mọi ghi xuống lưu trữ đi qua port `Repository` để: kiểm tra schema khi đọc (dữ liệu hỏng → khôi phục, không crash), áp migration theo phiên bản, đánh dấu `updatedAt` tập trung (đã làm trong `setProjects`).
 
 ## 5. Lỗi, hiệu năng, an toàn
 
-- **Error Boundary**: một boundary toàn cục (màn hình "Có lỗi — dữ liệu của bạn an toàn, tải lại / xuất sao lưu") + boundary quanh mỗi vùng lazy (Kanban, Stats, modal) — task `B04`.
-- **Ngân sách bundle**: chunk chính ≤ 470 kB (hiện 415,8 kB), mục tiêu ≤ 400 kB; mỗi modal lazy ≤ 30 kB — xem [../07-engineering/05-performance-budgets.md](../07-engineering/05-performance-budgets.md).
+- **Error Boundary**: một boundary toàn cục (màn hình "Có lỗi, dữ liệu của bạn an toàn, tải lại / xuất sao lưu") + boundary quanh mỗi vùng lazy (Kanban, Stats, modal), task `B04`.
+- **Ngân sách bundle**: chunk chính ≤ 470 kB (hiện 415,8 kB), mục tiêu ≤ 400 kB; mỗi modal lazy ≤ 30 kB, xem [../07-engineering/05-performance-budgets.md](../07-engineering/05-performance-budgets.md).
 - **Không chuỗi cứng trong UI**: mọi văn bản qua i18n (đã có kiểu); lint chặn chuỗi JSX cứng ở `ui/`.
 - **Cấu hình**: đọc `import.meta.env` ở **một** nơi (`shared/config`), trả về object có kiểu; component không đọc env trực tiếp.
 

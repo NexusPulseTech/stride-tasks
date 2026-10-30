@@ -370,7 +370,7 @@ export function KanbanBoardView({
               <div className="p-2 space-y-2 flex-1">
                 {columnItems.length === 0 ? (
                   <div className="py-10 px-3 text-center text-[11px] text-slate-400 dark:text-slate-500">
-                    {language === 'vi' ? 'Trống — kéo thẻ việc thả vào đây' : 'Empty — drag tasks here'}
+                    {language === 'vi' ? 'Trống. Kéo thẻ việc thả vào đây' : 'Empty. Drag tasks here'}
                   </div>
                 ) : (
                   columnItems.map(({ task, project }) => {

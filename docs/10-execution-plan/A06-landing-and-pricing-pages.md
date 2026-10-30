@@ -1,8 +1,8 @@
-# A06 — Trang đích + bảng giá EN/VI (Astro)
+# A06: Trang đích + bảng giá EN/VI (Astro)
 
 | Thuộc tính | Giá trị |
 | :--- | :--- |
-| Phase | A — First Dollar |
+| Phase | A: First Dollar |
 | Ưu tiên | P0 |
 | Ước lượng | 1,5 ngày |
 | Phụ thuộc | A01 |
@@ -21,7 +21,7 @@ SPA không có nội dung cho bot; người lạ cần hiểu sản phẩm và g
 ## Các bước
 1. Tạo `site/` với Astro (ghim phiên bản phát hành ≥ 2 tuần), `output: 'static'`, `i18n: { locales: ['en','vi'], defaultLocale: 'en', routing: { prefixDefaultLocale: true } }`.
 2. Layout chung: `<html lang>`, title/description theo trang, canonical tự tham chiếu, `hreflang` en/vi + `x-default` → `/en/`, OG.
-3. Nội dung theo [../02-growth/02-site-architecture-and-landing-pages.md](../02-growth/02-site-architecture-and-landing-pages.md) mục 3–4; ảnh từ `public/screenshots/`; giá hiển thị 3 bậc PPP + ưu đãi Founding + hoàn tiền 14 ngày.
+3. Nội dung theo [../02-growth/02-site-architecture-and-landing-pages.md](../02-growth/02-site-architecture-and-landing-pages.md) mục 3-4; ảnh từ `public/screenshots/`; giá hiển thị 3 bậc PPP + ưu đãi Founding + hoàn tiền 14 ngày.
 4. CTA "Mở app" → `/?utm_source=landing&utm_medium=site`; "Xem giá" → `#pricing`.
 5. Build: script `build:site` → xuất vào `dist/en`, `dist/vi`; `npm run build` chạy app rồi site; `deploy.yml` không đổi ngoài lệnh build.
 6. `vite.config.ts`: thêm `/^\/(en|vi)\//` vào `navigateFallbackDenylist`; `globIgnores` thêm `**/en/**`, `**/vi/**`.

@@ -1,6 +1,6 @@
 # Khách hàng mục tiêu (ICP) & Jobs-to-be-Done
 
-> **Thuộc**: 01-business · **Trạng thái**: Draft v1 — *giả thuyết, phải kiểm chứng bằng phỏng vấn* · **Cập nhật**: 2026-10-30
+> **Thuộc**: 01-business · **Trạng thái**: Draft v1, *giả thuyết, phải kiểm chứng bằng phỏng vấn* · **Cập nhật**: 2026-10-30
 > **Mục đích**: chọn đúng người để nói chuyện và bán trước. Sản phẩm mới không bán cho "tất cả mọi người".
 
 ## 1. Ba phân khúc theo thứ tự ưu tiên
@@ -11,7 +11,7 @@
 - **JTBD**: *"Khi tôi phải ôn nhiều môn/chủ đề cùng lúc, tôi muốn biết **hôm nay cần ôn lại gì** và tập trung làm từng phần, để không quên kiến thức và không bị quá tải."*
 - **Nỗi đau hiện tại**: Anki cho flashcard, Notion/giấy cho kế hoạch, app hẹn giờ riêng → chuyển ngữ cảnh liên tục; không có công cụ nào lập lịch **ôn lại công việc/chủ đề** (không phải thẻ).
 - **Vì sao Stride thắng**: SM-2 cho việc + Pomodoro + nhập nhanh một dòng, chạy offline trong lớp/thư viện.
-- **Sẵn sàng chi trả**: thấp–trung bình → phù hợp giá PPP và mua một lần.
+- **Sẵn sàng chi trả**: thấp-trung bình → phù hợp giá PPP và mua một lần.
 - **Tụ tập ở đâu**: r/GetStudying, r/studytips, r/Anki, r/languagelearning, r/IELTS; server Discord "study with me"; nhóm Facebook tự học IELTS/ôn thi đại học; TikTok/YouTube "study with me".
 
 ### B. Người làm việc trí óc coi trọng quyền riêng tư
@@ -19,7 +19,7 @@
 - **Ai**: lập trình viên, freelancer, nhà nghiên cứu, người làm nội dung.
 - **JTBD**: *"Tôi muốn danh sách việc **chạy offline, không cần tài khoản**, dữ liệu thuộc về tôi, và khi cần thì đồng bộ được mà không ai đọc được."*
 - **Vì sao Stride thắng**: local-first, E2E (máy chủ chỉ giữ bản mã), repo public để tự kiểm chứng.
-- **Sẵn sàng chi trả**: trung bình–cao → mức $25.95 hợp lý.
+- **Sẵn sàng chi trả**: trung bình-cao → mức $25.95 hợp lý.
 - **Tụ tập ở đâu**: Hacker News, Lobsters, r/privacy, r/productivity, r/selfhosted (lân cận), dev.to, Viblo.
 
 ### C. Người dùng Việt Nam (thị trường sân nhà)
@@ -42,7 +42,7 @@
 - Người muốn AI tự lập kế hoạch cho mình.
 - Người chỉ dùng hệ sinh thái Apple và đã hài lòng với Things 3.
 
-## 4. Kịch bản phỏng vấn khách hàng (15 phút, 10–15 người trước khi xây tính năng mới)
+## 4. Kịch bản phỏng vấn khách hàng (15 phút, 10-15 người trước khi xây tính năng mới)
 
 1. Lần gần nhất bạn phải ôn/làm nhiều việc cùng lúc là khi nào? Bạn đã quản lý nó thế nào?
 2. Công cụ hiện tại bạn dùng? Điều gì khiến bạn bực nhất?

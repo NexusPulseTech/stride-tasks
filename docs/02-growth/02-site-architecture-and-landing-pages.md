@@ -1,6 +1,6 @@
 # Kiến trúc site & trang đích (Landing pages)
 
-> **Thuộc**: 02-growth · **Trạng thái**: Draft v1 — *quyết định kỹ thuật ở ADR-0007* · **Cập nhật**: 2026-10-30
+> **Thuộc**: 02-growth · **Trạng thái**: Draft v1, *quyết định kỹ thuật ở ADR-0007* · **Cập nhật**: 2026-10-30
 > **Mục đích**: tách **trang marketing tĩnh** (cho người lạ & bot) khỏi **app SPA** (cho người dùng), mà không làm mất dữ liệu người dùng hiện có.
 
 ## 1. Ràng buộc
@@ -12,7 +12,7 @@
 
 | URL | Loại | Ngôn ngữ | Mục tiêu |
 | :--- | :--- | :--- | :--- |
-| `/` | App (SPA) — metadata thương hiệu EN | EN mặc định, app tự chọn ngôn ngữ | Truy vấn thương hiệu "Stride Tasks" |
+| `/` | App (SPA), metadata thương hiệu EN | EN mặc định, app tự chọn ngôn ngữ | Truy vấn thương hiệu "Stride Tasks" |
 | `/en/`, `/vi/` | Trang đích chính | EN / VI | Truy vấn danh mục ("offline task manager", "app quản lý công việc") |
 | `/{lang}/pricing/` | Trang giá | EN / VI | Chuyển đổi |
 | `/{lang}/features/{spaced-repetition, pomodoro, offline-private, e2e-sync, quick-capture, kanban}/` | Trang tính năng | EN / VI | Từ khóa tính năng |
@@ -27,9 +27,9 @@ Quy tắc: slug giống nhau giữa các ngôn ngữ (đơn giản hóa `hreflan
 
 ## 3. Cấu trúc trang đích (chuẩn chuyển đổi)
 
-1. **Hero**: tiêu đề = kết quả người dùng nhận được; phụ đề = cách làm; CTA chính "Mở app — miễn phí, không cần tài khoản"; CTA phụ "Xem bảng giá"; GIF/video demo 45–60 giây.
+1. **Hero**: tiêu đề = kết quả người dùng nhận được; phụ đề = cách làm; CTA chính "Mở app, miễn phí, không cần tài khoản"; CTA phụ "Xem bảng giá"; GIF/video demo 45-60 giây.
 2. **3 điểm khác biệt** (SM-2 cho việc · Offline không tài khoản · Đồng bộ E2E).
-3. **Cách hoạt động** — 3 bước: *Nhập một dòng → Tập trung bằng Pomodoro → Ôn lại đúng lúc*.
+3. **Cách hoạt động**: 3 bước: *Nhập một dòng → Tập trung bằng Pomodoro → Ôn lại đúng lúc*.
 4. **Lưới tính năng** (Kanban, việc con nhiều cấp, heatmap, báo cáo Markdown, phím tắt).
 5. **Quyền riêng tư**: dữ liệu ở đâu, máy chủ thấy gì (chỉ bản mã), mã nguồn công khai.
 6. **Bằng chứng xã hội** (khi có testimonial thật).
@@ -42,8 +42,8 @@ Quy tắc: slug giống nhau giữa các ngôn ngữ (đơn giản hóa `hreflan
 | | English | Tiếng Việt |
 | :--- | :--- | :--- |
 | H1 | **Plan it. Focus on it. Remember it.** | **Lên kế hoạch. Tập trung. Không quên.** |
-| Phụ đề | The offline-first task manager with Pomodoro and spaced repetition — no account, your data stays on your device. | Ứng dụng quản lý công việc chạy offline, có Pomodoro và nhắc ôn lại thông minh (SM-2) — không cần tài khoản, dữ liệu nằm trên máy bạn. |
-| CTA | Open the app — free | Mở app miễn phí |
+| Phụ đề | The offline-first task manager with Pomodoro and spaced repetition, no account, your data stays on your device. | Ứng dụng quản lý công việc chạy offline, có Pomodoro và nhắc ôn lại thông minh (SM-2), không cần tài khoản, dữ liệu nằm trên máy bạn. |
+| CTA | Open the app, free | Mở app miễn phí |
 
 ## 5. Lựa chọn kỹ thuật (tóm tắt ADR-0007)
 

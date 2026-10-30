@@ -25,7 +25,7 @@
 | `DELETE /sync/v1/vaults/{id}` | 204 | Xóa bản sao đám mây | ✅ |
 | `GET /claim?order=` | 200 `pending` / `ready + token` · 400 `invalid` | Poll mỗi **6 giây** khi tab hiển thị, tối đa **72 giờ**; `ready` → kích hoạt | ✅ hành vi / ⚠️ tải (mục 3) |
 | Mã đơn | `ORDER_EXACT = /^STR[A-HJ-NP-Z2-9]{6}$/` | `ORDER_CODE_PATTERN` cùng regex | ✅ (nhưng **khai báo trùng ở 2 nơi**) |
-| LemonSqueezy custom data | đọc `meta.custom_data.stride_ref` | gửi `checkout[custom][stride_ref]` | ✅ (kênh sắp thay — ADR-0006) |
+| LemonSqueezy custom data | đọc `meta.custom_data.stride_ref` | gửi `checkout[custom][stride_ref]` | ✅ (kênh sắp thay, ADR-0006) |
 | CORS | cho phép `GET, PUT, DELETE` + `Authorization, Content-Type` cho origin trong `ALLOWED_ORIGINS` | gửi đúng header | ✅ (smoke test) |
 
 ## 3. Khoảng trống (xếp theo mức độ)
@@ -48,6 +48,6 @@
 - [ ] `packages/contracts` là nguồn duy nhất cho regex, mã lỗi, giới hạn kích thước; client và Worker cùng import.
 - [ ] Contract test chạy trong CI: phản hồi Worker được kiểm bằng schema của `openapi.yaml`.
 - [ ] Worker TypeScript, có unit + integration test, CI deploy staging → smoke test → production.
-- [ ] Khoảng trống #1–#3 đã đóng.
+- [ ] Khoảng trống #1-#3 đã đóng.
 
 Cập nhật bảng này mỗi khi đổi hợp đồng (quy trình ở [README.md](./README.md)).

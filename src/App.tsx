@@ -662,7 +662,7 @@ export default function App() {
         showToast={manager.showToast}
       />
 
-      {/* Các modal nặng được tải theo yêu cầu (React.lazy) — chỉ mount khi người dùng thực sự mở */}
+      {/* Các modal nặng được tải theo yêu cầu (React.lazy), chỉ mount khi người dùng thực sự mở */}
       <Suspense fallback={null}>
       {/* Modal xem & chỉnh sửa toàn diện chi tiết công việc */}
       {manager.selectedDetailTask && (

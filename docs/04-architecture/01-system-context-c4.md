@@ -1,9 +1,9 @@
 # Sơ đồ hệ thống (mô hình C4)
 
 > **Thuộc**: 04-architecture · **Trạng thái**: Reviewed (hiện tại) / Draft (mục tiêu) · **Cập nhật**: 2026-10-30
-> **Chuẩn**: C4 model (Simon Brown) — Level 1 *System Context*, Level 2 *Container*.
+> **Chuẩn**: C4 model (Simon Brown), Level 1 *System Context*, Level 2 *Container*.
 
-## 1. Level 1 — System Context (hiện tại)
+## 1. Level 1: System Context (hiện tại)
 
 ```mermaid
 flowchart LR
@@ -12,7 +12,7 @@ flowchart LR
   stride[Stride Tasks<br/>app local-first + API edge]
   sepay[SePay<br/>biến động số dư VietQR]
   mor[Merchant of Record<br/>Polar · LemonSqueezy cũ]
-  mail[Dịch vụ email<br/>Resend — tùy chọn]
+  mail[Dịch vụ email<br/>Resend, tùy chọn]
   user -->|quản lý việc offline,<br/>đồng bộ bản mã| stride
   buyer -->|chuyển khoản VietQR| sepay
   buyer -->|thẻ quốc tế| mor
@@ -21,7 +21,7 @@ flowchart LR
   stride -->|link kích hoạt| mail
 ```
 
-## 2. Level 2 — Container (hiện tại, v3.1.0)
+## 2. Level 2: Container (hiện tại, v3.1.0)
 
 ```mermaid
 flowchart TB
@@ -48,14 +48,14 @@ flowchart TB
 
 **Đặc điểm**: toàn bộ logic nghiệp vụ người dùng chạy trên client; server **không đọc được** dữ liệu công việc (chỉ bản mã AES-256-GCM). Worker là một khối duy nhất chứa cả bí mật thanh toán lẫn API đồng bộ.
 
-## 3. Level 2 — Container (mục tiêu, Phase D)
+## 3. Level 2: Container (mục tiêu, Phase D)
 
 ```mermaid
 flowchart TB
   subgraph Client["Thiết bị người dùng"]
-    web["apps/web — PWA"]
-    desk["apps/desktop — Tauri"]
-    site["site — trang marketing tĩnh (Astro)"]
+    web["apps/web, PWA"]
+    desk["apps/desktop, Tauri"]
+    site["site, trang marketing tĩnh (Astro)"]
   end
   subgraph Edge["Cloudflare Workers"]
     gw["gateway<br/>CORS · rate limit · request-id · lỗi RFC 9457"]

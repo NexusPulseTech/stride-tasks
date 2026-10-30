@@ -246,8 +246,8 @@ export function DailyFocusModal({
                   <p className="text-[10px] text-slate-400 dark:text-slate-500">
                     {isOverloaded
                       ? language === 'vi'
-                        ? 'Cảnh báo quá tải (>6h Deep Work) — hãy dùng phím 2 hoặc 3 để giãn lịch Anki SM-2'
-                        : 'Overbooked (>6h Deep Work) — use keys 2 or 3 to space out tasks via Anki SM-2'
+                        ? 'Cảnh báo quá tải (>6h Deep Work): hãy dùng phím 2 hoặc 3 để giãn lịch Anki SM-2'
+                        : 'Overbooked (>6h Deep Work): use keys 2 or 3 to space out tasks via Anki SM-2'
                       : language === 'vi'
                       ? 'Khối lượng công việc trong ngưỡng an toàn (Chuẩn Sunsama Anti-Burnout)'
                       : 'Workload within healthy daily capacity (Sunsama Anti-Burnout guardrail)'}

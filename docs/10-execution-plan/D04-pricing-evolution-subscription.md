@@ -1,8 +1,8 @@
-# D04 — Tiến hóa mô hình giá
+# D04: Tiến hóa mô hình giá
 
 | Thuộc tính | Giá trị |
 | :--- | :--- |
-| Phase | D — Scale |
+| Phase | D: Scale |
 | Ưu tiên | P3 |
 | Ước lượng | 1 ngày phân tích |
 | Điều kiện bắt đầu | ≥ 50 đơn trả tiền |

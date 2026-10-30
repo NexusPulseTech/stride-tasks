@@ -10,9 +10,9 @@ Mục tiêu dài hạn là kiến trúc microservices dễ mở rộng. Hiện t
 
 ## Các phương án
 
-1. **Microservices ngay** (5 Worker + queue) — đúng "hình dạng" mục tiêu nhưng nhân chi phí deploy, test, gỡ lỗi khi chưa có nhu cầu.
-2. **Monolith không ranh giới** — nhanh lúc đầu, đắt khi tách sau.
-3. **Modular monolith với ranh giới bounded context cứng, tách theo điều kiện** — mỗi context có domain/application/adapter riêng, giao tiếp qua interface; khi tách chỉ thay adapter in-process bằng Service Binding.
+1. **Microservices ngay** (5 Worker + queue), đúng "hình dạng" mục tiêu nhưng nhân chi phí deploy, test, gỡ lỗi khi chưa có nhu cầu.
+2. **Monolith không ranh giới**: nhanh lúc đầu, đắt khi tách sau.
+3. **Modular monolith với ranh giới bounded context cứng, tách theo điều kiện**: mỗi context có domain/application/adapter riêng, giao tiếp qua interface; khi tách chỉ thay adapter in-process bằng Service Binding.
 
 ## Quyết định
 
@@ -21,5 +21,5 @@ Chọn phương án 3. Điều kiện tách (ít nhất một): ranh giới bả
 ## Hệ quả
 
 - Tích cực: chi phí thấp bây giờ, đường tách rõ ràng sau này; test domain không phụ thuộc hạ tầng.
-- Tiêu cực: phải kỷ luật giữ ranh giới (cần lint tự động — task B02).
+- Tiêu cực: phải kỷ luật giữ ranh giới (cần lint tự động, task B02).
 - Việc tiếp: khi tách, viết ADR mới ghi điều kiện nào đã thỏa.

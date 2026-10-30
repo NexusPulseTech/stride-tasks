@@ -68,7 +68,7 @@ export interface ProTrialState {
   kanban: number;
   pomodoro: number;
   markdownReport: number;
-  /** Ngày (YYYY-MM-DD) đã tiêu 1 lượt Kanban — trong cùng ngày kéo thả thoải mái */
+  /** Ngày (YYYY-MM-DD) đã tiêu 1 lượt Kanban, trong cùng ngày kéo thả thoải mái */
   kanbanActiveDay?: string;
 }
 
@@ -141,7 +141,7 @@ function stateFromPayload(p: LicensePayload): ProLicenseState {
   };
 }
 
-/** Mọi trường hiển thị đã lưu phải trùng khớp payload đã ký — sửa bất kỳ trường nào trong DevTools đều bị phát hiện */
+/** Mọi trường hiển thị đã lưu phải trùng khớp payload đã ký, sửa bất kỳ trường nào trong DevTools đều bị phát hiện */
 function storedFieldsMatch(stored: StoredLicenseRecord, payload: LicensePayload): boolean {
   return (
     stored.licenseType === payload.licenseType &&
@@ -437,7 +437,7 @@ export function useProLicense({ notify }: UseProLicenseOptions = {}) {
   );
 
   // ---------------------------------------------------------------------------
-  // Công cụ nhà phát triển — `import.meta.env.DEV` được Vite thay bằng `false` khi build production,
+  // Công cụ nhà phát triển, `import.meta.env.DEV` được Vite thay bằng `false` khi build production,
   // nên toàn bộ nhánh này bị loại khỏi bundle phát hành (dead-code elimination).
   // ---------------------------------------------------------------------------
   const devTools = useMemo(() => {

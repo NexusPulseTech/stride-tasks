@@ -1,7 +1,7 @@
-# 03 — Product
+# 03: Product
 
 > **Thuộc**: 03-product · **Trạng thái**: Draft v1 · **Cập nhật**: 2026-10-30
-> **Mục đích**: sự thật về sản phẩm — đã có gì, thiếu gì để bán, sẽ làm gì tiếp theo và vì sao.
+> **Mục đích**: sự thật về sản phẩm, đã có gì, thiếu gì để bán, sẽ làm gì tiếp theo và vì sao.
 
 | File | Nội dung |
 | :--- | :--- |

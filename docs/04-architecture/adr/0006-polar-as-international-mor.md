@@ -1,6 +1,6 @@
 # ADR-0006: Polar thay LemonSqueezy làm Merchant of Record quốc tế
 
-- **Trạng thái**: Proposed — *cần kiểm tra onboarding cá nhân ở Việt Nam trước khi Accepted*
+- **Trạng thái**: Proposed, *cần kiểm tra onboarding cá nhân ở Việt Nam trước khi Accepted*
 - **Ngày**: 2026-10-30
 - **Liên quan**: [../../01-business/04-payments-and-merchant-of-record.md](../../01-business/04-payments-and-merchant-of-record.md), tasks A03, A04
 
@@ -10,10 +10,10 @@ Code hiện dùng LemonSqueezy (checkout URL + webhook `order_created`). LemonSq
 
 ## Các phương án
 
-1. **Giữ LemonSqueezy** — rủi ro không chi trả/không onboard được.
-2. **Polar** — MoR, chi trả về Việt Nam qua Stripe Connect Express, 5% + 50¢ (+1,5% thẻ ngoài Mỹ), không phí tháng, webhook theo chuẩn Standard Webhooks, API checkout, mã giảm giá.
-3. **Creem** — MoR, 3,9% + 40¢, chi trả ngân hàng VN nhưng phí payout tối thiểu $7.
-4. **Paddle** — MoR lâu năm, hỗ trợ VN, duyệt chặt hơn.
+1. **Giữ LemonSqueezy**: rủi ro không chi trả/không onboard được.
+2. **Polar**: MoR, chi trả về Việt Nam qua Stripe Connect Express, 5% + 50¢ (+1,5% thẻ ngoài Mỹ), không phí tháng, webhook theo chuẩn Standard Webhooks, API checkout, mã giảm giá.
+3. **Creem**: MoR, 3,9% + 40¢, chi trả ngân hàng VN nhưng phí payout tối thiểu $7.
+4. **Paddle**: MoR lâu năm, hỗ trợ VN, duyệt chặt hơn.
 
 ## Quyết định
 

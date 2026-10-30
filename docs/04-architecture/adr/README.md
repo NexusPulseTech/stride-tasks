@@ -1,7 +1,7 @@
 # Architecture Decision Records (ADR)
 
 > **Thuộc**: 04-architecture/adr · **Cập nhật**: 2026-10-30
-> **Chuẩn**: mẫu ADR của Michael Nygard. Mỗi quyết định kiến trúc có ảnh hưởng lâu dài = 1 file, đánh số tăng dần, **không sửa nội dung ADR đã Accepted** — tạo ADR mới với trạng thái *Supersedes ADR-xxxx*.
+> **Chuẩn**: mẫu ADR của Michael Nygard. Mỗi quyết định kiến trúc có ảnh hưởng lâu dài = 1 file, đánh số tăng dần, **không sửa nội dung ADR đã Accepted**: tạo ADR mới với trạng thái *Supersedes ADR-xxxx*.
 
 ## Vòng đời
 
@@ -18,6 +18,6 @@
 | [0005](./0005-modular-monolith-first.md) | Thiết kế microservices-ready, tách dịch vụ khi đạt điều kiện | Proposed |
 | [0006](./0006-polar-as-international-mor.md) | Polar thay LemonSqueezy làm MoR quốc tế | Proposed |
 | [0007](./0007-static-marketing-site-same-origin.md) | Trang marketing tĩnh (Astro) cùng origin với app | Proposed |
-| [0008](./0008-source-license-strategy.md) | Chiến lược giấy phép mã nguồn (MIT hay thay đổi) | Proposed — **cần founder quyết** |
+| [0008](./0008-source-license-strategy.md) | Chiến lược giấy phép mã nguồn (MIT hay thay đổi) | Proposed, **cần founder quyết** |
 
 Mẫu cho ADR mới: [0000-template.md](./0000-template.md).

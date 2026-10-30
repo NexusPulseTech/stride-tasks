@@ -1,10 +1,10 @@
-# B08 — Tách các file quá lớn (SRP)
+# B08: Tách các file quá lớn (SRP)
 
 | Thuộc tính | Giá trị |
 | :--- | :--- |
-| Phase | B — Foundation |
+| Phase | B: Foundation |
 | Ưu tiên | P2 (làm dần, xen kẽ việc khác) |
-| Ước lượng | Liên tục — mỗi PR một file |
+| Ước lượng | Liên tục, mỗi PR một file |
 | Phụ thuộc | B01, B02 |
 | Trạng thái | ☐ Todo |
 

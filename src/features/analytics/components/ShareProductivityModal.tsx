@@ -137,7 +137,7 @@ export function ShareProductivityModal({
 
         ctx.fillStyle = '#94a3b8';
         ctx.font = '400 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-        ctx.fillText('—', 36, ty + 12);
+        ctx.fillText('-', 36, ty + 12);
 
         ctx.fillStyle = '#f1f5f9';
         ctx.font = '500 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';

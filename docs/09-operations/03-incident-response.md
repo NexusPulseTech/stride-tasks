@@ -32,11 +32,11 @@
 ## 4. Mẫu postmortem (không đổ lỗi)
 
 ```
-# Postmortem: <tiêu đề> — <ngày>
+# Postmortem: <tiêu đề>: <ngày>
 Mức: SEV? · Thời gian ảnh hưởng: <bắt đầu> → <kết thúc> · Người dùng ảnh hưởng: <ước tính>
 ## Tóm tắt
 ## Dòng thời gian
 ## Nguyên nhân gốc (5 Whys)
 ## Điều đã làm tốt / chưa tốt
-## Hành động phòng ngừa (owner, hạn) — mỗi hành động thành một task
+## Hành động phòng ngừa (owner, hạn): mỗi hành động thành một task
 ```

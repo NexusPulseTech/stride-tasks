@@ -15,7 +15,7 @@
 
 ## 2. Client
 
-- **Error Boundary** ghi lỗi vào bộ nhớ cục bộ (vòng 20 lỗi gần nhất) + nút "Gửi báo cáo lỗi" mở email/biểu mẫu với stack đã lược bỏ dữ liệu người dùng — **không tự động gửi**.
+- **Error Boundary** ghi lỗi vào bộ nhớ cục bộ (vòng 20 lỗi gần nhất) + nút "Gửi báo cáo lỗi" mở email/biểu mẫu với stack đã lược bỏ dữ liệu người dùng, **không tự động gửi**.
 - Nếu sau này dùng dịch vụ theo dõi lỗi (VD Sentry): chỉ khi người dùng **đồng ý (opt-in)**, bật lọc dữ liệu (scrub), cập nhật `privacy.html`.
 - Bộ đếm sản phẩm ẩn danh: xem [../02-growth/07-analytics-and-measurement.md](../02-growth/07-analytics-and-measurement.md).
 

@@ -94,7 +94,7 @@ export function MarkdownReportModal({
     const lines: string[] = [];
 
     if (template === 'standup') {
-      lines.push(`# 📋 Daily Standup & Shutdown Report — ${todayDate}`);
+      lines.push(`# 📋 Daily Standup & Shutdown Report (${todayDate})`);
       lines.push(
         `> **Streak:** ${streak}d · **Completed Today:** ${todayCount} · **Deep Work Focus:** ${totalFocusMinutes}${
           totalEstimatedMinutes > 0 ? `/${totalEstimatedMinutes}` : ''
@@ -114,7 +114,7 @@ export function MarkdownReportModal({
       lines.push('');
       lines.push(`## 🚀 In Progress & Next Up (${doingTasks.length})`);
       if (doingTasks.length === 0) {
-        lines.push('- *(All clear — Evening Shutdown Complete)*');
+        lines.push('- *(All clear: Evening Shutdown Complete)*');
       } else {
         doingTasks.slice(0, 15).forEach((item) => {
           lines.push(
@@ -157,7 +157,7 @@ export function MarkdownReportModal({
         lines.push(`- [x] ${item.title} \`${item.project}\`${formatTimeBadge(item.minutes, item.estimated)}`);
       });
     } else {
-      lines.push(`# 📊 Weekly Executive & Anki SRS Summary — ${todayDate}`);
+      lines.push(`# 📊 Weekly Executive & Anki SRS Summary (${todayDate})`);
       lines.push('');
       lines.push(`- **Current Streak:** ${streak} days`);
       lines.push(`- **Completed (7 Days):** ${weekCount} items`);

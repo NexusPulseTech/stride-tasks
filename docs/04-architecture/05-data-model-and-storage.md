@@ -6,8 +6,8 @@
 ## 1. Bất biến (không được phá)
 
 1. **Không đổi tên / xóa** khóa lưu trữ đang có. Thay đổi định dạng → tạo khóa phiên bản mới (`…_V5`) + code migration đọc khóa cũ, ghi khóa mới, giữ bản cũ ít nhất một phiên bản phát hành.
-2. Dữ liệu người dùng **không bao giờ** rời thiết bị ở dạng rõ — đồng bộ chỉ gửi bản mã AES-256-GCM.
-3. Mọi entity tham gia đồng bộ phải có `id` ổn định và `updatedAt` (ISO 8601) — điều kiện của hợp nhất LWW.
+2. Dữ liệu người dùng **không bao giờ** rời thiết bị ở dạng rõ, đồng bộ chỉ gửi bản mã AES-256-GCM.
+3. Mọi entity tham gia đồng bộ phải có `id` ổn định và `updatedAt` (ISO 8601), điều kiện của hợp nhất LWW.
 
 ## 2. Khóa client bổ sung từ v3.1.0 (chưa có trong state-persistence.md)
 
@@ -40,15 +40,15 @@ interface SyncSnapshotV1 {
 
 ## 4. Dữ liệu server (hiện tại)
 
-**D1 `stride-sync`** — `cloudflare-worker/schema.sql`:
+**D1 `stride-sync`**: `cloudflare-worker/schema.sql`:
 
 | Cột | Kiểu | Ý nghĩa |
 | :--- | :--- | :--- |
-| `id` | TEXT PK | vaultId (64 hex) — không suy ngược ra mã đồng bộ |
+| `id` | TEXT PK | vaultId (64 hex), không suy ngược ra mã đồng bộ |
 | `version` | INTEGER | tăng 1 mỗi lần ghi; PUT phải gửi đúng `expectedVersion` (CAS) |
 | `iv`, `ciphertext` | TEXT | IV AES-GCM (base64, 16 ký tự) và bản mã base64 (≤ 1.900.000 ký tự) |
 | `size` | INTEGER | độ dài bản mã |
-| `license_id` | TEXT, index | bản quyền tạo kho — giới hạn `SYNC_MAX_VAULTS_PER_LICENSE` |
+| `license_id` | TEXT, index | bản quyền tạo kho, giới hạn `SYNC_MAX_VAULTS_PER_LICENSE` |
 | `created_at`, `updated_at` | TEXT | ISO 8601 |
 
 **KV `LICENSES`** (TTL 90 ngày): `order:{STRxxxxxx}` → `{token, channel, …}` · `sepay:{txId}` → trạng thái xử lý · `lsorder:{id}` → đơn LemonSqueezy không có mã tham chiếu.
@@ -59,11 +59,11 @@ interface SyncSnapshotV1 {
 | :--- | :--- | :--- |
 | billing | `orders(id, order_code, provider, status, amount_minor, currency, country, created_at)` · `payment_events(provider, event_id PK, received_at)` | Sổ cái + idempotency |
 | licensing | `claims(order_code PK, claim_hash, token, expires_at)` · `revocations(license_id PK, reason, revoked_at)` | Claim an toàn + thu hồi khi hoàn tiền |
-| sync | `vaults` (giữ nguyên) | — |
+| sync | `vaults` (giữ nguyên) | - |
 
 ## 6. Quy tắc migration
 
-- D1: dùng **`wrangler d1 migrations create/apply`** với file đánh số trong `migrations/` (thay cho `schema.sql` đơn lẻ) — có lịch sử, áp dụng lặp lại an toàn.
+- D1: dùng **`wrangler d1 migrations create/apply`** với file đánh số trong `migrations/` (thay cho `schema.sql` đơn lẻ), có lịch sử, áp dụng lặp lại an toàn.
 - Mọi migration theo kiểu *expand → backfill → contract*; không `DROP` trong cùng bản phát hành với thay đổi code.
-- Trước migration production: xuất bản sao (`wrangler d1 export`) — D1 cũng có Time Travel để khôi phục theo thời điểm (kiểm tra thời hạn lưu theo gói).
+- Trước migration production: xuất bản sao (`wrangler d1 export`), D1 cũng có Time Travel để khôi phục theo thời điểm (kiểm tra thời hạn lưu theo gói).
 - Client: migration chạy khi khởi động, idempotent, có test với dữ liệu mẫu của từng phiên bản cũ.

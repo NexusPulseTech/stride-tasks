@@ -1,7 +1,7 @@
 # Onboarding & kích hoạt (Activation)
 
 > **Thuộc**: 03-product · **Trạng thái**: Draft v1 · **Cập nhật**: 2026-10-30
-> **Mục đích**: đưa người dùng mới tới "khoảnh khắc aha" trong 2 phút đầu — người được kích hoạt mới có khả năng trả tiền.
+> **Mục đích**: đưa người dùng mới tới "khoảnh khắc aha" trong 2 phút đầu, người được kích hoạt mới có khả năng trả tiền.
 
 ## 1. Định nghĩa
 
@@ -30,5 +30,5 @@
 ## 4. Nguyên tắc
 
 - Không chặn người dùng bằng tour nhiều bước; mọi gợi ý bỏ qua được.
-- Không xin quyền thông báo ở phiên đầu — chỉ xin khi người dùng bật nhắc việc.
+- Không xin quyền thông báo ở phiên đầu, chỉ xin khi người dùng bật nhắc việc.
 - Đo trước, sửa sau: mọi thay đổi onboarding phải có giả thuyết và chỉ số để so sánh.

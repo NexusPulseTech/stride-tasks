@@ -13,7 +13,7 @@ interface StatsPanelProps {
   isOpen: boolean;
   onClose: () => void;
   projects?: Project[];
-  /** Tổng hợp từ focus log append-only — không mất khi xóa việc hay khi việc lặp lại sang chu kỳ mới */
+  /** Tổng hợp từ focus log append-only, không mất khi xóa việc hay khi việc lặp lại sang chu kỳ mới */
   focusSummary?: FocusSummary;
   completedLogs: CompletedItemLog[];
   activityMap: Record<string, number>;

@@ -63,8 +63,8 @@ Trong các phần mềm ghi chú, quản lý công việc và tư duy sâu (Prod
 
 ### 4.2. Bảng Màu Văn Bản (Typography Contrast)
 * **Primary Text (Tiêu đề, tên việc)**:
-  * Light: `text-slate-900` (`#0F172A`) — Độ tương phản 15:1 với nền trắng (vượt chuẩn WCAG AAA).
-  * Dark: `text-slate-100` (`#F1F5F9`) — Dịu mắt, không dùng màu trắng tuyệt đối `#FFFFFF` để tránh chói trong bóng tối.
+  * Light: `text-slate-900` (`#0F172A`), Độ tương phản 15:1 với nền trắng (vượt chuẩn WCAG AAA).
+  * Dark: `text-slate-100` (`#F1F5F9`), Dịu mắt, không dùng màu trắng tuyệt đối `#FFFFFF` để tránh chói trong bóng tối.
 * **Secondary Text (Metadata, đếm số việc)**:
   * Light: `text-slate-500` (`#64748B`)
   * Dark: `text-slate-400` (`#94A3B8`)

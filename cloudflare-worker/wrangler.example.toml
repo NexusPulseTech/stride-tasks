@@ -30,7 +30,7 @@ SYNC_MAX_VAULTS_PER_LICENSE = "3"
 # Đặt "false" để mở đồng bộ không cần bản quyền (giai đoạn thử nghiệm)
 SYNC_REQUIRE_LICENSE = "true"
 
-# Bí mật — nạp bằng lệnh, KHÔNG ghi vào file này:
+# Bí mật, nạp bằng lệnh, KHÔNG ghi vào file này:
 #   npx wrangler secret put STRIDE_ED25519_PRIVATE_KEY
 #   npx wrangler secret put SEPAY_API_KEY
 #   npx wrangler secret put LEMONSQUEEZY_SIGNING_SECRET

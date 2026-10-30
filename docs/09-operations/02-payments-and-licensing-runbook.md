@@ -3,7 +3,7 @@
 > **Thuộc**: 09-operations · **Trạng thái**: Draft v1 · **Cập nhật**: 2026-10-30
 > **Liên quan**: task [A05](../10-execution-plan/A05-enable-payments-in-production.md), [../01-business/04-payments-and-merchant-of-record.md](../01-business/04-payments-and-merchant-of-record.md).
 
-## 1. Bật thanh toán lần đầu (tóm tắt — chi tiết trong A05)
+## 1. Bật thanh toán lần đầu (tóm tắt: chi tiết trong A05)
 
 1. **Worker secret**: `STRIDE_ED25519_PRIVATE_KEY` (đọc từ `.env.local`, không in ra), `SEPAY_API_KEY`, secret của Polar.
 2. **SePay**: tạo webhook → URL `https://tasks-api.nexuspulsetech.xyz/webhook/sepay`, sự kiện *tiền vào*, xác thực **API Key** (giá trị trùng `SEPAY_API_KEY`).
@@ -18,7 +18,7 @@ npm run keygen -- issue --id VN-STRXXXXXX --region vn-ppp --price 7.95 --label "
 npm run keygen -- verify <token>     # kiểm tra trước khi gửi
 ```
 
-Gửi khách **link kích hoạt** `https://tasks.nexuspulsetech.xyz/#activate=<token>` hoặc file `.stride-license.json`. File chứng chỉ bị gitignore (`*.stride-license.json`) — xóa khỏi máy sau khi gửi.
+Gửi khách **link kích hoạt** `https://tasks.nexuspulsetech.xyz/#activate=<token>` hoặc file `.stride-license.json`. File chứng chỉ bị gitignore (`*.stride-license.json`), xóa khỏi máy sau khi gửi.
 
 ## 3. Chuyển khoản không khớp đơn (SePay)
 

@@ -10,9 +10,9 @@
 </p>
 
 > **Ứng dụng quản lý công việc & thực thi tốc độ cao (Linear Execution Engine + Anki SM-2 SRS), 100% Local-First và hoạt động Offline.**  
-> Xây dựng theo nguyên lý thiết kế tối giản: nhập việc tự nhiên 1 dòng (**Smart NLP Quick-Capture**), hạch toán ngân sách thời gian (**Time-Budget ROI**), cây việc con đệ quy (**Recursive Subtask Tree**), chu trình trạng thái dứt khoát (**Linear Status Flow**), bản đồ nhịp độ (**Activity Rhythm Heatmap**), bảng Kanban 4 cột, đồng hồ Pomodoro với nhật ký Deep Work, đồng bộ đa thiết bị **mã hóa đầu-cuối** (PRO, xem [`cloudflare-worker/`](./cloudflare-worker/README.md)), và bản quyền PRO xác thực ngoại tuyến bằng chữ ký số **Ed25519** (paywall tắt mặc định — xem [`.env.example`](./.env.example)).
+> Xây dựng theo nguyên lý thiết kế tối giản: nhập việc tự nhiên 1 dòng (**Smart NLP Quick-Capture**), hạch toán ngân sách thời gian (**Time-Budget ROI**), cây việc con đệ quy (**Recursive Subtask Tree**), chu trình trạng thái dứt khoát (**Linear Status Flow**), bản đồ nhịp độ (**Activity Rhythm Heatmap**), bảng Kanban 4 cột, đồng hồ Pomodoro với nhật ký Deep Work, đồng bộ đa thiết bị **mã hóa đầu-cuối** (PRO, xem [`cloudflare-worker/`](./cloudflare-worker/README.md)), và bản quyền PRO xác thực ngoại tuyến bằng chữ ký số **Ed25519** (paywall tắt mặc định, xem [`.env.example`](./.env.example)).
 >
-> 📄 **Báo cáo Phát hành Mới nhất (10/27/2026 — `v3.0.0`)**: Xem chi tiết tại [`docs/Release/2026-10-27-v3.0.0-omni-channel-and-execution-engine.md`](./docs/Release/2026-10-27-v3.0.0-omni-channel-and-execution-engine.md)
+> 📄 **Báo cáo Phát hành Mới nhất (10/27/2026, `v3.0.0`)**: Xem chi tiết tại [`docs/Release/2026-10-27-v3.0.0-omni-channel-and-execution-engine.md`](./docs/Release/2026-10-27-v3.0.0-omni-channel-and-execution-engine.md)
 
 ---
 

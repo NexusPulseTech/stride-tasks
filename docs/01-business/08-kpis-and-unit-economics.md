@@ -9,7 +9,7 @@
 | :--- | :--- | :--- |
 | 1. Visitor | Lượt xem trang đích `/`, `/en/`, `/vi/` | Cloudflare Web Analytics (không cookie) |
 | 2. App open | Lượt mở app lần đầu (khác landing nếu tách trang) | Cloudflare Web Analytics |
-| 3. Activated | Tạo ≥ 3 việc **và** hoàn thành ≥ 1 việc trong 24h đầu | Bộ đếm ẩn danh tùy chọn (task `A07`) — trước đó dùng phỏng vấn |
+| 3. Activated | Tạo ≥ 3 việc **và** hoàn thành ≥ 1 việc trong 24h đầu | Bộ đếm ẩn danh tùy chọn (task `A07`), trước đó dùng phỏng vấn |
 | 4. Retained D7 | Quay lại trong ngày thứ 7 | Bộ đếm ẩn danh tùy chọn |
 | 5. Paywall view | Mở Trung tâm bản quyền / trang `/pricing` | Web Analytics (trang) |
 | 6. Checkout started | Bấm thanh toán | Dashboard MoR (số checkout tạo) + Worker `/orders` |
@@ -30,7 +30,7 @@ Giả định heuristic cho sản phẩm freemium mới (không phải số li�
 | Checkout → Paid | 65% |
 
 ⇒ 1.000 visitor có mục tiêu ≈ 1.000 × 0,25 × 0,40 × 0,30 × 0,15 × 0,65 ≈ **3 đơn**.
-**Hệ quả**: để có khách đầu tiên cần đưa **~500–1.000 người đúng phân khúc** tới trang đích trong 14 ngày — khả thi bằng outreach cá nhân + 5–8 bài đăng cộng đồng.
+**Hệ quả**: để có khách đầu tiên cần đưa **~500-1.000 người đúng phân khúc** tới trang đích trong 14 ngày, khả thi bằng outreach cá nhân + 5-8 bài đăng cộng đồng.
 
 ## 3. Chi phí vận hành
 
@@ -52,8 +52,8 @@ Giả định heuristic cho sản phẩm freemium mới (không phải số li�
 | Nấc | Điều kiện | Ý nghĩa |
 | :--- | :--- | :--- |
 | $1 | Đơn đầu tiên | Xác nhận có người trả tiền |
-| $100 | ~5–10 đơn | Xác nhận kênh lặp lại được |
-| $1.000/tháng | ~50–70 đơn/tháng | Đủ lý do đầu tư Google Play, bản địa hóa, scale hạ tầng |
+| $100 | ~5-10 đơn | Xác nhận kênh lặp lại được |
+| $1.000/tháng | ~50-70 đơn/tháng | Đủ lý do đầu tư Google Play, bản địa hóa, scale hạ tầng |
 
 ## 5. Nhịp xem số
 

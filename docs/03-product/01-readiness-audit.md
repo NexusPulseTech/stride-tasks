@@ -6,7 +6,7 @@
 ## 1. Kết luận
 
 > **Giá trị sản phẩm: ĐỦ để bán (MVP+). Khả năng thu tiền: CHƯA.**
-> Lõi tính năng phong phú hơn nhiều đối thủ cùng giá, nhưng đường từ "người lạ" tới "khách trả tiền" còn đứt ở 4 chỗ: **thanh toán chưa bật**, **thiếu trang pháp lý**, **SEO sai thương hiệu**, **không đo lường**. Nền móng kỹ thuật (test, kiểu dữ liệu, CI) **yếu** — chưa chặn việc bán, nhưng là rủi ro lớn nhất khi có khách thật.
+> Lõi tính năng phong phú hơn nhiều đối thủ cùng giá, nhưng đường từ "người lạ" tới "khách trả tiền" còn đứt ở 4 chỗ: **thanh toán chưa bật**, **thiếu trang pháp lý**, **SEO sai thương hiệu**, **không đo lường**. Nền móng kỹ thuật (test, kiểu dữ liệu, CI) **yếu**: chưa chặn việc bán, nhưng là rủi ro lớn nhất khi có khách thật.
 
 ## 2. Bảng điểm (0 = chưa có · 5 = chuẩn công nghiệp)
 
@@ -25,7 +25,7 @@
 | 11 | Phân phối | **2** | PWA cài được; workflow `desktop-release.yml` | Bản desktop cuối là v2.1.0 (tên file 1.0.6), **chưa ký số**, action cũ, `bun` không ghim phiên bản; chưa có store nào live |
 | 12 | Vận hành & quan sát | **1** | Worker deploy được, smoke test | Deploy Worker thủ công, không staging, không log/alert, không theo dõi lỗi client |
 
-**Tổng**: 29/60 — nền tảng sản phẩm tốt, lớp thương mại & kỹ thuật chất lượng còn mỏng.
+**Tổng**: 29/60, nền tảng sản phẩm tốt, lớp thương mại & kỹ thuật chất lượng còn mỏng.
 
 ## 3. Điều kiện chặn bán (phải xong trước outreach)
 

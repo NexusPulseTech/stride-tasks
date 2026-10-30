@@ -2,15 +2,15 @@
 
 > **Thuộc**: 01-business · **Trạng thái**: Draft v1 · **Cập nhật**: 2026-10-30
 > **Mục tiêu**: **1 khách trả tiền** trong ≤ 14 ngày kể từ khi cổng thanh toán chạy; **10 khách** trong 30 ngày.
-> **Nguyên tắc**: *"Làm những việc không scale"* — founder tự bán, tự nói chuyện với từng người. Chưa chạy quảng cáo, chưa xây tính năng mới.
+> **Nguyên tắc**: *"Làm những việc không scale"*, founder tự bán, tự nói chuyện với từng người. Chưa chạy quảng cáo, chưa xây tính năng mới.
 
 ## 0. Điều kiện "sẵn sàng bán" (Definition of Ready to Sell)
 
-Không bắt đầu outreach khi còn thiếu một trong các mục sau — mỗi mục là một task trong [../10-execution-plan/](../10-execution-plan/README.md):
+Không bắt đầu outreach khi còn thiếu một trong các mục sau, mỗi mục là một task trong [../10-execution-plan/](../10-execution-plan/README.md):
 
 - [ ] Thương hiệu & SEO metadata nhất quán "Stride Tasks" (task `A01`)
 - [ ] Có Điều khoản + Chính sách hoàn tiền 14 ngày (task `A02`)
-- [ ] Thu tiền được: VietQR (SePay) + ít nhất một MoR quốc tế (tasks `A03`–`A05`)
+- [ ] Thu tiền được: VietQR (SePay) + ít nhất một MoR quốc tế (tasks `A03`-`A05`)
 - [ ] Mua thử **thật** bằng thẻ/chuyển khoản của chính mình → kích hoạt PRO → hoàn tiền thành công
 - [ ] Trang đích EN + VI có giá, ảnh chụp, FAQ (task `A06`)
 - [ ] Đo được lượt truy cập trang đích & trang giá (task `A07`)
@@ -19,23 +19,23 @@ Không bắt đầu outreach khi còn thiếu một trong các mục sau — m�
 
 | Ngày | Việc | Kết quả mong đợi |
 | :--- | :--- | :--- |
-| D0–D2 | Hoàn tất điều kiện mục 0 | Mua thử thành công 2 kênh |
-| D3 | Quay video demo 45–60 giây (nhập nhanh → Pomodoro → lịch ôn SM-2 → bật đồng bộ); chụp GIF | Tài sản dùng cho mọi bài đăng |
+| D0-D2 | Hoàn tất điều kiện mục 0 | Mua thử thành công 2 kênh |
+| D3 | Quay video demo 45-60 giây (nhập nhanh → Pomodoro → lịch ôn SM-2 → bật đồng bộ); chụp GIF | Tài sản dùng cho mọi bài đăng |
 | D4 | Lập danh sách **30 người quen** thuộc phân khúc A/B/C (bạn học, đồng nghiệp, nhóm học) | Bảng theo dõi outreach |
-| D5 | Nhắn riêng từng người (mẫu mục 2) — xin **góp ý**, không ép mua | ≥ 10 người dùng thử |
-| D6 | Đăng 1 bài giá trị trong 2–3 nhóm Facebook tự học/năng suất (đúng luật nhóm) | ≥ 50 lượt vào trang đích |
+| D5 | Nhắn riêng từng người (mẫu mục 2), xin **góp ý**, không ép mua | ≥ 10 người dùng thử |
+| D6 | Đăng 1 bài giá trị trong 2-3 nhóm Facebook tự học/năng suất (đúng luật nhóm) | ≥ 50 lượt vào trang đích |
 | D7 | Bài viết Spiderum hoặc Viblo: câu chuyện kỹ thuật/ôn thi có nhắc sản phẩm | Lưu lượng dài hạn + backlink |
-| D7–D8 | Đăng AlternativeTo (alternative to Todoist, TickTick, Focus To-Do) + Indie Hackers | Hiện diện quốc tế |
-| D8 | Reddit: r/SideProject; thread tự giới thiệu hằng tuần của r/productivity; r/GetStudying nếu luật cho phép — **đọc luật từng subreddit trước** | ≥ 10 người dùng quốc tế |
-| D9 | **Show HN** (thứ Ba–thứ Năm, sáng giờ Mỹ): *"Show HN: Stride – offline-first task manager with E2E sync and spaced repetition"* | Phản hồi kỹ thuật, người dùng nhóm B |
+| D7-D8 | Đăng AlternativeTo (alternative to Todoist, TickTick, Focus To-Do) + Indie Hackers | Hiện diện quốc tế |
+| D8 | Reddit: r/SideProject; thread tự giới thiệu hằng tuần của r/productivity; r/GetStudying nếu luật cho phép, **đọc luật từng subreddit trước** | ≥ 10 người dùng quốc tế |
+| D9 | **Show HN** (thứ Ba-thứ Năm, sáng giờ Mỹ): *"Show HN: Stride - offline-first task manager with E2E sync and spaced repetition"* | Phản hồi kỹ thuật, người dùng nhóm B |
 | D9 | Bắt đầu hồ sơ Microsoft Store (task `C05`) | Kênh thứ hai |
-| D10–D12 | Trả lời **mọi** góp ý trong ≤ 24h; sửa lỗi onboarding nhỏ; gửi ưu đãi Founding cho người đã dùng ≥ 3 ngày | Khách trả tiền đầu tiên |
-| D13–D14 | Phỏng vấn khách đầu tiên (mục 5); xin testimonial; tổng kết số liệu | Bài học + bằng chứng xã hội |
+| D10-D12 | Trả lời **mọi** góp ý trong ≤ 24h; sửa lỗi onboarding nhỏ; gửi ưu đãi Founding cho người đã dùng ≥ 3 ngày | Khách trả tiền đầu tiên |
+| D13-D14 | Phỏng vấn khách đầu tiên (mục 5); xin testimonial; tổng kết số liệu | Bài học + bằng chứng xã hội |
 
 ## 2. Mẫu tin nhắn
 
 **Tiếng Việt (người quen):**
-> Chào [tên], mình vừa làm xong Stride Tasks — app quản lý việc chạy offline, có Pomodoro và nhắc ôn lại theo kiểu Anki nhưng cho công việc/chủ đề. Mình đang cần 10 người dùng thật góp ý thẳng. Bạn dùng thử 3 ngày giúp mình được không? Link: [url]. Nếu thấy hợp, 100 người đầu được giá Founding giảm 30%.
+> Chào [tên], mình vừa làm xong Stride Tasks, app quản lý việc chạy offline, có Pomodoro và nhắc ôn lại theo kiểu Anki nhưng cho công việc/chủ đề. Mình đang cần 10 người dùng thật góp ý thẳng. Bạn dùng thử 3 ngày giúp mình được không? Link: [url]. Nếu thấy hợp, 100 người đầu được giá Founding giảm 30%.
 
 **English (cộng đồng):**
 > I built Stride, an offline-first task manager for learners: plan in one line, focus with Pomodoro, and get **spaced-repetition reviews for tasks/topics** (SM-2). No account, data stays on your device, optional end-to-end encrypted sync. I'd love blunt feedback from people who study for exams. [url]

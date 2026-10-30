@@ -1,4 +1,4 @@
-# 02 — Growth (SEO, nội dung, cộng đồng, store)
+# 02: Growth (SEO, nội dung, cộng đồng, store)
 
 > **Thuộc**: 02-growth · **Trạng thái**: Draft v1 · **Cập nhật**: 2026-10-30
 > **Mục đích**: làm cho đúng người **tìm thấy** Stride (SEO, AI search, store), **hiểu** nó (trang đích, nội dung) và **tin** nó (cộng đồng, minh bạch).
@@ -7,7 +7,7 @@
 
 1. **Vòng nội dung (dài hạn, cộng dồn)**: trang tính năng/so sánh/hướng dẫn → Google & AI search → trang đích → app.
 2. **Vòng cộng đồng (ngắn hạn, founder-led)**: bài chia sẻ giá trị trên Reddit/HN/Facebook/Viblo → người dùng sớm → testimonial → nội dung.
-3. **Vòng store (trung hạn)**: Microsoft Store → Google Play — tìm kiếm trong store + đánh giá.
+3. **Vòng store (trung hạn)**: Microsoft Store → Google Play, tìm kiếm trong store + đánh giá.
 
 ## Danh mục tài liệu
 

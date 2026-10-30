@@ -1,7 +1,7 @@
 # Đo lường & analytics (tôn trọng quyền riêng tư)
 
 > **Thuộc**: 02-growth · **Trạng thái**: Draft v1 · **Cập nhật**: 2026-10-30
-> **Mục đích**: đo phễu ở [../01-business/08-kpis-and-unit-economics.md](../01-business/08-kpis-and-unit-economics.md) mà **không** theo dõi cá nhân — nhất quán với lời hứa "dữ liệu ở trên máy bạn".
+> **Mục đích**: đo phễu ở [../01-business/08-kpis-and-unit-economics.md](../01-business/08-kpis-and-unit-economics.md) mà **không** theo dõi cá nhân, nhất quán với lời hứa "dữ liệu ở trên máy bạn".
 
 ## 1. Hiện trạng
 
@@ -19,7 +19,7 @@ Không có công cụ analytics nào trong `index.html`/`src` → hiện **khôn
 ## 3. Thiết kế bộ đếm ẩn danh (giai đoạn 2, task `A07`)
 
 - Sự kiện cố định, không tham số tự do: `activated`, `retained_d7`, `paywall_view`, `checkout_click`, `sync_enabled`.
-- Client gửi `POST /v1/metrics {event, day, locale, channel}` — **không** có ID người dùng/thiết bị, không nội dung công việc.
+- Client gửi `POST /v1/metrics {event, day, locale, channel}`: **không** có ID người dùng/thiết bị, không nội dung công việc.
 - Worker chỉ tăng bộ đếm theo ngày (D1 hoặc Workers Analytics Engine), **không lưu IP**.
 - Mỗi sự kiện gửi tối đa 1 lần/thiết bị/ngày (cờ trong localStorage).
 - Có công tắc tắt trong Cài đặt; mô tả rõ trong `privacy.html` trước khi bật.

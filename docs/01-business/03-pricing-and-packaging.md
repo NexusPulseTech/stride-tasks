@@ -32,9 +32,9 @@ Kết luận: mức giá hiện tại **hợp lý, không cần đổi** trướ
 ## 3. Quyết định đề xuất cho giai đoạn mở bán
 
 1. **Giữ mô hình lifetime** trong giai đoạn đầu: giảm ma sát mua lần đầu, hợp văn hóa indie, có tiền lệ (Focus To-Do, Things).
-2. **Founding Member −30%** cho **100 khách đầu tiên** *hoặc* 30 ngày (cái nào đến trước), triển khai bằng mã giảm giá của Merchant of Record (VD `FOUNDER30`). Hiển thị số suất còn lại **thật** — không tạo khan hiếm giả.
+2. **Founding Member −30%** cho **100 khách đầu tiên** *hoặc* 30 ngày (cái nào đến trước), triển khai bằng mã giảm giá của Merchant of Record (VD `FOUNDER30`). Hiển thị số suất còn lại **thật**: không tạo khan hiếm giả.
 3. **Hoàn tiền 14 ngày không cần lý do** → giảm lo lắng khi mua; MoR cũng yêu cầu có chính sách hoàn tiền.
-4. **PPP**: giữ 3 bậc. Gợi ý bậc theo quốc gia (header `CF-IPCountry` qua một endpoint nhỏ của Worker) nhưng vẫn cho người dùng tự chọn; chấp nhận rò rỉ nhỏ — chi phí chống gian lận lớn hơn doanh thu mất.
+4. **PPP**: giữ 3 bậc. Gợi ý bậc theo quốc gia (header `CF-IPCountry` qua một endpoint nhỏ của Worker) nhưng vẫn cho người dùng tự chọn; chấp nhận rò rỉ nhỏ, chi phí chống gian lận lớn hơn doanh thu mất.
 5. **Không** thêm thuê bao trước 50 khách trả tiền. Sau đó đánh giá gói "Sync hằng năm" hoặc "lifetime + cập nhật theo năm" (task `D04`).
 
 ## 4. Khoảnh khắc hiện lời mời nâng cấp (paywall moments)
@@ -43,7 +43,7 @@ Nguyên tắc: **không chặn vòng lặp cốt lõi** (thêm việc → làm �
 
 | Khoảnh khắc | Thông điệp | Mức chặn |
 | :--- | :--- | :--- |
-| Tạo dự án thứ 6 | "Bạn đang dùng Stride cho nhiều mảng — PRO mở không giới hạn dự án" | Chặn tạo (dữ liệu cũ không bị ảnh hưởng) |
+| Tạo dự án thứ 6 | "Bạn đang dùng Stride cho nhiều mảng, PRO mở không giới hạn dự án" | Chặn tạo (dữ liệu cũ không bị ảnh hưởng) |
 | Bấm "Đồng bộ thiết bị" | "Đồng bộ mã hóa đầu-cuối giữa các thiết bị" | Chặn bật đồng bộ |
 | Báo cáo Markdown lần thứ 4 | "Bạn đã dùng hết 3 lượt thử" | Chặn xuất |
 | Ngày thứ 7 dùng liên tục (đề xuất mới) | Lời cảm ơn + giới thiệu PRO một lần, đóng được | Không chặn |

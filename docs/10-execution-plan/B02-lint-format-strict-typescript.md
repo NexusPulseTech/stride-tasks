@@ -1,10 +1,10 @@
-# B02 — ESLint, Prettier, TypeScript strict, dọn phụ thuộc
+# B02: ESLint, Prettier, TypeScript strict, dọn phụ thuộc
 
 | Thuộc tính | Giá trị |
 | :--- | :--- |
-| Phase | B — Foundation |
+| Phase | B: Foundation |
 | Ưu tiên | P1 |
-| Ước lượng | 2–3 ngày |
+| Ước lượng | 2-3 ngày |
 | Phụ thuộc | B01 (cần test để sửa lỗi kiểu an toàn) |
 | Trạng thái | ☐ Todo |
 

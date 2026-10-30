@@ -7,7 +7,7 @@
 
 | Thành phần | Giá trị |
 | :--- | :--- |
-| Worker | `stride-license` — `cloudflare-worker/src/index.js` (374 dòng JavaScript, không kiểm tra kiểu) |
+| Worker | `stride-license`: `cloudflare-worker/src/index.js` (374 dòng JavaScript, không kiểm tra kiểu) |
 | Domain | `https://tasks-api.nexuspulsetech.xyz` (Custom Domain; `workers_dev = false`, `preview_urls = false`) |
 | Bindings | KV `LICENSES`, D1 `stride-sync` (APAC) |
 | Biến | `APP_URL`, `ALLOWED_ORIGINS`, `PRICE_VND`, `MAIL_FROM`, `LICENSE_PUBLIC_KEY`, `SYNC_MAX_VAULTS_PER_LICENSE=3`, `SYNC_REQUIRE_LICENSE=true` |
@@ -19,16 +19,16 @@
 
 | Dịch vụ | Trách nhiệm | API | Dữ liệu sở hữu | Secret |
 | :--- | :--- | :--- | :--- | :--- |
-| **gateway** | Điểm vào duy nhất: CORS allowlist, rate limit, `x-request-id`, chuẩn hóa lỗi RFC 9457, định tuyến theo path | HTTP công khai | — | — |
+| **gateway** | Điểm vào duy nhất: CORS allowlist, rate limit, `x-request-id`, chuẩn hóa lỗi RFC 9457, định tuyến theo path | HTTP công khai | - | - |
 | **licensing** | Ký token Ed25519, xác minh, **thu hồi**, claim | RPC nội bộ + `GET /v1/claims/{order}` | KV/D1 `licensing` (claims, revocations) | `STRIDE_ED25519_PRIVATE_KEY` |
 | **billing** | Tạo đơn/checkout, nhận webhook SePay/Polar, sổ cái, phát `order.paid` / `order.refunded` | `POST /v1/orders`, `POST /webhooks/{provider}` | D1 `billing` (orders, payments, events) | `SEPAY_API_KEY`, `POLAR_WEBHOOK_SECRET`, `POLAR_ACCESS_TOKEN` |
-| **sync** | Kho bản mã theo vaultId, CAS theo version, hạn mức kho/bản quyền | `GET/PUT/DELETE /sync/v1/vaults/{id}` | D1 `sync` (vaults) | — (chỉ public key) |
-| **notifications** | Gửi email kích hoạt/khôi phục | Consumer sự kiện | — | `RESEND_API_KEY` (hoặc Cloudflare Email) |
+| **sync** | Kho bản mã theo vaultId, CAS theo version, hạn mức kho/bản quyền | `GET/PUT/DELETE /sync/v1/vaults/{id}` | D1 `sync` (vaults) |, (chỉ public key) |
+| **notifications** | Gửi email kích hoạt/khôi phục | Consumer sự kiện | - | `RESEND_API_KEY` (hoặc Cloudflare Email) |
 
 ### Giao tiếp
 
 - **Bên ngoài → gateway**: HTTPS, hợp đồng OpenAPI 3.1.
-- **gateway → dịch vụ**: **Service Bindings** (RPC qua `WorkerEntrypoint`) — gọi trong cùng hạ tầng Cloudflare, không đi qua Internet công cộng.
+- **gateway → dịch vụ**: **Service Bindings** (RPC qua `WorkerEntrypoint`), gọi trong cùng hạ tầng Cloudflare, không đi qua Internet công cộng.
 - **billing → licensing → notifications**: sự kiện bất đồng bộ qua **Cloudflare Queues** (`billing.order-paid.v1`, `billing.order-refunded.v1`); *kiểm tra điều kiện gói Free trước khi dùng*, nếu không có thì gọi RPC đồng bộ kèm idempotency key.
 
 ## 3. Cấu trúc bên trong mỗi dịch vụ (Hexagonal)
@@ -48,7 +48,7 @@ services/<name>/
 └── wrangler.toml        # bindings riêng, [env.staging], [env.production]
 ```
 
-`PaymentProvider` (port) — mở rộng cổng không sửa lõi (Open/Closed):
+`PaymentProvider` (port), mở rộng cổng không sửa lõi (Open/Closed):
 
 ```ts
 export interface PaymentProvider {
@@ -64,7 +64,7 @@ export interface PaymentProvider {
 | Yêu cầu | Cách làm chuẩn |
 | :--- | :--- |
 | Kiểm tra đầu vào | `zod` schema dùng chung từ gói `contracts` |
-| Lỗi | `application/problem+json` (RFC 9457) + `code` ổn định cho client — xem [../05-api-contracts/01-error-model.md](../05-api-contracts/01-error-model.md) |
+| Lỗi | `application/problem+json` (RFC 9457) + `code` ổn định cho client, xem [../05-api-contracts/01-error-model.md](../05-api-contracts/01-error-model.md) |
 | Rate limit | Workers Rate Limiting binding theo IP + route (claim, webhook, sync PUT) |
 | Log | JSON một dòng: `ts, service, route, status, duration_ms, request_id`; bật `[observability] enabled = true` |
 | Cấu hình | Biến trong `wrangler.toml` theo môi trường; secret bằng `wrangler secret put`; **không** để secret trong repo |

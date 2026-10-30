@@ -1,10 +1,10 @@
-# A08 — Sprint outreach 14 ngày (khách trả tiền đầu tiên)
+# A08: Sprint outreach 14 ngày (khách trả tiền đầu tiên)
 
 | Thuộc tính | Giá trị |
 | :--- | :--- |
-| Phase | A — First Dollar |
+| Phase | A: First Dollar |
 | Ưu tiên | P0 |
-| Ước lượng | 14 ngày (1–2 giờ/ngày) |
+| Ước lượng | 14 ngày (1-2 giờ/ngày) |
 | Phụ thuộc | A05, A06, A07 |
 | Trạng thái | ☐ Todo |
 | Người làm | Founder |
@@ -13,10 +13,10 @@
 ≥ 1 đơn thật trong 14 ngày; ≥ 10 cuộc trò chuyện với người dùng; biết kênh nào mang khách.
 
 ## Các bước
-Làm đúng lịch ngày D0–D14 trong [../01-business/07-first-paying-customer-playbook.md](../01-business/07-first-paying-customer-playbook.md). Tóm tắt:
-1. Video demo 45–60 giây.
+Làm đúng lịch ngày D0-D14 trong [../01-business/07-first-paying-customer-playbook.md](../01-business/07-first-paying-customer-playbook.md). Tóm tắt:
+1. Video demo 45-60 giây.
 2. 30 tin nhắn cá nhân (mẫu VI/EN trong playbook).
-3. Bài giá trị trong 2–3 nhóm Facebook, 1 bài Spiderum/Viblo.
+3. Bài giá trị trong 2-3 nhóm Facebook, 1 bài Spiderum/Viblo.
 4. AlternativeTo, Indie Hackers, Reddit (đúng luật), Show HN.
 5. Phản hồi mọi góp ý ≤ 24 giờ; sửa lỗi onboarding nhỏ.
 6. Gửi ưu đãi Founding cho người đã dùng ≥ 3 ngày.

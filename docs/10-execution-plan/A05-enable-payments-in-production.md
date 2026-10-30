@@ -1,8 +1,8 @@
-# A05 — Bật thanh toán trên production
+# A05: Bật thanh toán trên production
 
 | Thuộc tính | Giá trị |
 | :--- | :--- |
-| Phase | A — First Dollar |
+| Phase | A: First Dollar |
 | Ưu tiên | P0 |
 | Ước lượng | 0,5 ngày |
 | Phụ thuộc | A01, A02, A03, A04 |
