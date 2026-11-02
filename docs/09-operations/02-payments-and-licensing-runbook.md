@@ -14,7 +14,7 @@
 ## 1b. Cấu hình Polar (sandbox trước, production sau)
 
 1. **Products** → tạo "Stride Tasks PRO Lifetime": thanh toán một lần **$19** (toàn cầu); tạo thêm bản **$9.95** (thị trường mới nổi).
-2. **Checkout Links** → mỗi sản phẩm một link; **Success URL**: `https://tasks.nexuspulsetech.xyz/?checkout_id={CHECKOUT_ID}`.
+2. **Checkout Links** → mỗi sản phẩm một link; **Success URL**: `https://tasks-api.nexuspulsetech.xyz/checkout/success?checkout_id={CHECKOUT_ID}` (Worker đổi `checkout_id` thành link kích hoạt, A04c); **Return URL**: `https://tasks.nexuspulsetech.xyz/`; tắt **Allow discount codes**.
 3. **Settings → Webhooks → Add endpoint**: URL `https://tasks-api.nexuspulsetech.xyz/webhooks/polar`, định dạng Raw, **API version = bản Current** (2026-10 tính tới 2026-10-31; không chọn bản Next vì cấu trúc có thể đổi bất kỳ lúc nào), chỉ chọn `order.paid` và `order.refunded`, lưu rồi sao chép secret.
 4. Founder tự nạp secret (không dán vào chat), trong thư mục `cloudflare-worker`, PowerShell:
    ```powershell

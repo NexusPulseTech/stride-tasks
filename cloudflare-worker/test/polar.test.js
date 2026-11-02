@@ -18,14 +18,15 @@ async function polar(body, { id = `msg_${randomHex(6)}`, ts = nowSec(), key = po
   });
 }
 
-const order = (ref, id, { total = 1900, status = 'paid', refunded = 0 } = {}) => ({
+const order = (ref, id, { total = 1900, status = 'paid', refunded = 0, checkoutId = null } = {}) => ({
   id,
   status,
   paid: true,
   total_amount: total,
   refunded_amount: refunded,
   currency: 'usd',
-  metadata: { reference_id: ref },
+  checkout_id: checkoutId,
+  metadata: ref ? { reference_id: ref } : {},
   customer: { email: 'buyer@example.com' },
 });
 const paid = (ref, id, opts) => ({ type: 'order.paid', timestamp: new Date().toISOString(), data: order(ref, id, opts) });
@@ -99,5 +100,56 @@ describe('POST /webhooks/polar', () => {
       { key: new TextEncoder().encode(legacy), env: await testEnv({ POLAR_WEBHOOK_SECRET: legacy }) }
     );
     expect(res.status).toBe(202);
+  });
+});
+
+describe('GET /checkout/success (Success URL của Polar)', () => {
+  const success = (checkoutId, n) => call(`/checkout/success?checkout_id=${checkoutId}${n === undefined ? '' : `&n=${n}`}`);
+
+  it('trước khi webhook tới thì hiện trang chờ tự tải lại, không lưu cache', async () => {
+    const checkoutId = crypto.randomUUID();
+    const res = await success(checkoutId);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('cache-control')).toBe('no-store');
+    expect(res.headers.get('referrer-policy')).toBe('no-referrer');
+    const html = await res.text();
+    expect(html).toContain('http-equiv="refresh"');
+    expect(html).toContain(`checkout_id=${checkoutId}&amp;n=1`);
+  });
+
+  it('sau order.paid thì chuyển hướng về app kèm token trong fragment #activate', async () => {
+    const code = orderCode();
+    const id = polarOrderId();
+    const checkoutId = crypto.randomUUID();
+    await registerPolar(code);
+    expect((await polar(paid(code, id, { checkoutId }))).status).toBe(202);
+
+    const res = await success(checkoutId, 2);
+    expect(res.status).toBe(302);
+    const location = res.headers.get('location');
+    expect(location.startsWith('https://tasks.nexuspulsetech.xyz/#activate=STRIDE1.')).toBe(true);
+    expect(decodePayload(location.split('#activate=')[1])).toMatchObject({ licenseKeyOrAddonId: `PL-${id}`, pricePaidUsd: 19 });
+  });
+
+  it('mua thẳng từ Checkout Link (không qua app, không có reference_id) vẫn nhận được bản quyền', async () => {
+    const id = polarOrderId();
+    const checkoutId = crypto.randomUUID();
+    expect((await polar(paid(null, id, { checkoutId, total: 0 }))).status).toBe(202);
+    const res = await success(checkoutId);
+    expect(res.status).toBe(302);
+    expect(decodePayload(res.headers.get('location').split('#activate=')[1])).toMatchObject({ licenseKeyOrAddonId: `PL-${id}`, pricePaidUsd: 0 });
+  });
+
+  it('chờ quá 40 lần thì hướng dẫn gửi mã cho hỗ trợ', async () => {
+    const checkoutId = crypto.randomUUID();
+    const res = await success(checkoutId, 40);
+    const html = await res.text();
+    expect(html).not.toContain('http-equiv="refresh"');
+    expect(html).toContain('support@nexuspulsetech.xyz');
+    expect(html).toContain(checkoutId);
+  });
+
+  it('checkout_id sai định dạng trả 400', async () => {
+    expect((await success('not-a-uuid')).status).toBe(400);
   });
 });

@@ -56,6 +56,8 @@ const RECORD_TTL_SECONDS = 60 * 60 * 24 * 90;
 const PENDING_TTL_SECONDS = 60 * 60 * 24 * 7;
 const CLAIM_HASH = /^[0-9a-f]{64}$/;
 const CLAIM_SECRET = /^[0-9a-f]{32,128}$/;
+// ID phiên checkout của Polar (UUID v4), dùng ở Success URL
+const CHECKOUT_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const PRICING_TIERS = new Set(['vn-ppp', 'emerging-ppp', 'global-us']);
 const PROVIDERS = new Set(['vietqr', 'lemonsqueezy', 'polar']);
 // Danh sách thu hồi được cache trong isolate để mỗi lần đồng bộ không tốn một lượt đọc KV
@@ -72,6 +74,7 @@ export default {
       if (request.method === 'POST' && url.pathname === '/webhooks/polar') return await handlePolar(request, env);
       if (request.method === 'POST' && url.pathname === '/v1/orders') return withCors(request, env, await handleCreateOrder(request, env));
       if (request.method === 'GET' && url.pathname === '/claim') return withCors(request, env, await handleClaim(request, url, env));
+      if (request.method === 'GET' && url.pathname === '/checkout/success') return await handleCheckoutSuccess(request, url, env);
       const vaultMatch = url.pathname.match(/^\/sync\/v1\/vaults\/([0-9a-f]{64})$/);
       if (vaultMatch) return withCors(request, env, await handleVault(request, env, vaultMatch[1]));
       return new Response('Not found', { status: 404 });
@@ -249,11 +252,94 @@ async function fulfillPolarOrder(env, order) {
     JSON.stringify({ token, channel: 'polar', orderId, claimHash: pending?.claimHash || null, createdAt: new Date().toISOString() }),
     { expirationTtl: RECORD_TTL_SECONDS }
   );
+  // Success URL mang checkout_id: cho phép nhận bản quyền cả khi khách không bắt đầu mua từ app
+  const checkoutId = String(order.checkout_id || '').toLowerCase();
+  if (CHECKOUT_ID.test(checkoutId)) {
+    await env.LICENSES.put(`plcheckout:${checkoutId}`, recordKey, { expirationTtl: RECORD_TTL_SECONDS });
+  }
   const email = order.customer?.email;
   if (env.RESEND_API_KEY && email) {
     await sendActivationEmail(env, email, token).catch((err) => console.error('email failed', err));
   }
   return { ok: true };
+}
+
+// ─── Success URL của Polar: đổi checkout_id thành link kích hoạt (A04c) ─────────────────────────
+// Polar chuyển hướng ngay sau khi trả tiền, webhook có thể tới sau vài giây → trang chờ tự tải lại
+const CHECKOUT_RETRY_SECONDS = 3;
+const CHECKOUT_MAX_ATTEMPTS = 40;
+const DEFAULT_SUPPORT_EMAIL = 'support@nexuspulsetech.xyz';
+const PAGE_HEADERS = {
+  'Cache-Control': 'no-store',
+  'Referrer-Policy': 'no-referrer',
+  'X-Robots-Tag': 'noindex',
+};
+
+async function handleCheckoutSuccess(request, url, env) {
+  const checkoutId = (url.searchParams.get('checkout_id') || '').toLowerCase();
+  if (!CHECKOUT_ID.test(checkoutId)) return checkoutPage(env, { state: 'invalid', status: 400 });
+
+  const attempt = Number.parseInt(url.searchParams.get('n') || '0', 10) || 0;
+  // Đếm riêng với /claim để trang chờ và claim polling của app không dùng chung hạn mức
+  if (!(await withinLimit(env.CLAIM_LIMITER, `checkout:${clientIp(request)}`))) {
+    return checkoutPage(env, { state: 'waiting', checkoutId, next: attempt, retrySeconds: 15 });
+  }
+
+  const recordKey = await env.LICENSES.get(`plcheckout:${checkoutId}`);
+  const record = recordKey ? await env.LICENSES.get(recordKey, 'json') : null;
+  if (record?.token) {
+    // Token nằm trong fragment: trình duyệt không gửi nó lên máy chủ, app xóa khỏi thanh địa chỉ ngay
+    return new Response(null, { status: 302, headers: { ...PAGE_HEADERS, Location: `${appUrl(env)}/#activate=${record.token}` } });
+  }
+  if (attempt >= CHECKOUT_MAX_ATTEMPTS) return checkoutPage(env, { state: 'timeout', checkoutId });
+  return checkoutPage(env, { state: 'waiting', checkoutId, next: attempt + 1, retrySeconds: CHECKOUT_RETRY_SECONDS });
+}
+
+function checkoutPage(env, { state, status = 200, checkoutId = '', next = 0, retrySeconds = CHECKOUT_RETRY_SECONDS }) {
+  const support = env.SUPPORT_EMAIL || DEFAULT_SUPPORT_EMAIL;
+  const app = appUrl(env);
+  const copy = {
+    waiting: {
+      title: 'Confirming your payment · Đang xác nhận thanh toán',
+      body: `<p>Payment received. Activating Stride Tasks PRO, this usually takes a few seconds.</p>
+<p>Đã nhận thanh toán. Đang kích hoạt Stride Tasks PRO, thường chỉ mất vài giây.</p>`,
+    },
+    timeout: {
+      title: 'Activation is taking longer · Kích hoạt đang chậm',
+      body: `<p>Your payment went through, but activation is taking longer than usual. Email <a href="mailto:${support}">${support}</a> with the code below and we will activate PRO for you.</p>
+<p>Thanh toán đã thành công nhưng kích hoạt chậm hơn bình thường. Gửi mã dưới đây tới <a href="mailto:${support}">${support}</a>, chúng tôi sẽ kích hoạt PRO cho bạn.</p>
+<p><code>${checkoutId}</code></p>`,
+    },
+    invalid: {
+      title: 'Link not valid · Link không hợp lệ',
+      body: `<p>This activation link is not valid. If you paid, email <a href="mailto:${support}">${support}</a>.</p>
+<p>Link kích hoạt không hợp lệ. Nếu bạn đã thanh toán, hãy gửi email tới <a href="mailto:${support}">${support}</a>.</p>`,
+    },
+  }[state];
+  const refresh =
+    state === 'waiting'
+      ? `<meta http-equiv="refresh" content="${retrySeconds};url=/checkout/success?checkout_id=${checkoutId}&amp;n=${next}" />`
+      : '';
+  const html = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+${refresh}
+<title>${copy.title}</title>
+<style>body{margin:0;font:16px/1.6 system-ui,sans-serif;background:#fff;color:#111;display:grid;place-items:center;min-height:100vh;padding:16px}main{max-width:520px}code{word-break:break-all}a{color:#b91c1c}@media (prefers-color-scheme:dark){body{background:#111;color:#eee}a{color:#fca5a5}}</style>
+</head>
+<body><main><h1>${copy.title}</h1>${copy.body}<p><a href="${app}/">Stride Tasks</a></p></main></body>
+</html>`;
+  return new Response(html, {
+    status,
+    headers: {
+      ...PAGE_HEADERS,
+      'Content-Type': 'text/html; charset=utf-8',
+      'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+    },
+  });
 }
 
 /**

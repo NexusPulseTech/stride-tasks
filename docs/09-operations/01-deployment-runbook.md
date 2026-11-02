@@ -67,3 +67,4 @@ Ghi mỗi lần deploy Worker vào bảng dưới (hoặc GitHub Release notes):
 | 2026-10-30 | `53082fcc-d571-4f7d-aad2-fa8a9ff61f4c` | Deploy đầu tiên, custom domain `tasks-api`, chưa có secret | 14/14 ✅ |
 | 2026-10-30 | `396e79ac-0392-404b-b73b-9a96c232102f` | A04a: `/v1/orders`, claim có bí mật, thu hồi khi hoàn tiền, 3 rate limit binding, giá sáng lập `PRICE_VND=149000` | 14/14 ✅ + kiểm tra A04 trực tiếp |
 | 2026-10-30 | `c1e2c388-79d2-462c-8322-1d4a7fea4548` | A04b: `POST /webhooks/polar` (Standard Webhooks, idempotent, thu hồi khi hoàn toàn bộ) | 14/14 ✅, webhook không chữ ký → 403 |
+| 2026-11-02 | `e22adac1-5d0d-414b-bd72-0d7e899fbea5` | A04c: `GET /checkout/success` (Success URL của Polar, đổi `checkout_id` thành link kích hoạt) | 31/31 test Worker ✅; production: trang chờ 200, ID sai 400, header no-store/no-referrer/noindex/CSP; claim 401, webhook không chữ ký 403, sync 401 |

@@ -209,6 +209,44 @@ paths:
                   status: { const: forbidden }
         '429': { $ref: '#/components/responses/RateLimited' }
 
+  /checkout/success:
+    get:
+      tags: [licensing]
+      operationId: checkoutSuccess
+      summary: Success URL của Polar, đổi checkout_id thành link kích hoạt
+      description: |
+        Polar chuyển người mua về đây sau khi thanh toán (Success URL có {CHECKOUT_ID}). Khi webhook order.paid đã tới,
+        trả 302 về APP_URL/#activate=<token>. Chưa tới thì trả trang HTML tự tải lại mỗi 3 giây (tham số n đếm số lần),
+        tối đa 40 lần rồi hiện hướng dẫn liên hệ hỗ trợ. Mọi phản hồi có Cache-Control no-store và Referrer-Policy no-referrer.
+        Dùng được cả khi khách mở thẳng Checkout Link, không bắt đầu từ app.
+      security: []
+      parameters:
+        - name: checkout_id
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+        - name: n
+          in: query
+          required: false
+          description: Số lần trang chờ đã tự tải lại
+          schema: { type: integer, minimum: 0 }
+      responses:
+        '200':
+          description: Trang HTML đang chờ webhook, hoặc trang hướng dẫn liên hệ hỗ trợ khi chờ quá lâu
+          content:
+            text/html:
+              schema: { type: string }
+        '302':
+          description: Bản quyền đã sẵn sàng; Location là APP_URL/#activate=<token>
+          headers:
+            Location:
+              schema: { type: string, format: uri }
+        '400':
+          description: checkout_id sai định dạng
+          content:
+            text/html:
+              schema: { type: string }
+
   /webhook/sepay:
     post:
       tags: [webhooks]

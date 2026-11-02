@@ -34,7 +34,7 @@ LemonSqueezy chuyển sang Stripe Managed Payments (không hỗ trợ người b
 - [ ] Trang checkout hiển thị đúng giá, thuế, link pháp lý.
 
 ## Tiến độ
-- Sandbox (2026-10-31): dùng organization **NexusPulse** (`sandbox.polar.sh/dashboard/nexuspulse`, tài khoản nguyenhoangphuc315). Đã tạo qua API: 2 sản phẩm một lần ($19 công khai, $9.95 Private), 2 Checkout Link (Success URL `https://tasks.nexuspulsetech.xyz/?checkout_id={CHECKOUT_ID}`, Return URL về app, tắt ô mã giảm giá) và webhook (Raw, API 2026-10, chỉ `order.paid` và `order.refunded`). Org phụ `nexuspulse-studio` (tài khoản 7077) có bản sao sản phẩm và link nhưng không có webhook, không dùng. Còn: founder nạp `STRIDE_ED25519_PRIVATE_KEY` và `POLAR_WEBHOOK_SECRET` vào Worker (runbook mục 1b bước 4), rồi mua thử.
+- Sandbox (chốt 2026-11-02): dùng organization **NexusPulse Studio** (`sandbox.polar.sh/dashboard/nexuspulse-studio`, tài khoản nguyenhoangphuc7077, cùng tài khoản với Cloudflare, Bing, Search Console và onboarding Polar production). Có 2 sản phẩm một lần ($19 công khai, $9.95 Private), 2 Checkout Link (Success URL về `/checkout/success` của Worker, Return URL về app, tắt ô mã giảm giá) và webhook (Raw, API 2026-10, chỉ `order.paid` và `order.refunded`). Org `nexuspulse` (tài khoản 315) có cấu hình tương tự kèm webhook riêng, để dự phòng và không nạp secret của nó. Còn: founder nạp `STRIDE_ED25519_PRIVATE_KEY` và `POLAR_WEBHOOK_SECRET` (lấy ở org nexuspulse-studio) vào Worker theo runbook mục 1b bước 4, rồi mua thử.
 - Production (2026-10-30): đang ở bước "Let's get to know you". Founder tự điền họ tên, quốc gia, ngày sinh và tự đồng ý điều khoản; AI không nhập dữ liệu danh tính.
 
 ## Rủi ro & rollback
