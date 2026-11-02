@@ -65,6 +65,15 @@ export default defineConfig(() => {
     server: {
       port: 3000,
       host: '0.0.0.0',
+      // Chỉ cho dev server: gọi Worker qua cùng origin localhost để test luồng mua hàng mà không mở CORS của Worker cho localhost.
+      // Bật bằng VITE_LICENSE_CLAIM_URL=http://localhost:3000/__worker trong .env.development.local (xem runbook thanh toán).
+      proxy: {
+        '/__worker': {
+          target: 'https://tasks-api.nexuspulsetech.xyz',
+          changeOrigin: true,
+          rewrite: (p) => p.replace(/^\/__worker/, ''),
+        },
+      },
     },
   };
 });
