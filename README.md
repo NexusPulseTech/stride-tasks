@@ -1,7 +1,7 @@
 # Stride Tasks
 
 <p align="left">
-  <img src="https://img.shields.io/badge/Release-v3.1.0-emerald?style=flat-square" alt="Release v3.1.0" />
+  <img src="https://img.shields.io/badge/Release-v3.2.0-emerald?style=flat-square" alt="Release v3.2.0" />
   <img src="https://img.shields.io/badge/License-FSL--1.1--MIT-blue?style=flat-square" alt="License FSL-1.1-MIT" />
   <img src="https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react&logoColor=black" alt="React 19" />
   <img src="https://img.shields.io/badge/TypeScript-7-3178c6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript 7" />

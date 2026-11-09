@@ -1,9 +1,8 @@
 name: Desktop Release
 
+# Tạm dừng phát hành desktop theo tag cho tới task D02 (ký số, đồng bộ số phiên bản, auto-update).
+# Tag phiên bản giờ chỉ đánh dấu bản web; bản desktop dựng tay bằng "Run workflow" khi cần.
 on:
-  push:
-    tags:
-      - 'v*'
   workflow_dispatch:
 
 permissions:
