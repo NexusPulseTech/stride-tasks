@@ -1,6 +1,6 @@
 # Stride Tasks: hướng dẫn cho agent
 
-**CODEGRAPH:** mọi phiên và mọi đề giao cho agent con đều dùng CodeGraph trước khi grep hay đọc file (`D:\NguyenVinhPhuc\Code\solo-tasks-manager\.codegraph`; MCP `codegraph_explore` với `projectPath` là thư mục repo, hoặc CLI `codegraph explore "<symbol hoặc câu hỏi>"`). Kết quả trả về là mã nguồn hiện tại kèm đường gọi, coi như đã đọc file. Sau khi sửa nhiều file thì chạy `codegraph sync`.
+**CODEGRAPH:** mọi phiên và mọi đề giao cho agent con đều dùng CodeGraph trước khi grep hay đọc file (index ở `.codegraph/` tại gốc repo, chỉ nằm trên máy; MCP `codegraph_explore` với `projectPath` là thư mục repo, hoặc CLI `codegraph explore "<symbol hoặc câu hỏi>"`). Kết quả trả về là mã nguồn hiện tại kèm đường gọi, coi như đã đọc file. Sau khi sửa nhiều file thì chạy `codegraph sync`.
 
 ## Quy tắc không được phá
 - Tài liệu trước, code sau: mỗi việc có file trong `docs/10-execution-plan/`; cập nhật trạng thái trong cùng commit.

@@ -16,15 +16,7 @@
 1. **Products** → tạo "Stride Tasks PRO Lifetime": thanh toán một lần **$19** (toàn cầu); tạo thêm bản **$9.95** (thị trường mới nổi).
 2. **Checkout Links** → mỗi sản phẩm một link; **Success URL**: `https://tasks-api.nexuspulsetech.xyz/checkout/success?checkout_id={CHECKOUT_ID}` (Worker đổi `checkout_id` thành link kích hoạt, A04c); **Return URL**: `https://tasks.nexuspulsetech.xyz/`; tắt **Allow discount codes**.
 3. **Settings → Webhooks → Add endpoint**: URL `https://tasks-api.nexuspulsetech.xyz/webhooks/polar`, định dạng Raw, **API version = bản Current** (2026-10 tính tới 2026-10-31; không chọn bản Next vì cấu trúc có thể đổi bất kỳ lúc nào), chỉ chọn `order.paid` và `order.refunded`, lưu rồi sao chép secret.
-4. Founder tự nạp secret (không dán vào chat), trong thư mục `cloudflare-worker`, PowerShell:
-   ```powershell
-   $env:CLOUDFLARE_ACCOUNT_ID = "54a0a2e6fd9115d32f9cf767f9ab4764"
-   # Khóa ký bản quyền: đọc thẳng từ .env.local, không hiện ra màn hình
-   (Get-Content ..\.env.local | Select-String "^STRIDE_ED25519_PRIVATE_KEY=").Line.Split("=", 2)[1].Trim() | npx --yes wrangler@4.151.0 secret put STRIDE_ED25519_PRIVATE_KEY
-   # Secret webhook: dán khi được hỏi
-   npx --yes wrangler@4.151.0 secret put POLAR_WEBHOOK_SECRET
-   ```
-   Kiểm tra bằng `npx --yes wrangler@4.151.0 secret list` (chỉ hiện tên, không hiện giá trị).
+4. Founder tự nạp secret (không dán vào chat) bằng một lệnh ở thư mục gốc repo: `npm run worker:secrets`. Script kiểm tra khóa trong `.env.local` khớp app, nạp khóa ký mà không in ra, rồi để wrangler hỏi secret webhook. Chỉ nạp lại secret webhook: `npm run worker:secrets -- --webhook-only`. Script in danh sách tên secret ở cuối (không có giá trị). Account ID lấy từ `cloudflare-worker/wrangler.toml` (đã gitignore).
 5. Thử sandbox ở máy cục bộ: tạo `.env.development.local` (bị gitignore, build production không đọc) với `VITE_ENABLE_PAYWALL=true`, `VITE_POLAR_CHECKOUT_URL` và `VITE_POLAR_CHECKOUT_URL_EMERGING` (link sandbox), `VITE_LICENSE_CLAIM_URL=http://localhost:3000/__worker`, `VITE_SYNC_API_URL=http://localhost:3000/__worker`. Dev server chuyển `/__worker` tới Worker production nên không cần mở CORS cho localhost. Chạy `npm run dev`, mua bằng thẻ test của Polar, kiểm tra PRO được kích hoạt và hoàn tiền thu hồi được.
 6. **Không** đặt link sandbox vào GitHub Variables (người lạ có thể nhận PRO bằng thẻ test). Khi tài khoản production được duyệt: tạo lại sản phẩm, link, webhook ở polar.sh, thay secret, rồi mới đặt `VITE_POLAR_CHECKOUT_URL`, `VITE_POLAR_CHECKOUT_URL_EMERGING` trong GitHub Variables.
 

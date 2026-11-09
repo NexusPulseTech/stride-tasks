@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import { triggerHaptic } from '../../../utils';
 import { useLanguage } from '../../../i18n';
+import { COMMERCE_CONFIG } from '../../../config/commerceConfig';
+import { APP_VERSION } from '../../../constants';
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -35,7 +37,8 @@ export function FeedbackModal({
 
   if (!isOpen) return null;
 
-  const targetEmail = 'khoahocteamtrieudo@gmail.com';
+  // Hộp thư hỗ trợ trên domain sản phẩm (chuyển tiếp về hộp thư của founder), không lộ email cá nhân
+  const targetEmail = COMMERCE_CONFIG.supportEmail;
 
   const getSystemDiagnostics = () => {
     return [
@@ -44,7 +47,7 @@ export function FeedbackModal({
       `- Nền tảng: ${typeof navigator !== 'undefined' ? navigator.userAgent : 'N/A'}`,
       `- Màn hình: ${typeof window !== 'undefined' ? `${window.innerWidth}x${window.innerHeight} (DPR: ${window.devicePixelRatio || 1})` : 'N/A'}`,
       `- Dữ liệu: ${projectsCount} danh mục, ${totalTasksCount} công việc`,
-      `- Ứng dụng: Solo Checklist v4.6 (Local-First Offline Core)`,
+      `- Ứng dụng: Stride Tasks v${APP_VERSION}`,
     ].join('\n');
   };
 
@@ -60,7 +63,7 @@ export function FeedbackModal({
 
   const handleSendEmail = () => {
     triggerHaptic();
-    const subjectPrefix = activeTab === 'bug' ? '[Báo lỗi Solo Checklist]' : '[Góp ý Solo Checklist]';
+    const subjectPrefix = activeTab === 'bug' ? '[Stride Tasks] Báo lỗi' : '[Stride Tasks] Góp ý';
     const subject = encodeURIComponent(`${subjectPrefix} ${title.trim() || 'Phản hồi người dùng'}`);
     const body = encodeURIComponent(getFullReportText());
     const mailtoUrl = `mailto:${targetEmail}?subject=${subject}&body=${body}`;

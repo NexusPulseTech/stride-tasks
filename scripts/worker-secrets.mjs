@@ -24,12 +24,8 @@ function die(message) {
   process.exit(1);
 }
 
-const env = {
-  ...process.env,
-  // Account ID không phải bí mật (nằm sẵn trong URL dashboard); đặt để wrangler không phải hỏi
-  CLOUDFLARE_ACCOUNT_ID: process.env.CLOUDFLARE_ACCOUNT_ID || '54a0a2e6fd9115d32f9cf767f9ab4764',
-  WRANGLER_SEND_METRICS: 'false',
-};
+// Account ID đọc từ cloudflare-worker/wrangler.toml (đã gitignore), không ghi trong repo public
+const env = { ...process.env, WRANGLER_SEND_METRICS: 'false' };
 
 function wrangler(args, options) {
   // Tham số chỉ gồm tên lệnh và tên secret cố định, ghép thành một chuỗi để Windows chạy được npx.cmd qua shell

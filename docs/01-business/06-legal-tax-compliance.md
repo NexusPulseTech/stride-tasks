@@ -8,9 +8,9 @@
 | Trang | Hiện trạng | Vì sao bắt buộc |
 | :--- | :--- | :--- |
 | Chính sách quyền riêng tư (`/privacy.html`) | ✅ Có (v3.1.0), cần cập nhật khi thêm email/analytics | Luật dữ liệu cá nhân, yêu cầu của store & MoR |
-| **Điều khoản sử dụng / EULA** (`/terms.html`) | ❌ Chưa có | MoR (Polar/Paddle) và store yêu cầu; xác định phạm vi giấy phép PRO trọn đời |
-| **Chính sách hoàn tiền** (`/refund.html`) | ❌ Chưa có | MoR yêu cầu; giảm lo lắng của người mua (đề xuất 14 ngày) |
-| Liên hệ / hỗ trợ | ⚠️ Chỉ có email trong cấu hình | Người mua cần kênh hỗ trợ rõ ràng |
+| **Điều khoản sử dụng / EULA** (`/terms.html`) | ✅ Có (A02, 2026-10-30) | MoR (Polar/Paddle) và store yêu cầu; xác định phạm vi giấy phép PRO trọn đời |
+| **Chính sách hoàn tiền** (`/refund.html`) | ✅ Có, 14 ngày (A02, 2026-10-30) | MoR yêu cầu; giảm lo lắng của người mua (đề xuất 14 ngày) |
+| Liên hệ / hỗ trợ | ✅ `support@nexuspulsetech.xyz` (chuyển tiếp qua Email Routing) | Người mua cần kênh hỗ trợ rõ ràng |
 
 Nội dung tối thiểu của **Điều khoản**: định nghĩa "PRO trọn đời" (trọn đời *sản phẩm*, gồm các bản cập nhật của dòng 3.x trở đi theo cam kết bạn chọn), giới hạn số kho đồng bộ/bản quyền (`SYNC_MAX_VAULTS_PER_LICENSE`), cấm chia sẻ bản quyền, miễn trừ trách nhiệm mất dữ liệu (khuyến nghị sao lưu), luật áp dụng.
 

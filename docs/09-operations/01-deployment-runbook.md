@@ -31,9 +31,9 @@ HTTP 200 hoặc 202 là đạt. Một lần gửi tới `api.indexnow.org` đư�
 Thực hiện trong `cloudflare-worker/` (cho tới khi có `worker.yml`: task B07). Chạy `npm test` trước, đỏ thì không deploy:
 
 ```bash
-export WRANGLER_SEND_METRICS=false CLOUDFLARE_ACCOUNT_ID=54a0a2e6fd9115d32f9cf767f9ab4764
+export WRANGLER_SEND_METRICS=false   # account_id nằm trong wrangler.toml (đã gitignore)
 W="npx --yes wrangler@4.151.0"
-$W whoami                       # đúng tài khoản Nguyenhoangphuc7077@gmail.com's Account
+$W whoami                       # đúng tài khoản Cloudflare của dự án
 $W deploy --dry-run --outdir /tmp/stride-dryrun   # kiểm bundle + bindings
 $W deploy                       # in "Current Version ID: …", ghi lại
 ```

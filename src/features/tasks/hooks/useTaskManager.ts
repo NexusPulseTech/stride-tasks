@@ -600,7 +600,7 @@ export function useTaskManager() {
     const payload: StrideBackupPayload = {
       version: APP_VERSION,
       schemaVersion: 2,
-      appName: 'TaskTodo',
+      appName: 'Stride Tasks',
       exportedAt: new Date().toISOString(),
       summary: {
         projectCount: crud.projects.length,

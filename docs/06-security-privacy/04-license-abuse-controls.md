@@ -14,11 +14,11 @@
 | Token Ed25519 không sửa được | ✅ | Không tự "bật PRO" bằng cách sửa localStorage |
 | Hạn mức `SYNC_MAX_VAULTS_PER_LICENSE = 3` | ✅ | Một token chia sẻ không tạo được vô hạn kho |
 | `SYNC_REQUIRE_LICENSE = true` | ✅ | Không có token → không dùng hạ tầng đồng bộ |
-| Danh sách thu hồi (`revocations`) khi hoàn tiền/chargeback | ❌ → A04 | Hoàn tiền không còn dùng sync |
-| Claim cần `claimSecret` | ❌ → A04 | Không lấy được token của người khác |
-| Rate limit theo IP + license | ❌ → B07 | Spam tạo kho, dò mã |
-| Cảnh báo bất thường: một `license_id` tạo kho mới > 3 lần/24h hoặc hàng trăm IP khác nhau | ❌ → B07 | Phát hiện token bị phát tán công khai |
-| `kid` trong token để xoay khóa | ❌ → khi cần | Phản ứng khi lộ khóa riêng |
+| Danh sách thu hồi (`revocations`) khi hoàn tiền/chargeback | ✅ A04 | Hoàn tiền không còn dùng sync |
+| Claim cần `claimSecret` | ✅ A04 | Không lấy được token của người khác |
+| Rate limit theo IP (claim, đơn) và theo bản quyền (ghi đồng bộ) | ✅ A04 | Spam tạo kho, dò mã |
+| Cảnh báo bất thường khi một bản quyền bị dùng lan rộng | Kế hoạch (B07) | Phát hiện token bị phát tán công khai |
+| `kid` trong token để xoay khóa | Kế hoạch | Phản ứng khi lộ khóa riêng |
 
 ## 3. Khi phát hiện token bị phát tán
 

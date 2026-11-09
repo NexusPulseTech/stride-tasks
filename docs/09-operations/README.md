@@ -11,4 +11,4 @@
 | [04-customer-support-playbook.md](./04-customer-support-playbook.md) | Kênh hỗ trợ, thời gian phản hồi, mẫu trả lời VI/EN |
 | [maintenance-and-inheritance.md](./maintenance-and-inheritance.md) | Hướng dẫn bàn giao cho kỹ sư kế tiếp (đã có) |
 
-**Tài nguyên production** (không phải bí mật): web `https://tasks.nexuspulsetech.xyz` · API `https://tasks-api.nexuspulsetech.xyz` · Cloudflare account `54a0a2e6fd9115d32f9cf767f9ab4764` · Worker `stride-license` · D1 `stride-sync` · KV `LICENSES`. ID KV/D1 thật chỉ nằm trong `cloudflare-worker/wrangler.toml` (gitignore).
+**Tài nguyên production** (không phải bí mật): web `https://tasks.nexuspulsetech.xyz` · API `https://tasks-api.nexuspulsetech.xyz` · Worker `stride-license` · D1 `stride-sync` · KV `LICENSES`. Account ID và ID KV/D1 thật chỉ nằm trong `cloudflare-worker/wrangler.toml` (gitignore).

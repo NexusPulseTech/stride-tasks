@@ -2,6 +2,7 @@
 name = "stride-license"
 main = "src/index.js"
 compatibility_date = "2026-10-01"
+# account_id = "<Account ID trong dashboard Cloudflare>"   # chỉ điền ở wrangler.toml (đã gitignore)
 
 # Domain riêng trên zone nexuspulsetech.xyz (Cloudflare tự tạo DNS + chứng chỉ SSL); tắt workers.dev để chỉ có 1 điểm vào
 workers_dev = false
