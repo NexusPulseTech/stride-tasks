@@ -70,3 +70,16 @@ Ghi mỗi lần deploy Worker vào bảng dưới (hoặc GitHub Release notes):
 | 2026-11-02 | `e22adac1-5d0d-414b-bd72-0d7e899fbea5` | A04c: `GET /checkout/success` (Success URL của Polar, đổi `checkout_id` thành link kích hoạt) | 31/31 test Worker ✅; production: trang chờ 200, ID sai 400, header no-store/no-referrer/noindex/CSP; claim 401, webhook không chữ ký 403, sync 401 |
 | 2026-11-09 | `6b0abc60-3a51-4f46-8235-bb1f966981de` | Secret webhook Polar được `trim()` trước khi dùng (dán qua pipe hay dính ký tự xuống dòng) | 32/32 test Worker ✅ |
 | 2026-11-09 | `1b545fdb-48d4-4962-857f-c8d3e16587a9` | Điều kiện "đã hoàn đủ" cộng cả `refunded_tax_amount` (Polar tính tiền hoàn không gồm thuế) | 33/33 test Worker ✅; mua thử sandbox end-to-end đạt; webhook không chữ ký 403, claim 401, trang chờ 200, đơn đã trả 302 |
+
+## 7. Phát hành phiên bản (Release)
+
+Chuẩn: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html) và [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/). `CHANGELOG.md` là nguồn sự thật; ghi chú trên GitHub Release chép từ mục tương ứng.
+
+1. Ghi thay đổi vào mục `[Unreleased]` của `CHANGELOG.md` ngay trong commit làm thay đổi đó.
+2. Khi phát hành: đổi `[Unreleased]` thành `[X.Y.Z] - YYYY-MM-DD`, thêm link so sánh ở cuối file, viết báo cáo chi tiết `docs/Release/YYYY-MM-DD-vX.Y.Z-ten.md` và thêm dòng vào `docs/Release/README.md`.
+3. Nâng số phiên bản ở đủ 6 nơi: `npm version X.Y.Z --no-git-tag-version` (package.json, package-lock.json), `APP_VERSION` trong `src/constants/index.ts`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, mục `name = "app"` trong `src-tauri/Cargo.lock`, badge trong `README.md`.
+4. Chạy `npm run lint`, `npm test`, test Worker và quét bí mật; commit `chore(release): vX.Y.Z`, push, chờ deploy xanh.
+5. Gắn tag annotated vào đúng commit đó và đẩy riêng tag: `git tag -a vX.Y.Z <commit> -m "Stride Tasks vX.Y.Z"` rồi `git push origin vX.Y.Z`.
+6. Tạo release: `gh release create vX.Y.Z --verify-tag --title "Stride Tasks vX.Y.Z" --notes-file <mục CHANGELOG> --latest`.
+
+Bản desktop không còn tự dựng theo tag. Workflow cũ trong các commit trước 3.2.0 vẫn có trigger `push: tags`, nên đẩy tag cho commit cũ sẽ kích hoạt dựng desktop từ code cũ. Tắt workflow "Desktop Release" trước khi gắn tag lùi về quá khứ.
