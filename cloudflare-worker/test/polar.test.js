@@ -93,6 +93,11 @@ describe('POST /webhooks/polar', () => {
     expect(res.status).toBe(402);
   });
 
+  it('secret dính ký tự xuống dòng khi nạp vẫn xác thực được', async () => {
+    const res = await polar({ type: 'checkout.created', data: { id: 'x' } }, { env: await testEnv({ POLAR_WEBHOOK_SECRET: `${POLAR_SECRET}\r\n` }) });
+    expect(res.status).toBe(202);
+  });
+
   it('secret kiểu cũ (khóa là UTF-8 của cả chuỗi) vẫn xác thực được', async () => {
     const legacy = 'whsec_legacy-plain-secret';
     const res = await polar(

@@ -346,7 +346,9 @@ ${refresh}
  * Standard Webhooks: HMAC-SHA256 trên "{id}.{timestamp}.{body}", header dạng "v1,<base64> v1,<base64>".
  * Secret Polar tạo từ 08/09/2026: khóa = base64-decode phần sau "whsec_"; secret cũ: khóa = UTF-8 của cả chuỗi.
  */
-async function verifyStandardWebhook(secret, id, timestamp, body, signatureHeader) {
+async function verifyStandardWebhook(rawSecret, id, timestamp, body, signatureHeader) {
+  // Secret dán qua pipe hay dính ký tự xuống dòng; khóa HMAC sai một byte là mọi webhook bị từ chối
+  const secret = String(rawSecret || '').trim();
   if (!secret || !id || !timestamp || !signatureHeader) return false;
   const ts = Number(timestamp);
   if (!Number.isFinite(ts) || Math.abs(Date.now() / 1000 - ts) > WEBHOOK_TOLERANCE_SECONDS) return false;
