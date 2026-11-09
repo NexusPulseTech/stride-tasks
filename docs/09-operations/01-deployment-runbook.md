@@ -56,7 +56,7 @@ Kiểm tra sau deploy: chạy smoke test production (14 bước: CORS, 401/402, 
 
 ## 5. Desktop
 
-Tạm ngừng phát hành bản desktop qua tag cho tới khi task D02 hiện đại hóa workflow (ký số, đồng bộ phiên bản). Người dùng Windows được hướng tới PWA/Microsoft Store.
+Tạm ngừng phát hành bản desktop qua tag cho tới khi task D02 hiện đại hóa workflow (ký số, đồng bộ phiên bản). Người dùng Windows được hướng tới PWA/Microsoft Store. Từ 2026-11-09 workflow "Desktop Release" bị tắt (Disabled) trong tab Actions và chỉ còn trigger chạy tay; bật lại khi làm D02.
 
 ## 6. Nhật ký deploy
 
@@ -82,4 +82,4 @@ Chuẩn: [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html) và [K
 5. Gắn tag annotated vào đúng commit đó và đẩy riêng tag: `git tag -a vX.Y.Z <commit> -m "Stride Tasks vX.Y.Z"` rồi `git push origin vX.Y.Z`.
 6. Tạo release: `gh release create vX.Y.Z --verify-tag --title "Stride Tasks vX.Y.Z" --notes-file <mục CHANGELOG> --latest`.
 
-Bản desktop không còn tự dựng theo tag. Workflow cũ trong các commit trước 3.2.0 vẫn có trigger `push: tags`, nên đẩy tag cho commit cũ sẽ kích hoạt dựng desktop từ code cũ. Tắt workflow "Desktop Release" trước khi gắn tag lùi về quá khứ.
+Bản desktop không còn tự dựng theo tag. Workflow cũ trong các commit trước 3.2.0 vẫn có trigger `push: tags`, nên đẩy tag cho commit cũ sẽ kích hoạt dựng desktop từ code cũ. Tắt workflow "Desktop Release" trước khi gắn tag lùi về quá khứ. Đã gắn tag và tạo release cho mọi bản từ v1.0.0 tới v3.2.0 (2026-11-09); tag gắn bù mang đúng ngày của commit phát hành.
