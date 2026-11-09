@@ -6,7 +6,7 @@
 | Ưu tiên | P0 (chặn bán, lỗ hổng bảo mật & DoS) |
 | Ước lượng | 2 ngày |
 | Phụ thuộc |, (có thể làm song song A03; cần ID sandbox để test cuối) |
-| Trạng thái | ◐ A04a, A04b đã deploy; A04c đang làm; còn mua thử sandbox |
+| Trạng thái | ☑ Xong (2026-11-09): A04a, A04b, A04c đã deploy, mua thử sandbox end-to-end đạt |
 
 ## Mục tiêu
 Luồng thanh toán an toàn: chỉ người mua nhận được token; hoàn tiền thu hồi được đồng bộ; app không thể làm cạn hạn mức Worker.
@@ -47,13 +47,32 @@ Báo cáo [../05-api-contracts/02-fe-be-alignment-audit.md](../05-api-contracts/
 
 **Đánh đổi**: ai có `checkout_id` thì nhận được token, giống người có link kích hoạt trong email. ID là UUID ngẫu nhiên 122 bit, chỉ xuất hiện trong URL chuyển hướng của người mua, và endpoint có giới hạn tần suất.
 
-**Kết quả (2026-11-02)**: deploy Worker `e22adac1`, 5 test mới (31/31), OpenAPI có `/checkout/success` (Redocly hợp lệ), Success URL của Checkout Link sandbox đã đổi sang endpoint này. Còn: mua thử sandbox end-to-end.
+**Kết quả (2026-11-02)**: deploy Worker `e22adac1`, 5 test mới (31/31), OpenAPI có `/checkout/success` (Redocly hợp lệ), Success URL của Checkout Link sandbox đã đổi sang endpoint này.
+
+## Mua thử sandbox end-to-end (2026-11-09)
+
+App chạy ở `localhost` (proxy `/__worker`), org `nexuspulse-studio`, đơn `STR9RRPMC`, thẻ test của Stripe.
+
+| Bước | Kết quả |
+| :--- | :--- |
+| App đăng ký đơn (`POST /v1/orders`) rồi mở Checkout Link kèm `reference_id` | ✅ `registered: true` |
+| Checkout | ✅ $19, thuế đã gồm $1.73 (địa chỉ Việt Nam), mô tả sản phẩm đúng |
+| Webhook `order.paid` | Lần gửi đầu 0,8 giây sau khi tạo đơn. 5 lần đầu bị 403 `invalid_signature` vì secret nạp nhầm org; nạp lại đúng thì lần thử lại kế tiếp (194 giây) nhận 202. `redeliver` thêm lần nữa nhận 202 `duplicate`: không phát hành hai lần |
+| App ở localhost | ✅ tự nhận bản quyền `PL-<đơn>`, "Global (Polar)", $19, xóa đơn chờ |
+| Success URL `/checkout/success` | ✅ 302 về `#activate=<token>`; khi webhook lỗi, sau 40 lần chờ hiện hướng dẫn liên hệ hỗ trợ |
+| Đồng bộ với token mới | ✅ được chấp nhận (kho chưa có trả 404) |
+| Hoàn tiền toàn bộ qua API | ✅ Polar hoàn 1727 + thuế 173; webhook `order.refunded` nhận 202 `revoked` |
+| Đồng bộ sau hoàn tiền | ✅ 402 `license_revoked` |
+
+**Lỗi tìm ra và đã sửa**: Polar tính `refunded_amount` không gồm thuế, nên điều kiện dự phòng "đã hoàn đủ" phải cộng `refunded_tax_amount` (deploy `1b545fdb`, thêm ca test, thử đột biến bắt được). Lần này vẫn thu hồi được nhờ `status = refunded`.
+
+**Độ trễ**: chưa đo trọn vòng vì lần đầu secret sai. Webhook đến sau 0,8 giây, trang chờ tải lại mỗi 3 giây, app hỏi mỗi 6 giây, nên ước tính PRO kích hoạt trong vài giây, dưới ngưỡng 60 giây.
 
 ## Tiêu chí nghiệm thu
-- [ ] Test Worker: claim đúng secret → token; sai/thiếu → 403; webhook chữ ký sai → 401; webhook trùng → không phát hành 2 lần; refund → sync trả 402 `license_revoked`; vượt rate limit → 429.
-- [ ] Test client: lịch poll đúng backoff (fake timer); tổng request trong 72 giờ ≤ 100 khi tab mở liên tục.
-- [ ] `openapi.yaml` lint hợp lệ; [../05-api-contracts/02-fe-be-alignment-audit.md](../05-api-contracts/02-fe-be-alignment-audit.md) cập nhật (#1-#3, #10 → ✅).
-- [ ] Mua thử sandbox Polar end-to-end: thanh toán → app nhận PRO ≤ 60 giây → hoàn tiền → sync bị thu hồi.
+- [x] Test Worker: claim đúng secret → token; sai/thiếu → 401/403; webhook chữ ký sai → 403 (Polar coi mọi mã khác 2xx là lỗi nên không cần 401); webhook trùng → không phát hành 2 lần; refund → sync trả 402 `license_revoked`; vượt rate limit → 429.
+- [x] Test client: lịch poll đúng backoff (mô phỏng bằng hàm thuần `nextClaimDelay`); một cửa sổ hỏi dưới 100 request.
+- [x] `openapi.yaml` lint hợp lệ; [../05-api-contracts/02-fe-be-alignment-audit.md](../05-api-contracts/02-fe-be-alignment-audit.md) cập nhật (#1-#3, #10 → ✅).
+- [x] Mua thử sandbox Polar end-to-end: thanh toán → app nhận PRO → hoàn tiền → sync bị thu hồi (mục "Mua thử sandbox end-to-end"; độ trễ ước tính vài giây).
 
 ## Rủi ro & rollback
 Lỗi ở webhook làm khách trả tiền mà không nhận token → giữ quy trình cấp thủ công ([../09-operations/02-payments-and-licensing-runbook.md](../09-operations/02-payments-and-licensing-runbook.md)); rollback Worker bằng `wrangler rollback`.

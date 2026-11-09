@@ -58,6 +58,14 @@ Worker ghi `sepay:{txId}` với `status: "unmatched"` (giữ 90 ngày) khi nội
 
 Khuyến nghị khách: sau khi kích hoạt, vào Trung tâm bản quyền → **xuất chứng chỉ** để tự lưu.
 
+## 5b. Bài học từ lần mua thử sandbox (2026-11-09)
+
+- **Secret webhook thuộc từng org.** Hai org có webhook cùng tên rất dễ copy nhầm; dấu hiệu là webhook nhận 403 `invalid_signature`. Nạp lại bằng `npm run worker:secrets -- --webhook-only` với secret của đúng org đang dùng. Polar tắt endpoint sau 10 lần lỗi liên tiếp.
+- **Sau mỗi lần nạp secret**, mua thử trong sandbox rồi xem lịch sử gửi: `GET /v1/webhooks/deliveries?endpoint_id=<id>` phải trả `http_code` 202. Đơn bị lỡ thì gửi lại bằng `POST /v1/webhooks/events/<event_id>/redeliver` (Worker chống trùng nên an toàn).
+- **Hoàn tiền tính không gồm thuế.** Số tiền hoàn tối đa là `refundable_amount` của đơn (VD đơn $19 tại Việt Nam: 1727 + thuế 173 tự hoàn theo); gửi 1900 sẽ bị 422.
+- Polar tự gắn `customer_session_token` vào Success URL; Worker bỏ qua tham số này.
+- Lịch Polar thử lại quan sát được: 0,8s, 7s, 18s, 49s, 82s, 194s... sau khi tạo đơn.
+
 ## 6. Kiểm tra định kỳ (hằng tuần khi đang bán)
 
 - Đối soát số đơn MoR/SePay với số bản ghi `order:*` đã phát hành.

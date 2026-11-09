@@ -30,8 +30,8 @@ LemonSqueezy chuyển sang Stripe Managed Payments (không hỗ trợ người b
 
 ## Tiêu chí nghiệm thu
 - [ ] Payout onboarding hoàn tất (trạng thái "verified"/"active").
-- [ ] Mua thử trong sandbox bằng thẻ test: webhook `order.paid` tới Worker, app nhận PRO; hoàn tiền thử thì bản quyền bị thu hồi.
-- [ ] Trang checkout hiển thị đúng giá, thuế, link pháp lý.
+- [x] Mua thử trong sandbox bằng thẻ test: webhook `order.paid` tới Worker, app nhận PRO; hoàn tiền thử thì bản quyền bị thu hồi (2026-11-09, chi tiết ở A04).
+- [ ] Trang checkout hiển thị đúng giá, thuế, link pháp lý. Sandbox: giá và thuế đúng; còn thiếu logo, website và email hỗ trợ của org (cài ở production).
 
 ## Tiến độ
 - Sandbox (chốt 2026-11-02): dùng organization **NexusPulse Studio** (`sandbox.polar.sh/dashboard/nexuspulse-studio`, tài khoản nguyenhoangphuc7077, cùng tài khoản với Cloudflare, Bing, Search Console và onboarding Polar production). Có 2 sản phẩm một lần ($19 công khai, $9.95 Private), 2 Checkout Link (Success URL về `/checkout/success` của Worker, Return URL về app, tắt ô mã giảm giá) và webhook (Raw, API 2026-10, chỉ `order.paid` và `order.refunded`). Org `nexuspulse` (tài khoản 315) có cấu hình tương tự kèm webhook riêng, để dự phòng và không nạp secret của nó. Còn: founder nạp `STRIDE_ED25519_PRIVATE_KEY` và `POLAR_WEBHOOK_SECRET` (lấy ở org nexuspulse-studio) vào Worker theo runbook mục 1b bước 4, rồi mua thử.

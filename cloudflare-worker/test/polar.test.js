@@ -18,12 +18,14 @@ async function polar(body, { id = `msg_${randomHex(6)}`, ts = nowSec(), key = po
   });
 }
 
-const order = (ref, id, { total = 1900, status = 'paid', refunded = 0, checkoutId = null } = {}) => ({
+// Số liệu theo đơn sandbox thật: tổng 1900 đã gồm thuế 173; refunded_amount không gồm thuế
+const order = (ref, id, { total = 1900, status = 'paid', refunded = 0, refundedTax = 0, checkoutId = null } = {}) => ({
   id,
   status,
   paid: true,
   total_amount: total,
   refunded_amount: refunded,
+  refunded_tax_amount: refundedTax,
   currency: 'usd',
   checkout_id: checkoutId,
   metadata: ref ? { reference_id: ref } : {},
@@ -82,15 +84,24 @@ describe('POST /webhooks/polar', () => {
     const id = polarOrderId();
     await registerPolar(code);
     await polar(paid(code, id));
-    const partial = await polar({ type: 'order.refunded', data: order(code, id, { status: 'partially_refunded', refunded: 500 }) });
+    const partial = await polar({ type: 'order.refunded', data: order(code, id, { status: 'partially_refunded', refunded: 500, refundedTax: 50 }) });
     expect((await partial.json()).ignored).toBe('partial_refund');
 
-    const full = await polar({ type: 'order.refunded', data: order(code, id, { status: 'refunded', refunded: 1900 }) });
+    const full = await polar({ type: 'order.refunded', data: order(code, id, { status: 'refunded', refunded: 1727, refundedTax: 173 }) });
     expect(full.status).toBe(202);
     expect((await full.json()).revoked).toBe(true);
 
     const res = await call(`/sync/v1/vaults/${vaultId()}`, { headers: { Authorization: `Bearer ${await issue(`PL-${id}`)}` } });
     expect(res.status).toBe(402);
+  });
+
+  it('hoàn nhiều lần cộng đủ tiền hàng và thuế thì thu hồi dù trạng thái chưa đổi', async () => {
+    const code = orderCode();
+    const id = polarOrderId();
+    await registerPolar(code);
+    await polar(paid(code, id));
+    const res = await polar({ type: 'order.refunded', data: order(code, id, { status: 'partially_refunded', refunded: 1727, refundedTax: 173 }) });
+    expect((await res.json()).revoked).toBe(true);
   });
 
   it('secret dính ký tự xuống dòng khi nạp vẫn xác thực được', async () => {

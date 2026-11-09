@@ -218,9 +218,11 @@ async function handlePolar(request, env) {
   if (event?.type === 'order.paid' && orderId) {
     result = await fulfillPolarOrder(env, order);
   } else if (event?.type === 'order.refunded' && orderId) {
-    // Chỉ thu hồi khi hoàn toàn bộ; hoàn một phần vẫn giữ bản quyền
+    // Chỉ thu hồi khi hoàn toàn bộ; hoàn một phần vẫn giữ bản quyền.
+    // Polar tính refunded_amount không gồm thuế (đo trên sandbox: đơn 1900 = 1727 + thuế 173),
+    // nên cộng refunded_tax_amount trước khi so với total_amount (đã gồm thuế)
     const total = Number(order.total_amount || 0);
-    const refunded = Number(order.refunded_amount || 0);
+    const refunded = Number(order.refunded_amount || 0) + Number(order.refunded_tax_amount || 0);
     if (order.status === 'refunded' || (total > 0 && refunded >= total)) {
       await revokeLicense(env, `PL-${orderId}`, 'refund');
       result = { ok: true, revoked: true };
