@@ -60,3 +60,8 @@ SYNC_REQUIRE_LICENSE = "true"
 #   npx wrangler secret put SEPAY_API_KEY
 #   npx wrangler secret put LEMONSQUEEZY_SIGNING_SECRET
 #   npx wrangler secret put RESEND_API_KEY          (tùy chọn)
+
+# Workers Logs (gói Free: 200.000 sự kiện/ngày, giữ 3 ngày); dùng để soi webhook và lỗi production
+[observability]
+enabled = true
+head_sampling_rate = 1

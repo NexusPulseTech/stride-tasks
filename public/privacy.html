@@ -11,9 +11,9 @@
   </head>
   <body>
     <main class="card">
-      <span class="badge">Stride Tasks • Version 1.1</span>
+      <span class="badge">Stride Tasks • Version 1.2</span>
       <h1>Chính sách quyền riêng tư</h1>
-      <p class="meta"><strong>Cập nhật:</strong> 30/10/2026 · <strong>Đơn vị kiểm soát dữ liệu:</strong> NexusPulse Studio · <strong>Liên hệ:</strong> <a href="mailto:support@nexuspulsetech.xyz">support@nexuspulsetech.xyz</a></p>
+      <p class="meta"><strong>Cập nhật:</strong> 09/11/2026 · <strong>Đơn vị kiểm soát dữ liệu:</strong> NexusPulse Studio · <strong>Liên hệ:</strong> <a href="mailto:support@nexuspulsetech.xyz">support@nexuspulsetech.xyz</a></p>
       <p class="meta"><a href="#en">English below ↓</a> · <a href="/terms.html">Điều khoản</a> · <a href="/refund.html">Hoàn tiền</a></p>
 
       <h2>1. Dữ liệu công việc chỉ nằm trên thiết bị của bạn</h2>
@@ -21,6 +21,8 @@
 
       <h2>2. Đồng bộ đa thiết bị (tùy chọn, mã hóa đầu-cuối)</h2>
       <p>Khi bạn bật đồng bộ, dữ liệu được <strong>mã hóa ngay trên thiết bị</strong> (AES-256-GCM, khóa sinh từ <em>mã đồng bộ</em>; mã này không bao giờ rời thiết bị). Máy chủ (Cloudflare Workers + D1, đặt tại khu vực châu Á - Thái Bình Dương) chỉ lưu bản mã, mã định danh kho dạng băm, mã bản quyền và thời điểm cập nhật. <strong>Chúng tôi không thể đọc nội dung công việc của bạn.</strong> Bạn có thể ngắt đồng bộ hoặc xóa vĩnh viễn bản trên đám mây bất kỳ lúc nào.</p>
+
+      <p><strong>Nhật ký kỹ thuật của máy chủ</strong>: máy chủ bản quyền và đồng bộ ghi nhật ký kỹ thuật (thời điểm, đường dẫn yêu cầu, mã phản hồi, thông tin mạng như quốc gia và địa chỉ IP) để xử lý sự cố. Nhật ký tự xóa sau 3 ngày và không chứa nội dung bạn đồng bộ, vốn đã được mã hóa.</p>
 
       <h2>3. Mua bản quyền PRO</h2>
       <ul>
@@ -45,11 +47,12 @@
 
       <h1 id="en" lang="en">Privacy Policy</h1>
       <div lang="en">
-        <p class="meta"><strong>Updated:</strong> 30 October 2026 · <strong>Controller:</strong> NexusPulse Studio · <strong>Contact:</strong> <a href="mailto:support@nexuspulsetech.xyz">support@nexuspulsetech.xyz</a></p>
+        <p class="meta"><strong>Updated:</strong> 9 November 2026 · <strong>Controller:</strong> NexusPulse Studio · <strong>Contact:</strong> <a href="mailto:support@nexuspulsetech.xyz">support@nexuspulsetech.xyz</a></p>
         <ul>
           <li><strong>Task data</strong> stays on your device (localStorage / IndexedDB). No account; we never upload or sell your tasks.</li>
           <li><strong>Optional sync</strong> encrypts data on your device (AES-256-GCM, key derived from your sync code, which never leaves the device). The server (Cloudflare Workers + D1, Asia-Pacific) stores only ciphertext, a hashed vault ID, the license ID and timestamps. We cannot read your tasks. You can delete the cloud copy at any time.</li>
           <li><strong>Payments</strong>: card payments are processed by the Merchant of Record named at checkout (e.g. Polar or Paddle) under their privacy policy; we receive order details (order number, amount, country, buyer email) to issue and re-send your license. Vietnamese bank transfers are matched through SePay using a random order code. Order records on our server are kept for 90 days; accounting records as required by law.</li>
+          <li><strong>Server logs</strong>: the license and sync server keeps technical logs (time, request path, status, network details such as country and IP address) to fix problems. Logs are deleted after 3 days and never contain your synced content, which is encrypted.</li>
           <li><strong>Licenses</strong> are Ed25519-signed tokens verified offline and contain no email address.</li>
           <li><strong>Analytics</strong>: Cloudflare Web Analytics, aggregate and cookieless; no task data.</li>
           <li><strong>Support email</strong> is forwarded by Cloudflare Email Routing to our support inbox and used only to answer you.</li>

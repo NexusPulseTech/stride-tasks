@@ -4,50 +4,54 @@
 | :--- | :--- |
 | Phase | A: First Dollar |
 | Ưu tiên | P0 |
-| Ước lượng | 0,5 ngày |
-| Phụ thuộc | A01, A02, A03, A04 |
-| Trạng thái | ☐ Todo |
-| Người làm | Founder (tài khoản SePay/ngân hàng) + kỹ sư (secret, biến, deploy) |
+| Ước lượng | 0,5 ngày làm + chờ Polar duyệt (tối đa 14 ngày, không chặn việc bán) |
+| Phụ thuộc | A01, A02, A04 (☑); A03 phần tạo organization production |
+| Trạng thái | ☐ Todo (chờ founder tạo organization trên polar.sh) |
+| Người làm | Founder: danh tính, KYC, tài khoản nhận tiền, nạp secret. Claude: sản phẩm, link, webhook, mã giảm giá qua API; biến GitHub; kiểm tra |
 
 ## Mục tiêu
-Người dùng thật mua được PRO bằng **VietQR** và **thẻ quốc tế**, nhận PRO tự động; đồng bộ hiện trong app.
+Khách quốc tế mua được PRO bằng thẻ qua Polar và nhận PRO tự động; website công khai trỏ tới checkout để Polar duyệt nhanh. VietQR (SePay) là kênh phụ cho Việt Nam, bật sau.
+
+## Nguyên tắc (từ tài liệu duyệt của Polar và lần thử sandbox 2026-11-09)
+- **"Build first, submit second"**: dựng xong sản phẩm, link, webhook và website trỏ tới checkout rồi mới nộp duyệt. Polar duyệt trước **lần rút tiền đầu tiên**, tối đa 14 ngày.
+- **Không thử bằng thẻ thật trên production**: Polar coi là card testing, có thể khóa tài khoản. Thử bằng mã giảm giá 100%.
+- Secret webhook thuộc từng org: production dùng secret của webhook production, thay secret sandbox.
 
 ## Các bước
-1. **Worker secret** (chạy trong `cloudflare-worker/`, không in giá trị):
-   ```bash
-   W="npx --yes wrangler@4.151.0"
-   grep '^STRIDE_ED25519_PRIVATE_KEY=' ../.env.local | cut -d= -f2- | tr -d '\r\n' | $W secret put STRIDE_ED25519_PRIVATE_KEY
-   $W secret put SEPAY_API_KEY            # nhập tay, giá trị tự đặt (chuỗi ngẫu nhiên ≥ 32 ký tự)
-   $W secret put POLAR_ACCESS_TOKEN
-   $W secret put POLAR_WEBHOOK_SECRET
-   $W secret list                          # chỉ hiện tên
-   ```
-2. **SePay**: liên kết tài khoản ngân hàng nhận tiền; tạo webhook *tiền vào* → `https://tasks-api.nexuspulsetech.xyz/webhook/sepay`, xác thực **API Key** = giá trị `SEPAY_API_KEY`.
-3. **Polar**: tạo webhook → `https://tasks-api.nexuspulsetech.xyz/webhooks/polar`, sự kiện `order.paid`, `order.refunded`.
-4. **GitHub Variables** (Settings → Secrets and variables → Actions → Variables):
+1. **Founder**: trên polar.sh hoàn tất thông tin cá nhân (Country = Việt Nam) và tạo organization production. Đăng nhập polar.sh trong Chrome đang kết nối với Claude.
+2. **Claude (qua API, chỉ trả về trường không bí mật)**: giống sandbox ([../09-operations/02-payments-and-licensing-runbook.md](../09-operations/02-payments-and-licensing-runbook.md) mục 1b):
+   - 2 sản phẩm thanh toán một lần: $19 (công khai), $9.95 (Private, giá vùng).
+   - 2 Checkout Link: Success URL `https://tasks-api.nexuspulsetech.xyz/checkout/success?checkout_id={CHECKOUT_ID}`, Return URL `https://tasks.nexuspulsetech.xyz/`, tắt ô mã giảm giá.
+   - Webhook: Raw, API version bản Current, chỉ `order.paid` và `order.refunded`.
+   - Mã giảm giá 100%, giới hạn 3 lượt, có hạn: dùng để tự kiểm tra và đưa người duyệt Polar khi được hỏi.
+   - Thông tin org: website, email hỗ trợ `support@nexuspulsetech.xyz`, logo.
+3. **Founder**: `npm run worker:secrets -- --webhook-only`, dán secret của webhook **production**. Khóa ký bản quyền đã nạp ngày 2026-11-09.
+4. **Claude**: đặt GitHub Variables bằng `gh variable set` (founder đồng ý trước):
 
    | Biến | Giá trị |
    | :--- | :--- |
    | `VITE_ENABLE_PAYWALL` | `true` |
-   | `VITE_VIETQR_IMAGE_URL` | `https://img.vietqr.io/image/<BANK>-<SỐ_TK>-compact2.png?amount={amount}&addInfo={orderCode}&accountName=<TÊN>` |
+   | `VITE_POLAR_CHECKOUT_URL` | link $19 production |
+   | `VITE_POLAR_CHECKOUT_URL_EMERGING` | link $9.95 production |
    | `VITE_LICENSE_CLAIM_URL` | `https://tasks-api.nexuspulsetech.xyz` |
    | `VITE_SYNC_API_URL` | `https://tasks-api.nexuspulsetech.xyz` |
-   | `VITE_SUPPORT_EMAIL` | email hỗ trợ của sản phẩm |
-   | biến checkout Polar | theo A04 |
+   | `VITE_SUPPORT_EMAIL` | `support@nexuspulsetech.xyz` |
 
-5. Chạy lại workflow Deploy; kiểm tra bundle production không chứa khóa riêng (script quét).
-6. **Mua thật bằng tiền của chính mình**: (a) VietQR 149.000₫ (giá sáng lập); (b) thẻ quốc tế qua Polar $19. Kiểm tra PRO kích hoạt, đồng bộ giữa 2 thiết bị, rồi **hoàn tiền** cả hai.
-7. Smoke test production + ghi nhật ký deploy ([../09-operations/01-deployment-runbook.md](../09-operations/01-deployment-runbook.md)).
+5. **Claude**: chạy lại Deploy, quét bundle production, smoke test Worker.
+6. **Kiểm tra trên production bằng mã 100%** (không thẻ thật): mua từ app, PRO tự kích hoạt qua claim và qua Success URL, đồng bộ giữa 2 thiết bị. Đơn $0 không hoàn tiền được; phần thu hồi đã kiểm chứng trên sandbox.
+7. **Founder**: nộp duyệt ở Polar → Finance → Account: thông tin doanh nghiệp, KYC (CCCD hoặc hộ chiếu kèm selfie qua Stripe Identity), tài khoản nhận tiền Stripe Connect Express. Nếu được hỏi, gửi người duyệt mã 100%.
+8. Ghi nhật ký deploy ([../09-operations/01-deployment-runbook.md](../09-operations/01-deployment-runbook.md)).
+9. **Sau đó, tùy chọn**: VietQR qua SePay cho Việt Nam (founder liên kết ngân hàng, đặt `VITE_VIETQR_IMAGE_URL`, nạp `SEPAY_API_KEY`); email link kích hoạt qua Resend (gói miễn phí, cần bản ghi DNS cho domain và `RESEND_API_KEY`).
 
 ## Tiêu chí nghiệm thu
-- [ ] 2 giao dịch thật → PRO tự động ≤ 60 giây (khi app mở).
-- [ ] Đồng bộ hoạt động giữa 2 thiết bị bằng token thật.
-- [ ] Hoàn tiền → sync bị thu hồi (402 `license_revoked`).
-- [ ] Không có bí mật trong bundle/diff; `secret list` đủ tên.
-- [ ] Sổ cái có 2 dòng đơn + 2 dòng hoàn tiền.
+- [ ] Trang đích và app trên production hiện nút mua trỏ tới checkout Polar production.
+- [ ] Đơn production dùng mã 100% → PRO tự kích hoạt ≤ 60 giây, đồng bộ chạy giữa 2 thiết bị.
+- [ ] Lịch sử gửi webhook production trả 202.
+- [ ] Không có bí mật trong bundle hay diff; `secret list` có đủ tên.
+- [ ] Đã nộp duyệt Polar; trạng thái tài khoản nhận tiền được ghi vào A03.
 
 ## Rủi ro & rollback
-Lỗi thanh toán sau khi bật → đặt `VITE_ENABLE_PAYWALL` về rỗng & redeploy (quay về chế độ miễn phí), cấp thủ công cho khách đã trả.
+Lỗi thanh toán sau khi bật: xóa giá trị `VITE_ENABLE_PAYWALL` rồi deploy lại (quay về chế độ miễn phí), cấp bản quyền thủ công cho khách đã trả (runbook mục 2).
 
 ## Tham chiếu
-- [../09-operations/02-payments-and-licensing-runbook.md](../09-operations/02-payments-and-licensing-runbook.md) · [../06-security-privacy/02-secrets-and-key-management.md](../06-security-privacy/02-secrets-and-key-management.md)
+- [../09-operations/02-payments-and-licensing-runbook.md](../09-operations/02-payments-and-licensing-runbook.md) · [../06-security-privacy/02-secrets-and-key-management.md](../06-security-privacy/02-secrets-and-key-management.md) · [Polar account reviews](https://polar.sh/docs/merchant-of-record/account-reviews)
