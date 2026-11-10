@@ -99,6 +99,7 @@ Ghi mỗi lần deploy Worker vào bảng dưới (hoặc GitHub Release notes):
 | 2026-11-09 | `6b0abc60-3a51-4f46-8235-bb1f966981de` | Secret webhook Polar được `trim()` trước khi dùng (dán qua pipe hay dính ký tự xuống dòng) | 32/32 test Worker ✅ |
 | 2026-11-09 | `1b545fdb-48d4-4962-857f-c8d3e16587a9` | Điều kiện "đã hoàn đủ" cộng cả `refunded_tax_amount` (Polar tính tiền hoàn không gồm thuế) | 33/33 test Worker ✅; mua thử sandbox end-to-end đạt; webhook không chữ ký 403, claim 401, trang chờ 200, đơn đã trả 302 |
 | 2026-11-09 | `94d3ccab-e3d1-42ef-91f5-2ff17fb8ffae` | Bật Workers Logs (`[observability]`, gói Free 200.000 sự kiện/ngày, giữ 3 ngày) | 33/33 test Worker ✅; webhook không chữ ký 403, claim 401, đơn đã trả 302 |
+| 2026-11-10 | `19629ff5-9fca-46b3-8912-fb58b6548f33` | A12: `GET /v1/pricing` (bậc giá theo quốc gia, World Bank), biến `POLAR_CHECKOUT_URL_EMERGING`, log `ppp_country_mismatch` | 45/45 test Worker ✅; production: IP Việt Nam nhận `vn-ppp` kèm link giá vùng, `no-store`, CORS đúng; claim 400, webhook không chữ ký 403, route lạ 404; app hiện "$9.95, Price for Vietnam" |
 | 2026-11-10 | `074755ce-30e8-4a4c-8837-c420c7e848e0` | A11: bản ghi đơn và ánh xạ checkout trên D1 (bảng `orders`, `checkouts` áp trước khi deploy), KV ghi kèm để dự phòng | 38/38 test Worker ✅; health check 4/4; mua thử $0: claim `ready` ngay lần hỏi đầu sau khi trả tiền |
 
 ## 7. Phát hành phiên bản (Release)
