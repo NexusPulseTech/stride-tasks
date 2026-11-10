@@ -89,6 +89,15 @@ export function getAvailableTiers(): PricingTier[] {
   return PRICING_REGION_ORDER.map((id) => PRICING_TIERS[id]).filter((tier) => tier.isAvailable);
 }
 
+/**
+ * Bậc giá hiển thị mặc định trong bảng giá: đúng vùng của người dùng nếu đang bán.
+ * Việt Nam chưa bật VietQR thì dùng giá thị trường mới nổi (gần giá Việt Nam nhất) thay vì rơi về giá toàn cầu.
+ */
+export function resolveActiveTier(region: PricingRegionId, tiers: PricingTier[]): PricingTier | undefined {
+  const byId = (id: PricingRegionId) => tiers.find((tier) => tier.id === id);
+  return byId(region) ?? (region === 'vn-ppp' ? byId('emerging-ppp') : undefined) ?? tiers[0];
+}
+
 /** Mặc định 'global-us'; chỉ chọn 'vn-ppp' khi múi giờ Việt Nam hoặc ngôn ngữ trình duyệt là tiếng Việt */
 export function detectDefaultPricingRegion(): PricingRegionId {
   try {

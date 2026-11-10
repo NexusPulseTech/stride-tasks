@@ -6,7 +6,7 @@
 | Ưu tiên | P0 |
 | Ước lượng | 0,5 ngày làm + chờ Polar duyệt (tối đa 14 ngày, không chặn việc bán) |
 | Phụ thuộc | A01, A02, A04 (☑); A03 phần tạo organization production |
-| Trạng thái | ◐ Org production đã tạo, sản phẩm, link, webhook, mã thử đã có (2026-11-10); chờ founder nạp secret, KYC, payout |
+| Trạng thái | ◐ Đã bật bán trên production 2026-11-10 (Polar còn chế độ test tới khi duyệt); chờ mua thử $0 và nộp duyệt |
 | Người làm | Founder: danh tính, KYC, tài khoản nhận tiền, nạp secret. Claude: sản phẩm, link, webhook, mã giảm giá qua API; biến GitHub; kiểm tra |
 
 ## Mục tiêu
@@ -53,7 +53,11 @@ Khách quốc tế mua được PRO bằng thẻ qua Polar và nhận PRO tự �
   - Hồ sơ org: logo tải lên kho của Polar, link GitHub công khai.
 - Org mới ở **chế độ test**: `capabilities.checkout_payments = false`, trang checkout ghi "NexusPulse Studio is in test mode" và chỉ nhận đơn $0 (mã 100%) cho tới khi Polar duyệt và go live. Thuế ở Việt Nam đã gồm trong giá ($1,73 trên $19).
 - Checklist Account Review của Polar: tạo sản phẩm ✅, checkout ✅, mô tả sản phẩm ✅, email hỗ trợ ✅, link mạng xã hội ✅; còn xác minh danh tính, tài khoản nhận tiền (founder) và xác minh tên miền bằng bản ghi TXT `_polar-challenge.tasks.nexuspulsetech.xyz` (tùy chọn, cần sửa DNS Cloudflare).
-- App nhận `?upgrade=pro` để mở bảng giá PRO; nút "PRO opens soon" trên `/en/` đổi sang link này cùng lúc bật `VITE_ENABLE_PAYWALL`.
+- App nhận `?upgrade=pro` để mở bảng giá PRO; nút trên `/en/` đổi thành "Get PRO for $19" trỏ vào link này cùng lúc bật `VITE_ENABLE_PAYWALL`. Trang `/vi/` giữ nút giữ suất vì giá 149.000₫ cần VietQR (bước 9).
+- Founder hoàn tất xác minh danh tính, tài khoản nhận tiền (MB, mã CITAD của chi nhánh quản lý tài khoản) và nạp secret webhook production (Worker ghi nhận đổi secret lúc 06:25 UTC).
+- Xác minh tên miền với Polar: bản ghi TXT `_polar-challenge.tasks` trên Cloudflare DNS (founder duyệt), Polar báo Verified. **Giữ nguyên bản ghi này**, Polar kiểm tra lại khi duyệt.
+- Đặt 6 GitHub Variables ở bảng bước 4 (founder duyệt). Bản build thử với các biến này: bundle có link production, không có chuỗi sandbox, CSP `connect-src` gồm `tasks-api`.
+- Người dùng ở Việt Nam mặc định thấy giá thị trường mới nổi $9.95 khi VietQR chưa bật (trước đó rơi về $19), qua hàm `resolveActiveTier` có test.
 
 ## Tiêu chí nghiệm thu
 - [ ] Trang đích và app trên production hiện nút mua trỏ tới checkout Polar production.

@@ -26,6 +26,7 @@ import {
   buildCardCheckoutUrl,
   buildVietQrImageUrl,
   isDynamicVietQr,
+  resolveActiveTier,
 } from '../../../config/commerceConfig';
 import { ProLicenseApi, FREE_PROJECT_LIMIT, countBillableProjects } from '../../../hooks/useProLicense';
 import { Project } from '../../../types';
@@ -84,8 +85,7 @@ export function StoreCommercialModal({
 
   const { license, availableTiers, pricingRegion } = pro;
   const visibleTiers = availableTiers;
-  const activeTier: PricingTier | undefined =
-    visibleTiers.find((tier) => tier.id === pricingRegion) || visibleTiers[0];
+  const activeTier: PricingTier | undefined = resolveActiveTier(pricingRegion, visibleTiers);
 
   const regionName = (id: PricingRegionId) =>
     id === 'vn-ppp' ? s.regionVn : id === 'emerging-ppp' ? s.regionEmerging : s.regionGlobal;
