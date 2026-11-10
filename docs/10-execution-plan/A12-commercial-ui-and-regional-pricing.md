@@ -43,6 +43,7 @@
 **A12b (tiếp theo)**
 7. Chuyển 330 dòng chỉ có tiếng Việt vào i18n, theo thứ tự màn hình người dùng gặp nhiều nhất. Đợt 1: màn hình chính, hộp xác nhận (xóa dự án, xóa dữ liệu, khôi phục), hàng việc con, Anki, màn hình lỗi (tự đọc ngôn ngữ đã lưu vì nằm ngoài LanguageProvider). Đợt 2: Thống kê, biểu đồ hoạt động, lịch sử, thẻ chia sẻ, báo cáo Markdown. Đợt 3: Sao lưu, Góp ý, Dán nhiều việc, Thêm nhanh trên điện thoại, Hướng dẫn.
 8. Bỏ emoji trong báo cáo Markdown và nhãn nhập nhanh, dùng icon của bộ icon chung.
+9. Chữ giao diện mô tả tính năng bằng lời thường, không nêu tên sản phẩm khác (Linear, Anki, Sunsama, Things 3); sửa lỗi số ít/số nhiều tiếng Anh và tooltip lặp chữ. Bảng so sánh trong hộp PRO vẫn nêu tên đối thủ vì đó là so sánh có chủ đích.
 
 ## Tiêu chí nghiệm thu
 - [x] `/v1/pricing`: VN → `vn-ppp`, IN → `emerging-ppp`, US → `global-us`, không rõ → `global-us`; link giá vùng chỉ trả cho nước đủ điều kiện (6 test Worker, tổng 45/45). Còn đợi deploy Worker để chạy thật.

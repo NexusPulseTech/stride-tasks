@@ -5,7 +5,7 @@ import { isDoneStatus } from '../utils/statusCategory';
 import { TaskItem } from './TaskItem';
 import { ProjectCardHeader } from './ProjectCardHeader';
 import { SmartCaptureHelperBar } from './SmartCaptureHelperBar';
-import { useLanguage } from '../../../i18n';
+import { useLanguage, pluralize } from '../../../i18n';
 
 export interface ProjectCardProps {
   project: Project;
@@ -363,7 +363,7 @@ export function ProjectCard({
               <span className="flex items-center gap-1 font-medium">
                 <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <span>
-                  {t.actionBar.hiddenCompletedCount.replace('{count}', String(countDone))}
+                  {pluralize(countDone, t.actionBar.hiddenCompletedCountOne, t.actionBar.hiddenCompletedCount)}
                 </span>
               </span>
               {onToggleHideCompletedInAll && (

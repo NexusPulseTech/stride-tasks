@@ -100,7 +100,7 @@ export function CommandPaletteModal({
         title:
           workspaceViewMode === 'list'
             ? language === 'vi'
-              ? 'Chuyển sang Bảng Kanban 4 Cột (Linear Board)'
+              ? 'Chuyển sang bảng Kanban 4 cột'
               : 'Switch to 4-Column Kanban Board View'
             : language === 'vi'
             ? 'Chuyển về Chế độ Danh sách (List View)'
@@ -123,8 +123,8 @@ export function CommandPaletteModal({
         group: 'command',
         title:
           language === 'vi'
-            ? 'Mở Tiêu điểm Hôm nay & Ôn tập Anki SM-2'
-            : 'Open Daily Focus & Anki SM-2 Review Queue',
+            ? 'Mở Tiêu điểm hôm nay và hàng ôn tập'
+            : 'Open Daily Focus and the review queue',
         subtitle: language === 'vi' ? 'Phím tắt 1-2-3 chấm điểm lặp lại ngắt quãng' : 'Spaced repetition review queue',
         shortcut: '1-2-3',
         icon: <Target className="w-4 h-4 text-amber-500" />,
@@ -280,7 +280,7 @@ export function CommandPaletteModal({
             : `Create new task: "${query.trim()}"`,
         subtitle:
           language === 'vi'
-            ? `Thêm trực tiếp vào dự án "${targetProj.name}" (Linear Quick Entry)`
+            ? `Thêm trực tiếp vào dự án "${targetProj.name}"`
             : `Add directly into project "${targetProj.name}"`,
         shortcut: 'NEW',
         icon: <Plus className="w-4 h-4 text-emerald-500" />,
@@ -523,7 +523,7 @@ export function CommandPaletteModal({
                                 ? 'bg-white/15 text-white dark:bg-slate-900/15 dark:text-slate-900'
                                 : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
                             }`}
-                            title="Alt + Enter: Anki SM-2 Spaced Repetition"
+                            title={language === 'vi' ? 'Alt + Enter: nhắc lặp ngắt quãng' : 'Alt + Enter: spaced repetition'}
                           >
                             <Layers className="w-2.5 h-2.5" />
                             <span>SRS</span>
@@ -561,7 +561,7 @@ export function CommandPaletteModal({
             <span>·</span>
             <span>Shift+Enter {language === 'vi' ? 'Focus 25p' : 'Focus 25m'}</span>
             <span>·</span>
-            <span>Alt+Enter {language === 'vi' ? 'Anki SRS' : 'Anki SRS'}</span>
+            <span>Alt+Enter {language === 'vi' ? 'Nhắc lặp' : 'Spaced review'}</span>
             <span>·</span>
             <span>Ctrl+Enter {language === 'vi' ? 'Hoàn thành' : 'Done'}</span>
           </div>

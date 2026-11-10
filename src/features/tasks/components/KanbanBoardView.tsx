@@ -504,7 +504,7 @@ export function KanbanBoardView({
                                 onOpenAnkiSrs(task, project.id);
                               }}
                               className="h-6 px-1.5 rounded text-[10.5px] font-mono tabular-nums font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-200/70 dark:hover:bg-slate-800 flex items-center gap-1 transition-colors cursor-pointer whitespace-nowrap"
-                              title={language === 'vi' ? 'Lặp lại ngắt quãng Anki SM-2' : 'Anki SM-2 Spaced Repetition'}
+                              title={language === 'vi' ? 'Lặp lại ngắt quãng' : 'Spaced repetition'}
                             >
                               <Layers className="w-2.5 h-2.5 shrink-0" />
                               <span>SRS</span>

@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Markdown reports, quick capture labels and the focus timer tab title no longer use emoji.
 - The standalone offline HTML file is offered only in the Vietnamese interface, because that file is Vietnamese only. The English guides explain how to install the app instead.
 - The help guide describes sync accurately: data is encrypted on the device before upload, so the server cannot read it.
+- Interface text describes features plainly instead of naming other products (Linear, Anki, Sunsama, Things 3).
 
 ### Fixed
 - PRO now activates within seconds of a payment instead of up to a minute: paid order records moved from the eventually consistent KV store to D1, and duplicate webhooks can no longer issue a second license.
@@ -27,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - The share card's "Best day" showed the weekly total; it now shows the busiest day.
 - The weekly Markdown report labeled a Monday-based count as "last 7 days".
 - Confirm dialogs now keep line breaks, so multi-line restore summaries are readable.
+- English text no longer says "1 completed tasks hidden", and the All filter tooltip no longer repeats the word All.
 
 ### Security
 - Content Security Policy for the web app: only the app's own scripts, its API and privacy-friendly analytics may load. The policy is generated at build time with hashes for inline scripts.

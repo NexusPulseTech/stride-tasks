@@ -123,7 +123,7 @@ export function AnkiSrsModal({
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-nowrap">
                 <h2 className="font-semibold text-sm text-slate-900 dark:text-slate-100 truncate">
-                  {language === 'vi' ? 'Nhắc lặp thông minh (Anki SRS)' : 'Spaced Repetition (Anki SRS)'}
+                  {language === 'vi' ? 'Nhắc lặp thông minh' : 'Spaced repetition'}
                 </h2>
                 <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-blue-100/80 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-900/40 shrink-0">
                   {language === 'vi' ? `Mức ${currentLevel}` : `Lvl ${currentLevel}`}
@@ -132,7 +132,7 @@ export function AnkiSrsModal({
               <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate">
                 {target.isNewTask
                   ? (language === 'vi' ? 'Thiết lập chu kỳ nhắc cho công việc vừa tạo' : 'Initial review interval for new task')
-                  : (language === 'vi' ? 'Mô hình Spaced Repetition (AnkiWeb/SM-2) tối ưu chu kỳ nhắc' : 'Spaced review intervals (Anki model)')}
+                  : (language === 'vi' ? 'Chu kỳ nhắc lặp ngắt quãng tối ưu' : 'Spaced review intervals')}
               </p>
             </div>
           </div>

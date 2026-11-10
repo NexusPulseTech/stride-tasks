@@ -211,7 +211,7 @@ export function SmartScheduleModal({
                   {t.schedule.modalTitle}
                 </h2>
                 <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-blue-100/80 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-900/40 shrink-0">
-                  {language === 'vi' ? `Anki Mức ${currentLevel}` : `Anki Lvl ${currentLevel}`}
+                  {language === 'vi' ? `Mức ${currentLevel}` : `Level ${currentLevel}`}
                 </span>
               </div>
               <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
@@ -239,7 +239,7 @@ export function SmartScheduleModal({
               <span className="truncate">
                 {snoozeCountdown ? (
                   <>
-                    {language === 'vi' ? 'Chu kỳ Anki SRS:' : 'Anki SRS:'}{' '}
+                    {language === 'vi' ? 'Chu kỳ nhắc lặp:' : 'Review interval:'}{' '}
                     <strong className="text-amber-600 dark:text-amber-400">{snoozeCountdown.text}</strong>
                   </>
                 ) : (

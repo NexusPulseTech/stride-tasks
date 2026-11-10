@@ -64,7 +64,7 @@ export function ReminderBanner({ banner, onDismiss, onReviewTask }: ReminderBann
               className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
             >
               <RotateCcw className="w-3 h-3" />
-              <span>{language === 'vi' ? 'Hoãn cấp số nhân (1-2-3)' : 'Anki Snooze (1-2-3)'}</span>
+              <span>{language === 'vi' ? 'Hoãn cấp số nhân (1-2-3)' : 'Spaced snooze (1-2-3)'}</span>
             </button>
           ) : (
             <span className="text-[10px] text-slate-400 dark:text-slate-500">

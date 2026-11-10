@@ -246,11 +246,11 @@ export function DailyFocusModal({
                   <p className="text-[10px] text-slate-400 dark:text-slate-500">
                     {isOverloaded
                       ? language === 'vi'
-                        ? 'Cảnh báo quá tải (>6h Deep Work): hãy dùng phím 2 hoặc 3 để giãn lịch Anki SM-2'
-                        : 'Overbooked (>6h Deep Work): use keys 2 or 3 to space out tasks via Anki SM-2'
+                        ? 'Cảnh báo quá tải (hơn 6 giờ tập trung): dùng phím 2 hoặc 3 để giãn lịch nhắc'
+                        : 'Overbooked (more than 6 hours of focus): press 2 or 3 to space tasks out'
                       : language === 'vi'
-                      ? 'Khối lượng công việc trong ngưỡng an toàn (Chuẩn Sunsama Anti-Burnout)'
-                      : 'Workload within healthy daily capacity (Sunsama Anti-Burnout guardrail)'}
+                      ? 'Khối lượng công việc trong ngưỡng an toàn'
+                      : 'Workload is within a healthy daily limit'}
                   </p>
                 </div>
 
@@ -267,8 +267,8 @@ export function DailyFocusModal({
                     className="h-7 px-2.5 rounded-lg bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-slate-900 text-[11px] font-semibold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0"
                     title={
                       language === 'vi'
-                        ? 'Chốt ca cuối ngày (Sunsama Shutdown Ritual): Dời việc đang làm dở sang 9h sáng mai & mở Báo cáo tổng kết ngày'
-                        : 'Daily Shutdown Ritual: Roll over unfinished tasks to tomorrow 9 AM & open Daily Standup report'
+                        ? 'Chốt ca cuối ngày: dời việc đang làm dở sang 9h sáng mai và mở báo cáo tổng kết ngày'
+                        : 'End-of-day shutdown: move unfinished tasks to 9 AM tomorrow and open the daily report'
                     }
                   >
                     <Moon className="w-3 h-3 shrink-0" />
@@ -308,7 +308,7 @@ export function DailyFocusModal({
               }`}
             >
               <span className="truncate">
-                {language === 'vi' ? 'Đang hoãn (Anki)' : 'Snoozed (Anki)'}
+                {language === 'vi' ? 'Đang hoãn' : 'Snoozed'}
               </span>
               <span className="font-mono tabular-nums text-[10px] font-bold px-1.5 py-0.2 rounded bg-slate-300/70 dark:bg-slate-900/70 text-slate-700 dark:text-slate-300 shrink-0">
                 {snoozedItems.length}
@@ -334,8 +334,8 @@ export function DailyFocusModal({
               <p className="text-[11px] text-slate-400 dark:text-slate-500">
                 {activeTab === 'due'
                   ? language === 'vi'
-                    ? 'Tất cả công việc đã được hoàn thành hoặc đang hoãn theo cấp số nhân Anki.'
-                    : 'All tasks are either completed or resting in Anki spaced snooze.'
+                    ? 'Tất cả công việc đã hoàn thành hoặc đang tạm hoãn tới kỳ nhắc tiếp theo.'
+                    : 'Every task is either done or snoozed until its next review.'
                   : language === 'vi'
                   ? 'Chọn nút 2 (Tốt) hoặc 3 (Dễ) ở tab Cần xử lý để hoãn công việc theo cấp số nhân.'
                   : 'Choose option 2 (Good) or 3 (Easy) in Due Today to snooze tasks exponentially.'}

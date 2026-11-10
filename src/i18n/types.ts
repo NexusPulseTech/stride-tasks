@@ -71,6 +71,7 @@ export interface Translations {
     allActiveOnly: string;
     allWithCompleted: string;
     longPressHint: string;
+    hiddenCompletedCountOne: string;
   };
   tasks: {
     addProjectPlaceholder: string;

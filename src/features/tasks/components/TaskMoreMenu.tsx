@@ -112,7 +112,7 @@ export function TaskMoreMenu({
           className="w-full text-left px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/80 rounded-lg flex items-center gap-2 cursor-pointer transition-colors"
         >
           <Layers className="w-3.5 h-3.5 shrink-0 text-sky-500 dark:text-sky-400" strokeWidth={1.5} aria-hidden="true" />
-          <span>{language === 'vi' ? 'Lặp lại ngắt quãng (Anki SM-2)' : 'Anki SM-2 Spaced Repetition'}</span>
+          <span>{language === 'vi' ? 'Lặp lại ngắt quãng' : 'Spaced repetition'}</span>
         </button>
       )}
 

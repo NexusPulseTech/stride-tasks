@@ -135,7 +135,7 @@ export function ActionBar({
                   onPointerUp={handleAllPointerUp}
                   onPointerLeave={handleAllPointerCancel}
                   onPointerCancel={handleAllPointerCancel}
-                  title={`${t.actionBar.allFilter} (${hideCompletedInAllView ? t.actionBar.allActiveOnly : t.actionBar.allWithCompleted}) • ${t.actionBar.longPressHint}`}
+                  title={`${hideCompletedInAllView ? t.actionBar.allActiveOnly : t.actionBar.allWithCompleted} • ${t.actionBar.longPressHint}`}
                   className={`h-7 px-1 rounded-md transition-colors cursor-pointer whitespace-nowrap min-w-0 overflow-hidden flex items-center justify-center relative select-none ${
                     filter === 'all'
                       ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-2xs font-semibold'
@@ -268,7 +268,7 @@ export function ActionBar({
                       ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs font-semibold'
                       : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
-                  title={language === 'vi' ? 'Bảng Kanban 4 cột chuẩn Linear (Phím B)' : '4-Column Linear Kanban Board (Shortcut B)'}
+                  title={language === 'vi' ? 'Bảng Kanban 4 cột (phím B)' : 'Kanban board, 4 columns (shortcut B)'}
                 >
                   <LayoutGrid className="w-3.5 h-3.5 shrink-0" />
                   <span className="hidden md:inline">Kanban</span>
