@@ -6,7 +6,7 @@
 | Ưu tiên | P0 |
 | Ước lượng | 0,5 ngày làm + chờ Polar duyệt (tối đa 14 ngày, không chặn việc bán) |
 | Phụ thuộc | A01, A02, A04 (☑); A03 phần tạo organization production |
-| Trạng thái | ◐ Đã bật bán trên production 2026-11-10 (Polar còn chế độ test tới khi duyệt); chờ mua thử $0 và nộp duyệt |
+| Trạng thái | ◐ Đã bật bán và mua thử $0 thành công trên production 2026-11-10; chờ founder bấm Submit for review |
 | Người làm | Founder: danh tính, KYC, tài khoản nhận tiền, nạp secret. Claude: sản phẩm, link, webhook, mã giảm giá qua API; biến GitHub; kiểm tra |
 
 ## Mục tiêu
@@ -59,11 +59,18 @@ Khách quốc tế mua được PRO bằng thẻ qua Polar và nhận PRO tự �
 - Đặt 6 GitHub Variables ở bảng bước 4 (founder duyệt). Bản build thử với các biến này: bundle có link production, không có chuỗi sandbox, CSP `connect-src` gồm `tasks-api`.
 - Người dùng ở Việt Nam mặc định thấy giá thị trường mới nổi $9.95 khi VietQR chưa bật (trước đó rơi về $19), qua hàm `resolveActiveTier` có test.
 
+## Mua thử $0 trên production (2026-11-10, founder duyệt)
+- Trình duyệt sạch mở `/?lang=en&upgrade=pro`: bảng giá tự mở, bấm "Buy PRO ($19)". App đăng ký đơn `STRP6TDX8` (`POST /v1/orders` 201) rồi hỏi `/claim`.
+- Checkout tạm bật ô mã giảm giá trên link $19, nhập mã 100%: tổng $0, nút "Get for free", chỉ hỏi email (support@nexuspulsetech.xyz), không cần thẻ. Đơn `a3e89602` trạng thái paid, `reference_id` đúng. Thử xong tắt lại ô mã giảm giá; mã còn 2/3 lượt.
+- Webhook production `order.paid` trả 202 ngay lần gửi đầu (secret khớp).
+- Success URL chuyển về app kèm `#activate=`, app bật PRO "Global (Polar)" và xóa token khỏi thanh địa chỉ. **Thời gian từ lúc trả tiền tới lúc bật PRO: khoảng 43 giây**, do KV lưu đệm cả kết quả "chưa có" (xem [A11](./A11-instant-activation-strong-consistency.md)).
+- Đồng bộ: thiết bị A bật đồng bộ có việc thử; thiết bị B (trình duyệt tách biệt) kích hoạt bằng link `#activate=`, nối bằng link `#sync=` (mã điền sẵn) và nhận đúng việc thử. Xóa kho thử sau khi xong.
+
 ## Tiêu chí nghiệm thu
-- [ ] Trang đích và app trên production hiện nút mua trỏ tới checkout Polar production.
-- [ ] Đơn production dùng mã 100% → PRO tự kích hoạt ≤ 60 giây, đồng bộ chạy giữa 2 thiết bị.
-- [ ] Lịch sử gửi webhook production trả 202.
-- [ ] Không có bí mật trong bundle hay diff; `secret list` có đủ tên.
+- [x] Trang đích và app trên production hiện nút mua trỏ tới checkout Polar production.
+- [x] Đơn production dùng mã 100% → PRO tự kích hoạt ≤ 60 giây (đo được khoảng 43 giây; A11 rút xuống vài giây), đồng bộ chạy giữa 2 thiết bị.
+- [x] Lịch sử gửi webhook production trả 202.
+- [x] Không có bí mật trong bundle hay diff; `secret list` có đủ `POLAR_WEBHOOK_SECRET` và `STRIDE_ED25519_PRIVATE_KEY`.
 - [ ] Đã nộp duyệt Polar; trạng thái tài khoản nhận tiền được ghi vào A03.
 
 ## Rủi ro & rollback
