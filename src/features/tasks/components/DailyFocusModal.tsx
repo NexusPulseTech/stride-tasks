@@ -179,8 +179,8 @@ export function DailyFocusModal({
                 </h2>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                   {language === 'vi'
-                    ? 'Kiểm tra công việc tồn đọng & chọn chu kỳ nhắc lặp chuẩn AnkiWeb (Phím 1, 2, 3)'
-                    : 'Review pending tasks & select AnkiWeb spaced snooze intervals (Keys 1, 2, 3)'}
+                    ? 'Xem việc còn tồn và chọn chu kỳ nhắc lặp (phím 1, 2, 3)'
+                    : 'Review pending tasks and pick when to see them again (keys 1, 2, 3)'}
                 </p>
               </div>
             </div>
@@ -570,8 +570,8 @@ export function DailyFocusModal({
             <RotateCcw className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
             <span className="truncate">
               {language === 'vi'
-                ? 'Chuẩn AnkiWeb SM-2: 1d → 3d → 7d → 16d → 35d'
-                : 'AnkiWeb SM-2: 1d → 3d → 7d → 16d → 35d'}
+                ? 'Chu kỳ nhắc lặp: 1 → 3 → 7 → 16 → 35 ngày'
+                : 'Review intervals: 1 → 3 → 7 → 16 → 35 days'}
             </span>
           </div>
           <button

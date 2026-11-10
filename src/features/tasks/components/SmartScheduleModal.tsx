@@ -308,7 +308,7 @@ export function SmartScheduleModal({
                     <RotateCcw className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" strokeWidth={2} />
                     <span>
                       {language === 'vi'
-                        ? 'Nhắc lặp cấp số nhân AnkiWeb (Phím 1, 2, 3):'
+                        ? 'Chọn 1 trong 3 chu kỳ nhắc lặp (phím 1, 2, 3):'
                         : 'Select 1 of 3 spaced intervals (Keys 1, 2, 3):'}
                     </span>
                   </span>
