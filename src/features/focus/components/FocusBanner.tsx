@@ -42,7 +42,7 @@ export function FocusBanner({
         onClick={onExitFocusMode}
         className="px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200/80 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-medium shrink-0 cursor-pointer shadow-2xs transition-colors flex items-center gap-1.5"
         title="Esc / F"
-        aria-label="Exit Focus"
+        aria-label={language === 'vi' ? 'Thoát chế độ tập trung' : 'Exit focus mode'}
       >
         <span>{language === 'vi' ? 'Thoát' : 'Exit'}</span>
         <kbd className="hidden sm:inline text-[9px] text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-1 py-0.5 rounded font-mono">

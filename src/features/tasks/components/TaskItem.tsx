@@ -328,7 +328,7 @@ export function TaskItem({
                   : 'text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
               title={language === 'vi' ? 'Chạy đồng hồ Focus Pomodoro (25 phút)' : 'Start 25m Focus Pomodoro'}
-              aria-label="Start Focus Pomodoro"
+              aria-label={language === 'vi' ? 'Chạy đồng hồ tập trung' : 'Start a focus session'}
             >
               <Play className="w-3 h-3 shrink-0 fill-current" strokeWidth={1.5} />
             </button>

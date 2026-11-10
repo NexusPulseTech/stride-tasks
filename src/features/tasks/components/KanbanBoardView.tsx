@@ -455,7 +455,7 @@ export function KanbanBoardView({
                               onToggleTaskDone(project.id, task.id, !isDone);
                             }}
                             className="mt-0.5 shrink-0 cursor-pointer"
-                            aria-label="Toggle completed"
+                            aria-label={language === 'vi' ? 'Đánh dấu xong hoặc chưa xong' : 'Toggle done'}
                           >
                             <div
                               className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center transition-colors ${

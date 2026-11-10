@@ -150,7 +150,7 @@ export function ActiveFocusStrip({
               onClick={onStopSession}
               className="h-7.5 w-7.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 flex items-center justify-center cursor-pointer transition-colors shrink-0"
               title={language === 'vi' ? 'Kết thúc phiên & lưu số phút đã làm' : 'End session & log elapsed minutes'}
-              aria-label="End focus session"
+              aria-label={language === 'vi' ? 'Kết thúc phiên tập trung' : 'End focus session'}
             >
               <X className="w-3.5 h-3.5 shrink-0" />
             </button>

@@ -46,6 +46,7 @@ Người dùng biết ngay gói Free gồm gì và PRO thêm gì, thấy đúng 
 4. App: bỏ toast trùng khi mở bảng gói; gợi ý ở ô thêm dự án; thẻ cảm ơn với hàm quyết định thuần (có test).
 5. Trang đích: script giá theo quốc gia, đánh dấu chỗ hiện giá trong HTML EN/VI; test khớp bảng giá.
 6. Kiểm trên trình duyệt (EN, VI, sáng, tối, điện thoại), deploy, kiểm production.
+7. Bổ sung sau khi kiểm production (2026-11-10): ảnh chụp app trên trang đích và trong manifest là bản cũ tiếng Việt với dữ liệu mẫu cũ, nên chụp lại từ production: bộ tiếng Anh cho `/en/` và manifest, bộ tiếng Việt trong `public/screenshots/vi/` cho `/vi/`. Manifest PWA (tên, mô tả, lối tắt, nhãn ảnh) chuyển sang tiếng Anh vì thị trường chính là quốc tế. Bỏ nốt chữ "AnkiWeb" ở Tiêu điểm hôm nay và các nhãn trợ năng cố định tiếng Anh.
 
 ## Tiêu chí nghiệm thu
 - [x] Hộp PRO hiện 2 thẻ Free/PRO; thẻ Free hiện mức dùng thật; đúng ở cả EN/VI, sáng/tối, màn hình điện thoại (kiểm trên dev server 2026-11-10; trên điện thoại thẻ PRO lên trước).

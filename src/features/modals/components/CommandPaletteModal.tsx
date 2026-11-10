@@ -376,7 +376,7 @@ export function CommandPaletteModal({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Command Palette"
+      aria-label={language === 'vi' ? 'Thanh lệnh nhanh' : 'Command bar'}
       style={{ zIndex: 10015 }}
       className="fixed inset-0 z-[10015] bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-[9vh] p-3 sm:p-4 animate-in fade-in duration-150"
       onClick={onClose}

@@ -239,7 +239,7 @@ export function MarkdownReportModal({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Markdown Report Generator"
+      aria-label={language === 'vi' ? 'Xuất báo cáo Markdown' : 'Markdown report'}
       style={{ zIndex: 10012 }}
       className="fixed inset-0 z-[10012] bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150"
       onClick={onClose}

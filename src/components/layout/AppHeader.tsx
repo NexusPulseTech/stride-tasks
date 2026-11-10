@@ -185,8 +185,8 @@ export function AppHeader({
               type="button"
               onClick={toggleLanguage}
               className="h-7.5 w-[50px] px-1.5 rounded-lg border border-slate-200/90 dark:border-slate-700/80 bg-white dark:bg-slate-800/70 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-mono text-[11px] font-semibold transition-colors cursor-pointer shrink-0 flex items-center justify-center gap-1 shadow-2xs"
-              title={language === 'vi' ? 'Chuyển sang English (Switch to English)' : 'Chuyển sang Tiếng Việt (Switch to Vietnamese)'}
-              aria-label="Switch Language"
+              title={language === 'vi' ? 'Chuyển sang tiếng Anh (English)' : 'Switch to Vietnamese (Tiếng Việt)'}
+              aria-label={language === 'vi' ? 'Chuyển sang tiếng Anh (English)' : 'Switch to Vietnamese (Tiếng Việt)'}
             >
               <Globe className="w-3.5 h-3.5 text-slate-400 shrink-0" strokeWidth={1.75} />
               <span className="font-bold">{language.toUpperCase()}</span>

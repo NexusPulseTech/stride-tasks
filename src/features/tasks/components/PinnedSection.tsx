@@ -426,7 +426,7 @@ export function PinnedSection({
                     }
                   }}
                   className="shrink-0 cursor-pointer p-0.5 -m-0.5 rounded-full flex items-center justify-center"
-                  aria-label={isDone ? 'Mark undone' : 'Mark done'}
+                  aria-label={isDone ? t.taskRow.markNotDone : t.taskRow.markDone}
                 >
                   <div
                     className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${

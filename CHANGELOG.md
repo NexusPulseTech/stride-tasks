@@ -21,6 +21,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Links to the source code repository were removed from the app and the landing pages.
 - Reaching a Free limit opens the plans view with a calm note about what stays free and a Not now button, instead of a warning box plus a duplicate toast. The add-project box mentions when one Free project is left.
 - The PRO dialog and landing pages say why PRO is paid (no ads, no tracking, no investors) and invite anyone who cannot afford it to write in.
+- Landing page screenshots were retaken from the current app: English on the English page and in the install prompt, Vietnamese on the Vietnamese page.
+- The install manifest (app name, description, shortcut, screenshot labels) is in English for the global market.
+- Screen-reader labels and the language switch tooltip follow the interface language.
 - Every screen follows the chosen language: confirm dialogs, stats, the share card, backup, feedback, batch paste, and the help and phone setup guides. English users no longer see Vietnamese text, and dates, months and weekdays use English labels.
 - Markdown reports, quick capture labels and the focus timer tab title no longer use emoji.
 - The standalone offline HTML file is offered only in the Vietnamese interface, because that file is Vietnamese only. The English guides explain how to install the app instead.

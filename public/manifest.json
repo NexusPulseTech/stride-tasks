@@ -1,15 +1,15 @@
 {
   "id": "/",
-  "name": "Stride Tasks: Quản Lý Công Việc & Lặp Lại Ngắt Quãng",
+  "name": "Stride Tasks: Offline Task Manager",
   "short_name": "Stride Tasks",
-  "description": "Ứng dụng quản lý công việc cá nhân: nhập nhanh 1 dòng, Kanban, Pomodoro, lặp lại ngắt quãng SM-2, chạy 100% offline trên thiết bị.",
+  "description": "Personal task manager with one-line quick capture, Kanban, a Pomodoro timer and spaced repetition reviews. Works offline, no account needed.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
   "orientation": "any",
-  "lang": "vi",
+  "lang": "en",
   "dir": "ltr",
   "categories": [
     "productivity",
@@ -50,9 +50,9 @@
   ],
   "shortcuts": [
     {
-      "name": "Tiêu điểm hôm nay (Daily Focus)",
-      "short_name": "Tiêu điểm",
-      "description": "Mở nhanh hàng đợi việc đến hạn hôm nay",
+      "name": "Daily Focus",
+      "short_name": "Focus",
+      "description": "Open today's queue of tasks that are due",
       "url": "/?focus=daily",
       "icons": [
         {
@@ -65,32 +65,32 @@
   ],
   "screenshots": [
     {
-      "src": "/screenshots/wide-list.png",
+      "src": "/screenshots/wide-list.png?v=20261110",
       "sizes": "1280x800",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Danh sách dự án, việc con nhiều cấp và nhập nhanh 1 dòng"
+      "label": "Projects with nested subtasks and one-line quick capture"
     },
     {
-      "src": "/screenshots/wide-kanban.png",
+      "src": "/screenshots/wide-kanban.png?v=20261110",
       "sizes": "1280x800",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Bảng Kanban 4 cột kéo thả"
+      "label": "Drag-and-drop Kanban board"
     },
     {
-      "src": "/screenshots/wide-daily-focus.png",
+      "src": "/screenshots/wide-daily-focus.png?v=20261110",
       "sizes": "1280x800",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Tiêu điểm hôm nay với ôn tập ngắt quãng SM-2"
+      "label": "Daily Focus with spaced repetition reviews"
     },
     {
-      "src": "/screenshots/narrow-list.png",
+      "src": "/screenshots/narrow-list.png?v=20261110",
       "sizes": "412x915",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Giao diện điện thoại"
+      "label": "Phone layout"
     }
   ]
 }

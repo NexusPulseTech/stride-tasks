@@ -431,7 +431,7 @@ export function TaskDetailModal({
                 type="button"
                 onClick={() => onToggleTaskDone(project.id, task.id, !isDone)}
                 className="mt-1 shrink-0 cursor-pointer p-0.5 rounded-full"
-                aria-label={isDone ? 'Mark undone' : 'Mark done'}
+                aria-label={isDone ? t.taskRow.markNotDone : t.taskRow.markDone}
               >
                 <div
                   className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
