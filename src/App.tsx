@@ -1,10 +1,18 @@
-import React, { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef, lazy, Suspense } from 'react';
 import { useTheme, useKeyboardShortcuts } from './hooks';
 import { useViewPreferences } from './hooks/useViewPreferences';
-import { useProLicense, ProFeatureKey } from './hooks/useProLicense';
+import { useProLicense, ProFeatureKey, FREE_PROJECT_LIMIT, countBillableProjects } from './hooks/useProLicense';
+import {
+  realActivity,
+  shouldShowUpgradeNudge,
+  readUpgradeNudgeState,
+  writeUpgradeNudgeState,
+  type UpgradeNudgeState,
+} from './hooks/upgradeNudge';
 import { usePWAInstall } from './hooks/usePWAInstall';
 import { AppHeader, AppFooter, MobileFab } from './components/layout';
 import { ToastNotification, UndoSnackbar, ConfettiEffect } from './components/feedback';
+import { UpgradeNudgeCard } from './components/feedback/UpgradeNudgeCard';
 import {
   AddProjectBar,
   ActionBar,
@@ -100,22 +108,28 @@ export default function App() {
   const openStoreModal =
     PAYWALL_ENABLED || proLicense.license.isPro ? () => setShowStoreModal(true) : undefined;
 
+  // Mở bảng gói tại đúng chỗ chạm giới hạn; lời giải thích nằm trong hộp, không bắn toast trùng ý (A13)
   const openPaywall = useCallback(
-    (featureKey: ProFeatureKey | 'projectLimit', message?: string) => {
-      if (message) manager.showToast(message);
+    (featureKey: ProFeatureKey | 'projectLimit') => {
       setShowMarkdownReport(false); // modal báo cáo nằm trên lớp cao hơn → đóng trước khi mở paywall
       setPaywallTrigger({ featureKey, featureLabel: featureLabels[featureKey] });
       setShowStoreModal(true);
     },
-    [manager.showToast, t]
+    [t]
   );
+
+  /** Mở bảng gói không kèm ngữ cảnh giới hạn (gợi ý ở ô thêm dự án, thẻ cảm ơn) */
+  const openPlans = useCallback(() => {
+    setPaywallTrigger(null);
+    setShowStoreModal(true);
+  }, []);
 
   /** Trừ 1 lượt dùng thử tại khoảnh khắc người dùng nhận giá trị; hết lượt thì mở paywall và chặn thao tác */
   const guardProValue = useCallback(
     (feature: ProFeatureKey): boolean => {
       const access = proLicense.consumeProFeature(feature);
       if (!access.allowed) {
-        openPaywall(feature, access.message);
+        openPaywall(feature);
         return false;
       }
       if (access.message) manager.showToast(access.message);
@@ -168,7 +182,7 @@ export default function App() {
       if (!manager.newProjectName.trim()) return;
       const check = proLicense.checkProjectLimit(manager.projects);
       if (!check.allowed) {
-        openPaywall('projectLimit', check.message);
+        openPaywall('projectLimit');
         return;
       }
       manager.handleAddProject(e);
@@ -267,6 +281,47 @@ export default function App() {
 
   const isBoardMode = viewPref.preferences.workspaceViewMode === 'board';
 
+  // Gói Free nói trước giới hạn dự án ngay ở ô thêm dự án, không chặn (A13)
+  const projectsLeft = FREE_PROJECT_LIMIT - countBillableProjects(manager.projects);
+  const projectLimitHint =
+    PAYWALL_ENABLED && !proLicense.license.isPro && !proLicense.isGrandfathered && projectsLeft <= 1
+      ? {
+          text: projectsLeft <= 0 ? formatMessage(t.store.projectsFull, { limit: FREE_PROJECT_LIMIT }) : t.store.projectsOneLeft,
+          actionLabel: t.store.seePlans,
+          onAction: openPlans,
+        }
+      : undefined;
+
+  // Thẻ cảm ơn kèm lời mời PRO: chỉ khi đã dùng thật, tối đa 2 lần, cách 30 ngày, tắt được (A13)
+  const activity = useMemo(() => realActivity(manager.completedLogs), [manager.completedLogs]);
+  const [nudgeState, setNudgeState] = useState<UpgradeNudgeState>(readUpgradeNudgeState);
+  const [nudgeVisible, setNudgeVisible] = useState(false);
+  const nudgeEligible = PAYWALL_ENABLED && !proLicense.isVerifying && !proLicense.license.isPro;
+  const focusRunning = Boolean(focusTimer.session);
+  useEffect(() => {
+    if (nudgeVisible) return;
+    const show = shouldShowUpgradeNudge({
+      eligible: nudgeEligible,
+      focusRunning,
+      realCompletions: activity.completions,
+      realActiveDays: activity.activeDays,
+      state: nudgeState,
+      now: Date.now(),
+    });
+    if (!show) return;
+    const next: UpgradeNudgeState = { ...nudgeState, shownCount: nudgeState.shownCount + 1, lastShownAt: new Date().toISOString() };
+    writeUpgradeNudgeState(next);
+    setNudgeState(next);
+    setNudgeVisible(true);
+  }, [nudgeEligible, focusRunning, activity, nudgeState, nudgeVisible]);
+
+  const optOutOfNudge = () => {
+    const next: UpgradeNudgeState = { ...nudgeState, optedOut: true };
+    writeUpgradeNudgeState(next);
+    setNudgeState(next);
+    setNudgeVisible(false);
+  };
+
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#f8f9fa] dark:bg-[#0b0f17] text-[#212529] dark:text-[#f1f5f9] font-sans antialiased selection:bg-slate-200 dark:selection:bg-slate-700 transition-colors">
       <input type="file" ref={manager.fileInputRef} onChange={manager.importDataJson} accept=".json" className="hidden" />
@@ -291,7 +346,6 @@ export default function App() {
         isMuted={manager.isMuted}
         onToggleMute={manager.toggleMute}
         onOpenGuideModal={() => manager.setShowGuideModal(true)}
-        onDownloadHtml={manager.downloadHtml}
         themeMode={theme.themeMode}
         onCycleTheme={theme.cycleTheme}
         onClearSampleData={manager.clearSampleData}
@@ -371,6 +425,7 @@ export default function App() {
             projectName={manager.newProjectName}
             onChange={manager.setNewProjectName}
             onSubmit={handleGuardedAddProject}
+            hint={projectLimitHint}
           />
         )}
 
@@ -381,6 +436,20 @@ export default function App() {
           onOpenBackupModal={() => manager.setShowBackupModal(true)}
           onClearSampleData={manager.clearSampleData}
         />
+
+        {nudgeVisible && !proLicense.license.isPro && !viewPref.preferences.zenMode && (
+          <UpgradeNudgeCard
+            completions={activity.completions}
+            price={proLicense.priceLabel}
+            hasSync={Boolean(COMMERCE_CONFIG.syncApiUrl)}
+            onSeePlans={() => {
+              setNudgeVisible(false);
+              openPlans();
+            }}
+            onDismiss={() => setNudgeVisible(false)}
+            onOptOut={optOutOfNudge}
+          />
+        )}
 
         {/* Thanh lọc & tìm kiếm */}
         <ActionBar
@@ -655,7 +724,6 @@ export default function App() {
         onRestoreSnapshot={manager.handleRestoreSnapshot}
         onDirectPasteRestore={manager.handleDirectPasteRestore}
         onGetFullBackupJson={manager.getFullBackupJsonString}
-        onDownloadHtml={manager.downloadHtml}
         showFeedbackModal={manager.showFeedbackModal}
         onCloseFeedbackModal={() => manager.setShowFeedbackModal(false)}
         showViewSettingsModal={manager.showViewSettingsModal}

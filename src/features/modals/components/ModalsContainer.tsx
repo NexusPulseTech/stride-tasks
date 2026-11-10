@@ -46,7 +46,6 @@ export interface ModalsContainerProps {
   onRestoreSnapshot?: (projects: Project[], label?: string) => void;
   onDirectPasteRestore?: (rawJson: string) => void;
   onGetFullBackupJson?: () => string;
-  onDownloadHtml?: () => void;
   showFeedbackModal: boolean;
   onCloseFeedbackModal: () => void;
   showViewSettingsModal: boolean;
@@ -95,7 +94,6 @@ export function ModalsContainer({
   onRestoreSnapshot,
   onDirectPasteRestore,
   onGetFullBackupJson,
-  onDownloadHtml,
   showFeedbackModal,
   onCloseFeedbackModal,
   showViewSettingsModal,
@@ -154,7 +152,6 @@ export function ModalsContainer({
         onRestoreSnapshot={onRestoreSnapshot}
         onDirectPasteRestore={onDirectPasteRestore}
         onGetFullBackupJson={onGetFullBackupJson}
-        onDownloadHtml={onDownloadHtml}
       />
 
       <FeedbackModal

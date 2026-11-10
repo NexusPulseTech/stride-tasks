@@ -20,7 +20,7 @@
 | `/{lang}/use-cases/{study-planner, exam-revision, deep-work}/` | Trang tình huống | EN / VI | Phân khúc A |
 | `/{lang}/templates/{slug}/` | Mẫu kế hoạch dán nhanh (Quick Paste) | EN / VI | Nội dung hữu ích, dễ chia sẻ |
 | `/{lang}/blog/{slug}/` | Bài viết | EN / VI | Trụ cột nội dung |
-| `/quan-ly-cong-viec.html` | Giữ URL cũ, viết lại thành trang đích VI, canonical → `/vi/` | VI | Bảo toàn thứ hạng cũ (nếu có) |
+| `/quan-ly-cong-viec.html` | Giữ URL cũ, trang chuyển hướng về `/vi/` (canonical, noindex); bản app cũ đã bỏ 2026-11-10 | VI | Bảo toàn thứ hạng cũ (nếu có) |
 | `/privacy.html`, `/terms.html`, `/refund.html` | Pháp lý | EN (+ VI) | Bắt buộc |
 
 Quy tắc: slug giống nhau giữa các ngôn ngữ (đơn giản hóa `hreflang`); mỗi trang có canonical tự tham chiếu và `hreflang` đủ cặp + `x-default` → bản EN.

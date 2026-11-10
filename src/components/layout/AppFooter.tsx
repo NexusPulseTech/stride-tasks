@@ -104,7 +104,7 @@ export function AppFooter({
           onClick={onOpenGuide}
           className="hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
         >
-          {t.footer.offlineGuide}
+          {t.footer.guide}
         </button>
         <span aria-hidden="true">·</span>
         <button

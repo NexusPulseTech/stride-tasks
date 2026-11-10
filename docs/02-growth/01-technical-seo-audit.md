@@ -35,7 +35,7 @@
 ### Đợt 2: trang đích tĩnh (task `A06`, `C01`)
 
 - [ ] `/en/` và `/vi/` (HTML tĩnh), `hreflang` hai chiều + `x-default`, canonical tự tham chiếu.
-- [ ] `quan-ly-cong-viec.html` → viết lại thành trang đích tiếng Việt có canonical về `/vi/` (giữ URL vì có thể đã có thứ hạng cho "quản lý công việc").
+- [x] `quan-ly-cong-viec.html` → giữ URL, thay bằng trang chuyển hướng về `/vi/` có canonical và noindex; bản app cũ đã bỏ (2026-11-10, A13).
 - [ ] Thêm đường dẫn marketing vào `navigateFallbackDenylist` và `globIgnores` của Workbox.
 - [ ] Sitemap sinh tự động lúc build, gồm mọi trang + `lastmod` thật.
 - [ ] Đăng ký **Bing Webmaster Tools** + bật IndexNow; gửi sitemap lên cả Google & Bing.

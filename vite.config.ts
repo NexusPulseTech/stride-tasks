@@ -34,6 +34,7 @@ export default defineConfig(({ mode }) => {
             '**/en/**',
             '**/vi/**',
             '**/site.css',
+            '**/site-pricing.js',
           ],
           navigateFallback: 'index.html',
           // Trang tĩnh độc lập (kể cả /en/, /vi/) và file .txt (robots, llms, khóa IndexNow) phải được phục vụ đúng file, không bị thay bằng index.html

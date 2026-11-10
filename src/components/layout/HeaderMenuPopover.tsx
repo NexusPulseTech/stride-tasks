@@ -11,7 +11,6 @@ import {
   Volume2,
   VolumeX,
   Upload,
-  Download,
   HelpCircle,
   MessageSquareText,
   EyeOff,
@@ -46,7 +45,6 @@ export interface HeaderMenuPopoverProps {
   onOpenBackupModal: () => void;
   onOpenGuideModal: () => void;
   onOpenFeedback: () => void;
-  onDownloadHtml: () => void;
   onClearSampleData?: () => void;
   onResetSample?: () => void;
   isPro?: boolean;
@@ -75,7 +73,6 @@ export function HeaderMenuPopover({
   onOpenBackupModal,
   onOpenGuideModal,
   onOpenFeedback,
-  onDownloadHtml,
   onClearSampleData,
   onResetSample,
   isPro = false,
@@ -478,21 +475,6 @@ export function HeaderMenuPopover({
             >
               <Smartphone className="w-3.5 h-3.5 shrink-0" />
               <span>{language === 'vi' ? 'Cài đặt ứng dụng lên máy (App)' : 'Install Desktop / Mobile App'}</span>
-            </button>
-          )}
-
-          {/* Tệp HTML offline độc lập là bản cũ chỉ có tiếng Việt, nên chỉ hiện cho giao diện tiếng Việt */}
-          {onDownloadHtml && language === 'vi' && (
-            <button
-              type="button"
-              onClick={() => {
-                onClose();
-                onDownloadHtml();
-              }}
-              className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-slate-100/80 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200 transition-colors text-left cursor-pointer"
-            >
-              <Download className="w-3.5 h-3.5 text-slate-400" />
-              <span>{language === 'vi' ? 'Tải tệp HTML độc lập chạy offline' : 'Download Offline Single HTML'}</span>
             </button>
           )}
 

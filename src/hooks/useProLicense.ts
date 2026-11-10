@@ -40,7 +40,7 @@ export const PROJECT_LIMIT_BASELINE_KEY = 'STRIDE_PROJECT_LIMIT_BASELINE_V1';
 export const LICENSE_CHANGED_EVENT = 'stride:license-changed';
 
 export const FREE_PROJECT_LIMIT = 5;
-const TRIAL_PASSES = 3;
+export const TRIAL_PASSES = 3;
 const ORDER_MAX_AGE_MS = 72 * 60 * 60 * 1000;
 const CLAIM_REQUEST_TIMEOUT_MS = 15_000;
 
@@ -478,12 +478,8 @@ export function useProLicense({ notify }: UseProLicenseOptions = {}) {
 
       const label = featureLabel(feature);
       const remaining = current[feature];
-      if (remaining <= 0) {
-        return {
-          allowed: false,
-          message: formatMessage(tRef.current.license.trialExhausted, { feature: label, price: priceLabel }),
-        };
-      }
+      // Hết lượt: App mở bảng gói với lời giải thích, không bắn thêm toast trùng ý (A13)
+      if (remaining <= 0) return { allowed: false };
       const next: ProTrialState = {
         ...current,
         [feature]: remaining - 1,
@@ -494,10 +490,10 @@ export function useProLicense({ notify }: UseProLicenseOptions = {}) {
       writeJson(TRIAL_STORAGE_KEY, next);
       return {
         allowed: true,
-        message: formatMessage(tRef.current.license.trialUsed, { feature: label, count: remaining - 1 }),
+        message: formatMessage(tRef.current.license.trialUsed, { feature: label, count: remaining - 1, total: TRIAL_PASSES }),
       };
     },
-    [featureLabel, priceLabel]
+    [featureLabel]
   );
 
   /**
@@ -520,12 +516,9 @@ export function useProLicense({ notify }: UseProLicenseOptions = {}) {
     (projects: Project[]): FeatureAccess => {
       if (!PAYWALL_ENABLED || licenseRef.current.isPro || isGrandfathered) return { allowed: true };
       if (countBillableProjects(projects) < FREE_PROJECT_LIMIT) return { allowed: true };
-      return {
-        allowed: false,
-        message: formatMessage(tRef.current.license.projectLimit, { limit: FREE_PROJECT_LIMIT, price: priceLabel }),
-      };
+      return { allowed: false };
     },
-    [isGrandfathered, priceLabel]
+    [isGrandfathered]
   );
 
   // ---------------------------------------------------------------------------
@@ -572,6 +565,8 @@ export function useProLicense({ notify }: UseProLicenseOptions = {}) {
     trials,
     isGrandfathered,
     pricingRegion,
+    /** Giá hiển thị cho quốc gia của người dùng, VD "$19" */
+    priceLabel,
     /** Mã quốc gia máy chủ xác định (để ghi "Giá cho Việt Nam"); null khi chưa hỏi được */
     pricingCountry: geoPricing?.country ?? null,
     pricingStatus,

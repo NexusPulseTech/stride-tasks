@@ -23,7 +23,7 @@
     <meta property="og:locale" content="en_US" />
     <meta property="og:locale:alternate" content="vi_VN" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="stylesheet" href="/site.css?v=20261030" />
+    <link rel="stylesheet" href="/site.css?v=20261110" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -134,7 +134,7 @@
             <div class="plan">
               <h3>Free</h3>
               <p class="price">$0 <small>forever</small></p>
-              <p class="note">Everything you need on one device.</p>
+              <p class="note">Everything you need on one device. This is not a trial.</p>
               <ul>
                 <li>Quick capture, subtasks, Kanban</li>
                 <li>Pomodoro and SM-2 reviews</li>
@@ -147,8 +147,8 @@
             <div class="plan pro">
               <span class="tag">Founding offer · first 100 licenses</span>
               <h3>PRO Lifetime</h3>
-              <p class="price">$19 <small>one-time</small></p>
-              <p class="note">Becomes $29 after the first 100 licenses. In emerging markets the price is lower and is set automatically for your country.</p>
+              <p class="price"><span data-price>$19</span> <small>one-time</small></p>
+              <p class="note">Becomes <span data-price-later>$29</span> after the first 100 licenses. <span data-price-region data-text-regional="Price for {country}.">In emerging markets the price is lower and is set automatically for your country.</span></p>
               <ul>
                 <li>End-to-end encrypted sync across your devices</li>
                 <li>Unlimited projects</li>
@@ -156,9 +156,10 @@
                 <li>All future updates</li>
                 <li>14-day refund, no questions asked</li>
               </ul>
-              <a class="btn primary" href="/?lang=en&amp;upgrade=pro&amp;utm_source=landing&amp;utm_medium=site&amp;utm_campaign=en-pricing-pro">Get PRO for $19</a>
+              <a class="btn primary" href="/?lang=en&amp;upgrade=pro&amp;utm_source=landing&amp;utm_medium=site&amp;utm_campaign=en-pricing-pro">Get PRO for <span data-price>$19</span></a>
             </div>
           </div>
+          <p class="sub pricing-fine">No ads, no tracking, no investors: PRO pays for development and the sync servers. Can't afford it right now? <a href="mailto:support@nexuspulsetech.xyz">Write to us</a> and we'll help.</p>
         </div>
       </section>
 
@@ -189,6 +190,7 @@
         <span><a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · <a href="/refund.html">Refunds</a> · <a href="/vi/" hreflang="vi" lang="vi">Tiếng Việt</a></span>
       </div>
     </footer>
+    <script defer src="/site-pricing.js?v=20261110"></script>
     <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "cdc211628cfa42678191ea0e3f8d3ed5"}'></script>
   </body>
 </html>

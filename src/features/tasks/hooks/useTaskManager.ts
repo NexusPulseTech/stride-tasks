@@ -586,16 +586,6 @@ export function useTaskManager() {
     });
   };
 
-  const downloadHtml = () => {
-    const a = document.createElement('a');
-    a.href = '/quan-ly-cong-viec.html';
-    a.download = 'quan-ly-cong-viec.html';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    celebration.showToast(tRef.current.toast.htmlDownloading);
-  };
-
   // 4. Xuất bản sao lưu toàn diện (Full Snapshot: Projects + History + Custom Statuses + Pro License)
   const getFullBackupJsonString = (): string => {
     let totalTasksCount = 0;
@@ -933,7 +923,6 @@ export function useTaskManager() {
     handleExecuteBatchPaste,
     handleMobileSubmitTask,
     resetSample,
-    downloadHtml,
     exportDataJson,
     importDataJson,
     totalTasks,

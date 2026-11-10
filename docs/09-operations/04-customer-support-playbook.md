@@ -36,3 +36,13 @@ Ghi mọi yêu cầu vào một bảng (ngày, kênh, loại, trạng thái, n�
 - Không dùng email cá nhân của founder cho hỗ trợ; dùng địa chỉ hỗ trợ của sản phẩm.
 - Lỗi phát hiện qua hỗ trợ → tạo issue/task kèm cách tái hiện; báo lại khách khi sửa xong.
 - Câu hỏi lặp lại ≥ 3 lần → thêm vào FAQ trang đích và tài liệu người dùng.
+
+## 4. Thư của khách tới support@ rơi vào thư rác (kiểm 2026-11-10)
+
+Đường đi: khách gửi tới `support@nexuspulsetech.xyz` → Cloudflare Email Routing chuyển tiếp → hộp Gmail của founder. DNS hiện có MX Cloudflare, SPF `include:_spf.mx.cloudflare.net` và DKIM `cf2024-1`, nhưng **chưa có bản ghi DMARC**. Thư chuyển tiếp hay bị Gmail nghi ngờ (SPF của người gửi gốc không còn khớp sau khi chuyển tiếp; tên miền .xyz còn mới, uy tín thấp), và từ 2025-07 Cloudflare chỉ coi là tin cậy thư gốc đạt SPF hoặc DKIM.
+
+Cách xử lý, theo thứ tự:
+1. Trong Gmail, mở thư bị vào thư rác, bấm "Không phải thư rác". Sau đó tạo bộ lọc: Đến `support@nexuspulsetech.xyz` → "Không bao giờ gửi vào Thư rác" (thêm nhãn "Stride Support" cho dễ tìm). Đây là cách chắc chắn nhất với thư chuyển tiếp.
+2. Cloudflare, Email, DMARC Management: bật để Cloudflare tạo bản ghi `_dmarc` với chính sách `p=none` (chỉ theo dõi, không chặn thư) và địa chỉ nhận báo cáo. Không đặt `quarantine` hay `reject` khi chưa có dịch vụ gửi thư đã ký DKIM cho tên miền, vì sẽ làm hỏng thư trả lời.
+3. Muốn trả lời khách bằng địa chỉ `support@` mà không bị gắn cờ: dùng dịch vụ gửi thư có DKIM cho tên miền (Resend đã có trong code Worker, cần xác minh tên miền và thêm bản ghi DKIM của Resend), hoặc hộp thư theo tên miền (Zoho Mail, Google Workspace). Gmail "Gửi thư dưới dạng" qua SMTP của Gmail không ký DKIM cho tên miền này.
+4. Khi một thư vẫn vào thư rác: mở "Hiển thị bản gốc" trong Gmail, xem dòng SPF, DKIM, DMARC để biết thư gốc của khách đạt hay trượt.

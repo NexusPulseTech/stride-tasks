@@ -51,7 +51,6 @@ interface BackupModalProps {
   onRestoreSnapshot?: (projects: Project[], label?: string) => void;
   onDirectPasteRestore?: (rawJson: string) => void;
   onGetFullBackupJson?: () => string;
-  onDownloadHtml?: () => void;
   initialTab?: 'backup' | 'vault' | 'transfer';
 }
 
@@ -127,7 +126,6 @@ export function BackupModal({
   onRestoreSnapshot,
   onDirectPasteRestore,
   onGetFullBackupJson,
-  onDownloadHtml,
   initialTab = 'backup',
 }: BackupModalProps) {
   const { language, t } = useLanguage();

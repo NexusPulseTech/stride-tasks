@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { Smartphone, Check, X, FileCode } from 'lucide-react';
+import { Smartphone, Check, X } from 'lucide-react';
 import { MobileGuideTab } from '../../../types';
 import { useLanguage } from '../../../i18n';
 import { RichText } from '../../../components/ui/RichText';
@@ -18,12 +18,10 @@ export function MobileGuideModal({
   onTabChange,
   onClose,
 }: MobileGuideModalProps) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   if (!isOpen) return null;
   const m = t.mobileGuide;
-  // Tệp HTML độc lập là bản cũ chỉ có tiếng Việt, nên thẻ này chỉ hiện cho giao diện tiếng Việt
-  const showFileTab = language === 'vi';
-  const tab: MobileGuideTab = activeTab === 'file' && !showFileTab ? 'ios' : activeTab;
+  const tab = activeTab;
 
   return createPortal(
     <div
@@ -85,19 +83,6 @@ export function MobileGuideModal({
             >
               Android
             </button>
-            {showFileTab && (
-            <button
-              type="button"
-              onClick={() => onTabChange('file')}
-              className={`flex-1 py-1.5 rounded-md transition-all cursor-pointer text-center ${
-                tab === 'file'
-                  ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 font-semibold shadow-2xs'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-              }`}
-            >
-              {m.tabFile}
-            </button>
-            )}
           </div>
         </div>
 
@@ -169,20 +154,6 @@ export function MobileGuideModal({
                 <span>
                   {m.androidDone}
                 </span>
-              </div>
-            </div>
-          )}
-
-          {tab === 'file' && (
-            <div className="space-y-2">
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 space-y-1.5">
-                <div className="font-semibold text-slate-900 dark:text-slate-100 text-xs flex items-center gap-1.5">
-                  <FileCode className="w-3.5 h-3.5 shrink-0 text-indigo-500" strokeWidth={1.5} aria-hidden="true" />
-                  <span>{m.fileTitle}</span>
-                </div>
-                <p className="text-[11.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
-                  {m.fileBody}
-                </p>
               </div>
             </div>
           )}

@@ -32,7 +32,6 @@ export interface AppHeaderProps {
   isMuted: boolean;
   onToggleMute: () => void;
   onOpenGuideModal: () => void;
-  onDownloadHtml: () => void;
   themeMode: ThemeMode;
   onCycleTheme: () => void;
   onClearSampleData?: () => void;
@@ -66,7 +65,6 @@ export function AppHeader({
   isMuted,
   onToggleMute,
   onOpenGuideModal,
-  onDownloadHtml,
   themeMode,
   onCycleTheme,
   onClearSampleData,
@@ -232,7 +230,6 @@ export function AppHeader({
             onOpenBackupModal={onOpenBackupModal}
             onOpenGuideModal={onOpenGuideModal}
             onOpenFeedback={onOpenFeedback}
-            onDownloadHtml={onDownloadHtml}
             onClearSampleData={onClearSampleData}
             onResetSample={onResetSample}
             isPro={isPro}

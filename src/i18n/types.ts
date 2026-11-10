@@ -43,7 +43,6 @@ export interface Translations {
     themeLabel: string;
     soundLabel: string;
     backupLabel: string;
-    downloadHtmlLabel: string;
     guideLabel: string;
     mobileGuideLabel: string;
     feedbackLabel: string;
@@ -299,12 +298,12 @@ export interface Translations {
     themeLight: string;
     themeDark: string;
     pwa: string;
-    offlineGuide: string;
     backupData: string;
     feedback: string;
     privacy: string;
     terms: string;
     refund: string;
+    guide: string;
   };
   projectHeader: {
     dragSort: string;
@@ -377,12 +376,6 @@ export interface Translations {
     activatePlaceholder: string;
     activateButton: string;
     activateHint: string;
-    usageTitle: string;
-    trialsSubtitle: string;
-    trialProjects: string;
-    trialProjectsGrandfathered: string;
-    trialMarkdown: string;
-    trialRemaining: string;
     whyTitle: string;
     whyIntro: string;
     whyUseBoth: string;
@@ -401,11 +394,33 @@ export interface Translations {
     benefitProjects: string;
     benefitReports: string;
     benefitSupport: string;
-    freeIncludes: string;
     devToolsTitle: string;
     devSimulatePro: string;
     devDeactivate: string;
     devResetTrials: string;
+    planFreeName: string;
+    planFreeTerm: string;
+    planFreeTagline: string;
+    freeItemCapture: string;
+    freeItemFocus: string;
+    freeItemHistory: string;
+    freeItemBackup: string;
+    freeLimitProjects: string;
+    freeLimitProjectsGrandfathered: string;
+    freeLimitReports: string;
+    planCurrent: string;
+    planProTagline: string;
+    whyPaidTitle: string;
+    whyPaidBody: string;
+    hardship: string;
+    limitProjectsTitle: string;
+    limitProjectsBody: string;
+    limitReportsTitle: string;
+    limitReportsBody: string;
+    notNow: string;
+    projectsOneLeft: string;
+    projectsFull: string;
+    seePlans: string;
   };
   license: {
     activated: string;
@@ -417,8 +432,6 @@ export interface Translations {
     claimActivated: string;
     claimNeedsSupport: string;
     trialUsed: string;
-    trialExhausted: string;
-    projectLimit: string;
     featureKanban: string;
     featurePomodoro: string;
     featureMarkdown: string;
@@ -543,7 +556,6 @@ export interface Translations {
     jsonSynced: string;
     jsonParseError: string;
     allDataCleared: string;
-    htmlDownloading: string;
     backupExported: string;
     backupFileInvalid: string;
     backupRestored: string;
@@ -896,7 +908,6 @@ export interface Translations {
   mobileGuide: {
     title: string;
     subtitle: string;
-    tabFile: string;
     iosStep1: string;
     iosStep2: string;
     iosStep3: string;
@@ -905,9 +916,13 @@ export interface Translations {
     androidStep2: string;
     androidStep3: string;
     androidDone: string;
-    fileTitle: string;
-    fileBody: string;
     gotIt: string;
+  };
+  nudge: {
+    title: string;
+    body: string;
+    bodyNoSync: string;
+    dontShow: string;
   };
 }
 

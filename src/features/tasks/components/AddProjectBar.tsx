@@ -6,16 +6,20 @@ interface AddProjectBarProps {
   projectName: string;
   onChange: (val: string) => void;
   onSubmit: (e: React.FormEvent) => void;
+  /** Dòng nhắc nhẹ dưới ô nhập (VD còn 1 dự án trong gói Free), không chặn thao tác */
+  hint?: { text: string; actionLabel: string; onAction: () => void };
 }
 
 export function AddProjectBar({
   projectName,
   onChange,
   onSubmit,
+  hint,
 }: AddProjectBarProps) {
   const { t } = useLanguage();
 
   return (
+    <div className="space-y-1">
     <form onSubmit={onSubmit} className="flex gap-1.5 flex-nowrap w-full">
       <input
         type="text"
@@ -32,5 +36,18 @@ export function AddProjectBar({
         <span className="truncate">{t.tasks.addProjectButton}</span>
       </button>
     </form>
+    {hint && (
+      <p className="px-1 text-[11px] text-slate-500 dark:text-slate-400">
+        {hint.text}{' '}
+        <button
+          type="button"
+          onClick={hint.onAction}
+          className="font-medium text-slate-700 dark:text-slate-200 underline underline-offset-2 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+        >
+          {hint.actionLabel}
+        </button>
+      </p>
+    )}
+    </div>
   );
 }

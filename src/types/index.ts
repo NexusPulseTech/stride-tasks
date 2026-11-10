@@ -72,7 +72,7 @@ export interface UndoAction {
 }
 
 export type FilterType = 'all' | 'doing' | 'scheduled' | 'completed';
-export type MobileGuideTab = 'ios' | 'android' | 'file';
+export type MobileGuideTab = 'ios' | 'android';
 
 export interface BatchPasteTarget {
   type: 'project' | 'task' | 'subtask';

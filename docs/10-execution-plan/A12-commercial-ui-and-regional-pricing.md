@@ -27,7 +27,7 @@
 - Webhook ghi log `ppp_country_mismatch` khi đơn giá vùng có quốc gia thanh toán thuộc nhóm thu nhập cao (đo rò rỉ, không chặn khách).
 - Hộp nâng cấp dùng đúng hệ màu của app (sáng/tối theo giao diện, nút chính đỏ thương hiệu), một giá duy nhất, không emoji, chữ ngắn và không thuật ngữ kỹ thuật ("Ed25519").
 - Bỏ mọi link GitHub khỏi bề mặt sản phẩm và marketing. Repo vẫn public theo FSL; chỉ không quảng bá.
-- Tệp HTML offline độc lập (`public/quan-ly-cong-viec.html`) là bản cũ chỉ có tiếng Việt: chỉ hiện ở giao diện tiếng Việt (menu và thẻ "File HTML"); hướng dẫn tiếng Anh chỉ cách cài ứng dụng (PWA). Nên cân nhắc bỏ hẳn vì PWA đã chạy offline.
+- Tệp HTML offline độc lập (`public/quan-ly-cong-viec.html`) là bản cũ chỉ có tiếng Việt: founder quyết định bỏ hẳn ngày 2026-11-10 (A13); địa chỉ cũ thành trang chuyển hướng về `/vi/`, PWA đảm nhận việc chạy offline.
 - Chuỗi có định dạng trong hướng dẫn dùng `RichText` (chỉ `**đậm**` và `` `mã` ``, không phân tích HTML), để mọi chữ nằm trong bộ dịch và được test cùng nhau.
 - Dữ liệu mẫu: bộ "Getting started" tiếng Anh và tiếng Việt, ví dụ minh họa trung tính, mỗi việc dạy một tính năng; giữ ID dự án `p1`, `p2` để quy tắc không tính dự án mẫu vào giới hạn Free vẫn đúng; bộ mẫu cũ vẫn được nhận diện là mẫu với người dùng hiện có.
 

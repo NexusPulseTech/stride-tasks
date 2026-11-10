@@ -10,7 +10,7 @@ import {
   buildVietQrImageUrl,
   isDynamicVietQr,
 } from '../../../config/commerceConfig';
-import { ProLicenseApi, FREE_PROJECT_LIMIT, countBillableProjects } from '../../../hooks/useProLicense';
+import { ProLicenseApi, FREE_PROJECT_LIMIT, TRIAL_PASSES, countBillableProjects } from '../../../hooks/useProLicense';
 import { Project } from '../../../types';
 
 export type StoreModalTab = 'pricing' | 'why';
@@ -199,37 +199,109 @@ export function StoreCommercialModal({
     );
   };
 
+  const billableProjects = countBillableProjects(projects);
+
   const benefits = [COMMERCE_CONFIG.syncApiUrl ? s.benefitSync : null, s.benefitProjects, s.benefitReports, s.benefitSupport].filter(
     (item): item is string => Boolean(item)
   );
 
-  const renderOffer = () => {
+  // Gói Free nói rõ gồm gì và mức dùng thật, để người dùng tự so với PRO (A13)
+  const freeItems = [
+    s.freeItemCapture,
+    s.freeItemFocus,
+    s.freeItemHistory,
+    s.freeItemBackup,
+    pro.isGrandfathered
+      ? s.freeLimitProjectsGrandfathered
+      : formatMessage(s.freeLimitProjects, { limit: FREE_PROJECT_LIMIT, count: billableProjects }),
+    formatMessage(s.freeLimitReports, { limit: TRIAL_PASSES, count: pro.trials.markdownReport }),
+  ];
+
+  /** Khung trung tính khi người dùng chạm giới hạn: nói điều vẫn được giữ, có lối "Để sau" */
+  const renderLimitNote = () => {
+    if (!triggerContext) return null;
+    const key = triggerContext.featureKey;
+    const title =
+      key === 'projectLimit'
+        ? formatMessage(s.limitProjectsTitle, { limit: FREE_PROJECT_LIMIT })
+        : key === 'markdownReport'
+        ? formatMessage(s.limitReportsTitle, { limit: TRIAL_PASSES })
+        : formatMessage(s.paywallTitle, { feature: triggerContext.featureLabel });
+    const body = key === 'projectLimit' ? s.limitProjectsBody : key === 'markdownReport' ? s.limitReportsBody : s.paywallBody;
+    return (
+      <div className={`${CARD} bg-slate-50 dark:bg-slate-900/60 p-3 text-xs`}>
+        <div className="font-semibold text-slate-800 dark:text-slate-100">{title}</div>
+        <p className={`mt-0.5 leading-relaxed ${MUTED}`}>{body}</p>
+        <button
+          type="button"
+          onClick={onClose}
+          className="mt-2 font-medium text-slate-600 dark:text-slate-300 underline underline-offset-2 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+        >
+          {s.notNow}
+        </button>
+      </div>
+    );
+  };
+
+  const renderFreePlan = () => (
+    <section className={`${CARD} p-4 space-y-3 order-2 sm:order-1`}>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{s.planFreeName}</h3>
+          <div className="flex items-baseline gap-1.5 mt-1">
+            <span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">$0</span>
+            <span className={`text-xs ${MUTED}`}>{s.planFreeTerm}</span>
+          </div>
+        </div>
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 whitespace-nowrap">
+          {s.planCurrent}
+        </span>
+      </div>
+      <p className={`text-xs leading-relaxed ${MUTED}`}>{s.planFreeTagline}</p>
+      <ul className="space-y-1.5">
+        {freeItems.map((item) => (
+          <li key={item} className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-200">
+            <Check className="w-3.5 h-3.5 mt-0.5 shrink-0 text-slate-400 dark:text-slate-500" strokeWidth={2.25} aria-hidden="true" />
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+
+  const renderProPlan = () => {
     if (!tier) {
-      return <p className={`text-xs ${MUTED}`}>{formatMessage(s.channelUnavailable, { email: COMMERCE_CONFIG.supportEmail })}</p>;
+      return (
+        <section className={`${CARD} p-4 order-1 sm:order-2`}>
+          <p className={`text-xs ${MUTED}`}>{formatMessage(s.channelUnavailable, { email: COMMERCE_CONFIG.supportEmail })}</p>
+        </section>
+      );
     }
     return (
-      <section className={`${CARD} p-4 sm:p-5 space-y-4`}>
+      <section className="rounded-xl border-2 border-[#B20015]/60 dark:border-red-400/50 p-4 space-y-3 order-1 sm:order-2">
         <div aria-live="polite">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">PRO</h3>
           {checkingPrice ? (
-            <div className="space-y-2" aria-label={s.priceChecking}>
-              <div className="h-8 w-24 rounded-md bg-slate-100 dark:bg-slate-800 animate-pulse" />
-              <div className="h-3 w-40 rounded bg-slate-100 dark:bg-slate-800 animate-pulse" />
+            <div className="space-y-2 mt-1" aria-label={s.priceChecking}>
+              <div className="h-7 w-20 rounded-md bg-slate-100 dark:bg-slate-800 animate-pulse" />
+              <div className="h-3 w-32 rounded bg-slate-100 dark:bg-slate-800 animate-pulse" />
             </div>
           ) : (
             <>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{tier.priceDisplay}</span>
+              <div className="flex items-baseline gap-1.5 mt-1">
+                <span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{tier.priceDisplay}</span>
                 <span className={`text-xs ${MUTED}`}>{s.priceOneTime}</span>
               </div>
-              {regionLabel && <p className={`text-xs mt-1 ${MUTED}`}>{formatMessage(s.priceForCountry, { country: regionLabel })}</p>}
+              {regionLabel && <p className={`text-[11px] mt-0.5 ${MUTED}`}>{formatMessage(s.priceForCountry, { country: regionLabel })}</p>}
             </>
           )}
         </div>
 
-        <ul className="space-y-2">
+        <p className="text-xs font-medium text-slate-700 dark:text-slate-200">{s.planProTagline}</p>
+        <ul className="space-y-1.5">
           {benefits.map((item) => (
-            <li key={item} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-200">
-              <Check className="w-4 h-4 mt-0.5 shrink-0 text-emerald-600 dark:text-emerald-400" strokeWidth={2.25} aria-hidden="true" />
+            <li key={item} className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-200">
+              <Check className="w-3.5 h-3.5 mt-0.5 shrink-0 text-emerald-600 dark:text-emerald-400" strokeWidth={2.25} aria-hidden="true" />
               <span>{item}</span>
             </li>
           ))}
@@ -258,7 +330,31 @@ export function StoreCommercialModal({
     );
   };
 
-  const billableProjects = countBillableProjects(projects);
+  // Ảnh VietQR cần chỗ rộng, nên khi bán bằng VietQR hai gói xếp chồng thay vì cạnh nhau
+  const renderPlans = () => (
+    <div className={`grid gap-3 ${tier?.channel === 'vietqr' ? '' : 'sm:grid-cols-2'}`}>
+      {renderFreePlan()}
+      {renderProPlan()}
+    </div>
+  );
+
+  /** Nói thật vì sao có phí, và lối cho người chưa đủ khả năng chi trả */
+  const renderWhyPaid = () => (
+    <section className={`${CARD} p-4 space-y-1.5 text-xs`}>
+      <h3 className="font-semibold text-slate-900 dark:text-white">{s.whyPaidTitle}</h3>
+      <p className={`leading-relaxed ${MUTED}`}>{s.whyPaidBody}</p>
+      <p className={`leading-relaxed ${MUTED}`}>
+        {s.hardship}{' '}
+        <a
+          href={`mailto:${COMMERCE_CONFIG.supportEmail}`}
+          className="font-medium text-slate-700 dark:text-slate-200 underline underline-offset-2 whitespace-nowrap"
+        >
+          {COMMERCE_CONFIG.supportEmail}
+        </a>
+      </p>
+    </section>
+  );
+
 
   return createPortal(
     <div
@@ -317,16 +413,7 @@ export function StoreCommercialModal({
         <div className="p-5 overflow-y-auto space-y-4 flex-1">
           {activeTab === 'pricing' && (
             <>
-              {!license.isPro && triggerContext && (
-                <div className="rounded-xl border border-amber-200 dark:border-amber-900/60 bg-amber-50 dark:bg-amber-950/30 p-3 text-xs">
-                  <div className="font-semibold text-amber-800 dark:text-amber-300">
-                    {formatMessage(s.paywallTitle, { feature: triggerContext.featureLabel })}
-                  </div>
-                  <p className="mt-0.5 leading-relaxed text-amber-700 dark:text-amber-200/80">
-                    {formatMessage(s.paywallBody, { feature: triggerContext.featureLabel })}
-                  </p>
-                </div>
-              )}
+              {!license.isPro && renderLimitNote()}
 
               {license.isPro ? (
                 <section className={`${CARD} p-4 space-y-3`}>
@@ -359,8 +446,8 @@ export function StoreCommercialModal({
                 </section>
               ) : (
                 <>
-                  {PAYWALL_ENABLED && renderOffer()}
-                  {PAYWALL_ENABLED && <p className={`text-xs leading-relaxed ${MUTED}`}>{s.freeIncludes}</p>}
+                  {PAYWALL_ENABLED && renderPlans()}
+                  {PAYWALL_ENABLED && renderWhyPaid()}
 
                   <section className={`${CARD} p-4 space-y-3`}>
                     <div className="flex items-center justify-between gap-2">
@@ -397,23 +484,6 @@ export function StoreCommercialModal({
                 <p className="text-xs font-medium text-rose-600 dark:text-rose-400" role="alert">
                   {errorMsg}
                 </p>
-              )}
-
-              {!license.isPro && PAYWALL_ENABLED && (
-                <section className={`${CARD} p-4 space-y-2 text-xs`}>
-                  <h3 className="font-semibold">{s.usageTitle}</h3>
-                  <div className="flex flex-wrap gap-x-6 gap-y-1 tabular-nums">
-                    <span>
-                      {pro.isGrandfathered
-                        ? s.trialProjectsGrandfathered
-                        : formatMessage(s.trialProjects, { count: billableProjects, limit: FREE_PROJECT_LIMIT })}
-                    </span>
-                    <span>
-                      {s.trialMarkdown}: {formatMessage(s.trialRemaining, { count: pro.trials.markdownReport })}
-                    </span>
-                  </div>
-                  <p className={`text-[11px] ${MUTED}`}>{s.trialsSubtitle}</p>
-                </section>
               )}
 
               {/* Công cụ nhà phát triển, không tồn tại trong bản build production */}

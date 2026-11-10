@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 ### Added
+- A Plans view in the PRO dialog shows Free and PRO side by side: what Free includes, your current usage, and what PRO adds. On phones PRO comes first.
+- A thank-you card after real use (20 completed tasks over 3 days, examples excluded) mentions PRO. It shows at most twice, 30 days apart, never during a focus session, and can be turned off for good.
+- Landing pages show the price for the visitor's country, using the same pricing service as the app. Without a connection they keep the static price.
 - A link with `?upgrade=pro` opens the PRO pricing dialog directly, for buy buttons outside the app.
 - A recovery screen replaces a blank page when the app crashes. It can reload the app or save a backup file read straight from local storage, which the restore feature can import.
 
@@ -16,11 +19,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - The PRO dialog was redesigned to match the rest of the app in light and dark mode, with one clear price, plain wording and no emoji.
 - New users get example projects in their own language that show how each feature works, instead of the previous Vietnamese-only sample.
 - Links to the source code repository were removed from the app and the landing pages.
+- Reaching a Free limit opens the plans view with a calm note about what stays free and a Not now button, instead of a warning box plus a duplicate toast. The add-project box mentions when one Free project is left.
+- The PRO dialog and landing pages say why PRO is paid (no ads, no tracking, no investors) and invite anyone who cannot afford it to write in.
 - Every screen follows the chosen language: confirm dialogs, stats, the share card, backup, feedback, batch paste, and the help and phone setup guides. English users no longer see Vietnamese text, and dates, months and weekdays use English labels.
 - Markdown reports, quick capture labels and the focus timer tab title no longer use emoji.
 - The standalone offline HTML file is offered only in the Vietnamese interface, because that file is Vietnamese only. The English guides explain how to install the app instead.
 - The help guide describes sync accurately: data is encrypted on the device before upload, so the server cannot read it.
 - Interface text describes features plainly instead of naming other products (Linear, Anki, Sunsama, Things 3).
+
+### Removed
+- The legacy standalone offline HTML app (Vietnamese only) and its menu entry. Its old address redirects to the Vietnamese landing page; the installable app works offline.
 
 ### Fixed
 - PRO now activates within seconds of a payment instead of up to a minute: paid order records moved from the eventually consistent KV store to D1, and duplicate webhooks can no longer issue a second license.
