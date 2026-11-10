@@ -6,7 +6,7 @@
 | Ưu tiên | P0 (đang bán thật; quyết định tỉ lệ chuyển đổi Free sang PRO) |
 | Ước lượng | 1 ngày |
 | Phụ thuộc | A12 |
-| Trạng thái | ◐ Đang làm (2026-11-10) |
+| Trạng thái | ☑ 2026-11-10 (web d05ee2c, kiểm trên production) |
 
 ## Mục tiêu
 Người dùng biết ngay gói Free gồm gì và PRO thêm gì, thấy đúng giá cho quốc gia của mình ở cả trang đích lẫn trong app, và chỉ được mời nâng cấp ở thời điểm hợp lý, luôn có lối từ chối không áy náy.
@@ -51,8 +51,8 @@ Người dùng biết ngay gói Free gồm gì và PRO thêm gì, thấy đúng 
 - [x] Hộp PRO hiện 2 thẻ Free/PRO; thẻ Free hiện mức dùng thật; đúng ở cả EN/VI, sáng/tối, màn hình điện thoại (kiểm trên dev server 2026-11-10; trên điện thoại thẻ PRO lên trước).
 - [x] Chạm giới hạn 5 dự án hoặc hết lượt xuất báo cáo: không còn toast trùng; khung trung tính nói điều được giữ, có "Để sau" (kiểm bằng cách tạo 6 dự án; dòng nhắc ở ô thêm dự án hiện từ dự án thứ 4).
 - [x] Thẻ cảm ơn chỉ hiện đúng điều kiện (test `src/hooks/__tests__/upgradeNudge.test.ts`; trên trình duyệt: 21 việc thật trong 3 ngày thì hiện, bấm "Để sau" rồi tải lại thì không hiện).
-- [ ] Trang đích: khách ở Việt Nam thấy $9.95 ở cả trang EN và VI; khách ở nước thu nhập cao thấy $19; mất mạng thì vẫn thấy giá tĩnh. Đã kiểm bằng phản hồi giả lập (Ấn Độ trên trang EN ra $9.95, Mỹ trên trang VI ra $19); còn kiểm trên production. Test `src/config/__tests__/sitePricing.test.ts` giữ giá script, HTML và app khớp nhau.
-- [ ] Không còn đường tải bản HTML cũ; `/quan-ly-cong-viec.html` chuyển về `/vi/`.
+- [x] Trang đích: khách ở Việt Nam thấy $9.95 ở cả trang EN và VI; khách ở nước thu nhập cao thấy $19; mất mạng thì vẫn thấy giá tĩnh. Production 2026-11-10 từ IP Việt Nam: trang EN hiện "$9.95, Price for Vietnam", sau 100 bản quyền $14.95; phản hồi giả lập: Ấn Độ trên trang EN ra $9.95, Mỹ trên trang VI ra $19. Test `src/config/__tests__/sitePricing.test.ts` giữ giá script, HTML và app khớp nhau.
+- [x] Không còn đường tải bản HTML cũ; `/quan-ly-cong-viec.html` chuyển về `/vi/` (kiểm trên production: trang 685 byte có meta refresh về /vi/). Hộp PRO trên production hiện 2 gói và "$9.95, Price for Vietnam".
 
 ## Rủi ro & rollback
 - Thẻ cảm ơn bị coi là làm phiền: điều kiện chặt và có "Không hiện lại"; tắt nhanh bằng cách nâng ngưỡng hoặc bỏ thẻ khỏi `App.tsx`.
