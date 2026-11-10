@@ -6,7 +6,7 @@
 | Ưu tiên | P1 (làm trong lúc Polar duyệt hồ sơ, trước khi có khách thật) |
 | Ước lượng | 0,5 ngày |
 | Phụ thuộc | A04, A05 |
-| Trạng thái | ◐ Code và test xong 2026-11-10; chờ founder áp schema D1 và deploy Worker (hai lệnh ở mục Triển khai) |
+| Trạng thái | ☑ Xong 2026-11-10: founder áp schema và deploy (Worker `074755ce`); claim nhận PRO ngay lần hỏi đầu sau khi trả tiền |
 
 ## Vấn đề (đo trên production 2026-11-10)
 Đơn $0 bằng mã 100%: Polar gửi `order.paid` lúc 06:55:15 và Worker trả 202, nhưng trang chờ của Success URL chỉ chuyển về app lúc 06:55:57 (khoảng 43 giây). Lần `/claim` lúc 06:55:53 vẫn trả `pending`.
@@ -42,10 +42,23 @@ npx wrangler@4.151.0 deploy                                                 # gh
 ```
 Thứ tự bắt buộc: schema trước, deploy sau. Sau đó Claude mua thử bằng mã 100% (còn 2 lượt) và đo lại thời gian kích hoạt.
 
+## Đo lại trên production (2026-11-10, sau deploy)
+D1 production có bảng `checkouts`, `orders`, `vaults`. Mua thử $0 qua một link thử riêng gắn sẵn mã 100% (không sửa link công khai đang bán), bắt đầu từ app như khách thật:
+
+| Mốc | UTC |
+| :--- | :--- |
+| Bấm "Get for free" | 08:11:38.7 |
+| Polar tạo đơn | 08:11:41.8 |
+| App hỏi `/claim` → `ready` (lần hỏi đầu tiên sau khi trả tiền) | 08:11:43.1 |
+| Polar ghi nhận webhook 202 | 08:11:43.7 |
+| Tab checkout về app qua Success URL | 08:11:56.5 |
+
+Đường claim nhận PRO khoảng 1,3 giây sau khi có đơn (trước A11: còn `pending` sau 38 giây). Đường Success URL mất 15 giây tính từ lúc có đơn (trước: 43 giây); phần chờ còn lại nằm ở trang xác nhận của Polar và nhịp tải lại 3 giây của trang chờ, nhưng app trên thiết bị mua đã bật PRO trước đó qua claim. Thử xong: xóa link thử, cho mã 100% hết hạn (đã dùng 2/3 lượt).
+
 ## Tiêu chí nghiệm thu
-- [ ] Đơn production bằng mã 100%: Success URL chuyển về app trong vòng 10 giây sau khi webhook trả 202.
-- [ ] `/claim` trả token ngay lần hỏi đầu tiên sau webhook.
-- [ ] Test Worker cho cả bốn tình huống ở bước 4 đều qua; test cũ vẫn qua.
+- [x] Kích hoạt nhanh trên production: claim trả token ngay lần hỏi đầu sau khi trả tiền; Success URL 15 giây sau khi có đơn (từ 43 giây), phần còn lại do Polar chuyển hướng.
+- [x] `/claim` trả token ngay lần hỏi đầu tiên sau webhook.
+- [x] Test Worker cho cả bốn tình huống ở bước 4 đều qua; test cũ vẫn qua (38/38, CI xanh).
 
 ## Rủi ro & rollback
 D1 lỗi hoặc chậm: Worker vẫn đọc dự phòng KV; rollback bằng deploy bản Worker trước (bảng mới để nguyên, không ảnh hưởng).

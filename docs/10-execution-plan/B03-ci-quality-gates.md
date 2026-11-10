@@ -19,7 +19,15 @@ Mọi PR và push `main` bị chặn khi type/lint/test/build/ngân sách/quét 
 4. `deploy.yml`: chỉ chạy sau `ci` thành công (`workflow_run` hoặc gộp job), đổi `npm install` → `npm ci`.
 5. `.github/dependabot.yml`: `npm` + `github-actions`, hằng tuần, gộp nhóm.
 6. CodeQL workflow (JavaScript/TypeScript).
-7. **Cần founder cho phép** (thay đổi cài đặt repo): bật secret scanning + push protection; branch protection `main` yêu cầu `ci`.
+7. **Founder tự bật** (thay đổi cài đặt bảo mật repo, Claude không được làm thay): secret scanning + push protection, Dependabot alerts + security updates, private vulnerability reporting; branch protection `main` yêu cầu `ci`. Kiểm tra 2026-11-10: cả năm tính năng đều đang tắt. Bật trong Settings, Advanced Security (hoặc Code security), hoặc chạy từ máy founder:
+
+   ```bash
+   gh api -X PUT repos/NexusPulseTech/stride-tasks/vulnerability-alerts
+   gh api -X PUT repos/NexusPulseTech/stride-tasks/automated-security-fixes
+   gh api -X PUT repos/NexusPulseTech/stride-tasks/private-vulnerability-reporting
+   gh api -X PATCH repos/NexusPulseTech/stride-tasks -F "security_and_analysis[secret_scanning][status]=enabled" -F "security_and_analysis[secret_scanning_push_protection][status]=enabled"
+   gh api repos/NexusPulseTech/stride-tasks --jq .security_and_analysis   # kiểm tra lại
+   ```
 
 ## Tiêu chí nghiệm thu
 - [ ] PR cố tình làm lỗi test/budget bị chặn.

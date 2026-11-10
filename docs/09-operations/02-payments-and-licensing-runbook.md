@@ -79,7 +79,7 @@ Khuyến nghị khách: sau khi kích hoạt, vào Trung tâm bản quyền → 
 
 - **Org mới ở chế độ test.** `capabilities.checkout_payments` là `false`, trang checkout ghi "in test mode" và chỉ nhận đơn $0 bằng mã giảm 100% cho tới khi Polar duyệt hồ sơ và go live. Không cần đổi gì ở app khi được duyệt.
 - **Logo org phải tải lên qua Settings, General.** CSP của trang checkout chỉ cho ảnh từ kho của Polar và vài host cố định; đặt `avatar_url` trỏ về tên miền của mình thì checkout chỉ hiện chữ viết tắt.
-- **Thử bằng mã 100% khi link tắt ô mã giảm giá**: tham số `discount_code` chỉ điền sẵn ô nhập, nên tạm bật `allow_discount_codes` trên link, thử xong tắt lại ngay (hoặc tạo link thử riêng gắn sẵn mã, xóa sau khi thử). Mã có giới hạn lượt dùng nên lộ cũng chỉ mất tối đa số lượt đó.
+- **Thử bằng mã 100% khi đã bán thật**: không sửa link công khai. Tạo một Checkout Link thử riêng gắn sẵn mã (`discount_id`), mở app bấm mua như khách, rồi chuyển tab checkout sang link thử với cùng `reference_id`; thử xong xóa link thử và cho mã hết hạn (`PATCH /v1/discounts/<id>` với `ends_at` trong quá khứ). Mã 100% đầu tiên đã hết hạn ngày 2026-11-10 (dùng 2/3); lần thử sau tạo mã mới có giới hạn lượt.
 - **Mỗi lần mở Checkout Link tạo một phiên checkout mới** và tính vào tỉ lệ chuyển đổi trên dashboard, nên chỉ mở khi cần kiểm tra.
 - **Đơn $0 bằng mã 100% không cần thẻ**: checkout chỉ hỏi email, nút đổi thành "Get for free".
 - **Kích hoạt chậm tới khoảng 60 giây** khi trang chờ hoặc app đọc KV trước lúc webhook ghi (KV lưu đệm cả kết quả "chưa có" ở từng edge). Đo được 43 giây ngày 2026-11-10; sửa ở A11. Trong lúc chờ: khách cứ để trang chờ chạy, app vẫn tự claim.
