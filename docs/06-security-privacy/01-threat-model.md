@@ -13,11 +13,11 @@
 | **T**ampering | Sửa bản mã trên server | D1 | ✅ AES-GCM xác thực toàn vẹn, AAD = vaultId | - |
 | T | Sửa token/trạng thái PRO cục bộ | localStorage | ✅ Xác minh lại khi khởi động, sai → reset | - |
 | T | Clickjacking: trang lạ nhúng app vào khung để lừa người dùng bấm (xóa dữ liệu, kích hoạt) | App web | ✅ Header `frame-ancestors 'none'` và `X-Frame-Options: DENY` qua Cloudflare (2026-11-10); dự phòng: app tự ẩn khi bị nhúng; trình duyệt hiện đại còn tách bộ nhớ của khung nhúng | Runbook 01 mục 1b, B04 |
-| T | Chuỗi cung ứng: dependency/action độc hại | Build, CI | ⚠️ Đang siết | Ghim phiên bản, `npm ci`, Dependabot, CodeQL (B03) |
+| T | Chuỗi cung ứng: dependency/action độc hại | Build, CI | ⚠️ Đang siết: Dependabot alerts và security updates đã bật (2026-11-10) | Ghim phiên bản, `npm ci`, cấu hình Dependabot, CodeQL (B03) |
 | **R**epudiation | Không chứng minh được đã phát hành token cho đơn nào | Worker | ⚠️ Bản ghi KV hết hạn sau 90 ngày | Sổ cái `orders` + `payment_events` lâu dài (A04/B05) |
 | **I**nformation disclosure | Server đọc dữ liệu người dùng | Sync | ✅ Chỉ bản mã; vaultId là hash, không suy ra mã | - |
 | I | XSS đánh cắp token PRO / mã đồng bộ trong localStorage | App web & Tauri | ✅ Web: CSP chặt (không script inline lạ, chỉ gọi API của mình); không dùng `dangerouslySetInnerHTML` hay `eval`. Tauri: làm cùng D02 | CSP qua `<meta http-equiv>` cho web + CSP trong `tauri.conf.json` (B04) |
-| I | Lộ khóa riêng qua repo public | Repo | ✅ `.env.local` gitignore, đã quét diff & bundle | Secret scanning + push protection của GitHub (B03) |
+| I | Lộ khóa riêng qua repo public | Repo | ✅ `.env.local` gitignore, quét diff và bundle trước mỗi commit; secret scanning + push protection của GitHub bật 2026-11-10 | B03 |
 | **D**enial of service | Cạn hạn mức request do app hỏi claim liên tục | Worker | ✅ Hỏi thưa dần và dừng sau 30 phút; rate limit theo IP | A04 |
 | D | Spam tạo kho hoặc ghi dữ liệu lớn liên tục | Sync | ✅ Cần token PRO, hạn mức 3 kho mỗi bản quyền, rate limit ghi theo bản quyền | A04 |
 | D | Cấu hình sai biến môi trường trên production | Worker | ⚠️ Đang bổ sung kiểm tra cấu hình | B07 |

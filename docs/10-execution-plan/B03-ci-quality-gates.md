@@ -6,7 +6,7 @@
 | Ưu tiên | P1 |
 | Ước lượng | 1 ngày |
 | Phụ thuộc | B01, B02 |
-| Trạng thái | ☐ Todo |
+| Trạng thái | ◐ Cài đặt bảo mật repo đã bật 2026-11-10 (bước 7); còn workflow `ci`, Dependabot cấu hình, CodeQL, branch protection |
 
 ## Mục tiêu
 Mọi PR và push `main` bị chặn khi type/lint/test/build/ngân sách/quét bí mật lỗi.
@@ -19,7 +19,7 @@ Mọi PR và push `main` bị chặn khi type/lint/test/build/ngân sách/quét 
 4. `deploy.yml`: chỉ chạy sau `ci` thành công (`workflow_run` hoặc gộp job), đổi `npm install` → `npm ci`.
 5. `.github/dependabot.yml`: `npm` + `github-actions`, hằng tuần, gộp nhóm.
 6. CodeQL workflow (JavaScript/TypeScript).
-7. **Founder tự bật** (thay đổi cài đặt bảo mật repo, Claude không được làm thay): secret scanning + push protection, Dependabot alerts + security updates, private vulnerability reporting; branch protection `main` yêu cầu `ci`. Kiểm tra 2026-11-10: cả năm tính năng đều đang tắt. Bật trong Settings, Advanced Security (hoặc Code security), hoặc chạy từ máy founder:
+7. **Founder tự bật** (thay đổi cài đặt bảo mật repo, Claude không được làm thay): secret scanning + push protection, Dependabot alerts + security updates, private vulnerability reporting; branch protection `main` yêu cầu `ci`. **Đã bật cả năm tính năng ngày 2026-11-10** (founder chạy các lệnh dưới đây; Claude đọc lại qua API: alerts 204, security updates bật, secret scanning và push protection `enabled`, private reporting `enabled`; lúc bật chưa có cảnh báo mở). Branch protection làm sau khi có workflow `ci`. Bật trong Settings, Advanced Security (hoặc Code security), hoặc chạy từ máy founder:
 
    ```bash
    gh api -X PUT repos/NexusPulseTech/stride-tasks/vulnerability-alerts

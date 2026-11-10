@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Content Security Policy for the web app: only the app's own scripts, its API and privacy-friendly analytics may load. The policy is generated at build time with hashes for inline scripts.
 - Styles may only come from the app's own stylesheets, and the app hides itself when another site embeds it in a frame, which blocks clickjacking.
 - The site now sends security headers from the edge: framing is refused, MIME sniffing is off, HTTPS is enforced with HSTS, and camera, microphone and location access are disabled.
+- Vulnerabilities can be reported privately through GitHub. Dependency alerts, automatic security updates, secret scanning and push protection are on for the repository.
 
 ## [3.2.0] - 2026-11-09
 

@@ -4,7 +4,8 @@
 
 Please report security issues privately. Do not open a public issue or pull request for them.
 
-- Email **support@nexuspulsetech.xyz** with the subject line `Security`.
+- Use GitHub's private reporting: open the **Security** tab of this repository and choose **Report a vulnerability**.
+- Or email **support@nexuspulsetech.xyz** with the subject line `Security`.
 - Describe the affected part (web app, sync API, license or payment flow), the steps to reproduce, and the impact.
 
 We aim to acknowledge reports within 3 business days and to ship fixes as fast as the severity requires. Tell us if you would like to be credited.
