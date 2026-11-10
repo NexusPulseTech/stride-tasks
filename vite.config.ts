@@ -1,15 +1,19 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
+import { cspPlugin } from './config/csp';
 
-export default defineConfig(() => {
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), 'VITE_');
   return {
     base: './',
     plugins: [
       react(),
       tailwindcss(),
+      // CSP chỉ chèn khi build; connect-src lấy đúng origin API mà bản build sẽ gọi
+      cspPlugin([env.VITE_LICENSE_CLAIM_URL, env.VITE_SYNC_API_URL, 'https://tasks-api.nexuspulsetech.xyz']),
       // Service Worker sinh bởi Workbox lúc build: precache app shell kèm revision hash, tự dọn cache cũ mỗi lần deploy.
       // Tự đăng ký trong src/main.tsx (chỉ ở bản production, bỏ qua trong Tauri). Manifest giữ nguyên file public/manifest.json.
       VitePWA({

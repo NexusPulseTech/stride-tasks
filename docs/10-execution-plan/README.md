@@ -32,7 +32,7 @@ Ký hiệu: ☐ Todo · ◐ In progress · ☑ Done · ⏸ Blocked (ghi lý do)
 | [B01](./B01-test-suite-in-repo.md) | Bộ test trong repo (Vitest, Worker, E2E khung) | P1 | 2 ngày | - | ◐ |
 | [B02](./B02-lint-format-strict-typescript.md) | ESLint, Prettier, TS strict, dọn phụ thuộc | P1 | 2-3 ngày | B01 | ☐ |
 | [B03](./B03-ci-quality-gates.md) | CI quality gates + chuỗi cung ứng | P1 | 1 ngày | B01, B02 | ☐ |
-| [B04](./B04-error-boundary-and-csp.md) | Error Boundary + CSP web/Tauri | P1 | 1 ngày | - | ☐ |
+| [B04](./B04-error-boundary-and-csp.md) | Error Boundary + CSP web/Tauri | P1 | 1 ngày | - | ◐ web xong, Tauri cùng D02 |
 | [B05](./B05-worker-typescript-hexagonal.md) | Worker TypeScript + kiến trúc lục giác + timeout client | P1 | 3 ngày | B01, A04 | ☐ |
 | [B06](./B06-shared-contracts-package.md) | Gói `contracts` + `sync-core` dùng chung (npm workspaces) | P1 | 2 ngày | B05 | ☐ |
 | [B07](./B07-worker-cicd-staging-observability.md) | CI/CD Worker, staging, log, rate limit | P1 | 1,5 ngày | B05 | ☐ |

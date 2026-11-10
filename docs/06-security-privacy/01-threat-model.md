@@ -15,7 +15,7 @@
 | T | Chuỗi cung ứng: dependency/action độc hại | Build, CI | ⚠️ Đang siết | Ghim phiên bản, `npm ci`, Dependabot, CodeQL (B03) |
 | **R**epudiation | Không chứng minh được đã phát hành token cho đơn nào | Worker | ⚠️ Bản ghi KV hết hạn sau 90 ngày | Sổ cái `orders` + `payment_events` lâu dài (A04/B05) |
 | **I**nformation disclosure | Server đọc dữ liệu người dùng | Sync | ✅ Chỉ bản mã; vaultId là hash, không suy ra mã | - |
-| I | XSS đánh cắp token PRO / mã đồng bộ trong localStorage | App web & Tauri | ⚠️ Đang bổ sung CSP | CSP qua `<meta http-equiv>` cho web + CSP trong `tauri.conf.json` (B04) |
+| I | XSS đánh cắp token PRO / mã đồng bộ trong localStorage | App web & Tauri | ✅ Web: CSP chặt (không script inline lạ, chỉ gọi API của mình); không dùng `dangerouslySetInnerHTML` hay `eval`. Tauri: làm cùng D02 | CSP qua `<meta http-equiv>` cho web + CSP trong `tauri.conf.json` (B04) |
 | I | Lộ khóa riêng qua repo public | Repo | ✅ `.env.local` gitignore, đã quét diff & bundle | Secret scanning + push protection của GitHub (B03) |
 | **D**enial of service | Cạn hạn mức request do app hỏi claim liên tục | Worker | ✅ Hỏi thưa dần và dừng sau 30 phút; rate limit theo IP | A04 |
 | D | Spam tạo kho hoặc ghi dữ liệu lớn liên tục | Sync | ✅ Cần token PRO, hạn mức 3 kho mỗi bản quyền, rate limit ghi theo bản quyền | A04 |

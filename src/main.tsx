@@ -2,6 +2,7 @@ import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import { LanguageProvider } from './i18n';
+import { AppErrorBoundary } from './components/AppErrorBoundary';
 import './index.css';
 
 // Service Worker chỉ dành cho bản web production: ở dev nó sẽ cache module của Vite gây lỗi khó hiểu,
@@ -17,8 +18,10 @@ if (import.meta.env.PROD && !isTauri && 'serviceWorker' in navigator) {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <LanguageProvider>
-      <App />
-    </LanguageProvider>
+    <AppErrorBoundary>
+      <LanguageProvider>
+        <App />
+      </LanguageProvider>
+    </AppErrorBoundary>
   </StrictMode>,
 );

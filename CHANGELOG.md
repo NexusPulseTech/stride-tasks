@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+- A recovery screen replaces a blank page when the app crashes. It can reload the app or save a backup file read straight from local storage, which the restore feature can import.
+
+### Security
+- Content Security Policy for the web app: only the app's own scripts, its API and privacy-friendly analytics may load. The policy is generated at build time with hashes for inline scripts.
+
 ## [3.2.0] - 2026-11-09
 
 ### Added
