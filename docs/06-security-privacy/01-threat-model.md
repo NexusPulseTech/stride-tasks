@@ -12,6 +12,7 @@
 | S | Mạo danh người mua để nhận token | `/claim`, `/checkout/success` | ✅ Claim cần bí mật 128 bit chỉ thiết bị mua giữ; Success URL dùng ID phiên checkout ngẫu nhiên của Polar; có rate limit | A04, A04c |
 | **T**ampering | Sửa bản mã trên server | D1 | ✅ AES-GCM xác thực toàn vẹn, AAD = vaultId | - |
 | T | Sửa token/trạng thái PRO cục bộ | localStorage | ✅ Xác minh lại khi khởi động, sai → reset | - |
+| T | Clickjacking: trang lạ nhúng app vào khung để lừa người dùng bấm (xóa dữ liệu, kích hoạt) | App web | ✅ Bị nhúng thì app tự ẩn toàn bộ (đã thử với trang ở origin khác); trình duyệt hiện đại tách bộ nhớ của khung nhúng nên khung không thấy dữ liệu thật | Header `frame-ancestors 'none'` và `X-Frame-Options` qua Cloudflare (runbook 01 mục 1b, B04) |
 | T | Chuỗi cung ứng: dependency/action độc hại | Build, CI | ⚠️ Đang siết | Ghim phiên bản, `npm ci`, Dependabot, CodeQL (B03) |
 | **R**epudiation | Không chứng minh được đã phát hành token cho đơn nào | Worker | ⚠️ Bản ghi KV hết hạn sau 90 ngày | Sổ cái `orders` + `payment_events` lâu dài (A04/B05) |
 | **I**nformation disclosure | Server đọc dữ liệu người dùng | Sync | ✅ Chỉ bản mã; vaultId là hash, không suy ra mã | - |

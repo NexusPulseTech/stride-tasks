@@ -159,7 +159,7 @@ export function ShareProductivityModal({
 
     ctx.fillStyle = '#475569';
     ctx.font = '400 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    ctx.fillText('Solo Tasks · Tập trung hoàn thành công việc', 36, 444);
+    ctx.fillText('Stride Tasks · Tập trung hoàn thành công việc', 36, 444);
 
     ctx.fillStyle = '#94a3b8';
     ctx.font = '500 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';

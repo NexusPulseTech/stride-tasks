@@ -26,6 +26,29 @@ npm run indexnow -- submit https://tasks.nexuspulsetech.xyz/en/   # chỉ URL đ
 
 HTTP 200 hoặc 202 là đạt. Một lần gửi tới `api.indexnow.org` được chia sẻ cho mọi công cụ tham gia (Bing, Yandex, Seznam, Naver...). Google không dùng IndexNow: với Google, dựa vào sitemap và Search Console.
 
+## 1b. Header bảo mật (Cloudflare)
+
+GitHub Pages không cho đặt header, nhưng tên miền đi qua proxy Cloudflare nên đặt được bằng Transform Rule (gói Free có sẵn). Thẻ meta CSP của app không nhận `frame-ancestors`, nên chống nhúng trang đầy đủ cần header này; script chống nhúng trong bản build chỉ là lớp dự phòng (B04).
+
+- Vị trí: Cloudflare, zone `nexuspulsetech.xyz` → Rules → Transform Rules → Modify Response Header.
+- Điều kiện: `http.host eq "tasks.nexuspulsetech.xyz"`.
+- Đặt giá trị tĩnh (Set static):
+
+| Header | Giá trị |
+| :--- | :--- |
+| `Content-Security-Policy` | `frame-ancestors 'none'` |
+| `X-Frame-Options` | `DENY` |
+| `X-Content-Type-Options` | `nosniff` |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` |
+| `Strict-Transport-Security` | `max-age=31536000` |
+
+Header CSP ở đây chỉ có `frame-ancestors`. Trình duyệt áp dụng đồng thời mọi chính sách (header và thẻ meta), nên header này không nới lỏng gì. HSTS không kèm `includeSubDomains` để không ràng buộc các tên miền con khác. App không dùng camera, micro hay vị trí; clipboard không bị ảnh hưởng.
+
+Kiểm tra sau khi bật: `curl -sI https://tasks.nexuspulsetech.xyz/ | grep -iE "frame|content-security|nosniff|strict-transport"`.
+
+Trạng thái: chờ founder duyệt, vì đây là thay đổi cấu hình tài khoản Cloudflare.
+
 ## 2. Worker (`stride-license`)
 
 Thực hiện trong `cloudflare-worker/` (cho tới khi có `worker.yml`: task B07). Chạy `npm test` trước, đỏ thì không deploy:

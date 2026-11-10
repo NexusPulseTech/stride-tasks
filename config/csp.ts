@@ -8,6 +8,15 @@ import type { Plugin } from 'vite';
 
 const SCRIPT_TAG = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
 const DATA_SCRIPT_TYPE = /\btype\s*=\s*["']?application\/(ld\+)?json/i;
+const CHARSET_META = /(<meta\s+charset=[^>]*>)/i;
+
+/**
+ * Thẻ meta CSP không nhận frame-ancestors, nên chống clickjacking bằng script: trang bị nhúng vào khung thì ẩn toàn bộ
+ * và thử thoát ra cửa sổ chính. Script không chạy thì trang vẫn hiện bình thường, app không bao giờ bị trắng vì lớp này.
+ * Header frame-ancestors thật đặt ở Cloudflare (runbook triển khai, mục header bảo mật).
+ */
+export const FRAME_GUARD_SCRIPT =
+  "if(window.top!==window.self){document.documentElement.style.display='none';try{window.top.location.href=window.self.location.href}catch(e){}}";
 
 /** SHA-256 của mọi script inline được thực thi; bỏ qua script có src và khối dữ liệu JSON-LD */
 export function inlineScriptHashes(html: string): string[] {
@@ -37,8 +46,8 @@ export function buildCsp(scriptHashes: string[], connectOrigins: string[]): stri
   const directives: Record<string, string[]> = {
     'default-src': ["'self'"],
     'script-src': ["'self'", ...scriptHashes, 'https://static.cloudflareinsights.com'],
-    // React đặt style qua CSSOM (không bị CSP chặn); 'unsafe-inline' cho thuộc tính style tĩnh như trong <noscript>
-    'style-src': ["'self'", "'unsafe-inline'"],
+    // React đặt style qua CSSOM nên không cần 'unsafe-inline'; HTML tĩnh dùng class thay cho thuộc tính style
+    'style-src': ["'self'"],
     'img-src': ["'self'", 'data:', 'blob:', 'https://img.vietqr.io'],
     'font-src': ["'self'", 'data:'],
     'connect-src': ["'self'", ...connectOrigins, 'https://cloudflareinsights.com'],
@@ -60,10 +69,14 @@ export function cspPlugin(apiUrls: Array<string | undefined>): Plugin {
     transformIndexHtml: {
       order: 'post',
       handler(html) {
-        const csp = buildCsp(inlineScriptHashes(html), apiOrigins(apiUrls));
+        // Thiếu charset thì không có chỗ chèn: dừng build, không bao giờ phát hành bản thiếu CSP
+        if (!CHARSET_META.test(html)) throw new Error('stride-csp: index.html thiếu <meta charset>, không chèn được CSP');
+        // Chèn script chống nhúng trước để mã băm của nó có trong CSP
+        const guarded = html.replace(CHARSET_META, `$1\n    <script>${FRAME_GUARD_SCRIPT}</script>`);
+        const csp = buildCsp(inlineScriptHashes(guarded), apiOrigins(apiUrls));
         const meta = `<meta http-equiv="Content-Security-Policy" content="${csp}" />`;
         // Thẻ CSP phải đứng trước mọi script nên đặt ngay sau khai báo charset
-        return html.replace(/(<meta\s+charset=[^>]*>)/i, `$1\n    ${meta}`);
+        return guarded.replace(CHARSET_META, `$1\n    ${meta}`);
       },
     },
   };

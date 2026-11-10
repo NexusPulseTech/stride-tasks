@@ -1,8 +1,15 @@
 import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { apiOrigins, buildCsp, inlineScriptHashes } from './csp';
+import { apiOrigins, buildCsp, cspPlugin, FRAME_GUARD_SCRIPT, inlineScriptHashes } from './csp';
 
 const sha = (s: string) => `'sha256-${createHash('sha256').update(s, 'utf8').digest('base64')}'`;
+
+/** Chạy đúng bước transformIndexHtml mà Vite gọi lúc build */
+const transform = (html: string): string => {
+  const hook = cspPlugin(['https://tasks-api.nexuspulsetech.xyz']).transformIndexHtml;
+  if (!hook || typeof hook === 'function') throw new Error('transformIndexHtml phải có dạng { order, handler }');
+  return (hook.handler as unknown as (h: string) => string)(html);
+};
 
 describe('inlineScriptHashes', () => {
   it('băm đúng script inline, giữ nguyên khoảng trắng', () => {
@@ -37,6 +44,26 @@ describe('buildCsp', () => {
     expect(csp).toContain("connect-src 'self' https://tasks-api.nexuspulsetech.xyz https://cloudflareinsights.com");
     expect(csp).toContain("object-src 'none'");
     expect(csp).not.toContain("'unsafe-eval'");
-    expect(csp).not.toMatch(/script-src[^;]*'unsafe-inline'/);
+    expect(csp).not.toContain("'unsafe-inline'");
+    expect(csp).toContain("style-src 'self';");
+  });
+});
+
+describe('cspPlugin', () => {
+  const page = '<html><head>\n    <meta charset="UTF-8" />\n    <script>theme()</script>\n  </head><body></body></html>';
+
+  it('đặt thẻ CSP đầu tiên, ngay sau là script chống nhúng, và băm cả hai script inline', () => {
+    const out = transform(page);
+    const csp = /<meta http-equiv="Content-Security-Policy" content="([^"]+)"/.exec(out)?.[1] ?? '';
+    expect(csp).toContain(sha(FRAME_GUARD_SCRIPT));
+    expect(csp).toContain(sha('theme()'));
+    expect(csp).toContain("connect-src 'self' https://tasks-api.nexuspulsetech.xyz");
+    const order = ['<meta charset', 'http-equiv="Content-Security-Policy"', FRAME_GUARD_SCRIPT, 'theme()'].map((s) => out.indexOf(s));
+    expect(order.every((at, i) => at >= 0 && (i === 0 || at > order[i - 1]))).toBe(true);
+    expect(out.split(FRAME_GUARD_SCRIPT)).toHaveLength(2);
+  });
+
+  it('thiếu <meta charset> thì dừng build thay vì phát hành bản không có CSP', () => {
+    expect(() => transform('<html><head><script>theme()</script></head></html>')).toThrow(/meta charset/);
   });
 });

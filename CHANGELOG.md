@@ -9,8 +9,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 - A recovery screen replaces a blank page when the app crashes. It can reload the app or save a backup file read straight from local storage, which the restore feature can import.
 
+### Fixed
+- The shareable productivity card shows the Stride Tasks name instead of the old product name.
+
 ### Security
 - Content Security Policy for the web app: only the app's own scripts, its API and privacy-friendly analytics may load. The policy is generated at build time with hashes for inline scripts.
+- Styles may only come from the app's own stylesheets, and the app hides itself when another site embeds it in a frame, which blocks clickjacking.
 
 ## [3.2.0] - 2026-11-09
 
