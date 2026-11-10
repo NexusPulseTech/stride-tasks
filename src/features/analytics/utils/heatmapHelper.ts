@@ -1,4 +1,5 @@
 import { getLevelFromCount, getTodayKey } from '../hooks/useActivityLog';
+import type { Language } from '../../../i18n/types';
 
 export interface HeatmapDay {
   dateKey: string;
@@ -13,24 +14,33 @@ export interface HeatmapWeek {
   monthLabel?: string;
 }
 
-const MONTH_NAMES = [
-  'Thg 1', 'Thg 2', 'Thg 3', 'Thg 4', 'Thg 5', 'Thg 6',
-  'Thg 7', 'Thg 8', 'Thg 9', 'Thg 10', 'Thg 11', 'Thg 12',
-];
+/** Nhãn ngắn theo ngôn ngữ giao diện; thứ trong tuần bắt đầu từ Chủ nhật như Date.getDay(). */
+const LABELS: Record<Language, { months: string[]; weekdays: string[] }> = {
+  vi: {
+    months: ['Thg 1', 'Thg 2', 'Thg 3', 'Thg 4', 'Thg 5', 'Thg 6', 'Thg 7', 'Thg 8', 'Thg 9', 'Thg 10', 'Thg 11', 'Thg 12'],
+    weekdays: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
+  },
+  en: {
+    months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    weekdays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+  },
+};
 
-const VI_WEEKDAYS = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+export function heatmapWeekdayLabel(dayIndex: number, language: Language): string {
+  return LABELS[language].weekdays[dayIndex];
+}
 
-function formatDateVi(d: Date): string {
-  const dayName = VI_WEEKDAYS[d.getDay()];
-  const day = d.getDate();
-  const month = d.getMonth() + 1;
-  const year = d.getFullYear();
-  return `${dayName}, ${day}/${month}/${year}`;
+export function formatHeatmapDate(d: Date, language: Language): string {
+  const { months, weekdays } = LABELS[language];
+  const dayName = weekdays[d.getDay()];
+  if (language === 'vi') return `${dayName}, ${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+  return `${dayName}, ${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
 }
 
 export function generateHeatmapWeeks(
   activityMap: Record<string, number>,
-  weeksCount: number = 22
+  weeksCount: number = 22,
+  language: Language = 'en'
 ): HeatmapWeek[] {
   const todayKey = getTodayKey();
   const today = new Date();
@@ -70,7 +80,7 @@ export function generateHeatmapWeeks(
       const mIdx = curDate.getMonth();
       if (d === 0 && mIdx !== currentMonthIndex) {
         currentMonthIndex = mIdx;
-        weekMonthLabel = MONTH_NAMES[mIdx];
+        weekMonthLabel = LABELS[language].months[mIdx];
       }
 
       const count = activityMap[dateKey] || 0;
@@ -79,7 +89,7 @@ export function generateHeatmapWeeks(
         count,
         level: getLevelFromCount(count),
         isToday: dateKey === todayKey,
-        formattedDate: formatDateVi(curDate),
+        formattedDate: formatHeatmapDate(curDate, language),
       });
     }
 

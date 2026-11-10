@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Download, Copy, Check } from 'lucide-react';
 import { CompletedTaskItem } from '../utils/completedTasksHelper';
-import { useLanguage } from '../../../i18n';
+import { useLanguage, formatMessage, pluralize } from '../../../i18n';
 
 interface ShareProductivityModalProps {
   isOpen: boolean;
@@ -25,7 +25,7 @@ export function ShareProductivityModal({
   maxDayCount,
   showToast,
 }: ShareProductivityModalProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [range, setRange] = useState<FlexRange>('week');
   const [isCopiedText, setIsCopiedText] = useState(false);
   const [isCopiedImage, setIsCopiedImage] = useState(false);
@@ -51,12 +51,21 @@ export function ShareProductivityModal({
 
   const tasksDoneCount = filteredTasks.length;
   const topTasks = filteredTasks.slice(0, 4);
+  const locale = language === 'vi' ? 'vi-VN' : 'en-US';
+  const dayUnit = (n: number) => pluralize(n, t.analytics.unitDayOne, t.analytics.unitDayOther);
+  const taskUnit = (n: number) => pluralize(n, t.analytics.unitTaskOne, t.analytics.unitTaskOther);
+  const rangeName = range === 'week' ? t.common.thisWeek : range === 'month' ? t.common.thisMonth : t.share.allTime;
+  const summaryDone = pluralize(tasksDoneCount, t.share.textDoneOne, t.share.textDoneOther, { range: rangeName });
+  const summaryStreak = formatMessage(t.share.textStreak, { streak: `${streak} ${dayUnit(streak)}` });
 
   const getRangeLabel = () => {
     const now = new Date();
-    if (range === 'week') return `Tuần này (${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()})`;
-    if (range === 'month') return `Tháng ${now.getMonth() + 1}/${now.getFullYear()}`;
-    return `Chuỗi kỉ lục (${streak} ngày liên tục)`;
+    if (range === 'week') return `${t.common.thisWeek} (${now.toLocaleDateString(locale, { dateStyle: 'medium' })})`;
+    if (range === 'month') {
+      const label = now.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
+      return label.charAt(0).toUpperCase() + label.slice(1);
+    }
+    return formatMessage(t.share.streakLabel, { count: streak });
   };
 
   // Vẽ thẻ Flex theo chuẩn tối giản (Apple / Linear style: Monochrome & High Contrast)
@@ -86,7 +95,7 @@ export function ShareProductivityModal({
     // Tiêu đề nhỏ
     ctx.fillStyle = '#64748b';
     ctx.font = '500 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    ctx.fillText('BÁO CÁO NĂNG SUẤT', 36, 52);
+    ctx.fillText(t.share.reportTitle, 36, 52);
 
     // Tiêu đề chính
     ctx.fillStyle = '#f8fafc';
@@ -100,9 +109,9 @@ export function ShareProductivityModal({
     const boxGap = 16;
 
     const stats = [
-      { label: 'Việc hoàn thành', val: `${tasksDoneCount}` },
-      { label: 'Chuỗi liên tiếp', val: `${streak} ngày` },
-      { label: 'Kỷ lục ngày', val: `${maxDayCount} việc` },
+      { label: t.share.statDone, val: `${tasksDoneCount}` },
+      { label: t.share.statStreak, val: `${streak} ${dayUnit(streak)}` },
+      { label: t.share.statBestDay, val: `${maxDayCount} ${taskUnit(maxDayCount)}` },
     ];
 
     stats.forEach((st, i) => {
@@ -124,13 +133,13 @@ export function ShareProductivityModal({
     // Danh sách việc tiêu biểu đã xong
     ctx.fillStyle = '#64748b';
     ctx.font = '500 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    ctx.fillText('MỤC TIÊU ĐÃ HOÀN THÀNH', 36, 226);
+    ctx.fillText(t.share.completedHeading, 36, 226);
 
     const taskStartY = 246;
     if (topTasks.length === 0) {
       ctx.fillStyle = '#475569';
       ctx.font = 'italic 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-      ctx.fillText('Chưa có công việc nào trong khoảng thời gian này.', 36, taskStartY + 14);
+      ctx.fillText(t.analytics.emptyRange, 36, taskStartY + 14);
     } else {
       topTasks.forEach((item, idx) => {
         const ty = taskStartY + idx * 36;
@@ -159,7 +168,7 @@ export function ShareProductivityModal({
 
     ctx.fillStyle = '#475569';
     ctx.font = '400 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    ctx.fillText('Stride Tasks · Tập trung hoàn thành công việc', 36, 444);
+    ctx.fillText(t.share.footer, 36, 444);
 
     ctx.fillStyle = '#94a3b8';
     ctx.font = '500 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
@@ -218,12 +227,11 @@ export function ShareProductivityModal({
 
   // Sao chép bài viết văn bản
   const handleCopyText = () => {
-    const rangeText = range === 'week' ? 'Tuần này' : range === 'month' ? 'Tháng này' : 'Thời gian qua';
     const lines = [
-      `${rangeText} đã hoàn thành ${tasksDoneCount} công việc.`,
-      `Chuỗi liên tục: ${streak} ngày. Kỷ lục ngày: ${maxDayCount} việc.`,
+      summaryDone,
+      `${summaryStreak} ${formatMessage(t.share.textBestDay, { best: `${maxDayCount} ${taskUnit(maxDayCount)}` })}`,
       '',
-      'Mục tiêu đã hoàn thành:',
+      t.share.textCompletedHeading,
       ...topTasks.map((t) => `• ${t.title} (${t.projectName})`),
       '',
       '#Productivity #WorkDone #Focus',
@@ -250,17 +258,18 @@ export function ShareProductivityModal({
         <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
           <div>
             <h3 className="text-xs sm:text-[13px] font-semibold text-slate-900 dark:text-slate-100">
-              Chia sẻ kết quả công việc
+              {t.share.title}
             </h3>
             <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
-              Tải ảnh thẻ tối giản hoặc sao chép văn bản tóm tắt
+              {t.share.subtitle}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="w-7 h-7 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors cursor-pointer shrink-0"
-            title="Đóng (Esc)"
+            title={t.common.closeEsc}
+            aria-label={t.common.close}
           >
             <X className="w-4 h-4" strokeWidth={1.5} />
           </button>
@@ -271,7 +280,7 @@ export function ShareProductivityModal({
           {/* Segmented controls chọn khoảng thời gian */}
           <div className="flex items-center justify-between gap-2">
             <span className="text-[11px] text-slate-400 dark:text-slate-500">
-              Khoảng thời gian:
+              {t.share.periodLabel}
             </span>
             <div className="inline-flex items-center p-0.5 bg-slate-100 dark:bg-slate-800/60 rounded-md text-[11.5px]">
               <button
@@ -283,7 +292,7 @@ export function ShareProductivityModal({
                     : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                Tuần này
+                {t.common.thisWeek}
               </button>
               <button
                 type="button"
@@ -294,7 +303,7 @@ export function ShareProductivityModal({
                     : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                Tháng này
+                {t.common.thisMonth}
               </button>
               <button
                 type="button"
@@ -305,7 +314,7 @@ export function ShareProductivityModal({
                     : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                Toàn chuỗi
+                {t.share.streakTab}
               </button>
             </div>
           </div>
@@ -321,7 +330,7 @@ export function ShareProductivityModal({
 
           {/* Đoạn trích văn bản tóm tắt */}
           <div className="p-2.5 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-200/60 dark:border-slate-800 text-[11.5px] font-mono text-slate-600 dark:text-slate-400 select-all leading-relaxed">
-            {range === 'week' ? 'Tuần này' : range === 'month' ? 'Tháng này' : 'Thời gian qua'} đã hoàn thành {tasksDoneCount} công việc. Chuỗi liên tục: {streak} ngày.
+            {summaryDone} {summaryStreak}
           </div>
         </div>
 
@@ -333,7 +342,7 @@ export function ShareProductivityModal({
             className="h-7.5 px-3 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-medium flex items-center gap-1.5 cursor-pointer transition-colors"
           >
             {isCopiedText ? <Check className="w-3.5 h-3.5 text-slate-900 dark:text-slate-100" /> : <Copy className="w-3.5 h-3.5" />}
-            <span>Sao chép chữ</span>
+            <span>{t.share.copyText}</span>
           </button>
 
           <div className="flex items-center gap-2">
@@ -343,7 +352,7 @@ export function ShareProductivityModal({
               className="h-7.5 px-3 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-medium flex items-center gap-1.5 cursor-pointer transition-colors"
             >
               {isCopiedImage ? <Check className="w-3.5 h-3.5 text-slate-900 dark:text-slate-100" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>Sao chép ảnh</span>
+              <span>{t.share.copyImage}</span>
             </button>
 
             <button
@@ -352,7 +361,7 @@ export function ShareProductivityModal({
               className="h-7.5 px-3 rounded-md bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-slate-950 text-xs font-medium flex items-center gap-1.5 cursor-pointer transition-colors"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Tải ảnh PNG</span>
+              <span>{t.share.downloadPng}</span>
             </button>
           </div>
         </div>

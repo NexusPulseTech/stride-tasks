@@ -7,6 +7,7 @@ import { CompletedTasksTable } from './CompletedTasksTable';
 import { ShareProductivityModal } from './ShareProductivityModal';
 import { HeatmapDay } from '../utils/heatmapHelper';
 import { formatLogsToTaskItems } from '../utils/completedTasksHelper';
+import { useLanguage, formatMessage, pluralize } from '../../../i18n';
 import type { FocusSummary } from '../../focus/utils/focusLog';
 
 interface StatsPanelProps {
@@ -43,11 +44,21 @@ export function StatsPanel({
   onClearAllLogs,
   onResetSeed,
 }: StatsPanelProps) {
+  const { t, language } = useLanguage();
   const [selectedDay, setSelectedDay] = useState<HeatmapDay | null>(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // Chuyển đổi dữ liệu log hoàn thành (Single Source of Truth) sang định dạng hiển thị
-  const completedTasks = useMemo(() => formatLogsToTaskItems(completedLogs), [completedLogs]);
+  const completedTasks = useMemo(
+    () => formatLogsToTaskItems(completedLogs, { today: t.common.today, yesterday: t.common.yesterday, language }),
+    [completedLogs, t, language]
+  );
+
+  // Kỷ lục ngày thật (ngày có nhiều việc xong nhất) cho thẻ chia sẻ, không dùng số việc của tuần
+  const bestDayCount = useMemo(
+    () => Object.values(activityMap).reduce((max, n) => Math.max(max, n || 0), 0),
+    [activityMap]
+  );
 
   // Time-Budget ROI của chu kỳ hiện tại: chỉ tính việc cấp 1 CÓ ước tính, cùng phạm vi cho cả tử số và mẫu số
   const focusMetrics = useMemo(() => {
@@ -55,10 +66,10 @@ export function StatsPanel({
     let estimatedMinutes = 0;
 
     projects.forEach((p) => {
-      p.tasks.forEach((t) => {
-        if (!t.estimatedMinutes) return;
-        estimatedMinutes += t.estimatedMinutes;
-        budgetFocusedMinutes += t.focusedMinutes || 0;
+      p.tasks.forEach((task) => {
+        if (!task.estimatedMinutes) return;
+        estimatedMinutes += task.estimatedMinutes;
+        budgetFocusedMinutes += task.focusedMinutes || 0;
       });
     });
 
@@ -73,10 +84,10 @@ export function StatsPanel({
       <div className="flex items-center justify-between gap-3">
         <div>
           <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 tracking-tight">
-            Nhịp độ & Lịch sử hoàn thành
+            {t.analytics.title}
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Dữ liệu đồng bộ trực tiếp từ các mục tiêu đã làm & đồng hồ Pomodoro Deep Work
+            {t.analytics.subtitle}
           </p>
         </div>
 
@@ -85,19 +96,19 @@ export function StatsPanel({
             type="button"
             onClick={() => setIsShareModalOpen(true)}
             className="h-7.5 px-3 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
-            title="Tạo ảnh thẻ hoặc tóm tắt để chia sẻ kết quả"
-            aria-label="Chia sẻ kết quả"
+            title={t.analytics.shareHint}
+            aria-label={t.analytics.shareLabel}
           >
             <Share2 className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
-            <span>Chia sẻ</span>
+            <span>{t.analytics.share}</span>
           </button>
 
           <button
             type="button"
             onClick={onClose}
             className="w-7.5 h-7.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md flex items-center justify-center cursor-pointer transition-colors"
-            title="Đóng bảng nhịp độ"
-            aria-label="Đóng bảng nhịp độ"
+            title={t.analytics.closePanel}
+            aria-label={t.analytics.closePanel}
           >
             <X className="w-4 h-4" strokeWidth={1.5} />
           </button>
@@ -108,53 +119,56 @@ export function StatsPanel({
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 py-3 border-y border-slate-100 dark:border-slate-800/80">
         <div>
           <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-            Hôm nay
+            {t.analytics.todayCount}
           </span>
           <div className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-mono tabular-nums mt-0.5">
-            {todayCount} <span className="text-xs font-normal text-slate-400 font-sans">việc</span>
+            {todayCount} <span className="text-xs font-normal text-slate-400 font-sans">{pluralize(todayCount, t.analytics.unitTaskOne, t.analytics.unitTaskOther)}</span>
           </div>
         </div>
 
         <div>
           <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-            Tuần này
+            {t.analytics.weekCount}
           </span>
           <div className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-mono tabular-nums mt-0.5">
-            {weekCount} <span className="text-xs font-normal text-slate-400 font-sans">việc</span>
+            {weekCount} <span className="text-xs font-normal text-slate-400 font-sans">{pluralize(weekCount, t.analytics.unitTaskOne, t.analytics.unitTaskOther)}</span>
           </div>
         </div>
 
         <div>
           <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-            Chuỗi liên tục
+            {t.analytics.streakCount}
           </span>
           <div className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-mono tabular-nums mt-0.5">
-            {currentStreak} <span className="text-xs font-normal text-slate-400 font-sans">ngày</span>
+            {currentStreak} <span className="text-xs font-normal text-slate-400 font-sans">{pluralize(currentStreak, t.analytics.unitDayOne, t.analytics.unitDayOther)}</span>
           </div>
         </div>
 
         <div>
           <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-            Tổng đã xong
+            {t.analytics.totalCount}
           </span>
           <div className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-mono tabular-nums mt-0.5">
-            {totalCompleted} <span className="text-xs font-normal text-slate-400 font-sans">việc</span>
+            {totalCompleted} <span className="text-xs font-normal text-slate-400 font-sans">{pluralize(totalCompleted, t.analytics.unitTaskOne, t.analytics.unitTaskOther)}</span>
           </div>
         </div>
 
         <div className="col-span-2 sm:col-span-1 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-800/60">
           <span className="text-[11px] font-medium text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
-            Deep Work tuần này
+            {t.analytics.focusWeek}
           </span>
           <div className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 font-mono tabular-nums mt-0.5">
             {focusSummary?.weekMinutes ?? 0}{' '}
             <span className="text-xs font-normal text-slate-400 font-sans">
-              phút · {focusSummary?.completedSessions ?? 0} phiên hoàn tất
+              {pluralize(focusSummary?.completedSessions ?? 0, t.analytics.focusDetailOne, t.analytics.focusDetailOther)}
             </span>
           </div>
           {focusMetrics.estimatedMinutes > 0 && (
             <div className="text-[11px] text-slate-400 dark:text-slate-500 font-mono tabular-nums">
-              Quỹ thời gian: {focusMetrics.budgetFocusedMinutes}/{focusMetrics.estimatedMinutes} phút
+              {formatMessage(t.analytics.timeBudget, {
+                focused: focusMetrics.budgetFocusedMinutes,
+                estimated: focusMetrics.estimatedMinutes,
+              })}
             </div>
           )}
         </div>
@@ -188,7 +202,7 @@ export function StatsPanel({
         completedTasks={completedTasks}
         streak={currentStreak}
         totalCompleted={totalCompleted}
-        maxDayCount={weekCount}
+        maxDayCount={bestDayCount}
         showToast={showToast}
       />
     </section>

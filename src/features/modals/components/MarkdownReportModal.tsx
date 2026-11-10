@@ -4,7 +4,7 @@ import { X, Copy, Check, Download, FileText } from 'lucide-react';
 import { Project, StatusDefinition } from '../../../types';
 import { isDoneStatus, isDoingStatus } from '../../tasks/utils/statusCategory';
 import { CompletedItemLog, getTodayKey } from '../../analytics/hooks/useActivityLog';
-import { useLanguage } from '../../../i18n';
+import { useLanguage, formatMessage, pluralize } from '../../../i18n';
 import { triggerHaptic } from '../../../utils';
 
 export interface MarkdownReportModalProps {
@@ -34,7 +34,7 @@ export function MarkdownReportModal({
   showToast,
   onBeforeExport,
 }: MarkdownReportModalProps) {
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   const [template, setTemplate] = useState<ReportTemplate>('standup');
   const [includeAttribution, setIncludeAttribution] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -84,26 +84,31 @@ export function MarkdownReportModal({
       });
     });
 
+    const r = t.report;
     const formatTimeBadge = (mins: number, est: number) => {
-      if (mins > 0 && est > 0) return ` · ${mins}/${est}m focus`;
-      if (mins > 0) return ` · ${mins}m focus`;
-      if (est > 0) return ` · ~${est}m est`;
+      if (mins > 0 && est > 0) return ` · ${formatMessage(r.badgeFocusOfPlan, { mins, est })}`;
+      if (mins > 0) return ` · ${formatMessage(r.badgeFocus, { mins })}`;
+      if (est > 0) return ` · ${formatMessage(r.badgeEstimate, { est })}`;
       return '';
     };
+    const focusTotal = totalEstimatedMinutes > 0 ? `${totalFocusMinutes}/${totalEstimatedMinutes}` : totalFocusMinutes;
 
     const lines: string[] = [];
 
     if (template === 'standup') {
-      lines.push(`# 📋 Daily Standup & Shutdown Report (${todayDate})`);
+      lines.push(`# ${formatMessage(r.standupTitle, { date: todayDate })}`);
       lines.push(
-        `> **Streak:** ${streak}d · **Completed Today:** ${todayCount} · **Deep Work Focus:** ${totalFocusMinutes}${
-          totalEstimatedMinutes > 0 ? `/${totalEstimatedMinutes}` : ''
-        } mins (${totalPomodoroSessions} Pomodoro sessions)`
+        formatMessage(r.standupSummary, {
+          streak,
+          today: todayCount,
+          focus: focusTotal,
+          sessions: totalPomodoroSessions,
+        })
       );
       lines.push('');
-      lines.push(`## ✅ Completed (${doneTasks.length})`);
+      lines.push(`## ${formatMessage(r.sectionCompleted, { count: doneTasks.length })}`);
       if (doneTasks.length === 0) {
-        lines.push('- *(No tasks marked completed yet)*');
+        lines.push(`- ${r.noneCompleted}`);
       } else {
         doneTasks.forEach((item) => {
           lines.push(
@@ -112,13 +117,13 @@ export function MarkdownReportModal({
         });
       }
       lines.push('');
-      lines.push(`## 🚀 In Progress & Next Up (${doingTasks.length})`);
+      lines.push(`## ${formatMessage(r.sectionInProgress, { count: doingTasks.length })}`);
       if (doingTasks.length === 0) {
-        lines.push('- *(All clear: Evening Shutdown Complete)*');
+        lines.push(`- ${r.allClear}`);
       } else {
         doingTasks.slice(0, 15).forEach((item) => {
           lines.push(
-            `- [ ] ${item.isPinned ? '📌 ' : ''}${item.title} *(${item.project}${formatTimeBadge(
+            `- [ ] ${item.isPinned ? r.pinnedPrefix : ''}${item.title} *(${item.project}${formatTimeBadge(
               item.minutes,
               item.estimated
             )})*`
@@ -136,39 +141,35 @@ export function MarkdownReportModal({
       lines.push('tags: [stride-tasks, daily-note, productivity, deep-work]');
       lines.push('---');
       lines.push('');
-      lines.push(`# Daily Execution & Time-Budget Log (${todayDate})`);
+      lines.push(`# ${formatMessage(r.obsidianTitle, { date: todayDate })}`);
       lines.push('');
-      lines.push('### 🎯 Priority & Active Queue');
+      lines.push(`### ${r.sectionPriority}`);
       doingTasks.forEach((item) => {
         lines.push(`- [ ] ${item.title} \`${item.project}\`${formatTimeBadge(item.minutes, item.estimated)}`);
       });
       lines.push('');
-      lines.push('### 🧠 Anki SM-2 Spaced Repetition Items');
+      lines.push(`### ${r.sectionSrs}`);
       if (srsTasks.length === 0) {
-        lines.push('- No active SRS items.');
+        lines.push(`- ${r.noSrs}`);
       } else {
         srsTasks.forEach((item) => {
           lines.push(`- **${item.title}** · ${item.project} · \`SRS Lv.${item.level}\``);
         });
       }
       lines.push('');
-      lines.push('### ✅ Completed');
+      lines.push(`### ${r.sectionDone}`);
       doneTasks.forEach((item) => {
         lines.push(`- [x] ${item.title} \`${item.project}\`${formatTimeBadge(item.minutes, item.estimated)}`);
       });
     } else {
-      lines.push(`# 📊 Weekly Executive & Anki SRS Summary (${todayDate})`);
+      lines.push(`# ${formatMessage(r.weeklyTitle, { date: todayDate })}`);
       lines.push('');
-      lines.push(`- **Current Streak:** ${streak} days`);
-      lines.push(`- **Completed (7 Days):** ${weekCount} items`);
-      lines.push(
-        `- **Total Deep Work Logged:** ${totalFocusMinutes}${
-          totalEstimatedMinutes > 0 ? ` / ${totalEstimatedMinutes}` : ''
-        } minutes (${totalPomodoroSessions} Pomodoro sessions)`
-      );
-      lines.push(`- **Active Projects:** ${projects.length}`);
+      lines.push(`- ${formatMessage(r.weeklyStreak, { count: streak })}`);
+      lines.push(`- ${formatMessage(r.weeklyCompleted, { count: weekCount })}`);
+      lines.push(`- ${formatMessage(r.weeklyFocus, { focus: focusTotal, sessions: totalPomodoroSessions })}`);
+      lines.push(`- ${formatMessage(r.weeklyProjects, { count: projects.length })}`);
       lines.push('');
-      lines.push('## Dự án & Tiến độ chi tiết');
+      lines.push(`## ${r.sectionProjects}`);
       projects.forEach((p) => {
         const doneCount = p.tasks.filter((t) => isDoneStatus(t.status, statuses)).length;
         lines.push(`### ${p.name} (${doneCount}/${p.tasks.length})`);
@@ -188,9 +189,7 @@ export function MarkdownReportModal({
     if (includeAttribution) {
       lines.push('');
       lines.push('---');
-      lines.push(
-        '*⚡ Quản lý thực thi Linear, Time-Budget Sunsama & Ôn tập Anki SM-2 bởi **Stride Tasks** (https://tasks.nexuspulsetech.xyz)*'
-      );
+      lines.push(r.attribution);
     }
 
     return {
@@ -204,7 +203,7 @@ export function MarkdownReportModal({
         srsCount: srsTasks.length,
       },
     };
-  }, [projects, statuses, streak, todayCount, weekCount, template, includeAttribution]);
+  }, [projects, statuses, streak, todayCount, weekCount, template, includeAttribution, t]);
 
   if (!isOpen) return null;
 
@@ -274,7 +273,7 @@ export function MarkdownReportModal({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-[#0d1117] border border-slate-200/80 dark:border-slate-800">
             <div>
               <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Deep Work / Dự kiến
+                {t.report.uiFocusVsPlan}
               </div>
               <div className="text-sm font-mono tabular-nums font-bold text-indigo-600 dark:text-indigo-400 mt-0.5">
                 {summaryStats.totalFocusMinutes}
@@ -282,32 +281,32 @@ export function MarkdownReportModal({
                   ? `/${summaryStats.totalEstimatedMinutes}m`
                   : 'm'}{' '}
                 <span className="text-[11px] font-normal text-slate-400">
-                  ({summaryStats.totalPomodoroSessions} phiên)
+                  {pluralize(summaryStats.totalPomodoroSessions, t.report.uiSessionsOne, t.report.uiSessionsOther)}
                 </span>
               </div>
             </div>
             <div>
               <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Đã hoàn thành
+                {t.report.uiDone}
               </div>
               <div className="text-sm font-mono tabular-nums font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">
-                {summaryStats.doneCount} việc · Hôm nay: {todayCount}
+                {formatMessage(t.report.uiDoneValue, { count: summaryStats.doneCount, today: todayCount })}
               </div>
             </div>
             <div>
               <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Đang thực thi (WIP)
+                {t.report.uiWip}
               </div>
               <div className="text-sm font-mono tabular-nums font-bold text-amber-600 dark:text-amber-400 mt-0.5">
-                {summaryStats.doingCount}/3 việc
+                {formatMessage(t.report.uiWipValue, { count: summaryStats.doingCount })}
               </div>
             </div>
             <div>
               <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Ôn tập Anki SM-2
+                {t.report.uiSrs}
               </div>
               <div className="text-sm font-mono tabular-nums font-bold text-sky-600 dark:text-sky-400 mt-0.5">
-                {summaryStats.srsCount} thẻ nhớ · {streak}d chuỗi
+                {formatMessage(t.report.uiSrsValue, { count: summaryStats.srsCount, streak })}
               </div>
             </div>
           </div>

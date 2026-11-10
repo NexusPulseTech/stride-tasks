@@ -78,4 +78,14 @@ export function formatMessage(template: string, vars: Record<string, string | nu
   );
 }
 
+/** Chọn dạng số ít hoặc số nhiều rồi thay {count}. Tiếng Anh: đúng 1 là số ít; tiếng Việt hai dạng giống nhau. */
+export function pluralize(
+  count: number,
+  one: string,
+  other: string,
+  vars: Record<string, string | number> = {}
+): string {
+  return formatMessage(count === 1 ? one : other, { ...vars, count });
+}
+
 export * from './types';

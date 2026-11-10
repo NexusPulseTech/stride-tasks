@@ -1,4 +1,5 @@
 import { CompletedItemLog, getTodayKey } from '../hooks/useActivityLog';
+import type { Language } from '../../../i18n/types';
 
 export interface CompletedTaskItem {
   id: string;
@@ -13,7 +14,15 @@ export interface CompletedTaskItem {
   subtasksTotal: number;
 }
 
-export function formatCompletedTime(isoOrDate: string): string {
+export interface CompletedTimeLabels {
+  today: string;
+  yesterday: string;
+  language: Language;
+}
+
+const DEFAULT_TIME_LABELS: CompletedTimeLabels = { today: 'Today', yesterday: 'Yesterday', language: 'en' };
+
+export function formatCompletedTime(isoOrDate: string, labels: CompletedTimeLabels = DEFAULT_TIME_LABELS): string {
   try {
     const d = new Date(isoOrDate);
     if (isNaN(d.getTime())) return isoOrDate;
@@ -32,17 +41,20 @@ export function formatCompletedTime(isoOrDate: string): string {
       d.getFullYear() === yesterday.getFullYear();
 
     const timeStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-    const dateStr = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
+    const dateStr =
+      labels.language === 'vi'
+        ? `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`
+        : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
-    if (isToday) return `Hôm nay, ${timeStr}`;
-    if (isYesterday) return `Hôm qua, ${timeStr}`;
+    if (isToday) return `${labels.today}, ${timeStr}`;
+    if (isYesterday) return `${labels.yesterday}, ${timeStr}`;
     return `${timeStr} · ${dateStr}`;
   } catch (e) {
     return isoOrDate;
   }
 }
 
-export function formatLogsToTaskItems(logs: CompletedItemLog[]): CompletedTaskItem[] {
+export function formatLogsToTaskItems(logs: CompletedItemLog[], labels?: CompletedTimeLabels): CompletedTaskItem[] {
   return logs.map((log) => ({
     id: log.id,
     taskId: log.taskId,
@@ -51,7 +63,7 @@ export function formatLogsToTaskItems(logs: CompletedItemLog[]): CompletedTaskIt
     projectName: log.projectName,
     completedAt: log.completedAt,
     dateKey: log.dateKey,
-    formattedDate: formatCompletedTime(log.completedAt),
+    formattedDate: formatCompletedTime(log.completedAt, labels),
     subtasksCompleted: log.subtasksCompleted || 0,
     subtasksTotal: log.subtasksTotal || 0,
   }));

@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { generateHeatmapWeeks, HeatmapDay } from '../utils/heatmapHelper';
+import { generateHeatmapWeeks, HeatmapDay, heatmapWeekdayLabel } from '../utils/heatmapHelper';
+import { useLanguage, formatMessage, pluralize } from '../../../i18n';
 
 interface ContributionHeatmapProps {
   activityMap: Record<string, number>;
@@ -15,7 +16,8 @@ export function ContributionHeatmap({
   onAddManualDoneToday,
 }: ContributionHeatmapProps) {
   // Sinh 22 tuần qua (khoảng 5 tháng) để vừa vặn hoàn hảo trên màn hình
-  const weeks = useMemo(() => generateHeatmapWeeks(activityMap, 22), [activityMap]);
+  const { t, language } = useLanguage();
+  const weeks = useMemo(() => generateHeatmapWeeks(activityMap, 22, language), [activityMap, language]);
 
   const getColorClasses = (level: 0 | 1 | 2 | 3 | 4) => {
     switch (level) {
@@ -61,11 +63,11 @@ export function ContributionHeatmap({
             {/* Cột nhãn thứ trong tuần (T2, T4, T6) */}
             <div className="flex flex-col gap-[2.5px] text-[8.5px] text-slate-400 dark:text-slate-500 font-medium pr-1 select-none shrink-0 w-5">
               <span className="h-[11px] leading-[11px]"></span>
-              <span className="h-[11px] leading-[11px]">T2</span>
+              <span className="h-[11px] leading-[11px]">{heatmapWeekdayLabel(1, language)}</span>
               <span className="h-[11px] leading-[11px]"></span>
-              <span className="h-[11px] leading-[11px]">T4</span>
+              <span className="h-[11px] leading-[11px]">{heatmapWeekdayLabel(3, language)}</span>
               <span className="h-[11px] leading-[11px]"></span>
-              <span className="h-[11px] leading-[11px]">T6</span>
+              <span className="h-[11px] leading-[11px]">{heatmapWeekdayLabel(5, language)}</span>
               <span className="h-[11px] leading-[11px]"></span>
             </div>
 
@@ -89,8 +91,8 @@ export function ContributionHeatmap({
                       key={day.dateKey}
                       type="button"
                       onClick={() => handleDayClick(day)}
-                      title={`${day.count} việc hoàn thành vào ${day.formattedDate} (Bấm để xem danh sách)`}
-                      aria-label={`${day.count} việc hoàn thành vào ${day.formattedDate}`}
+                      title={formatMessage(t.analytics.dayCellTitle, { count: day.count, date: day.formattedDate })}
+                      aria-label={formatMessage(t.analytics.dayCellLabel, { count: day.count, date: day.formattedDate })}
                       className={`w-[11px] h-[11px] rounded-[2px] transition-all cursor-pointer ${getColorClasses(
                         day.level
                       )} ${
@@ -115,47 +117,47 @@ export function ContributionHeatmap({
               <strong className="text-slate-900 dark:text-slate-100">
                 {selectedDay.count}
               </strong>{' '}
-              việc vào {selectedDay.formattedDate}
-              {selectedDay.isToday ? ' (Hôm nay)' : ''}
+              {formatMessage(t.analytics.selectedDayText, { date: selectedDay.formattedDate })}
+              {selectedDay.isToday ? ` (${t.common.today})` : ''}
               <button
                 type="button"
                 onClick={() => onSelectDay(null)}
                 className="ml-2 text-[10px] text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
               >
-                Hủy chọn
+                {t.analytics.clearSelection}
               </button>
             </span>
           ) : (
             <span className="text-slate-400 dark:text-slate-500 italic text-[10.5px]">
-              Bấm vào bất kỳ ô nào để lọc danh sách việc ngày đó
+              {t.analytics.heatmapHint}
             </span>
           )}
         </div>
 
         {/* Chú giải mức độ nhịp độ hoàn thành */}
         <div className="flex items-center gap-1 text-[10px] select-none shrink-0">
-          <span className="text-slate-400 dark:text-slate-500 text-[10px]">Ít</span>
+          <span className="text-slate-400 dark:text-slate-500 text-[10px]">{t.analytics.legendLess}</span>
           <span
             className="w-[10px] h-[10px] rounded-[2px] bg-slate-100 dark:bg-[#161b22] border border-slate-200/60 dark:border-slate-800"
-            title="0 việc (Trống)"
+            title={pluralize(0, t.analytics.legendOne, t.analytics.legendOther)}
           />
           <span
             className="w-[10px] h-[10px] rounded-[2px] bg-emerald-200/90 dark:bg-emerald-950 border border-emerald-300 dark:border-emerald-800"
-            title="1 việc (Xanh nhẹ)"
+            title={pluralize(1, t.analytics.legendOne, t.analytics.legendOther)}
           />
           <span
             className="w-[10px] h-[10px] rounded-[2px] bg-emerald-400 dark:bg-emerald-800 border border-emerald-500 dark:border-emerald-700"
-            title="2 việc"
+            title={pluralize(2, t.analytics.legendOne, t.analytics.legendOther)}
           />
           <span
             className="w-[10px] h-[10px] rounded-[2px] bg-emerald-600 dark:bg-emerald-600 border border-emerald-700 dark:border-emerald-500"
-            title="3 việc"
+            title={pluralize(3, t.analytics.legendOne, t.analytics.legendOther)}
           />
           <span
             className="w-[10px] h-[10px] rounded-[2px] bg-emerald-700 dark:bg-emerald-400 border border-emerald-800 dark:border-emerald-300"
-            title="4+ việc (Xanh đậm)"
+            title={t.analytics.legendMax}
           />
-          <span className="text-slate-400 dark:text-slate-500 text-[10px]">Nhiều</span>
+          <span className="text-slate-400 dark:text-slate-500 text-[10px]">{t.analytics.legendMore}</span>
         </div>
       </div>
     </div>
