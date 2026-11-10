@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 ### Added
+- A link with `?upgrade=pro` opens the PRO pricing dialog directly, for buy buttons outside the app.
 - A recovery screen replaces a blank page when the app crashes. It can reload the app or save a backup file read straight from local storage, which the restore feature can import.
 
 ### Fixed

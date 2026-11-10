@@ -6,7 +6,7 @@
 | Ưu tiên | P0 |
 | Ước lượng | 0,5 ngày làm + chờ Polar duyệt (tối đa 14 ngày, không chặn việc bán) |
 | Phụ thuộc | A01, A02, A04 (☑); A03 phần tạo organization production |
-| Trạng thái | ☐ Todo (chờ founder tạo organization trên polar.sh) |
+| Trạng thái | ◐ Org production đã tạo, sản phẩm, link, webhook, mã thử đã có (2026-11-10); chờ founder nạp secret, KYC, payout |
 | Người làm | Founder: danh tính, KYC, tài khoản nhận tiền, nạp secret. Claude: sản phẩm, link, webhook, mã giảm giá qua API; biến GitHub; kiểm tra |
 
 ## Mục tiêu
@@ -42,6 +42,18 @@ Khách quốc tế mua được PRO bằng thẻ qua Polar và nhận PRO tự �
 7. **Founder**: nộp duyệt ở Polar → Finance → Account: thông tin doanh nghiệp, KYC (CCCD hoặc hộ chiếu kèm selfie qua Stripe Identity), tài khoản nhận tiền Stripe Connect Express. Nếu được hỏi, gửi người duyệt mã 100%.
 8. Ghi nhật ký deploy ([../09-operations/01-deployment-runbook.md](../09-operations/01-deployment-runbook.md)).
 9. **Sau đó, tùy chọn**: VietQR qua SePay cho Việt Nam (founder liên kết ngân hàng, đặt `VITE_VIETQR_IMAGE_URL`, nạp `SEPAY_API_KEY`); email link kích hoạt qua Resend (gói miễn phí, cần bản ghi DNS cho domain và `RESEND_API_KEY`).
+
+## Kết quả 2026-11-10
+- Founder tạo org production `nexuspulse-studio` (Using Polar as: Individual, USD) và khai Product details (Software / SaaS, One-time purchase, URL trang `/en/`, email hỗ trợ).
+- Claude tạo qua API, chỉ đọc lại các trường không bí mật:
+  - 2 sản phẩm thanh toán một lần: "Stride Tasks PRO Lifetime" $19 (công khai) và bản giá vùng $9.95 (Private).
+  - 2 Checkout Link, Success URL về Worker, Return URL về app, tắt ô mã giảm giá: $19 `https://buy.polar.sh/polar_cl_BX78oCD5M4TjNKGFllhJOULVrhPNatqOOZWhX0Snl5c`, $9.95 `https://buy.polar.sh/polar_cl_mQj28IMIexBBwUL7OXzxgcNVkKc8M4orDxN4I3Mg3kY`.
+  - Webhook "Stride Worker": Raw, API 2026-10, chỉ `order.paid` và `order.refunded`.
+  - Mã giảm 100% cho cả hai sản phẩm, tối đa 3 lượt, hết hạn 2026-12-10. Mã không ghi vào repo; xem ở Polar, Products, Discounts.
+  - Hồ sơ org: logo tải lên kho của Polar, link GitHub công khai.
+- Org mới ở **chế độ test**: `capabilities.checkout_payments = false`, trang checkout ghi "NexusPulse Studio is in test mode" và chỉ nhận đơn $0 (mã 100%) cho tới khi Polar duyệt và go live. Thuế ở Việt Nam đã gồm trong giá ($1,73 trên $19).
+- Checklist Account Review của Polar: tạo sản phẩm ✅, checkout ✅, mô tả sản phẩm ✅, email hỗ trợ ✅, link mạng xã hội ✅; còn xác minh danh tính, tài khoản nhận tiền (founder) và xác minh tên miền bằng bản ghi TXT `_polar-challenge.tasks.nexuspulsetech.xyz` (tùy chọn, cần sửa DNS Cloudflare).
+- App nhận `?upgrade=pro` để mở bảng giá PRO; nút "PRO opens soon" trên `/en/` đổi sang link này cùng lúc bật `VITE_ENABLE_PAYWALL`.
 
 ## Tiêu chí nghiệm thu
 - [ ] Trang đích và app trên production hiện nút mua trỏ tới checkout Polar production.

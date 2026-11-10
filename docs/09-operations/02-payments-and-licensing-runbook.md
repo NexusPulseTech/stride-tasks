@@ -58,6 +58,13 @@ Khuyến nghị khách: sau khi kích hoạt, vào Trung tâm bản quyền → 
 - Polar tự gắn `customer_session_token` vào Success URL; Worker bỏ qua tham số này.
 - Lịch Polar thử lại quan sát được: 0,8s, 7s, 18s, 49s, 82s, 194s... sau khi tạo đơn.
 
+## 5c. Bài học khi dựng production (2026-11-10)
+
+- **Org mới ở chế độ test.** `capabilities.checkout_payments` là `false`, trang checkout ghi "in test mode" và chỉ nhận đơn $0 bằng mã giảm 100% cho tới khi Polar duyệt hồ sơ và go live. Không cần đổi gì ở app khi được duyệt.
+- **Logo org phải tải lên qua Settings, General.** CSP của trang checkout chỉ cho ảnh từ kho của Polar và vài host cố định; đặt `avatar_url` trỏ về tên miền của mình thì checkout chỉ hiện chữ viết tắt.
+- **Thử bằng mã 100% khi link tắt ô mã giảm giá**: tham số `discount_code` chỉ điền sẵn ô nhập, nên tạm bật `allow_discount_codes` trên link, thử xong tắt lại ngay (hoặc tạo link thử riêng gắn sẵn mã, xóa sau khi thử). Mã có giới hạn lượt dùng nên lộ cũng chỉ mất tối đa số lượt đó.
+- **Mỗi lần mở Checkout Link tạo một phiên checkout mới** và tính vào tỉ lệ chuyển đổi trên dashboard, nên chỉ mở khi cần kiểm tra.
+
 ## 6. Kiểm tra định kỳ (hằng tuần khi đang bán)
 
 - Đối soát số đơn MoR/SePay với số bản ghi `order:*` đã phát hành.

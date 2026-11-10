@@ -181,16 +181,22 @@ export default function App() {
     proLicense.ensureProjectLimitBaseline(manager.projects);
 
     const { hash, search, pathname } = window.location;
-    let nextSearch = search;
     const params = new URLSearchParams(search);
+    let consumed = false;
     if (params.get('focus') === 'daily') {
       manager.setShowDailyFocusModal(true);
       params.delete('focus');
-      const rest = params.toString();
-      nextSearch = rest ? `?${rest}` : '';
+      consumed = true;
     }
-    if (nextSearch !== search) {
-      window.history.replaceState(null, '', `${pathname}${nextSearch}${hash}`);
+    // Nút mua trên trang đích (?upgrade=pro) mở bảng giá PRO; chưa bật bán thì chỉ mở app như thường
+    if (params.get('upgrade') === 'pro') {
+      if (PAYWALL_ENABLED) setShowStoreModal(true);
+      params.delete('upgrade');
+      consumed = true;
+    }
+    if (consumed) {
+      const rest = params.toString();
+      window.history.replaceState(null, '', `${pathname}${rest ? `?${rest}` : ''}${hash}`);
     }
 
     // Link kích hoạt có thể đến lúc tải trang HOẶC khi app đang mở (dán link vào cùng tab chỉ đổi hash)
