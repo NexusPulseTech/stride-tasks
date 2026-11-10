@@ -8,7 +8,7 @@
 | :--- | :--- | :--- | :--- |
 | `deploy.yml` | push `main` | checkout@v7, setup-node@v7 (Node 22), `npm install --legacy-peer-deps`, `npm run lint` (tsc), build, Pages (configure@v6, upload-artifact@v5, deploy@v5) | Không test; `npm install` thay vì `npm ci`; không kiểm ngân sách bundle |
 | `desktop-release.yml` | tag `v*` | Windows: actions@v4, Rust stable, build web, `setup-bun@v2` với **`bun-version: latest`**, `tauri-action@v0`, `includeUpdaterJson: true` | Action cũ (cảnh báo Node 20); bun không ghim; **chưa ký số**; updater JSON nhưng app chưa có plugin updater; release cuối là v2.1.0 với file tên 1.0.6 |
-| Worker | - | **Deploy tay** bằng `wrangler@4.151.0` | Không test, không staging, phụ thuộc máy founder |
+| Worker | - | **Deploy tay** bằng `wrangler@4.153.0` | Không test, không staging, phụ thuộc máy founder |
 
 ## 2. Pipeline mục tiêu
 
@@ -49,6 +49,6 @@ flowchart LR
 - `npm ci` + lockfile commit; một lockfile duy nhất (bỏ `bun.lock`).
 - **Dependabot** cho `npm` và `github-actions` (hằng tuần, gộp nhóm minor/patch).
 - Ghim action theo major đã kiểm tra (tối thiểu), mức cao hơn: ghim theo commit SHA.
-- Công cụ chạy bằng `npx` phải ghim phiên bản cụ thể, ưu tiên bản phát hành ≥ 2 tuần (như `wrangler@4.151.0`, `@redocly/cli@2.64.1`).
+- Công cụ chạy bằng `npx` phải ghim phiên bản cụ thể, ưu tiên bản phát hành ≥ 2 tuần (như `wrangler@4.153.0`, `@redocly/cli@2.64.1`).
 - Bật **CodeQL** (miễn phí cho repo public) và **secret scanning + push protection**.
 - Node: khai báo `.nvmrc` và `engines` để local và CI cùng phiên bản LTS (máy founder đang chạy Node 25, CI chạy Node 22 → lệch).

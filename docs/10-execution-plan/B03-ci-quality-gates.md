@@ -30,6 +30,19 @@ Mọi PR và push `main` bị chặn khi type/lint/test/build/ngân sách/quét 
    ```
 
 ## Tiêu chí nghiệm thu
+## Phân loại cảnh báo Dependabot đầu tiên (2026-11-10)
+Ngay khi bật, GitHub báo 13 cảnh báo (8 mở, 5 tự đóng). `npm audit --omit=dev` ở gốc repo và ở `cloudflare-worker` đều 0: **bundle web và Worker production không dính cảnh báo nào** (Worker chạy không có dependency npm). Secret scanning: 0 cảnh báo trên toàn lịch sử.
+
+| Cảnh báo | Nằm ở | Bản vá | Xử lý |
+| :--- | :--- | :--- | :--- |
+| undici (5, có 4 high), zod | Bộ chạy test Worker (`@cloudflare/vitest-plugin` → miniflare) | undici 7.30.1, zod 4.6.6 | **Đã sửa**: nâng `@cloudflare/vitest-plugin` 1.4.4 → 1.5.0 (bản đã vá cũ nhất); `npm audit` của Worker còn 0, 38/38 test qua |
+| wrangler ≤ 4.152.0 (qua miniflare) | Lệnh deploy và nạp secret chạy bằng `npx` | 4.153.0 | **Đã sửa**: ghim `wrangler@4.153.0` (phát hành 26/10, đủ 2 tuần) trong `scripts/worker-secrets.mjs` và runbook |
+| minimatch 10.2.6 | Chỉ lúc build: `vite-plugin-pwa` → `workbox-build` → `glob@11` | 11.0.1, nhưng `glob@11` chỉ nhận minimatch 10.x | Chờ `workbox-build` nâng glob; mẫu glob là của chính dự án, không có đầu vào lạ |
+| deepmerge 4.3.1 | Chỉ lúc build: `workbox-build` → `@rollup/plugin-node-resolve` | Chưa có | Chấp nhận: chỉ trộn cấu hình build của dự án |
+| glib 0.18 (Rust) | Bản desktop Tauri, chỉ khi build cho Linux (GTK) | 0.20, cần nâng Tauri | Làm cùng D02 (desktop đang tạm dừng, bản Windows không dùng glib) |
+
+`npm audit fix` ở gốc repo đề xuất hạ `vite-plugin-pwa` về 1.1.0: **không làm** (hạ cấp và đổi major chỉ để né cảnh báo build). Ba cảnh báo còn lại founder có thể Dismiss trên GitHub với lý do "Risk is tolerable to this project" và ghi chú như bảng trên, hoặc để mở tới khi upstream có bản vá.
+
 - [ ] PR cố tình làm lỗi test/budget bị chặn.
 - [ ] Dependabot tạo PR đầu tiên.
 - [ ] Workflow không còn cảnh báo deprecation.

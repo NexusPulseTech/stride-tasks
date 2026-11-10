@@ -13,7 +13,7 @@
 | Biến | `APP_URL`, `ALLOWED_ORIGINS`, `PRICE_VND`, `MAIL_FROM`, `LICENSE_PUBLIC_KEY`, `SYNC_MAX_VAULTS_PER_LICENSE=3`, `SYNC_REQUIRE_LICENSE=true` |
 | Secret | **Chưa nạp** (cố ý, chờ bật thanh toán): `STRIDE_ED25519_PRIVATE_KEY`, `SEPAY_API_KEY`, `LEMONSQUEEZY_SIGNING_SECRET`, `RESEND_API_KEY` |
 | Route | `POST /webhook/sepay`, `POST /webhook/lemonsqueezy`, `GET /claim`, `GET/PUT/DELETE /sync/v1/vaults/{id}`, `OPTIONS *` |
-| Deploy | Thủ công bằng `wrangler@4.151.0` từ máy founder |
+| Deploy | Thủ công bằng `wrangler@4.153.0` từ máy founder |
 
 ## 2. Dịch vụ mục tiêu
 

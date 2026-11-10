@@ -23,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Styles may only come from the app's own stylesheets, and the app hides itself when another site embeds it in a frame, which blocks clickjacking.
 - The site now sends security headers from the edge: framing is refused, MIME sniffing is off, HTTPS is enforced with HSTS, and camera, microphone and location access are disabled.
 - Vulnerabilities can be reported privately through GitHub. Dependency alerts, automatic security updates, secret scanning and push protection are on for the repository.
+- Development tooling updated to patched versions: the Worker test runner no longer pulls vulnerable undici and zod releases, and deploys use wrangler 4.153.0. The shipped app and Worker had no affected dependencies.
 
 ## [3.2.0] - 2026-11-09
 

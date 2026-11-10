@@ -16,7 +16,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const WORKER_DIR = resolve(ROOT, 'cloudflare-worker');
-const WRANGLER = 'wrangler@4.151.0';
+const WRANGLER = 'wrangler@4.153.0';
 const ENV_KEY = 'STRIDE_ED25519_PRIVATE_KEY';
 
 function die(message) {

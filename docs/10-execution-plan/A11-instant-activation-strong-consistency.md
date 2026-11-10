@@ -37,8 +37,8 @@ Hệ quả: người vừa trả tiền nhìn trang "Đang xác nhận" tới kh
 ## Triển khai (founder chạy, Claude không được deploy production)
 ```bash
 cd cloudflare-worker
-npx wrangler@4.151.0 d1 execute stride-sync --remote --file=schema.sql -y   # chỉ thêm 2 bảng, bảng cũ giữ nguyên
-npx wrangler@4.151.0 deploy                                                 # ghi lại Version ID vào runbook 01 mục 6
+npx wrangler@4.153.0 d1 execute stride-sync --remote --file=schema.sql -y   # chỉ thêm 2 bảng, bảng cũ giữ nguyên
+npx wrangler@4.153.0 deploy                                                 # ghi lại Version ID vào runbook 01 mục 6
 ```
 Thứ tự bắt buộc: schema trước, deploy sau. Sau đó Claude mua thử bằng mã 100% (còn 2 lượt) và đo lại thời gian kích hoạt.
 

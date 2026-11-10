@@ -59,7 +59,7 @@ Thực hiện trong `cloudflare-worker/` (cho tới khi có `worker.yml`: task B
 
 ```bash
 export WRANGLER_SEND_METRICS=false   # account_id nằm trong wrangler.toml (đã gitignore)
-W="npx --yes wrangler@4.151.0"
+W="npx --yes wrangler@4.153.0"
 $W whoami                       # đúng tài khoản Cloudflare của dự án
 $W deploy --dry-run --outdir /tmp/stride-dryrun   # kiểm bundle + bindings
 $W deploy                       # in "Current Version ID: …", ghi lại
