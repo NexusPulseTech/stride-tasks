@@ -1,32 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import {
-  Crown,
-  X,
-  Lock,
-  Unlock,
-  Download,
-  Upload,
-  KeyRound,
-  QrCode,
-  Globe,
-  ExternalLink,
-  Sparkles,
-  FlaskConical,
-  Copy,
-  Loader2,
-  CheckCircle2,
-} from 'lucide-react';
+import { Check, Copy, Crown, Loader2, X } from 'lucide-react';
 import { useLanguage, formatMessage } from '../../../i18n';
 import {
   PAYWALL_ENABLED,
   COMMERCE_CONFIG,
-  PricingRegionId,
   PricingTier,
   buildCardCheckoutUrl,
   buildVietQrImageUrl,
   isDynamicVietQr,
-  resolveActiveTier,
 } from '../../../config/commerceConfig';
 import { ProLicenseApi, FREE_PROJECT_LIMIT, countBillableProjects } from '../../../hooks/useProLicense';
 import { Project } from '../../../types';
@@ -49,6 +31,24 @@ export interface StoreCommercialModalProps {
 
 const MAX_CERTIFICATE_BYTES = 64 * 1024;
 
+// Cùng hệ màu với các hộp thoại khác (SyncModal): nền sáng/tối theo giao diện, nút chính đỏ thương hiệu, không màu trang trí
+const CARD = 'rounded-xl border border-slate-200 dark:border-slate-800';
+const MUTED = 'text-slate-500 dark:text-slate-400';
+const BTN_PRIMARY =
+  'w-full py-2.5 rounded-xl bg-[#B20015] hover:bg-[#9C0012] disabled:opacity-60 text-white text-sm font-bold inline-flex items-center justify-center gap-2 cursor-pointer transition-colors';
+const BTN_SECONDARY =
+  'px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-medium inline-flex items-center gap-1.5 cursor-pointer transition-colors disabled:opacity-50';
+
+/** Tên nước theo ngôn ngữ giao diện (Intl), không dùng cờ emoji */
+function countryName(code: string | null, language: string): string | null {
+  if (!code) return null;
+  try {
+    return new Intl.DisplayNames([language === 'vi' ? 'vi' : 'en'], { type: 'region' }).of(code) ?? code;
+  } catch {
+    return code;
+  }
+}
+
 export function StoreCommercialModal({
   isOpen,
   onClose,
@@ -64,13 +64,15 @@ export function StoreCommercialModal({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isActivating, setIsActivating] = useState(false);
   const certFileInputRef = useRef<HTMLInputElement>(null);
+  const { refreshPricing } = pro;
 
   useEffect(() => {
-    if (isOpen) {
-      setActiveTab('pricing');
-      setErrorMsg(null);
-    }
-  }, [isOpen, triggerContext]);
+    if (!isOpen) return;
+    setActiveTab('pricing');
+    setErrorMsg(null);
+    // Máy chủ quyết định giá theo quốc gia mỗi lần mở (A12); đã nhớ thì hiện ngay, hỏi lại ở nền
+    void refreshPricing();
+  }, [isOpen, triggerContext, refreshPricing]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -83,14 +85,9 @@ export function StoreCommercialModal({
 
   if (!isOpen) return null;
 
-  const { license, availableTiers, pricingRegion } = pro;
-  const visibleTiers = availableTiers;
-  const activeTier: PricingTier | undefined = resolveActiveTier(pricingRegion, visibleTiers);
-
-  const regionName = (id: PricingRegionId) =>
-    id === 'vn-ppp' ? s.regionVn : id === 'emerging-ppp' ? s.regionEmerging : s.regionGlobal;
-  const regionNote = (id: PricingRegionId) =>
-    id === 'vn-ppp' ? s.regionNoteVn : id === 'emerging-ppp' ? s.regionNoteEmerging : s.regionNoteGlobal;
+  const { license, currentTier: tier, pricingCountry, pricingStatus } = pro;
+  const checkingPrice = pricingStatus === 'loading';
+  const regionLabel = tier && tier.id !== 'global-us' ? countryName(pricingCountry, language) : null;
 
   const formatDate = (iso?: string) => {
     if (!iso) return '-';
@@ -142,377 +139,287 @@ export function StoreCommercialModal({
     );
   };
 
-  const orderForTier = (tier: PricingTier) =>
-    pro.pendingOrder && pro.pendingOrder.region === tier.id ? pro.pendingOrder : null;
+  const orderForTier = (x: PricingTier) => (pro.pendingOrder && pro.pendingOrder.region === x.id ? pro.pendingOrder : null);
 
-  const handleLemonSqueezyCheckout = (tier: PricingTier) => {
-    const order = orderForTier(tier) || pro.startOrder(tier.id);
-    window.open(buildCardCheckoutUrl(tier, order.code), '_blank', 'noopener,noreferrer');
+  const handleCardCheckout = (x: PricingTier) => {
+    const order = orderForTier(x) || pro.startOrder(x.id);
+    window.open(buildCardCheckoutUrl(x, order.code), '_blank', 'noopener,noreferrer');
   };
 
-  const renderVietQr = (tier: PricingTier) => {
-    const order = orderForTier(tier);
-    const amountText = `${COMMERCE_CONFIG.vnPriceVnd.toLocaleString('vi-VN')}₫`;
-    return (
-      <div className="bg-[#0b0f17] border border-emerald-500/30 rounded-xl p-4 space-y-3 text-xs">
-        <div className="font-bold text-emerald-300 flex items-center gap-2">
-          <QrCode className="w-4 h-4 shrink-0" />
-          <span>{formatMessage(s.vnTitle, { price: tier.priceDisplay })}</span>
-        </div>
-        <p className="text-slate-300 leading-relaxed">{s.vnBody}</p>
-
-        {order ? (
-          <div className="flex flex-col sm:flex-row gap-4 items-start">
-            <img
-              src={buildVietQrImageUrl(tier.checkoutUrl, COMMERCE_CONFIG.vnPriceVnd, order.code)}
-              alt={s.vnQrAlt}
-              className="w-44 h-44 rounded-lg bg-white p-1.5 object-contain shrink-0"
-              referrerPolicy="no-referrer"
-            />
-            <div className="space-y-2 min-w-0 flex-1">
-              <div>
-                <div className="text-[10.5px] text-slate-400">{s.vnAmountLabel}</div>
-                <div className="font-mono font-bold text-white text-sm">{amountText}</div>
-              </div>
-              <div>
-                <div className="text-[10.5px] text-slate-400">{s.vnContentLabel}</div>
-                <button
-                  type="button"
-                  onClick={() => handleCopy(order.code)}
-                  className="font-mono font-bold text-emerald-300 text-sm inline-flex items-center gap-1.5 hover:underline cursor-pointer"
-                >
-                  {order.code}
-                  <Copy className="w-3.5 h-3.5" />
-                </button>
-              </div>
-              {!isDynamicVietQr(tier.checkoutUrl) && <p className="text-amber-300">{s.vnStaticQrHint}</p>}
-              {pro.canAutoClaim ? (
-                <p className="text-sky-300 flex items-start gap-1.5">
-                  <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0 mt-0.5" />
-                  <span>{s.vnWaiting}</span>
-                </p>
-              ) : (
-                <p className="text-slate-300">{formatMessage(s.vnManualHint, { email: COMMERCE_CONFIG.supportEmail })}</p>
-              )}
-              <button
-                type="button"
-                onClick={() => pro.startOrder(tier.id)}
-                className="text-[11px] text-slate-400 hover:text-white underline cursor-pointer"
-              >
-                {s.vnNewOrder}
-              </button>
-            </div>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => pro.startOrder(tier.id)}
-            className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs cursor-pointer shadow-lg inline-flex items-center gap-2"
-          >
-            <QrCode className="w-4 h-4" />
-            <span>{formatMessage(s.vnTitle, { price: tier.priceDisplay })}</span>
+  const renderVietQr = (x: PricingTier) => {
+    const order = orderForTier(x);
+    if (!order) {
+      return (
+        <div className="space-y-2">
+          <p className={`text-xs leading-relaxed ${MUTED}`}>{s.vnBody}</p>
+          <button type="button" onClick={() => pro.startOrder(x.id)} className={BTN_PRIMARY}>
+            {formatMessage(s.vnTitle, { price: x.priceDisplay })}
           </button>
-        )}
+        </div>
+      );
+    }
+    return (
+      <div className="flex flex-col sm:flex-row gap-4 items-start">
+        <img
+          src={buildVietQrImageUrl(x.checkoutUrl, COMMERCE_CONFIG.vnPriceVnd, order.code)}
+          alt={s.vnQrAlt}
+          className="w-40 h-40 rounded-lg border border-slate-200 dark:border-slate-700 bg-white p-1.5 object-contain shrink-0"
+          referrerPolicy="no-referrer"
+        />
+        <div className="space-y-2 min-w-0 flex-1 text-xs">
+          <div>
+            <div className={MUTED}>{s.vnAmountLabel}</div>
+            <div className="font-mono font-bold text-sm">{`${COMMERCE_CONFIG.vnPriceVnd.toLocaleString('vi-VN')}₫`}</div>
+          </div>
+          <div>
+            <div className={MUTED}>{s.vnContentLabel}</div>
+            <button
+              type="button"
+              onClick={() => handleCopy(order.code)}
+              className="font-mono font-bold text-sm inline-flex items-center gap-1.5 hover:underline cursor-pointer"
+            >
+              {order.code}
+              <Copy className="w-3.5 h-3.5" aria-hidden="true" />
+            </button>
+          </div>
+          {!isDynamicVietQr(x.checkoutUrl) && <p className="text-amber-700 dark:text-amber-300">{s.vnStaticQrHint}</p>}
+          {pro.canAutoClaim ? (
+            <p className={`flex items-start gap-1.5 ${MUTED}`}>
+              <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0 mt-0.5" aria-hidden="true" />
+              <span>{s.vnWaiting}</span>
+            </p>
+          ) : (
+            <p className={MUTED}>{formatMessage(s.vnManualHint, { email: COMMERCE_CONFIG.supportEmail })}</p>
+          )}
+          <button type="button" onClick={() => pro.startOrder(x.id)} className={`text-[11px] underline cursor-pointer ${MUTED}`}>
+            {s.vnNewOrder}
+          </button>
+        </div>
       </div>
     );
   };
 
-  const renderLemonSqueezy = (tier: PricingTier) => (
-    <div className="bg-[#0b0f17] border border-indigo-500/30 rounded-xl p-4 space-y-3 text-xs">
-      <div className="font-bold text-indigo-300 flex items-center gap-2">
-        <Globe className="w-4 h-4 shrink-0" />
-        <span>{formatMessage(s.globalTitle, { price: tier.priceDisplay })}</span>
-      </div>
-      <p className="text-slate-300 leading-relaxed">{s.globalBody}</p>
-      <button
-        type="button"
-        onClick={() => handleLemonSqueezyCheckout(tier)}
-        className="px-4 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white font-bold text-xs cursor-pointer inline-flex items-center gap-2"
-      >
-        <ExternalLink className="w-4 h-4" />
-        <span>{formatMessage(s.globalBuy, { price: tier.priceDisplay })}</span>
-      </button>
-      {orderForTier(tier) && pro.canAutoClaim && (
-        <p className="text-sky-300 flex items-start gap-1.5">
-          <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0 mt-0.5" />
-          <span>{s.globalAfterHint}</span>
-        </p>
-      )}
-    </div>
+  const benefits = [COMMERCE_CONFIG.syncApiUrl ? s.benefitSync : null, s.benefitProjects, s.benefitReports, s.benefitSupport].filter(
+    (item): item is string => Boolean(item)
   );
+
+  const renderOffer = () => {
+    if (!tier) {
+      return <p className={`text-xs ${MUTED}`}>{formatMessage(s.channelUnavailable, { email: COMMERCE_CONFIG.supportEmail })}</p>;
+    }
+    return (
+      <section className={`${CARD} p-4 sm:p-5 space-y-4`}>
+        <div aria-live="polite">
+          {checkingPrice ? (
+            <div className="space-y-2" aria-label={s.priceChecking}>
+              <div className="h-8 w-24 rounded-md bg-slate-100 dark:bg-slate-800 animate-pulse" />
+              <div className="h-3 w-40 rounded bg-slate-100 dark:bg-slate-800 animate-pulse" />
+            </div>
+          ) : (
+            <>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{tier.priceDisplay}</span>
+                <span className={`text-xs ${MUTED}`}>{s.priceOneTime}</span>
+              </div>
+              {regionLabel && <p className={`text-xs mt-1 ${MUTED}`}>{formatMessage(s.priceForCountry, { country: regionLabel })}</p>}
+            </>
+          )}
+        </div>
+
+        <ul className="space-y-2">
+          {benefits.map((item) => (
+            <li key={item} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-200">
+              <Check className="w-4 h-4 mt-0.5 shrink-0 text-emerald-600 dark:text-emerald-400" strokeWidth={2.25} aria-hidden="true" />
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+
+        {tier.channel === 'vietqr' ? (
+          renderVietQr(tier)
+        ) : (
+          <div className="space-y-2">
+            <button type="button" disabled={checkingPrice} onClick={() => handleCardCheckout(tier)} className={BTN_PRIMARY}>
+              {formatMessage(s.buyButton, { price: tier.priceDisplay })}
+            </button>
+            {orderForTier(tier) && pro.canAutoClaim && (
+              <p className={`text-xs flex items-start gap-1.5 ${MUTED}`}>
+                <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0 mt-0.5" aria-hidden="true" />
+                <span>{s.afterBuyHint}</span>
+              </p>
+            )}
+          </div>
+        )}
+
+        <p className={`text-[11px] leading-relaxed ${MUTED}`}>
+          {s.foundingNote} {s.trustLine}
+        </p>
+      </section>
+    );
+  };
 
   const billableProjects = countBillableProjects(projects);
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[10005] flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-150"
+      className="fixed inset-0 z-[10005] flex items-center justify-center p-3 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-label={s.modalTitle}
     >
-      <input
-        ref={certFileInputRef}
-        type="file"
-        accept=".json,application/json"
-        onChange={handleCertificateFileChange}
-        className="hidden"
-      />
+      <input ref={certFileInputRef} type="file" accept=".json,application/json" onChange={handleCertificateFileChange} className="hidden" />
       <div
-        className="w-full max-w-3xl max-h-[92vh] bg-[#0b0f17] text-slate-100 rounded-2xl border border-slate-800 shadow-2xl flex flex-col overflow-hidden"
+        className="w-full max-w-xl max-h-[92vh] flex flex-col bg-white dark:bg-[#11141c] text-slate-800 dark:text-slate-100 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="px-4 sm:px-6 py-3.5 bg-[#111722] border-b border-slate-800/90 flex items-center justify-between gap-3 shrink-0">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-7 h-7 rounded-lg bg-[#B20015] flex items-center justify-center shrink-0">
-              <Crown className="w-4 h-4 text-white" />
+        <div className="flex items-start justify-between gap-3 px-5 pt-5 pb-4 shrink-0">
+          <div className="flex items-start gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-[#B20015] text-white flex items-center justify-center shrink-0">
+              <Crown className="w-5 h-5" aria-hidden="true" />
             </div>
             <div className="min-w-0">
-              <h2 className="text-sm sm:text-base font-bold text-white truncate">{s.modalTitle}</h2>
-              <p className="text-[11px] text-slate-400 truncate">{s.modalSubtitle}</p>
+              <h2 className="text-sm font-bold">{s.modalTitle}</h2>
+              <p className={`text-xs mt-0.5 ${MUTED}`}>{s.modalSubtitle}</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
+            className="w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center text-slate-400 cursor-pointer shrink-0"
             aria-label={s.close}
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Tabs */}
-        <div className="px-4 sm:px-6 py-2.5 bg-[#0e141f] border-b border-slate-800/80 flex items-center gap-1.5 shrink-0" role="tablist">
-          {(['pricing', 'why'] as StoreModalTab[]).map((tab) => (
-            <button
-              key={tab}
-              type="button"
-              role="tab"
-              aria-selected={activeTab === tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
-                activeTab === tab
-                  ? 'bg-sky-500 text-slate-950 shadow-xs'
-                  : 'bg-[#161f30] text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-800'
-              }`}
-            >
-              {tab === 'pricing' ? <Crown className="w-3.5 h-3.5" /> : <Sparkles className="w-3.5 h-3.5" />}
-              <span>{tab === 'pricing' ? s.tabPricing : s.tabWhy}</span>
-            </button>
-          ))}
+        <div className="px-5 shrink-0">
+          <div className="inline-flex items-center p-0.5 bg-slate-100 dark:bg-slate-800/60 rounded-lg text-xs" role="tablist">
+            {(['pricing', 'why'] as StoreModalTab[]).map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                role="tab"
+                aria-selected={activeTab === tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-3 py-1 rounded-md transition-colors cursor-pointer ${
+                  activeTab === tab
+                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-2xs font-medium'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                {tab === 'pricing' ? s.tabPricing : s.tabWhy}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1">
+        <div className="p-5 overflow-y-auto space-y-4 flex-1">
           {activeTab === 'pricing' && (
             <>
-              {/* Ngữ cảnh paywall */}
               {!license.isPro && triggerContext && (
-                <div className="bg-amber-500/15 border border-amber-500/40 rounded-xl p-4 space-y-1 text-xs">
-                  <div className="font-bold text-amber-300 flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4 shrink-0" />
-                    <span>{formatMessage(s.paywallTitle, { feature: triggerContext.featureLabel })}</span>
+                <div className="rounded-xl border border-amber-200 dark:border-amber-900/60 bg-amber-50 dark:bg-amber-950/30 p-3 text-xs">
+                  <div className="font-semibold text-amber-800 dark:text-amber-300">
+                    {formatMessage(s.paywallTitle, { feature: triggerContext.featureLabel })}
                   </div>
-                  <p className="text-slate-200 leading-relaxed">
+                  <p className="mt-0.5 leading-relaxed text-amber-700 dark:text-amber-200/80">
                     {formatMessage(s.paywallBody, { feature: triggerContext.featureLabel })}
                   </p>
                 </div>
               )}
 
-              {/* Trạng thái bản quyền */}
-              <div className="bg-[#131b29] border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="flex items-start gap-3.5 min-w-0">
-                  <div
-                    className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border ${
-                      license.isPro
-                        ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400'
-                        : 'bg-slate-800 border-slate-700 text-slate-400'
-                    }`}
-                  >
-                    {license.isPro ? <Unlock className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
+              {license.isPro ? (
+                <section className={`${CARD} p-4 space-y-3`}>
+                  <div className="flex items-center gap-2 text-sm font-semibold">
+                    <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2.25} aria-hidden="true" />
+                    <span>{s.statusPro}</span>
                   </div>
-                  <div className="space-y-1 min-w-0 text-xs">
-                    <div className="text-sm font-bold text-white">{license.isPro ? s.statusPro : s.statusFree}</div>
-                    {license.isPro ? (
-                      <div className="text-slate-400 space-y-0.5">
-                        <div>
-                          {s.licenseIdLabel}: <span className="font-mono text-slate-200 break-all">{license.licenseId}</span>
-                        </div>
-                        <div>
-                          {license.regionLabel} · {s.activatedAtLabel}: {formatDate(license.activatedAt)}
-                        </div>
-                        {license.plan === 'team' && (
-                          <div>{formatMessage(s.planTeam, { seats: license.seats || 5 })}</div>
-                        )}
-                      </div>
-                    ) : (
-                      <p className="text-slate-400 leading-relaxed">{s.statusFreeHint}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 flex-wrap shrink-0">
-                  {license.isPro && !license.isDevSimulation && (
+                  <dl className={`text-xs space-y-1 ${MUTED}`}>
+                    <div className="flex gap-1.5">
+                      <dt>{s.licenseIdLabel}:</dt>
+                      <dd className="font-mono text-slate-700 dark:text-slate-200 break-all">{license.licenseId}</dd>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <dt>{s.activatedAtLabel}:</dt>
+                      <dd>{formatDate(license.activatedAt)}</dd>
+                    </div>
+                    {license.plan === 'team' && <div>{formatMessage(s.planTeam, { seats: license.seats || 5 })}</div>}
+                  </dl>
+                  {!license.isDevSimulation && (
                     <button
                       type="button"
                       onClick={() => {
                         if (pro.exportCertificate()) showToast(s.certificateExported);
                       }}
-                      className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5 cursor-pointer"
+                      className={BTN_SECONDARY}
                     >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>{s.exportCertificate}</span>
+                      {s.exportCertificate}
                     </button>
                   )}
-                  {!license.isPro && (
-                    <button
-                      type="button"
-                      onClick={() => certFileInputRef.current?.click()}
-                      className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <Upload className="w-3.5 h-3.5 text-amber-400" />
-                      <span>{s.importCertificate}</span>
-                    </button>
-                  )}
-                </div>
-              </div>
+                </section>
+              ) : (
+                <>
+                  {PAYWALL_ENABLED && renderOffer()}
+                  {PAYWALL_ENABLED && <p className={`text-xs leading-relaxed ${MUTED}`}>{s.freeIncludes}</p>}
 
-              {/* Quyền lợi PRO, chỉ liệt kê tính năng đang thực sự hoạt động */}
-              {!license.isPro && PAYWALL_ENABLED && (
-                <div className="bg-[#131b29] border border-emerald-500/30 rounded-xl p-4 space-y-2.5 text-xs">
-                  <div className="font-bold text-emerald-300 uppercase tracking-wider">{s.benefitsTitle}</div>
-                  <ul className="space-y-1.5">
-                    {[
-                      COMMERCE_CONFIG.syncApiUrl ? s.benefitSync : null,
-                      s.benefitProjects,
-                      s.benefitReports,
-                      s.benefitSupport,
-                    ]
-                      .filter((item): item is string => Boolean(item))
-                      .map((item) => (
-                        <li key={item} className="flex items-start gap-2 text-slate-200">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                  </ul>
-                  <p className="text-[11px] text-slate-400">{s.freeIncludes}</p>
-                </div>
-              )}
-
-              {/* Bảng giá theo vùng + đúng 1 nút mua cho vùng đang chọn */}
-              {!license.isPro && PAYWALL_ENABLED && (
-                <div className="bg-[#131b29] border border-slate-800 rounded-xl p-4 space-y-3.5">
-                  <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-sky-300 flex items-center gap-1.5">
-                      <Globe className="w-3.5 h-3.5" />
-                      <span>{s.regionTitle}</span>
-                    </h3>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                      {s.oneTimeBadge}
-                    </span>
-                  </div>
-
-                  {visibleTiers.length > 1 && (
-                    <div className="inline-flex flex-wrap rounded-lg bg-[#0b0f17] p-1 border border-slate-800 gap-1">
-                      {visibleTiers.map((tier) => (
-                        <button
-                          key={tier.id}
-                          type="button"
-                          onClick={() => pro.setPricingRegion(tier.id)}
-                          className={`px-2.5 py-1.5 rounded-md text-[11px] font-semibold transition-all cursor-pointer flex items-center gap-1 ${
-                            activeTier?.id === tier.id ? 'bg-sky-500 text-slate-950 shadow-2xs' : 'text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          <span>{tier.flag}</span>
-                          <span>
-                            {regionName(tier.id)} · {tier.priceDisplay}
-                          </span>
-                        </button>
-                      ))}
+                  <section className={`${CARD} p-4 space-y-3`}>
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="text-xs font-semibold">{s.alreadyBought}</h3>
+                      <button type="button" onClick={() => certFileInputRef.current?.click()} className={BTN_SECONDARY}>
+                        {s.importCertificate}
+                      </button>
                     </div>
-                  )}
-
-                  {activeTier ? (
-                    <>
-                      <p className="text-[11.5px] text-slate-300">{regionNote(activeTier.id)}</p>
-                      {activeTier.channel === 'vietqr' ? renderVietQr(activeTier) : renderLemonSqueezy(activeTier)}
-                    </>
-                  ) : (
-                    <p className="text-xs text-slate-300">
-                      {formatMessage(s.channelUnavailable, { email: COMMERCE_CONFIG.supportEmail })}
-                    </p>
-                  )}
-                </div>
+                    <form onSubmit={handleActivateSubmit} className="flex flex-col sm:flex-row gap-2">
+                      <textarea
+                        value={tokenInput}
+                        onChange={(e) => setTokenInput(e.target.value)}
+                        placeholder={s.activatePlaceholder}
+                        aria-label={s.activatePlaceholder}
+                        rows={2}
+                        spellCheck={false}
+                        className="flex-1 min-w-0 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-mono outline-none focus:border-sky-500 resize-none break-all"
+                      />
+                      <button
+                        type="submit"
+                        disabled={isActivating || !tokenInput.trim()}
+                        className="px-4 py-2 rounded-lg bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-semibold disabled:opacity-50 cursor-pointer inline-flex items-center justify-center gap-1.5 shrink-0"
+                      >
+                        {isActivating && <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />}
+                        <span>{s.activateButton}</span>
+                      </button>
+                    </form>
+                    <p className={`text-[11px] ${MUTED}`}>{s.activateHint}</p>
+                  </section>
+                </>
               )}
 
-              {/* Kích hoạt bằng link / token */}
-              {!license.isPro && (
-                <form onSubmit={handleActivateSubmit} className="bg-[#131b29] border border-slate-800 rounded-xl p-4 space-y-3">
-                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
-                    <KeyRound className="w-4 h-4 text-amber-400" />
-                    <span>{s.activateTitle}</span>
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-2">
-                    <textarea
-                      value={tokenInput}
-                      onChange={(e) => setTokenInput(e.target.value)}
-                      placeholder={s.activatePlaceholder}
-                      rows={2}
-                      spellCheck={false}
-                      className="flex-1 bg-[#0b0f17] border border-slate-700/80 focus:border-sky-500 rounded-lg px-3 py-2 text-xs font-mono text-white placeholder:text-slate-500 outline-none resize-none break-all"
-                    />
-                    <button
-                      type="submit"
-                      disabled={isActivating || !tokenInput.trim()}
-                      className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-white disabled:opacity-50 text-slate-950 font-bold text-xs cursor-pointer transition-colors shrink-0 inline-flex items-center justify-center gap-1.5"
-                    >
-                      {isActivating && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                      <span>{s.activateButton}</span>
-                    </button>
-                  </div>
-                  <p className="text-[11px] text-slate-500">{s.activateHint}</p>
-                </form>
+              {errorMsg && (
+                <p className="text-xs font-medium text-rose-600 dark:text-rose-400" role="alert">
+                  {errorMsg}
+                </p>
               )}
 
-              {errorMsg && <p className="text-xs text-rose-400 font-medium" role="alert">{errorMsg}</p>}
-
-              {/* Lượt dùng thử */}
               {!license.isPro && PAYWALL_ENABLED && (
-                <div className="bg-[#131b29] border border-slate-800 rounded-xl p-4 space-y-2.5">
-                  <div>
-                    <div className="text-xs font-bold uppercase tracking-wider text-slate-300">{s.trialsTitle}</div>
-                    <p className="text-[11px] text-slate-400 mt-0.5">{s.trialsSubtitle}</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2.5 text-xs">
-                    <div className="bg-[#0b0f17] border border-slate-800 rounded-lg p-2.5 font-mono tabular-nums text-slate-100">
+                <section className={`${CARD} p-4 space-y-2 text-xs`}>
+                  <h3 className="font-semibold">{s.usageTitle}</h3>
+                  <div className="flex flex-wrap gap-x-6 gap-y-1 tabular-nums">
+                    <span>
                       {pro.isGrandfathered
                         ? s.trialProjectsGrandfathered
                         : formatMessage(s.trialProjects, { count: billableProjects, limit: FREE_PROJECT_LIMIT })}
-                    </div>
-                    {(
-                      [
-                        ['markdownReport', s.trialMarkdown, 'text-emerald-300'],
-                      ] as const
-                    ).map(([key, label, color]) => (
-                      <div key={key} className="bg-[#0b0f17] border border-slate-800 rounded-lg p-2.5">
-                        <div className="text-[10.5px] text-slate-400">{label}</div>
-                        <div className={`font-mono font-bold mt-0.5 tabular-nums ${color}`}>
-                          {formatMessage(s.trialRemaining, { count: pro.trials[key] })}
-                        </div>
-                      </div>
-                    ))}
+                    </span>
+                    <span>
+                      {s.trialMarkdown}: {formatMessage(s.trialRemaining, { count: pro.trials.markdownReport })}
+                    </span>
                   </div>
-                </div>
+                  <p className={`text-[11px] ${MUTED}`}>{s.trialsSubtitle}</p>
+                </section>
               )}
 
               {/* Công cụ nhà phát triển, không tồn tại trong bản build production */}
               {pro.devTools && (
-                <div className="border border-dashed border-amber-500/40 rounded-xl p-3 space-y-2 text-xs">
-                  <div className="font-semibold text-amber-300 flex items-center gap-1.5">
-                    <FlaskConical className="w-3.5 h-3.5" />
-                    <span>{s.devToolsTitle}</span>
-                  </div>
+                <section className="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 p-3 space-y-2 text-xs">
+                  <h3 className="font-semibold">{s.devToolsTitle}</h3>
                   <div className="flex flex-wrap gap-2">
                     {(
                       [
@@ -521,57 +428,50 @@ export function StoreCommercialModal({
                         [s.devResetTrials, pro.devTools.resetTrials],
                       ] as const
                     ).map(([label, action]) => (
-                      <button
-                        key={label}
-                        type="button"
-                        onClick={() => showToast(action())}
-                        className="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-amber-200 border border-slate-700 cursor-pointer"
-                      >
+                      <button key={label} type="button" onClick={() => showToast(action())} className={BTN_SECONDARY}>
                         {label}
                       </button>
                     ))}
                   </div>
-                </div>
+                </section>
               )}
             </>
           )}
 
           {activeTab === 'why' && (
             <div className="space-y-4 text-xs">
-              <div className="bg-[#131b29] border border-amber-500/30 rounded-xl p-4 space-y-2">
-                <div className="font-bold text-amber-300 text-sm">{s.whyTitle}</div>
-                <p className="text-slate-300 leading-relaxed">{s.whyIntro}</p>
-                <p className="text-slate-400 leading-relaxed">{s.whyUseBoth}</p>
+              <div className="space-y-1.5">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{s.whyTitle}</h3>
+                <p className={`leading-relaxed ${MUTED}`}>{s.whyIntro}</p>
+                <p className={`leading-relaxed ${MUTED}`}>{s.whyUseBoth}</p>
               </div>
-              <div className="bg-[#131b29] border border-slate-800 rounded-xl overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse min-w-[560px]">
-                    <thead>
-                      <tr className="border-b border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-400 bg-[#0f1623]">
-                        <th className="py-2.5 px-3">{s.compareFeature}</th>
-                        <th className="py-2.5 px-3 text-sky-300 bg-sky-500/5">Stride Tasks</th>
-                        <th className="py-2.5 px-3">Notion</th>
-                        <th className="py-2.5 px-3">Todoist</th>
-                        <th className="py-2.5 px-3">Things 3</th>
-                        <th className="py-2.5 px-3">TickTick</th>
+              <div className={`${CARD} overflow-x-auto`}>
+                <table className="w-full text-left border-collapse min-w-[560px]">
+                  <thead>
+                    <tr className="bg-slate-50 dark:bg-slate-900/60 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                      <th className="py-2.5 px-3">{s.compareFeature}</th>
+                      <th className="py-2.5 px-3 text-[#B20015] dark:text-red-300">Stride Tasks</th>
+                      <th className="py-2.5 px-3">Notion</th>
+                      <th className="py-2.5 px-3">Todoist</th>
+                      <th className="py-2.5 px-3">Things 3</th>
+                      <th className="py-2.5 px-3">TickTick</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {s.compareRows.map((row) => (
+                      <tr key={row.feature}>
+                        <td className="py-2 px-3 font-medium text-slate-700 dark:text-slate-200">{row.feature}</td>
+                        <td className="py-2 px-3 font-semibold text-slate-900 dark:text-white">{row.stride}</td>
+                        <td className={`py-2 px-3 ${MUTED}`}>{row.notion}</td>
+                        <td className={`py-2 px-3 ${MUTED}`}>{row.todoist}</td>
+                        <td className={`py-2 px-3 ${MUTED}`}>{row.things}</td>
+                        <td className={`py-2 px-3 ${MUTED}`}>{row.ticktick}</td>
                       </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800/60">
-                      {s.compareRows.map((row) => (
-                        <tr key={row.feature}>
-                          <td className="py-2 px-3 font-semibold text-slate-200">{row.feature}</td>
-                          <td className="py-2 px-3 text-emerald-400 font-semibold bg-sky-500/5">{row.stride}</td>
-                          <td className="py-2 px-3 text-slate-300">{row.notion}</td>
-                          <td className="py-2 px-3 text-slate-300">{row.todoist}</td>
-                          <td className="py-2 px-3 text-slate-300">{row.things}</td>
-                          <td className="py-2 px-3 text-slate-300">{row.ticktick}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <p className="text-[10.5px] text-slate-500">{s.compareFootnote}</p>
+              <p className={`text-[10.5px] ${MUTED}`}>{s.compareFootnote}</p>
             </div>
           )}
         </div>

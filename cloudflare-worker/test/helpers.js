@@ -82,8 +82,10 @@ export async function applySchema() {
   for (const sql of statements) await env.DB.prepare(sql).run();
 }
 
-export async function call(path, { method = 'GET', headers = {}, body, raw, env: e } = {}) {
+export async function call(path, { method = 'GET', headers = {}, body, raw, env: e, cf } = {}) {
   const init = { method, headers: { ...headers } };
+  // request.cf (VD: { country: 'VN' }) do Cloudflare gắn ở production; test truyền thẳng vào Request
+  if (cf) init.cf = cf;
   if (raw !== undefined) {
     init.body = raw;
   } else if (body !== undefined) {

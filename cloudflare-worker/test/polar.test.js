@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { env } from 'cloudflare:workers';
 import { applySchema, bytesToB64, call, decodePayload, hmacSha256, issue, orderCode, randomHex, sha256Hex, testEnv, vaultId } from './helpers.js';
 
@@ -228,6 +228,30 @@ describe('bản ghi đơn trên D1 (A11)', () => {
     const res = await call(`/claim?order=${code}`, { headers: { 'X-Claim-Secret': secret }, env: e });
     expect((await res.json()).status).toBe('ready');
     expect(await d1Order(`order:${code}`)).toBeNull();
+  });
+
+  it('đơn giá vùng thanh toán từ nước thu nhập cao vẫn được cấp, nhưng ghi log ppp_country_mismatch', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      const code = orderCode();
+      const id = polarOrderId();
+      const secret = await registerPolar(code, 'emerging-ppp');
+      const body = paid(code, id, { total: 995 });
+      body.data.billing_address = { country: 'US' };
+      expect((await polar(body)).status).toBe(202);
+      expect((await claimJson(code, secret)).status).toBe('ready');
+      expect(warn).toHaveBeenCalledWith('ppp_country_mismatch', { orderId: id, tier: 'emerging-ppp', billingCountry: 'US' });
+
+      warn.mockClear();
+      const okCode = orderCode();
+      await registerPolar(okCode, 'emerging-ppp');
+      const okBody = paid(okCode, polarOrderId(), { total: 995 });
+      okBody.data.billing_address = { country: 'IN' };
+      await polar(okBody);
+      expect(warn).not.toHaveBeenCalledWith('ppp_country_mismatch', expect.anything());
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   it('hàng D1 đã quá hạn giữ thì không còn cấp token', async () => {

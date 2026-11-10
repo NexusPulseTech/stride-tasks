@@ -50,6 +50,8 @@
  * và chạy thử bằng giao dịch thật giá trị nhỏ trước khi mở bán.
  */
 
+import { pricingForRequest, tierForCountry } from './pricing.js';
+
 const PREFIX = 'STRIDE1';
 const ORDER_IN_TEXT = /STR[A-HJ-NP-Z2-9]{6}/;
 const ORDER_EXACT = /^STR[A-HJ-NP-Z2-9]{6}$/;
@@ -76,6 +78,7 @@ export default {
       if (request.method === 'POST' && url.pathname === '/webhooks/polar') return await handlePolar(request, env);
       if (request.method === 'POST' && url.pathname === '/v1/orders') return withCors(request, env, await handleCreateOrder(request, env));
       if (request.method === 'GET' && url.pathname === '/claim') return withCors(request, env, await handleClaim(request, url, env));
+      if (request.method === 'GET' && url.pathname === '/v1/pricing') return withCors(request, env, json(pricingForRequest(request, env)));
       if (request.method === 'GET' && url.pathname === '/checkout/success') return await handleCheckoutSuccess(request, url, env);
       const vaultMatch = url.pathname.match(/^\/sync\/v1\/vaults\/([0-9a-f]{64})$/);
       if (vaultMatch) return withCors(request, env, await handleVault(request, env, vaultMatch[1]));
@@ -245,6 +248,11 @@ async function fulfillPolarOrder(env, order) {
     return { ok: true, duplicate: true };
   }
   const pending = ORDER_EXACT.test(ref) ? await env.LICENSES.get(`pending:${ref}`, 'json') : null;
+  // Đo rò rỉ giá vùng (VPN): đơn giá vùng nhưng quốc gia thanh toán thuộc nhóm thu nhập cao. Chỉ ghi log, không chặn khách.
+  const billingCountry = String(order.billing_address?.country || '').toUpperCase();
+  if (pending?.tier && pending.tier !== 'global-us' && billingCountry && tierForCountry(billingCountry) === 'global-us') {
+    console.warn('ppp_country_mismatch', { orderId, tier: pending.tier, billingCountry });
+  }
   const isUsd = String(order.currency || 'usd').toLowerCase() === 'usd';
   const token = await issueToken(env, {
     licenseKeyOrAddonId: `PL-${orderId}`,

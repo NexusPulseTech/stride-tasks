@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import {
   X,
   MessageSquare,
-  Github,
   Mail,
   Copy,
   Check,
@@ -69,15 +68,6 @@ export function FeedbackModal({
     const mailtoUrl = `mailto:${targetEmail}?subject=${subject}&body=${body}`;
     window.location.href = mailtoUrl;
     showToast(t.toast.feedbackOpeningEmail);
-  };
-
-  const handleOpenGithub = () => {
-    triggerHaptic();
-    const issueTitle = encodeURIComponent(`[${activeTab === 'bug' ? 'Bug' : 'Feedback'}] ${title.trim() || 'Phản hồi người dùng'}`);
-    const issueBody = encodeURIComponent(getFullReportText());
-    const githubUrl = `https://github.com/NexusPulseTech/stride-tasks/issues/new?title=${issueTitle}&body=${issueBody}`;
-    window.open(githubUrl, '_blank', 'noopener,noreferrer');
-    showToast(t.toast.feedbackOpeningGithub);
   };
 
   const handleCopyReport = () => {
@@ -210,15 +200,6 @@ export function FeedbackModal({
           </button>
 
           <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={handleOpenGithub}
-              className="h-7.5 px-2.5 text-xs font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg flex items-center gap-1.5 cursor-pointer shadow-2xs transition-colors"
-              title="Gửi báo cáo qua GitHub Issues"
-            >
-              <Github className="w-3.5 h-3.5" strokeWidth={1.5} />
-              <span>GitHub</span>
-            </button>
             <button
               type="button"
               onClick={handleSendEmail}

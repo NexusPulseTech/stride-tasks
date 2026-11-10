@@ -11,7 +11,6 @@ export type CheckoutChannel = 'vietqr' | 'lemonsqueezy' | 'polar';
 
 export interface PricingTier {
   id: PricingRegionId;
-  flag: string;
   priceUsd: number;
   /** Giá hiển thị không phụ thuộc ngôn ngữ */
   priceDisplay: string;
@@ -58,7 +57,6 @@ function cardChannel(polarUrl: string, lemonUrl: string): Pick<PricingTier, 'cha
 export const PRICING_TIERS: Record<PricingRegionId, PricingTier> = {
   'vn-ppp': {
     id: 'vn-ppp',
-    flag: '🇻🇳',
     priceUsd: 5.95,
     priceDisplay: '149.000₫',
     channel: 'vietqr',
@@ -68,37 +66,68 @@ export const PRICING_TIERS: Record<PricingRegionId, PricingTier> = {
   },
   'emerging-ppp': {
     id: 'emerging-ppp',
-    flag: '🌏',
     priceUsd: 9.95,
     priceDisplay: '$9.95',
     ...cardChannel(COMMERCE_CONFIG.polarCheckoutUrlEmerging, COMMERCE_CONFIG.lemonSqueezyCheckoutUrlEmerging),
   },
   'global-us': {
     id: 'global-us',
-    flag: '🌎',
     priceUsd: 19,
     priceDisplay: '$19',
     ...cardChannel(COMMERCE_CONFIG.polarCheckoutUrl, COMMERCE_CONFIG.lemonSqueezyCheckoutUrl),
   },
 };
 
-// Thị trường mục tiêu là quốc tế: bậc toàn cầu hiển thị trước
-export const PRICING_REGION_ORDER: PricingRegionId[] = ['global-us', 'emerging-ppp', 'vn-ppp'];
+const PRICING_REGIONS: ReadonlySet<string> = new Set<PricingRegionId>(['vn-ppp', 'emerging-ppp', 'global-us']);
 
-export function getAvailableTiers(): PricingTier[] {
-  return PRICING_REGION_ORDER.map((id) => PRICING_TIERS[id]).filter((tier) => tier.isAvailable);
+/** Kết quả GET /v1/pricing của Worker (A12): máy chủ quyết định bậc giá theo quốc gia của IP, người mua không tự chọn */
+export interface GeoPricing {
+  /** Mã ISO 3166-1 alpha-2; null khi máy chủ không xác định được */
+  country: string | null;
+  tier: PricingRegionId;
+  /** Link checkout giá vùng, máy chủ chỉ trả cho nước đủ điều kiện */
+  regionalCheckoutUrl: string | null;
+  /** Thời điểm lấy (ISO); app nhớ trong GEO_PRICING_MAX_AGE_MS */
+  fetchedAt: string;
+}
+
+export const GEO_PRICING_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
+/** Kiểm tra phản hồi của Worker (hoặc bản đã lưu) đúng hợp đồng; sai bất kỳ trường nào thì bỏ */
+export function parseGeoPricing(raw: unknown, now: Date = new Date()): GeoPricing | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const r = raw as Record<string, unknown>;
+  if (typeof r.tier !== 'string' || !PRICING_REGIONS.has(r.tier)) return null;
+  const country = typeof r.country === 'string' && /^[A-Z]{2}$/.test(r.country) ? r.country : null;
+  const url = typeof r.regionalCheckoutUrl === 'string' && /^https:\/\/\S+$/.test(r.regionalCheckoutUrl) ? r.regionalCheckoutUrl : null;
+  const fetchedAt = typeof r.fetchedAt === 'string' && !Number.isNaN(Date.parse(r.fetchedAt)) ? r.fetchedAt : now.toISOString();
+  return { country, tier: r.tier as PricingRegionId, regionalCheckoutUrl: url, fetchedAt };
+}
+
+export function isGeoPricingFresh(geo: GeoPricing, now: Date = new Date()): boolean {
+  return now.getTime() - Date.parse(geo.fetchedAt) < GEO_PRICING_MAX_AGE_MS;
 }
 
 /**
- * Bậc giá hiển thị mặc định trong bảng giá: đúng vùng của người dùng nếu đang bán.
- * Việt Nam chưa bật VietQR thì dùng giá thị trường mới nổi (gần giá Việt Nam nhất) thay vì rơi về giá toàn cầu.
+ * Bậc giá DUY NHẤT hiển thị cho người dùng, theo vùng máy chủ đã xác định (hoặc suy đoán khi chưa có).
+ * - vn-ppp: VietQR nếu đã bật; chưa bật thì giá thị trường mới nổi qua thẻ.
+ * - emerging-ppp: link giá vùng do máy chủ trả; dự phòng link trong cấu hình build; thiếu cả hai thì giá quốc tế.
+ * - global-us: giá quốc tế.
  */
-export function resolveActiveTier(region: PricingRegionId, tiers: PricingTier[]): PricingTier | undefined {
-  const byId = (id: PricingRegionId) => tiers.find((tier) => tier.id === id);
-  return byId(region) ?? (region === 'vn-ppp' ? byId('emerging-ppp') : undefined) ?? tiers[0];
+export function resolveTier(
+  region: PricingRegionId,
+  regionalCheckoutUrl: string | null,
+  tiers: Record<PricingRegionId, PricingTier> = PRICING_TIERS
+): PricingTier | undefined {
+  const global = tiers['global-us'].isAvailable ? tiers['global-us'] : undefined;
+  if (region === 'vn-ppp' && tiers['vn-ppp'].isAvailable) return tiers['vn-ppp'];
+  if (region === 'global-us') return global;
+  const emerging = tiers['emerging-ppp'];
+  if (regionalCheckoutUrl) return { ...emerging, channel: 'polar', checkoutUrl: regionalCheckoutUrl, isAvailable: true, keyPrefix: 'PL' };
+  return emerging.isAvailable ? emerging : global;
 }
 
-/** Mặc định 'global-us'; chỉ chọn 'vn-ppp' khi múi giờ Việt Nam hoặc ngôn ngữ trình duyệt là tiếng Việt */
+/** Suy đoán khi chưa hỏi được máy chủ: 'vn-ppp' khi múi giờ Việt Nam hoặc ngôn ngữ trình duyệt là tiếng Việt, còn lại 'global-us' */
 export function detectDefaultPricingRegion(): PricingRegionId {
   try {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';

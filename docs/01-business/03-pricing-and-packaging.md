@@ -51,7 +51,7 @@ Kết luận: mức giá hiện tại nằm trong vùng hợp lý so với đố
 1. **Giữ mô hình lifetime** trong giai đoạn đầu: giảm ma sát mua lần đầu, hợp văn hóa indie, có tiền lệ (Focus To-Do, Things).
 2. **Giá sáng lập cho 100 bản quyền đầu tiên** (bảng mục 3). Với Polar dùng sản phẩm/giá riêng cho đợt sáng lập; với VietQR đặt `PRICE_VND=149000` trong Worker. Hiển thị số suất còn lại **thật**: không tạo khan hiếm giả.
 3. **Hoàn tiền 14 ngày không cần lý do** → giảm lo lắng khi mua; MoR cũng yêu cầu có chính sách hoàn tiền.
-4. **PPP**: giữ 3 bậc. Gợi ý bậc theo quốc gia (header `CF-IPCountry` qua một endpoint nhỏ của Worker) nhưng vẫn cho người dùng tự chọn; chấp nhận rò rỉ nhỏ, chi phí chống gian lận lớn hơn doanh thu mất.
+4. **PPP** (sửa ngày 2026-11-10, A12): giữ 3 bậc nhưng **máy chủ quyết định**, người mua không tự chọn. Worker `GET /v1/pricing` đọc quốc gia của IP: Việt Nam → `vn-ppp` (chưa có VietQR thì dùng giá thị trường mới nổi qua thẻ); 131 nước thu nhập thấp, trung bình thấp, trung bình cao theo World Bank → `emerging-ppp`; còn lại → `global-us`. Link checkout giá vùng chỉ máy chủ trả cho nước đủ điều kiện. Rò rỉ qua VPN được chấp nhận và đo bằng log `ppp_country_mismatch` (quốc gia thanh toán thuộc nhóm thu nhập cao). Danh sách nước xem lại mỗi tháng 7 khi World Bank cập nhật. Lý do bỏ quyết định cũ: cho tự chọn thì ai cũng bấm được giá rẻ, và nút chọn vùng với cờ emoji làm trang giá kém chuyên nghiệp.
 5. **Không** thêm thuê bao trước 50 khách trả tiền. Sau đó đánh giá gói "Sync hằng năm" hoặc "lifetime + cập nhật theo năm" (task `D04`).
 
 ## 4. Khoảnh khắc hiện lời mời nâng cấp (paywall moments)

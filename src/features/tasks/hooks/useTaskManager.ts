@@ -11,9 +11,10 @@ import {
   StatusDefinition,
   BatchPasteTarget,
 } from '../../../types';
-import { INITIAL_PROJECTS, APP_VERSION } from '../../../constants';
+import { APP_VERSION } from '../../../constants';
+import { getSampleProjects } from '../../../constants/sampleProjects';
 import { triggerHaptic, playChime } from '../../../utils';
-import { useTranslationRef, formatMessage } from '../../../i18n';
+import { useLanguage, useTranslationRef, formatMessage } from '../../../i18n';
 import { parsePastedTasks, parsePastedHierarchy } from '../utils/batchParser';
 import { buildSmartTask, summarizeSmartTask } from '../utils/smartTaskParser';
 import { isDoingStatus, isDoneStatus } from '../utils/statusCategory';
@@ -69,6 +70,9 @@ function readBackupLogArchive(parsed: unknown): Record<string, number> | undefin
 
 export function useTaskManager() {
   const tRef = useTranslationRef();
+  const { language } = useLanguage();
+  const languageRef = useRef(language);
+  languageRef.current = language;
   const [showStats, setShowStats] = useState(false);
   const [filter, setFilter] = useState<FilterType>('all');
   const [search, setSearch] = useState('');
@@ -192,7 +196,7 @@ export function useTaskManager() {
   // Tự động sao lưu dữ liệu toàn diện (Full Auto-Backup Snapshot: Projects + History + Custom Statuses)
   useEffect(() => {
     try {
-      const isTemplate = JSON.stringify(crud.projects) === JSON.stringify(INITIAL_PROJECTS);
+      const isTemplate = isSampleTemplate(crud.projects);
       if (!isTemplate && crud.projects.length > 0) {
         let totalTasksCount = 0;
         crud.projects.forEach((p) => {
@@ -467,15 +471,14 @@ export function useTaskManager() {
   const resetSample = () => {
     setConfirmDialog({
       isOpen: true,
-      title: 'Khôi phục dữ liệu mẫu ban đầu?',
-      message:
-        'Thao tác này sẽ thiết lập lại các danh mục dự án, công việc và lịch sử hoàn thành (Heatmap) về trạng thái mẫu ban đầu. Toàn bộ công việc bạn đã tạo thêm sẽ bị thay thế. Hãy nhớ tải bản sao lưu .JSON trước nếu cần!',
-      confirmText: 'Khôi phục mẫu',
-      cancelText: 'Hủy',
+      title: tRef.current.samples.restoreConfirmTitle,
+      message: tRef.current.samples.restoreConfirmMessage,
+      confirmText: tRef.current.samples.restoreConfirmButton,
+      cancelText: tRef.current.common.cancel,
       isDestructive: true,
       onConfirm: () => {
-        crud.setProjects(JSON.parse(JSON.stringify(INITIAL_PROJECTS)));
-        activity.resetSeedActivityLogs();
+        crud.setProjects(getSampleProjects(languageRef.current));
+        activity.resetSeedActivityLogs(languageRef.current);
         celebration.showToast(tRef.current.toast.sampleRestored);
         setConfirmDialog(null);
         setShowBackupModal(false);

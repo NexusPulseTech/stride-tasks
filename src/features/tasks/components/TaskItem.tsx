@@ -100,8 +100,8 @@ export function TaskItem({
         <div
           data-drag-handle="true"
           className="cursor-grab active:cursor-grabbing p-1 -ml-1 text-slate-300 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-300 transition-colors select-none shrink-0 flex items-center justify-center"
-          title="Kéo thả để sắp xếp lại thứ tự công việc"
-          aria-label="Kéo thả sắp xếp thứ tự"
+          title={t.taskRow.dragTitle}
+          aria-label={t.taskRow.dragLabel}
         >
           <GripVertical className="w-3.5 h-3.5 shrink-0 pointer-events-none" strokeWidth={1.5} aria-hidden="true" />
         </div>
@@ -139,7 +139,7 @@ export function TaskItem({
             onToggleTaskDone(projectId, task.id, !isDone);
           }}
           className="shrink-0 cursor-pointer p-0.5 -m-0.5 rounded-full flex items-center justify-center"
-          aria-label={isDone ? 'Đánh dấu chưa xong' : 'Đánh dấu đã xong'}
+          aria-label={isDone ? t.taskRow.markNotDone : t.taskRow.markDone}
         >
           <div
             className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${
@@ -196,7 +196,7 @@ export function TaskItem({
               className={`text-[13px] leading-snug select-text font-normal cursor-pointer hover:text-slate-950 dark:hover:text-white transition-colors min-w-0 ${
                 expandedTaskId === task.id ? 'break-words' : 'truncate'
               }`}
-              title="Nhấp để xem chi tiết đầy đủ (hoặc nhấp đúp để chỉnh sửa tiêu đề)"
+              title={t.taskRow.titleHint}
             >
               <FormattedTaskText text={task.title} isDone={isDone} />
             </div>
@@ -229,7 +229,7 @@ export function TaskItem({
               {task.isPinned && (
                 <span className="inline-flex items-center gap-1 text-[10px] text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/50 px-1.5 py-0.5 rounded font-medium shrink-0 whitespace-nowrap">
                   <Pin className="w-2.5 h-2.5 shrink-0 fill-current text-amber-600 dark:text-amber-400" strokeWidth={1.5} aria-hidden="true" />
-                  <span className="hidden sm:inline">Ưu tiên</span>
+                  <span className="hidden sm:inline">{t.taskRow.priority}</span>
                 </span>
               )}
 
@@ -256,7 +256,7 @@ export function TaskItem({
                       ? 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/60 hover:bg-amber-100/70'
                       : 'text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 border-slate-200/80 dark:border-slate-700/70 hover:bg-slate-200/80'
                   }`}
-                  title="Nhấp để thay đổi lịch hẹn hoặc hủy nhắc"
+                  title={t.taskRow.reminderHint}
                 >
                   <Clock className="w-2.5 h-2.5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
                   <span>{scheduleBadge.label}</span>
@@ -278,7 +278,7 @@ export function TaskItem({
                         ? 'text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border-rose-200/80 dark:border-rose-800/60 hover:bg-rose-100/80'
                         : 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/60 hover:bg-amber-100/80'
                     }`}
-                    title={`${t.dailyFocus?.snoozeUntilLabel || 'Hoãn đến:'} ${task.snoozeUntil} • Nhấn để đổi chu kỳ`}
+                    title={`${t.dailyFocus.snoozeUntilLabel} ${task.snoozeUntil} • ${t.taskRow.snoozeHint}`}
                   >
                     <RotateCcw className="w-2.5 h-2.5 shrink-0" strokeWidth={1.75} />
                     <span>{countdown.text}</span>
@@ -411,8 +411,8 @@ export function TaskItem({
               className={`w-6 h-6 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer shrink-0 transition-colors inline-flex items-center justify-center ${
                 activeMenuTaskId === task.id ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200' : ''
               }`}
-              title="Tùy chọn khác"
-              aria-label="Tùy chọn khác"
+              title={t.taskRow.moreOptions}
+              aria-label={t.taskRow.moreOptions}
             >
               <MoreHorizontal className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
             </button>

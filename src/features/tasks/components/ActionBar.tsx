@@ -215,8 +215,8 @@ export function ActionBar({
                   title={
                     filter === 'all'
                       ? hideCompletedInAllView
-                        ? `${t.actionBar.hideCompleted} (${hiddenDoneCount}) • Bấm để hiện lại`
-                        : `${t.actionBar.showCompleted} • Bấm để ẩn việc đã hoàn thành`
+                        ? `${t.actionBar.hideCompleted} (${hiddenDoneCount}) • ${t.taskRow.showCompletedHint}`
+                        : `${t.actionBar.showCompleted} • ${t.taskRow.hideCompletedHint}`
                       : `${t.actionBar.hideCompleted}`
                   }
                   aria-label={hideCompletedInAllView ? t.actionBar.showCompleted : t.actionBar.hideCompleted}

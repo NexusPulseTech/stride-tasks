@@ -14,7 +14,6 @@ import {
   Download,
   HelpCircle,
   MessageSquareText,
-  Github,
   EyeOff,
   Eye,
   Trash2,
@@ -405,7 +404,7 @@ export function HeaderMenuPopover({
               className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 transition-colors text-left cursor-pointer font-medium"
             >
               <Trash2 className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-              <span>Xóa dữ liệu mẫu (Trang trắng)</span>
+              <span>{t.samples.menuClear}</span>
             </button>
           )}
 
@@ -509,20 +508,11 @@ export function HeaderMenuPopover({
             <span>{language === 'vi' ? 'Chính sách bảo mật' : 'Privacy Policy'}</span>
           </a>
 
-          {/* GitHub Repository */}
-          <a
-            href="https://github.com/NexusPulseTech/stride-tasks"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={onClose}
-            className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg hover:bg-slate-100/80 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200 transition-colors text-left cursor-pointer no-underline"
-          >
-            <span className="flex items-center gap-2">
-              <Github className="w-3.5 h-3.5 text-slate-400" />
-              <span>{t.header.githubLabel}</span>
-            </span>
-            <span className="text-[10px] text-slate-400 font-mono">v{APP_VERSION}</span>
-          </a>
+          {/* Phiên bản, để khách báo lỗi hay hỗ trợ biết đang dùng bản nào */}
+          <div className="w-full flex items-center justify-between px-2.5 py-1.5 text-[11px] text-slate-400 select-none">
+            <span>Stride Tasks</span>
+            <span className="font-mono">v{APP_VERSION}</span>
+          </div>
         </div>
       </div>
     </div>,

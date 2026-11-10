@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronRight, Trash2, Copy, ClipboardPaste, GripVertical, ArrowUp, ArrowDown } from 'lucide-react';
 import { Project } from '../../../types';
-import { useLanguage } from '../../../i18n';
+import { useLanguage, formatMessage } from '../../../i18n';
 
 export interface ProjectCardHeaderProps {
   project: Project;
@@ -112,7 +112,7 @@ export function ProjectCardHeader({
               setIsEditing(true);
             }}
             className="text-[13px] sm:text-[13.5px] font-semibold text-slate-900 dark:text-slate-100 truncate cursor-text hover:text-slate-950 dark:hover:text-white transition-colors"
-            title="Chạm hoặc nhấp chuột vào chữ để đổi tên dự án (bấm ra ngoài để đóng/mở)"
+            title={t.taskRow.renameProjectHint}
           >
             {project.name}
           </h2>
@@ -123,7 +123,7 @@ export function ProjectCardHeader({
         {timeBudgetLabel && (
           <span
             className="text-[11px] text-indigo-600/80 dark:text-indigo-400/80 shrink-0 font-mono whitespace-nowrap tabular-nums hidden xs:inline"
-            title={`Thời gian Deep Work thực tế / Dự kiến của dự án (${timeBudgetLabel})`}
+            title={formatMessage(t.taskRow.projectTimeBudget, { budget: timeBudgetLabel })}
           >
             · ⏱ {timeBudgetLabel}
           </span>

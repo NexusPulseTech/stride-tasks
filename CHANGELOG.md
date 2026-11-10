@@ -12,7 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 - PRO is on sale: the English landing page buy button opens the PRO pricing dialog in the app, and checkout runs through Polar.
-- Visitors from Vietnam see the emerging-market price by default while bank transfer payments are not available yet.
+- Regional pricing is decided by the server from the buyer's country, using the World Bank income groups. Buyers see one price and no longer pick a region themselves.
+- The PRO dialog was redesigned to match the rest of the app in light and dark mode, with one clear price, plain wording and no emoji.
+- New users get example projects in their own language that show how each feature works, instead of the previous Vietnamese-only sample.
+- Links to the source code repository were removed from the app and the landing pages.
 
 ### Fixed
 - PRO now activates within seconds of a payment instead of up to a minute: paid order records moved from the eventually consistent KV store to D1, and duplicate webhooks can no longer issue a second license.

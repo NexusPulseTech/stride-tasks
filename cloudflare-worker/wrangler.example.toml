@@ -54,6 +54,8 @@ LICENSE_PUBLIC_KEY = "NKyqP_mvnNyPll7Oqxz-oApOCdv0YWsWTffRbx4ZclE"
 SYNC_MAX_VAULTS_PER_LICENSE = "3"
 # Đặt "false" để mở đồng bộ không cần bản quyền (giai đoạn thử nghiệm)
 SYNC_REQUIRE_LICENSE = "true"
+# Link checkout giá vùng (Polar, sản phẩm Private $9.95): GET /v1/pricing chỉ trả cho nước thu nhập thấp và trung bình (A12)
+POLAR_CHECKOUT_URL_EMERGING = "https://buy.polar.sh/polar_cl_<link giá vùng>"
 
 # Bí mật, nạp bằng lệnh, KHÔNG ghi vào file này:
 #   npx wrangler secret put STRIDE_ED25519_PRIVATE_KEY

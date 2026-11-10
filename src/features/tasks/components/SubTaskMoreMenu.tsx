@@ -120,7 +120,7 @@ export function SubTaskMoreMenu({
       {onSetSubTaskRecurrence && (
         <div className="py-1 my-1 border-y border-slate-100 dark:border-slate-800">
           <div className="px-2.5 py-0.5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-            <span>Lặp lại định kỳ</span>
+            <span>{t.taskRow.repeat}</span>
             <Repeat className="w-3 h-3 text-slate-400" />
           </div>
           <button
@@ -137,7 +137,7 @@ export function SubTaskMoreMenu({
           >
             <span className="flex items-center gap-2">
               <Repeat className="w-3.5 h-3.5 text-slate-400 shrink-0" strokeWidth={1.5} />
-              <span>Hàng ngày</span>
+              <span>{t.taskRow.daily}</span>
             </span>
             {sub.recurrence === 'daily' && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
           </button>
@@ -155,7 +155,7 @@ export function SubTaskMoreMenu({
           >
             <span className="flex items-center gap-2">
               <Briefcase className="w-3.5 h-3.5 text-slate-400 shrink-0" strokeWidth={1.5} />
-              <span>Ngày làm việc (T2 - T6)</span>
+              <span>{t.taskRow.weekdaysLong}</span>
             </span>
             {sub.recurrence === 'weekdays' && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
           </button>
@@ -173,7 +173,7 @@ export function SubTaskMoreMenu({
           >
             <span className="flex items-center gap-2">
               <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" strokeWidth={1.5} />
-              <span>Hàng tuần</span>
+              <span>{t.taskRow.weekly}</span>
             </span>
             {sub.recurrence === 'weekly' && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
           </button>
@@ -188,7 +188,7 @@ export function SubTaskMoreMenu({
               className="w-full text-left px-2.5 py-1 text-xs text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/30 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors mt-0.5"
             >
               <RotateCw className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-              <span>Làm mới việc hôm nay</span>
+              <span>{t.taskRow.redoToday}</span>
             </button>
           )}
         </div>

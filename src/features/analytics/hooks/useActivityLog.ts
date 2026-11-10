@@ -2,6 +2,9 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { COMPLETED_LOGS_KEY } from '../../../constants';
 import { safeSetItem, idbGet, idbSet } from '../../../utils/persistentStorage';
 import { trackLogDeletions } from '../../sync/tombstones';
+import { getSampleActivity } from '../../../constants/sampleProjects';
+import { detectInitialLanguage } from '../../../i18n/detectLanguage';
+import type { Language } from '../../../i18n/types';
 
 export interface CompletedItemLog {
   id: string;
@@ -38,43 +41,10 @@ export function getLevelFromCount(count: number): 0 | 1 | 2 | 3 | 4 {
   return 4; // 4+ tasks
 }
 
-function generateInitialSeedLogs(): CompletedItemLog[] {
+/** Lịch sử hoàn thành ví dụ (heatmap, bảng việc đã xong) cùng ngôn ngữ với bộ dự án ví dụ */
+function generateInitialSeedLogs(language: Language = detectInitialLanguage()): CompletedItemLog[] {
   const today = new Date();
-  const seedTemplate = [
-    // Hôm nay (2 việc)
-    { daysAgo: 0, time: '14:30', title: 'Mua tên miền & cấu hình hosting https://cloudflare.com', proj: 'Làm Game Kiếm Tiền YouTube', projId: 'p1', subsDone: 2, subsTotal: 2 },
-    { daysAgo: 0, time: '10:15', title: 'Khảo sát chỉ số người chơi trên SteamDB https://steamdb.info', proj: 'Làm Game Kiếm Tiền YouTube', projId: 'p1', subsDone: 0, subsTotal: 0 },
-    // Hôm qua (2 việc)
-    { daysAgo: 1, time: '16:45', title: 'Lên 10 kịch bản video ngắn dạng checklist', proj: 'Kênh TikTok triệu view', projId: 'p2', subsDone: 0, subsTotal: 0 },
-    { daysAgo: 1, time: '09:20', title: 'Xem 10 video phân tích gameplay thành công https://youtube.com', proj: 'Làm Game Kiếm Tiền YouTube', projId: 'p1', subsDone: 0, subsTotal: 0 },
-    // 2 ngày trước (1 việc)
-    { daysAgo: 2, time: '15:10', title: 'Chốt tài liệu thiết kế game 1 trang (GDD)', proj: 'Làm Game Kiếm Tiền YouTube', projId: 'p1', subsDone: 0, subsTotal: 0 },
-    // 3 ngày trước (2 việc)
-    { daysAgo: 3, time: '17:30', title: 'Chuẩn bị danh sách hashtag thịnh hành TikTok', proj: 'Kênh TikTok triệu view', projId: 'p2', subsDone: 0, subsTotal: 0 },
-    { daysAgo: 3, time: '11:00', title: 'Cài đặt môi trường Node.js & Vite 6', proj: 'Làm Game Kiếm Tiền YouTube', projId: 'p1', subsDone: 0, subsTotal: 0 },
-    // 4 ngày trước (1 việc)
-    { daysAgo: 4, time: '14:00', title: 'Thiết kế bố cục wireframe giao diện trên giấy', proj: 'Làm Game Kiếm Tiền YouTube', projId: 'p1', subsDone: 0, subsTotal: 0 },
-    // 5 ngày trước (2 việc)
-    { daysAgo: 5, time: '16:20', title: 'Đăng ký tài khoản Google AI Studio & cấu hình API', proj: 'Làm Game Kiếm Tiền YouTube', projId: 'p1', subsDone: 0, subsTotal: 0 },
-    { daysAgo: 5, time: '10:40', title: 'Khảo sát 15 kênh đối thủ cùng chủ đề', proj: 'Kênh TikTok triệu view', projId: 'p2', subsDone: 0, subsTotal: 0 },
-    // 6 ngày trước (2 việc)
-    { daysAgo: 6, time: '15:50', title: 'Viết kịch bản mẫu cho video đầu tiên', proj: 'Kênh TikTok triệu view', projId: 'p2', subsDone: 0, subsTotal: 0 },
-    { daysAgo: 6, time: '09:30', title: 'Cấu hình Git repository & branch protection', proj: 'Làm Game Kiếm Tiền YouTube', projId: 'p1', subsDone: 0, subsTotal: 0 },
-    // 8 ngày trước (1 việc)
-    { daysAgo: 8, time: '14:15', title: 'Thiết lập profile cá nhân & bio TikTok', proj: 'Kênh TikTok triệu view', projId: 'p2', subsDone: 0, subsTotal: 0 },
-    // 9 ngày trước (2 việc)
-    { daysAgo: 9, time: '16:00', title: 'Thu âm thử nghiệm 3 đoạn audio voiceover', proj: 'Kênh TikTok triệu view', projId: 'p2', subsDone: 0, subsTotal: 0 },
-    { daysAgo: 9, time: '11:20', title: 'Tìm kiếm kho nhạc nền bản quyền YouTube Studio', proj: 'Làm Game Kiếm Tiền YouTube', projId: 'p1', subsDone: 0, subsTotal: 0 },
-    // 11 ngày trước (1 việc)
-    { daysAgo: 11, time: '15:00', title: 'Lập kế hoạch phân bổ thời gian 2 giờ/ngày', proj: 'Làm Game Kiếm Tiền YouTube', projId: 'p1', subsDone: 0, subsTotal: 0 },
-    // 12 ngày trước (1 việc)
-    { daysAgo: 12, time: '10:30', title: 'Tìm hiểu cơ chế thuật toán TikTok recommendation', proj: 'Kênh TikTok triệu view', projId: 'p2', subsDone: 0, subsTotal: 0 },
-    // 13 ngày trước (2 việc)
-    { daysAgo: 13, time: '14:40', title: 'Chuẩn bị thư mục tài nguyên âm thanh & sprite 2D', proj: 'Làm Game Kiếm Tiền YouTube', projId: 'p1', subsDone: 0, subsTotal: 0 },
-    { daysAgo: 13, time: '09:15', title: 'Thiết kế logo kênh tối giản bằng Figma', proj: 'Kênh TikTok triệu view', projId: 'p2', subsDone: 0, subsTotal: 0 },
-  ];
-
-  return seedTemplate.map((item, index) => {
+  return getSampleActivity(language).map((item, index) => {
     const targetDate = new Date(today);
     targetDate.setDate(today.getDate() - item.daysAgo);
     const [hh, mm] = item.time.split(':');
@@ -84,8 +54,8 @@ function generateInitialSeedLogs(): CompletedItemLog[] {
       id: `clog_seed_${index}_${item.daysAgo}`,
       taskId: `t_seed_${index}`,
       taskTitle: item.title,
-      projectId: item.projId,
-      projectName: item.proj,
+      projectId: item.projectId,
+      projectName: item.projectName,
       completedAt: targetDate.toISOString(),
       dateKey: formatDateToKey(targetDate),
       subtasksCompleted: item.subsDone,
@@ -279,8 +249,8 @@ export function useActivityLog() {
   }, []);
 
   // Khôi phục lại dữ liệu mẫu nếu cần
-  const resetSeedActivityLogs = useCallback(() => {
-    const seed = generateInitialSeedLogs();
+  const resetSeedActivityLogs = useCallback((language?: Language) => {
+    const seed = generateInitialSeedLogs(language);
     setCompletedLogs(seed);
     setArchivedDailyCounts({});
     safeSetItem(COMPLETED_LOGS_KEY, JSON.stringify(seed));

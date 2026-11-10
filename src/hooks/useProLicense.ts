@@ -15,18 +15,25 @@ import {
   PRICING_TIERS,
   PricingRegionId,
   PricingTier,
+  GeoPricing,
   detectDefaultPricingRegion,
   generateOrderCode,
-  getAvailableTiers,
+  isGeoPricingFresh,
+  parseGeoPricing,
+  resolveTier,
 } from '../config/commerceConfig';
-import { INITIAL_PROJECTS } from '../constants';
+import { SAMPLE_PROJECT_IDS } from '../constants/sampleProjects';
 import { generateClaimSecret, nextClaimDelay, sha256Hex } from './claimPolling';
 import { Project } from '../types';
 import { useLanguage, formatMessage } from '../i18n';
 
 export const LICENSE_STORAGE_KEY = 'STRIDE_PRO_LICENSE_V2';
 export const TRIAL_STORAGE_KEY = 'STRIDE_PRO_TRIAL_V1';
+/** Khóa cũ của nút tự chọn vùng (đã bỏ ở A12): giữ nguyên tên, không còn đọc để quyết định giá */
 export const REGION_STORAGE_KEY = 'STRIDE_PRICING_REGION_V1';
+/** Bậc giá do máy chủ xác định theo quốc gia (GET /v1/pricing), nhớ 7 ngày */
+export const GEO_PRICING_STORAGE_KEY = 'STRIDE_PRICING_GEO_V1';
+const PRICING_REQUEST_TIMEOUT_MS = 5_000;
 export const PENDING_ORDER_STORAGE_KEY = 'STRIDE_PENDING_ORDER_V1';
 export const PROJECT_LIMIT_BASELINE_KEY = 'STRIDE_PROJECT_LIMIT_BASELINE_V1';
 /** Phát sự kiện này sau khi ghi trực tiếp vào LICENSE_STORAGE_KEY (VD: khôi phục backup) để hook verify lại */
@@ -36,7 +43,6 @@ export const FREE_PROJECT_LIMIT = 5;
 const TRIAL_PASSES = 3;
 const ORDER_MAX_AGE_MS = 72 * 60 * 60 * 1000;
 const CLAIM_REQUEST_TIMEOUT_MS = 15_000;
-const SAMPLE_PROJECT_IDS: ReadonlySet<string> = new Set(INITIAL_PROJECTS.map((p) => p.id));
 
 export interface ProLicenseState {
   isPro: boolean;
@@ -171,14 +177,9 @@ function readTrials(): ProTrialState {
   };
 }
 
-function readInitialRegion(): PricingRegionId {
-  try {
-    const saved = localStorage.getItem(REGION_STORAGE_KEY) as PricingRegionId | null;
-    if (saved && PRICING_TIERS[saved]) return saved;
-  } catch {
-    // ignore
-  }
-  return detectDefaultPricingRegion();
+function readStoredGeoPricing(): GeoPricing | null {
+  const geo = parseGeoPricing(readJson<unknown>(GEO_PRICING_STORAGE_KEY));
+  return geo && isGeoPricingFresh(geo) ? geo : null;
 }
 
 function readPendingOrder(): PendingOrder | null {
@@ -214,12 +215,35 @@ export function useProLicense({ notify }: UseProLicenseOptions = {}) {
   const trialsRef = useRef(trials);
   trialsRef.current = trials;
 
-  const [pricingRegion, setPricingRegionState] = useState<PricingRegionId>(readInitialRegion);
+  const [geoPricing, setGeoPricing] = useState<GeoPricing | null>(readStoredGeoPricing);
+  const [pricingStatus, setPricingStatus] = useState<'idle' | 'loading' | 'ready'>(() => (readStoredGeoPricing() ? 'ready' : 'idle'));
   const [pendingOrder, setPendingOrder] = useState<PendingOrder | null>(readPendingOrder);
 
-  const availableTiers = useMemo(() => getAvailableTiers(), []);
-  const currentTier: PricingTier = PRICING_TIERS[pricingRegion];
-  const priceLabel = currentTier.priceDisplay;
+  // Vùng giá do máy chủ quyết định; chưa hỏi được thì suy đoán theo múi giờ/ngôn ngữ (A12). Không có nút tự chọn.
+  const pricingRegion: PricingRegionId = geoPricing?.tier ?? detectDefaultPricingRegion();
+  const currentTier: PricingTier | undefined = useMemo(
+    () => resolveTier(pricingRegion, geoPricing?.regionalCheckoutUrl ?? null),
+    [pricingRegion, geoPricing]
+  );
+  const priceLabel = (currentTier ?? PRICING_TIERS['global-us']).priceDisplay;
+
+  /** Hỏi Worker bậc giá theo quốc gia; lỗi mạng hay Worker chưa có route thì giữ kết quả cũ hoặc suy đoán */
+  const refreshPricing = useCallback(async () => {
+    const baseUrl = COMMERCE_CONFIG.licenseClaimUrl;
+    if (!baseUrl || !PAYWALL_ENABLED) return;
+    setPricingStatus((s) => (s === 'ready' ? s : 'loading'));
+    try {
+      const res = await fetch(`${baseUrl}/v1/pricing`, { cache: 'no-store', signal: AbortSignal.timeout(PRICING_REQUEST_TIMEOUT_MS) });
+      const geo = res.ok ? parseGeoPricing(await res.json()) : null;
+      if (geo) {
+        setGeoPricing(geo);
+        writeJson(GEO_PRICING_STORAGE_KEY, geo);
+      }
+    } catch {
+      // Offline hoặc hết thời gian: dùng kết quả đã nhớ / suy đoán
+    }
+    setPricingStatus('ready');
+  }, []);
 
   const applyVerified = useCallback((verified: VerifiedLicense | null) => {
     verifiedRef.current = verified;
@@ -265,15 +289,6 @@ export function useProLicense({ notify }: UseProLicenseOptions = {}) {
       document.removeEventListener('visibilitychange', onVisibility);
     };
   }, [reverifyStoredLicense]);
-
-  const setPricingRegion = useCallback((next: PricingRegionId) => {
-    setPricingRegionState(next);
-    try {
-      localStorage.setItem(REGION_STORAGE_KEY, next);
-    } catch {
-      // ignore
-    }
-  }, []);
 
   /** Kích hoạt bằng token Ed25519 hoặc link https://…/#activate=<token> */
   const activateWithToken = useCallback(
@@ -557,9 +572,11 @@ export function useProLicense({ notify }: UseProLicenseOptions = {}) {
     trials,
     isGrandfathered,
     pricingRegion,
-    setPricingRegion,
+    /** Mã quốc gia máy chủ xác định (để ghi "Giá cho Việt Nam"); null khi chưa hỏi được */
+    pricingCountry: geoPricing?.country ?? null,
+    pricingStatus,
+    refreshPricing,
     currentTier,
-    availableTiers,
     canAutoClaim,
     pendingOrder,
     startOrder,

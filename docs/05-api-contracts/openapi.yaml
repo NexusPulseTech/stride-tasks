@@ -209,6 +209,37 @@ paths:
                   status: { const: forbidden }
         '429': { $ref: '#/components/responses/RateLimited' }
 
+  /v1/pricing:
+    get:
+      tags: [licensing]
+      operationId: getRegionalPricing
+      summary: Bậc giá theo quốc gia của IP (giá theo sức mua, A12)
+      description: |
+        Máy chủ quyết định bậc giá từ `request.cf.country`; người mua không tự chọn bậc.
+        VN → vn-ppp; nước thu nhập thấp, trung bình thấp, trung bình cao theo World Bank → emerging-ppp; còn lại → global-us.
+        `regionalCheckoutUrl` chỉ có khi bậc khác global-us và Worker đã cấu hình `POLAR_CHECKOUT_URL_EMERGING`.
+        Không lưu cache (`Cache-Control: no-store`) vì kết quả phụ thuộc IP; app tự nhớ 7 ngày.
+      security: []
+      responses:
+        '200':
+          description: Bậc giá cho người gọi
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [country, tier, regionalCheckoutUrl]
+                properties:
+                  country:
+                    type: [string, 'null']
+                    pattern: '^[A-Z]{2}$'
+                    description: Mã ISO 3166-1 alpha-2; null khi không xác định (XX, Tor)
+                  tier:
+                    type: string
+                    enum: [vn-ppp, emerging-ppp, global-us]
+                  regionalCheckoutUrl:
+                    type: [string, 'null']
+                    format: uri
+
   /checkout/success:
     get:
       tags: [licensing]

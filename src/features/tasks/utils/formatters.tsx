@@ -2,6 +2,7 @@ import React from 'react';
 import { ExternalLink } from 'lucide-react';
 import { Project, SubTask } from '../../../types';
 import { HighlightedText } from '../../../components/ui/HighlightedText';
+import { useLanguage, formatMessage } from '../../../i18n';
 
 export function formatSubtasksToMarkdown(subtasks: SubTask[], indentLevel = 1): string[] {
   const lines: string[] = [];
@@ -38,6 +39,7 @@ export function FormattedTaskText({
   isDone: boolean;
   highlight?: string;
 }) {
+  const { t } = useLanguage();
   if (!text) return null;
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   const parts = text.split(urlRegex);
@@ -69,8 +71,8 @@ export function FormattedTaskText({
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
               className="inline-flex items-center gap-0.5 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline underline-offset-2 mx-1 font-medium select-text max-w-[130px] sm:max-w-[200px] truncate align-baseline cursor-pointer"
-              title={`Mở liên kết: ${part}`}
-              aria-label={`Mở liên kết: ${part}`}
+              title={formatMessage(t.taskRow.openLink, { url: part })}
+              aria-label={formatMessage(t.taskRow.openLink, { url: part })}
             >
               <span className="truncate">{displayUrl}</span>
               <ExternalLink className="w-2.5 h-2.5 shrink-0 inline" strokeWidth={1.75} aria-hidden="true" />

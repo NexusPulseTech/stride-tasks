@@ -1,5 +1,7 @@
 import { Project } from '../types';
-import { STORAGE_KEY, INITIAL_PROJECTS } from '../constants';
+import { STORAGE_KEY } from '../constants';
+import { getSampleProjects, matchesSampleTemplate } from '../constants/sampleProjects';
+import { detectInitialLanguage } from '../i18n/detectLanguage';
 
 export const STRIDE_SNAPSHOT_VAULT_KEY = 'STRIDE_SNAPSHOT_VAULT_V1';
 export const STRIDE_AUTO_BACKUP_KEY = 'STRIDE_AUTO_BACKUP_DATA';
@@ -116,15 +118,11 @@ export function countTotalTasks(projects: Project[]): number {
   return projects.reduce((total, p) => total + (Array.isArray(p.tasks) ? p.tasks.length : 0), 0);
 }
 
-// CHỈ COI LÀ TEMPLATE KHI GIỐNG 100% INITIAL_PROJECTS
+// CHỈ COI LÀ DỮ LIỆU VÍ DỤ KHI GIỐNG NGUYÊN VĂN MỘT BỘ VÍ DỤ (EN, VI hoặc bộ cũ trước A12)
 // Bất kỳ chỉnh sửa nào (thêm/sửa/xóa task) đều là dữ liệu thật của người dùng!
 export function isSampleTemplate(projects: Project[]): boolean {
   if (!Array.isArray(projects) || projects.length === 0) return false;
-  try {
-    return JSON.stringify(projects) === JSON.stringify(INITIAL_PROJECTS);
-  } catch (e) {
-    return false;
-  }
+  return matchesSampleTemplate(projects);
 }
 
 // ----------------------------------------------------
@@ -233,7 +231,7 @@ export function deepScanAllRecoverySources(): DiscoveredRecoverySource[] {
 // 6. Khởi tạo dữ liệu an toàn tuyệt đối (Safe Load)
 // ----------------------------------------------------
 export function loadProjectsSafely(): Project[] {
-  if (typeof window === 'undefined') return INITIAL_PROJECTS;
+  if (typeof window === 'undefined') return getSampleProjects('en');
 
   try {
     const primary = localStorage.getItem(STORAGE_KEY);
@@ -267,17 +265,18 @@ export function loadProjectsSafely(): Project[] {
       return recovered;
     }
 
-    // 4. Nếu chưa từng có dữ liệu: nạp dữ liệu mẫu ban đầu
+    // 4. Nếu chưa từng có dữ liệu: nạp bộ ví dụ theo ngôn ngữ của người dùng
+    const sample = getSampleProjects(detectInitialLanguage());
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_PROJECTS));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sample));
       localStorage.setItem(HAS_INITIALIZED_KEY, 'true');
-      idbSet(STORAGE_KEY, INITIAL_PROJECTS);
+      idbSet(STORAGE_KEY, sample);
       idbSet(HAS_INITIALIZED_KEY, true);
     } catch (e) {}
-    return INITIAL_PROJECTS;
+    return sample;
   } catch (e) {
     console.error('Error in loadProjectsSafely:', e);
-    return INITIAL_PROJECTS;
+    return getSampleProjects('en');
   }
 }
 
