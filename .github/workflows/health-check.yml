@@ -1,0 +1,53 @@
+name: Production health check
+
+# Kiểm tra sống mỗi 6 giờ bằng curl, không tạo đơn hay dữ liệu: app, header bảo mật ở edge, trang đích, trang pháp lý
+# và Worker (định dạng claim, webhook fail-closed, CORS). Bước nào lỗi thì GitHub gửi email cho người sửa workflow gần nhất.
+# Lưu ý: GitHub tự tắt lịch này sau 60 ngày repo không có commit; bật lại ở tab Actions.
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  APP: https://tasks.nexuspulsetech.xyz
+  API: https://tasks-api.nexuspulsetech.xyz
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: App shell has the CSP meta tag and the frame guard
+        run: |
+          set -euo pipefail
+          body=$(curl -fsS --max-time 20 "$APP/?hc=$(date +%s)")
+          grep -q 'http-equiv="Content-Security-Policy"' <<<"$body"
+          grep -q 'window.top!==window.self' <<<"$body"
+
+      - name: Edge security headers are present
+        run: |
+          set -euo pipefail
+          headers=$(curl -fsSI --max-time 20 "$APP/")
+          for expected in "x-frame-options: DENY" "frame-ancestors 'none'" "x-content-type-options: nosniff" "strict-transport-security:"; do
+            grep -qi "$expected" <<<"$headers" || { echo "missing header: $expected"; exit 1; }
+          done
+
+      - name: Landing, legal pages, sitemap and service worker respond
+        run: |
+          set -euo pipefail
+          for path in /en/ /vi/ /privacy.html /terms.html /refund.html /sitemap.xml /manifest.json /sw.js; do
+            curl -fsS --max-time 20 -o /dev/null "$APP$path" || { echo "failed: $path"; exit 1; }
+          done
+          curl -fsS --max-time 20 "$APP/en/" | grep -q 'upgrade=pro'
+
+      - name: Worker routes, validation and CORS answer as expected
+        run: |
+          set -euo pipefail
+          status() { curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$@"; }
+          test "$(status "$API/claim?order=BAD")" = "400"
+          test "$(status -X POST -H 'Content-Type: application/json' -d '{}' "$API/webhooks/polar")" = "403"
+          test "$(status -X OPTIONS -H 'Origin: https://tasks.nexuspulsetech.xyz' -H 'Access-Control-Request-Method: POST' "$API/v1/orders")" = "204"
+          test "$(status "$API/nope")" = "404"

@@ -6,7 +6,7 @@
 | Ưu tiên | P1 (làm trong lúc Polar duyệt hồ sơ, trước khi có khách thật) |
 | Ước lượng | 0,5 ngày |
 | Phụ thuộc | A04, A05 |
-| Trạng thái | ☐ Todo |
+| Trạng thái | ◐ Code và test xong 2026-11-10; chờ founder áp schema D1 và deploy Worker (hai lệnh ở mục Triển khai) |
 
 ## Vấn đề (đo trên production 2026-11-10)
 Đơn $0 bằng mã 100%: Polar gửi `order.paid` lúc 06:55:15 và Worker trả 202, nhưng trang chờ của Success URL chỉ chuyển về app lúc 06:55:57 (khoảng 43 giây). Lần `/claim` lúc 06:55:53 vẫn trả `pending`.
@@ -28,6 +28,19 @@ Hệ quả: người vừa trả tiền nhìn trang "Đang xác nhận" tới kh
 3. Đọc dự phòng: không thấy trong D1 thì đọc KV, để các đơn cũ vẫn nhận được.
 4. Test Worker: webhook rồi claim ngay, webhook rồi Success URL ngay, webhook gửi lại hai lần, đơn cũ chỉ có trong KV.
 5. Áp schema lên D1 production (`wrangler d1 execute stride-sync --remote --file=schema.sql`, chỉ thêm bảng), deploy Worker, mua thử lại bằng mã 100% (còn 2 lượt) và đo thời gian kích hoạt.
+
+## Cách làm (2026-11-10)
+- `schema.sql`: thêm bảng `orders` (`record_key` là khóa chính, `record` JSON, `expires_at` 90 ngày) và `checkouts`; chỉ `CREATE TABLE IF NOT EXISTS`, không đụng bảng `vaults`.
+- Worker: bốn hàm `putOrderRecord`, `getOrderRecord`, `linkCheckout`, `recordKeyForCheckout`. Ghi D1 bằng `INSERT ... ON CONFLICT DO NOTHING`: webhook gửi lại hay hai webhook chạy song song chỉ giữ đúng một token (bản ký sau bị bỏ, không gửi email lần hai). Đọc D1 trước, KV sau. KV vẫn được ghi kèm (dự phòng, rollback về bản Worker cũ vẫn đọc được). D1 lỗi hay thiếu binding thì rơi về KV và `console.error` để Workers Logs báo. Cả ba kênh SePay, LemonSqueezy, Polar dùng chung.
+- 5 test mới trong `test/polar.test.js`: bản ghi và ánh xạ checkout nằm trong D1 kèm bản chép KV; bản ghi cũ chỉ có ở KV vẫn claim và chuyển hướng được; hai webhook song song chỉ giữ một token; không có binding D1 vẫn cấp được; hàng D1 quá hạn không cấp. Tổng 38/38.
+
+## Triển khai (founder chạy, Claude không được deploy production)
+```bash
+cd cloudflare-worker
+npx wrangler@4.151.0 d1 execute stride-sync --remote --file=schema.sql -y   # chỉ thêm 2 bảng, bảng cũ giữ nguyên
+npx wrangler@4.151.0 deploy                                                 # ghi lại Version ID vào runbook 01 mục 6
+```
+Thứ tự bắt buộc: schema trước, deploy sau. Sau đó Claude mua thử bằng mã 100% (còn 2 lượt) và đo lại thời gian kích hoạt.
 
 ## Tiêu chí nghiệm thu
 - [ ] Đơn production bằng mã 100%: Success URL chuyển về app trong vòng 10 giây sau khi webhook trả 202.

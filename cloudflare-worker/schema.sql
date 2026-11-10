@@ -11,3 +11,19 @@ CREATE TABLE IF NOT EXISTS vaults (
 );
 
 CREATE INDEX IF NOT EXISTS idx_vaults_license ON vaults (license_id);
+
+-- Bản ghi đơn đã thanh toán (token đã ký). Đặt ở D1 thay vì KV vì KV nhất quán sau và lưu đệm cả kết quả "chưa có"
+-- tới 60 giây ở từng edge: app và trang chờ của Success URL hỏi trước khi webhook ghi nên bị kẹt ở "pending" (A11).
+CREATE TABLE IF NOT EXISTS orders (
+  record_key TEXT PRIMARY KEY,  -- order:<mã đơn của app> | plorder:<id đơn Polar> | lsorder:<id đơn LemonSqueezy>
+  record TEXT NOT NULL,         -- JSON: token, channel, orderId, claimHash, createdAt
+  created_at TEXT NOT NULL,
+  expires_at TEXT NOT NULL      -- hết hạn giữ (90 ngày, như TTL cũ của KV); đọc bỏ qua hàng đã hết hạn
+);
+
+-- Ánh xạ phiên checkout của Polar (Success URL mang checkout_id) sang bản ghi đơn
+CREATE TABLE IF NOT EXISTS checkouts (
+  checkout_id TEXT PRIMARY KEY,
+  record_key TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);

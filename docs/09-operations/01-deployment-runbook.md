@@ -26,6 +26,10 @@ npm run indexnow -- submit https://tasks.nexuspulsetech.xyz/en/   # chỉ URL đ
 
 HTTP 200 hoặc 202 là đạt. Một lần gửi tới `api.indexnow.org` được chia sẻ cho mọi công cụ tham gia (Bing, Yandex, Seznam, Naver...). Google không dùng IndexNow: với Google, dựa vào sitemap và Search Console.
 
+## 1a-bis. Kiểm tra sống tự động
+
+Workflow `Production health check` (`.github/workflows/health-check.yml`) chạy mỗi 6 giờ: app có thẻ CSP và script chống nhúng, header bảo mật ở edge, trang đích, trang pháp lý, sitemap, service worker, và Worker trả đúng 400/403/204/404. Chỉ dùng curl, không tạo đơn hay phiên checkout. Bước lỗi thì GitHub gửi email cho người sửa workflow gần nhất; chạy tay bằng `gh workflow run "Production health check"`. GitHub tự tắt lịch sau 60 ngày repo không có commit.
+
 ## 1b. Header bảo mật (Cloudflare)
 
 GitHub Pages không cho đặt header, nhưng tên miền đi qua proxy Cloudflare nên đặt được bằng Transform Rule (gói Free có sẵn). Thẻ meta CSP của app không nhận `frame-ancestors`, nên chống nhúng trang đầy đủ cần header này; script chống nhúng trong bản build chỉ là lớp dự phòng (B04).
@@ -70,6 +74,7 @@ Kiểm tra sau deploy: chạy smoke test production (14 bước: CORS, 401/402, 
 - Áp schema/migration: `$W d1 execute stride-sync --remote --file=schema.sql` (hiện tại) → sau B05 dùng `$W d1 migrations apply stride-sync --remote`.
 - Sao lưu trước thay đổi lớn: `$W d1 export stride-sync --remote --output=backup-YYYYMMDD.sql` (lưu ngoài repo).
 - Đếm dữ liệu: `$W d1 execute stride-sync --remote --command "SELECT COUNT(*) FROM vaults"`.
+- Bảng: `vaults` (kho đồng bộ), `orders` và `checkouts` (bản ghi đơn đã thanh toán, A11). Dọn đơn quá hạn giữ: `$W d1 execute stride-sync --remote --command "DELETE FROM orders WHERE expires_at < strftime('%Y-%m-%dT%H:%M:%fZ','now')"` (đọc đã tự bỏ qua hàng quá hạn, dọn chỉ để gọn).
 
 ## 4. Secret & cấu hình
 

@@ -69,6 +69,8 @@ Khuyến nghị khách: sau khi kích hoạt, vào Trung tâm bản quyền → 
 
 ## 6. Kiểm tra định kỳ (hằng tuần khi đang bán)
 
-- Đối soát số đơn MoR/SePay với số bản ghi `order:*` đã phát hành.
+- Đối soát số đơn trên Polar (Sales) với bảng `orders` trên D1: `npx wrangler d1 execute stride-sync --remote --command "SELECT record_key, created_at FROM orders ORDER BY created_at DESC LIMIT 20"`.
+- Xem workflow `Production health check` có chạy xanh (tab Actions).
+- Polar: trả lời mọi thread hỗ trợ trong 48 giờ (Polar đưa người bán vào thread khi khách khiếu nại; không trả lời có thể bị hoàn tiền và cảnh cáo). Tỉ lệ tranh chấp phải dưới 0,4%.
 - Xem các giao dịch `unmatched`.
 - Xem log lỗi webhook.

@@ -29,7 +29,7 @@ Ký hiệu: ☐ Todo · ◐ In progress · ☑ Done · ⏸ Blocked (ghi lý do)
 | [A08](./A08-first-customer-outreach-sprint.md) | Sprint outreach quốc tế 14 ngày (ADR-0009) | P0 | 14 ngày | A05-A07 | ☐ |
 | [A09](./A09-allow-ai-crawlers.md) | Mở bot AI tìm kiếm/trợ lý trên Cloudflare (ADR-0010) | P0 | 0,2 ngày | founder đăng nhập Cloudflare | ☑ |
 | [A10](./A10-bing-webmaster-and-indexnow.md) | Bing Webmaster Tools + IndexNow | P1 | 0,2 ngày | founder đăng nhập Bing | ☑ |
-| [A11](./A11-instant-activation-strong-consistency.md) | Kích hoạt PRO ngay sau khi trả tiền (đơn hàng trên D1) | P1 | 0,5 ngày | A04, A05 | ☐ |
+| [A11](./A11-instant-activation-strong-consistency.md) | Kích hoạt PRO ngay sau khi trả tiền (đơn hàng trên D1) | P1 | 0,5 ngày | A04, A05 | ◐ code xong, chờ deploy |
 | [B01](./B01-test-suite-in-repo.md) | Bộ test trong repo (Vitest, Worker, E2E khung) | P1 | 2 ngày | - | ◐ |
 | [B02](./B02-lint-format-strict-typescript.md) | ESLint, Prettier, TS strict, dọn phụ thuộc | P1 | 2-3 ngày | B01 | ☐ |
 | [B03](./B03-ci-quality-gates.md) | CI quality gates + chuỗi cung ứng | P1 | 1 ngày | B01, B02 | ☐ |

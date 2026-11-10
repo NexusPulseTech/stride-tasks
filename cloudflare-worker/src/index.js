@@ -4,8 +4,10 @@
  * Luồng VietQR (giá theo PRICE_VND):
  *   App tạo mã đơn STRxxxxxx + bí mật nhận bản quyền (claimSecret, 128 bit, chỉ nằm trên thiết bị)
  *   → POST /v1/orders gửi SHA-256(claimSecret) → hiện QR (nội dung CK = mã đơn) → khách chuyển khoản
- *   → SePay gọi POST /webhook/sepay → Worker kiểm tra số tiền + mã đơn → ký token Ed25519 → lưu KV kèm claimHash
+ *   → SePay gọi POST /webhook/sepay → Worker kiểm tra số tiền + mã đơn → ký token Ed25519 → lưu bản ghi đơn kèm claimHash
  *   → App hỏi GET /claim?order=… với header X-Claim-Secret (dày 5 phút đầu, thưa dần, dừng sau 30 phút) → nhận token.
+ *   Bản ghi đơn nằm ở D1 (bảng orders, checkouts) để đọc ngay sau khi ghi; KV giữ đơn chờ, chống trùng webhook, danh sách
+ *   thu hồi, và một bản chép của bản ghi đơn để dự phòng (A11).
  * Luồng LemonSqueezy ($25.95 / $14.95):
  *   App mở checkout kèm checkout[custom][stride_ref]=STRxxxxxx → LemonSqueezy gọi POST /webhook/lemonsqueezy
  *   (event order_created) → ký token → lưu KV theo mã đơn → App claim như trên; nếu cấu hình Resend, gửi kèm
@@ -116,7 +118,7 @@ async function handleSepay(request, env) {
   }
 
   const orderCode = match[0];
-  if (!(await env.LICENSES.get(`order:${orderCode}`))) {
+  if (!(await getOrderRecord(env, `order:${orderCode}`))) {
     const pending = await env.LICENSES.get(`pending:${orderCode}`, 'json');
     const token = await issueToken(env, {
       licenseKeyOrAddonId: `VN-${orderCode}`,
@@ -124,17 +126,13 @@ async function handleSepay(request, env) {
       regionLabel: `Vietnam PPP (${price.toLocaleString('vi-VN')}₫)`,
     });
     // Không có claimHash (app chưa đăng ký đơn) → claim tự động bị từ chối, cấp lại qua hỗ trợ theo mã đơn
-    await env.LICENSES.put(
-      `order:${orderCode}`,
-      JSON.stringify({
-        token,
-        channel: 'sepay',
-        transactionId: txId,
-        claimHash: pending?.claimHash || null,
-        createdAt: new Date().toISOString(),
-      }),
-      { expirationTtl: RECORD_TTL_SECONDS }
-    );
+    await putOrderRecord(env, `order:${orderCode}`, {
+      token,
+      channel: 'sepay',
+      transactionId: txId,
+      claimHash: pending?.claimHash || null,
+      createdAt: new Date().toISOString(),
+    });
   }
   await env.LICENSES.put(`sepay:${txId}`, JSON.stringify({ status: 'issued', orderCode }), {
     expirationTtl: RECORD_TTL_SECONDS,
@@ -164,7 +162,7 @@ async function handleLemonSqueezy(request, env) {
 
   const ref = String(event.meta?.custom_data?.stride_ref || '').toUpperCase();
   const recordKey = ORDER_EXACT.test(ref) ? `order:${ref}` : `lsorder:${orderId}`;
-  if (await env.LICENSES.get(recordKey)) return json({ ok: true, duplicate: true });
+  if (await getOrderRecord(env, recordKey)) return json({ ok: true, duplicate: true });
   const pending = ORDER_EXACT.test(ref) ? await env.LICENSES.get(`pending:${ref}`, 'json') : null;
 
   const pricePaidUsd = Math.round(Number(attrs.total_usd || 0)) / 100; // LemonSqueezy trả về cent
@@ -173,17 +171,14 @@ async function handleLemonSqueezy(request, env) {
     pricePaidUsd,
     regionLabel: pricePaidUsd > 0 && pricePaidUsd < 20 ? 'Emerging PPP (LemonSqueezy)' : 'Global (LemonSqueezy)',
   });
-  await env.LICENSES.put(
-    recordKey,
-    JSON.stringify({
-      token,
-      channel: 'lemonsqueezy',
-      orderId,
-      claimHash: pending?.claimHash || null,
-      createdAt: new Date().toISOString(),
-    }),
-    { expirationTtl: RECORD_TTL_SECONDS }
-  );
+  const inserted = await putOrderRecord(env, recordKey, {
+    token,
+    channel: 'lemonsqueezy',
+    orderId,
+    claimHash: pending?.claimHash || null,
+    createdAt: new Date().toISOString(),
+  });
+  if (!inserted) return json({ ok: true, duplicate: true });
 
   if (env.RESEND_API_KEY && attrs.user_email) {
     await sendActivationEmail(env, attrs.user_email, token).catch((err) => console.error('email failed', err));
@@ -241,7 +236,14 @@ async function fulfillPolarOrder(env, order) {
   // App mở Checkout Link kèm ?reference_id=<mã đơn>, Polar chép vào metadata của phiên và đơn
   const ref = String(order.metadata?.reference_id || '').toUpperCase();
   const recordKey = ORDER_EXACT.test(ref) ? `order:${ref}` : `plorder:${orderId}`;
-  if (await env.LICENSES.get(recordKey)) return { ok: true, duplicate: true };
+  // Success URL mang checkout_id: cho phép nhận bản quyền cả khi khách không bắt đầu mua từ app
+  const checkoutId = String(order.checkout_id || '').toLowerCase();
+  const hasCheckout = CHECKOUT_ID.test(checkoutId);
+  if (await getOrderRecord(env, recordKey)) {
+    // Webhook gửi lại: chỉ bảo đảm ánh xạ checkout có mặt
+    if (hasCheckout) await linkCheckout(env, checkoutId, recordKey);
+    return { ok: true, duplicate: true };
+  }
   const pending = ORDER_EXACT.test(ref) ? await env.LICENSES.get(`pending:${ref}`, 'json') : null;
   const isUsd = String(order.currency || 'usd').toLowerCase() === 'usd';
   const token = await issueToken(env, {
@@ -249,16 +251,16 @@ async function fulfillPolarOrder(env, order) {
     pricePaidUsd: isUsd ? Math.round(Number(order.total_amount || 0)) / 100 : 0,
     regionLabel: pending?.tier === 'emerging-ppp' ? 'Emerging PPP (Polar)' : 'Global (Polar)',
   });
-  await env.LICENSES.put(
-    recordKey,
-    JSON.stringify({ token, channel: 'polar', orderId, claimHash: pending?.claimHash || null, createdAt: new Date().toISOString() }),
-    { expirationTtl: RECORD_TTL_SECONDS }
-  );
-  // Success URL mang checkout_id: cho phép nhận bản quyền cả khi khách không bắt đầu mua từ app
-  const checkoutId = String(order.checkout_id || '').toLowerCase();
-  if (CHECKOUT_ID.test(checkoutId)) {
-    await env.LICENSES.put(`plcheckout:${checkoutId}`, recordKey, { expirationTtl: RECORD_TTL_SECONDS });
-  }
+  const inserted = await putOrderRecord(env, recordKey, {
+    token,
+    channel: 'polar',
+    orderId,
+    claimHash: pending?.claimHash || null,
+    createdAt: new Date().toISOString(),
+  });
+  if (hasCheckout) await linkCheckout(env, checkoutId, recordKey);
+  // Hai webhook chạy song song: chỉ bản ghi được chèn trước là token thật, bản ký sau bị bỏ
+  if (!inserted) return { ok: true, duplicate: true };
   const email = order.customer?.email;
   if (env.RESEND_API_KEY && email) {
     await sendActivationEmail(env, email, token).catch((err) => console.error('email failed', err));
@@ -287,8 +289,8 @@ async function handleCheckoutSuccess(request, url, env) {
     return checkoutPage(env, { state: 'waiting', checkoutId, next: attempt, retrySeconds: 15 });
   }
 
-  const recordKey = await env.LICENSES.get(`plcheckout:${checkoutId}`);
-  const record = recordKey ? await env.LICENSES.get(recordKey, 'json') : null;
+  const recordKey = await recordKeyForCheckout(env, checkoutId);
+  const record = recordKey ? await getOrderRecord(env, recordKey) : null;
   if (record?.token) {
     // Token nằm trong fragment: trình duyệt không gửi nó lên máy chủ, app xóa khỏi thanh địa chỉ ngay
     return new Response(null, { status: 302, headers: { ...PAGE_HEADERS, Location: `${appUrl(env)}/#activate=${record.token}` } });
@@ -418,7 +420,7 @@ async function handleClaim(request, url, env) {
   if (!CLAIM_SECRET.test(secret)) return json({ status: 'secret_required' }, 401);
   const claimHash = await sha256Hex(secret);
 
-  const record = await env.LICENSES.get(`order:${order}`, 'json');
+  const record = await getOrderRecord(env, `order:${order}`);
   if (!record) {
     const pending = await env.LICENSES.get(`pending:${order}`, 'json');
     if (pending && !timingSafeEqual(pending.claimHash, claimHash)) return json({ status: 'forbidden' }, 403);
@@ -426,6 +428,76 @@ async function handleClaim(request, url, env) {
   }
   if (!record.claimHash || !timingSafeEqual(record.claimHash, claimHash)) return json({ status: 'forbidden' }, 403);
   return json({ status: 'ready', token: record.token, activationUrl: `${appUrl(env)}/#activate=${record.token}` });
+}
+
+// ─── Bản ghi đơn đã thanh toán: D1 là bản chính, KV là bản dự phòng (A11) ───────────────────
+// KV nhất quán sau và lưu đệm cả kết quả "chưa có" tới 60 giây ở từng edge. App và trang chờ của Success URL hỏi
+// trước khi webhook ghi, nên với KV họ bị kẹt ở "pending" gần một phút (đo 43 giây trên production 2026-11-10).
+// D1 trả về đúng bản ghi ngay sau khi ghi. KV vẫn được ghi kèm để bản Worker cũ (rollback) và bản ghi cũ đọc được.
+// D1 lỗi thì không được mất đơn đã trả tiền: rơi về KV và ghi log để Workers Logs báo.
+
+/** Lưu bản ghi đơn. Trả về false nếu đã có: webhook gửi lại hay hai webhook chạy song song chỉ giữ đúng một token */
+async function putOrderRecord(env, recordKey, record) {
+  const body = JSON.stringify(record);
+  let inserted;
+  if (env.DB) {
+    try {
+      const now = Date.now();
+      const res = await env.DB.prepare(
+        'INSERT INTO orders (record_key, record, created_at, expires_at) VALUES (?1, ?2, ?3, ?4) ON CONFLICT(record_key) DO NOTHING'
+      )
+        .bind(recordKey, body, new Date(now).toISOString(), new Date(now + RECORD_TTL_SECONDS * 1000).toISOString())
+        .run();
+      inserted = Boolean(res.meta && res.meta.changes > 0);
+    } catch (err) {
+      console.error('orders d1 write failed', err);
+    }
+  }
+  if (inserted === undefined) inserted = (await env.LICENSES.get(recordKey)) === null;
+  if (inserted) {
+    await env.LICENSES.put(recordKey, body, { expirationTtl: RECORD_TTL_SECONDS }).catch((err) => console.error('orders kv write failed', err));
+  }
+  return inserted;
+}
+
+/** Đọc bản ghi đơn: D1 trước (đọc ngay sau ghi), rồi KV (bản ghi cũ, D1 thiếu hoặc đang lỗi) */
+async function getOrderRecord(env, recordKey) {
+  if (env.DB) {
+    try {
+      const row = await env.DB.prepare('SELECT record FROM orders WHERE record_key = ?1 AND expires_at > ?2')
+        .bind(recordKey, new Date().toISOString())
+        .first();
+      if (row) return JSON.parse(row.record);
+    } catch (err) {
+      console.error('orders d1 read failed', err);
+    }
+  }
+  return env.LICENSES.get(recordKey, 'json');
+}
+
+async function linkCheckout(env, checkoutId, recordKey) {
+  if (env.DB) {
+    try {
+      await env.DB.prepare('INSERT INTO checkouts (checkout_id, record_key, created_at) VALUES (?1, ?2, ?3) ON CONFLICT(checkout_id) DO NOTHING')
+        .bind(checkoutId, recordKey, new Date().toISOString())
+        .run();
+    } catch (err) {
+      console.error('checkouts d1 write failed', err);
+    }
+  }
+  await env.LICENSES.put(`plcheckout:${checkoutId}`, recordKey, { expirationTtl: RECORD_TTL_SECONDS }).catch((err) => console.error('checkouts kv write failed', err));
+}
+
+async function recordKeyForCheckout(env, checkoutId) {
+  if (env.DB) {
+    try {
+      const row = await env.DB.prepare('SELECT record_key FROM checkouts WHERE checkout_id = ?1').bind(checkoutId).first();
+      if (row) return row.record_key;
+    } catch (err) {
+      console.error('checkouts d1 read failed', err);
+    }
+  }
+  return env.LICENSES.get(`plcheckout:${checkoutId}`);
 }
 
 // ─── Đồng bộ mã hóa đầu-cuối (D1) ────────────────────────────────────────────────────────────

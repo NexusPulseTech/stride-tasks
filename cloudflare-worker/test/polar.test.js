@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { env } from 'cloudflare:workers';
 import { applySchema, bytesToB64, call, decodePayload, hmacSha256, issue, orderCode, randomHex, sha256Hex, testEnv, vaultId } from './helpers.js';
 
 // Standard Webhooks: chữ ký = HMAC-SHA256("<id>.<timestamp>.<body>"), khóa là phần base64 sau "whsec_"
@@ -167,5 +168,75 @@ describe('GET /checkout/success (Success URL của Polar)', () => {
 
   it('checkout_id sai định dạng trả 400', async () => {
     expect((await success('not-a-uuid')).status).toBe(400);
+  });
+});
+
+// KV lưu đệm cả kết quả "chưa có" tới 60 giây ở từng edge, nên bản ghi đơn đặt ở D1 (đọc ngay sau ghi); KV chỉ là bản dự phòng
+describe('bản ghi đơn trên D1 (A11)', () => {
+  const success = (checkoutId) => call(`/checkout/success?checkout_id=${checkoutId}`);
+  const d1Order = (key) => env.DB.prepare('SELECT record, expires_at FROM orders WHERE record_key = ?1').bind(key).first();
+
+  it('order.paid ghi bản ghi đơn và ánh xạ checkout vào D1, kèm bản chép KV', async () => {
+    const code = orderCode();
+    const id = polarOrderId();
+    const checkoutId = crypto.randomUUID();
+    await registerPolar(code);
+    expect((await polar(paid(code, id, { checkoutId }))).status).toBe(202);
+
+    const row = await d1Order(`order:${code}`);
+    expect(JSON.parse(row.record)).toMatchObject({ channel: 'polar', orderId: id });
+    expect(new Date(row.expires_at).getTime() - Date.now()).toBeGreaterThan(89 * 86400 * 1000);
+    const link = await env.DB.prepare('SELECT record_key FROM checkouts WHERE checkout_id = ?1').bind(checkoutId).first();
+    expect(link.record_key).toBe(`order:${code}`);
+    expect(await env.LICENSES.get(`order:${code}`)).not.toBeNull();
+    expect(await env.LICENSES.get(`plcheckout:${checkoutId}`)).toBe(`order:${code}`);
+  });
+
+  it('bản ghi cũ chỉ có trong KV vẫn claim được và Success URL vẫn chuyển hướng', async () => {
+    const code = orderCode();
+    const secret = randomHex();
+    const checkoutId = crypto.randomUUID();
+    const token = await issue('PL-legacy');
+    await env.LICENSES.put(`order:${code}`, JSON.stringify({ token, channel: 'polar', claimHash: await sha256Hex(secret) }));
+    await env.LICENSES.put(`plcheckout:${checkoutId}`, `order:${code}`);
+
+    expect((await claimJson(code, secret)).status).toBe('ready');
+    expect((await success(checkoutId)).status).toBe(302);
+  });
+
+  it('hai webhook cho cùng đơn với webhook-id khác nhau chạy song song chỉ giữ đúng một token', async () => {
+    const code = orderCode();
+    const id = polarOrderId();
+    const secret = await registerPolar(code);
+    const responses = await Promise.all([polar(paid(code, id)), polar(paid(code, id))]);
+    const bodies = await Promise.all(responses.map((r) => r.json()));
+    expect(responses.map((r) => r.status)).toEqual([202, 202]);
+    expect(bodies.filter((b) => !b.duplicate)).toHaveLength(1);
+
+    const ready = await claimJson(code, secret);
+    expect(JSON.parse((await d1Order(`order:${code}`)).record).token).toBe(ready.token);
+    expect(await env.LICENSES.get(`order:${code}`)).toContain(ready.token);
+  });
+
+  it('không có binding D1 thì vẫn cấp bản quyền qua KV', async () => {
+    const e = await testEnv({ POLAR_WEBHOOK_SECRET: POLAR_SECRET, DB: undefined });
+    const code = orderCode();
+    const id = polarOrderId();
+    const secret = randomHex();
+    await call('/v1/orders', { method: 'POST', body: { orderCode: code, claimHash: await sha256Hex(secret), tier: 'global-us', provider: 'polar' }, env: e });
+    expect((await polar(paid(code, id), { env: e })).status).toBe(202);
+    const res = await call(`/claim?order=${code}`, { headers: { 'X-Claim-Secret': secret }, env: e });
+    expect((await res.json()).status).toBe('ready');
+    expect(await d1Order(`order:${code}`)).toBeNull();
+  });
+
+  it('hàng D1 đã quá hạn giữ thì không còn cấp token', async () => {
+    const code = orderCode();
+    const secret = randomHex();
+    const record = JSON.stringify({ token: await issue('PL-expired'), channel: 'polar', claimHash: await sha256Hex(secret) });
+    await env.DB.prepare('INSERT INTO orders (record_key, record, created_at, expires_at) VALUES (?1, ?2, ?3, ?3)')
+      .bind(`order:${code}`, record, '2020-01-01T00:00:00.000Z')
+      .run();
+    expect((await claimJson(code, secret)).status).toBe('pending');
   });
 });

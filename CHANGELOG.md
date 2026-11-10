@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Visitors from Vietnam see the emerging-market price by default while bank transfer payments are not available yet.
 
 ### Fixed
+- PRO now activates within seconds of a payment instead of up to a minute: paid order records moved from the eventually consistent KV store to D1, and duplicate webhooks can no longer issue a second license.
 - The shareable productivity card shows the Stride Tasks name instead of the old product name.
 
 ### Security
