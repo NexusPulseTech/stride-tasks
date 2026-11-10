@@ -6,7 +6,7 @@
 | Ưu tiên | P0 (đang bán thật, ảnh hưởng trực tiếp tỉ lệ chuyển đổi) |
 | Ước lượng | 1 ngày (A12a) + 2 ngày (A12b) |
 | Phụ thuộc | A05, A11 |
-| Trạng thái | ◐ A12a xong 2026-11-10 (web c3baeed, Worker `19629ff5`, đã xóa biến GitHub link giá vùng); còn gỡ link GitHub trên hồ sơ Polar. A12b đang làm: đợt 1 và 2 xong (màn hình chính, hộp xác nhận, Thống kê, thẻ chia sẻ, báo cáo Markdown); còn đợt 3 |
+| Trạng thái | ◐ A12a xong 2026-11-10 (web c3baeed, Worker `19629ff5`, đã xóa biến GitHub link giá vùng). A12b xong 2026-11-10 (3 đợt, kiểm trên bản build bằng trình duyệt). Còn: gỡ link GitHub trên hồ sơ Polar |
 
 ## Vấn đề (founder rà ngày 2026-11-10)
 1. Hộp nâng cấp PRO luôn tối, dùng sky/indigo/emerald/amber, lệch hẳn với phần còn lại của app (nền trắng hoặc tối theo giao diện, màu thương hiệu đỏ `#B20015`). Nhìn như giao diện sinh tự động.
@@ -27,6 +27,8 @@
 - Webhook ghi log `ppp_country_mismatch` khi đơn giá vùng có quốc gia thanh toán thuộc nhóm thu nhập cao (đo rò rỉ, không chặn khách).
 - Hộp nâng cấp dùng đúng hệ màu của app (sáng/tối theo giao diện, nút chính đỏ thương hiệu), một giá duy nhất, không emoji, chữ ngắn và không thuật ngữ kỹ thuật ("Ed25519").
 - Bỏ mọi link GitHub khỏi bề mặt sản phẩm và marketing. Repo vẫn public theo FSL; chỉ không quảng bá.
+- Tệp HTML offline độc lập (`public/quan-ly-cong-viec.html`) là bản cũ chỉ có tiếng Việt: chỉ hiện ở giao diện tiếng Việt (menu và thẻ "File HTML"); hướng dẫn tiếng Anh chỉ cách cài ứng dụng (PWA). Nên cân nhắc bỏ hẳn vì PWA đã chạy offline.
+- Chuỗi có định dạng trong hướng dẫn dùng `RichText` (chỉ `**đậm**` và `` `mã` ``, không phân tích HTML), để mọi chữ nằm trong bộ dịch và được test cùng nhau.
 - Dữ liệu mẫu: bộ "Getting started" tiếng Anh và tiếng Việt, ví dụ minh họa trung tính, mỗi việc dạy một tính năng; giữ ID dự án `p1`, `p2` để quy tắc không tính dự án mẫu vào giới hạn Free vẫn đúng; bộ mẫu cũ vẫn được nhận diện là mẫu với người dùng hiện có.
 
 ## Các bước
@@ -48,8 +50,8 @@
 - [x] Người dùng tiếng Anh mới thấy dữ liệu ví dụ tiếng Anh ("Getting started", "Learning"); bộ mẫu cũ vẫn được nhận diện (test). Màn hình chính tiếng Anh không còn chữ tiếng Việt hiển thị (kiểm bằng script trên trình duyệt mới).
 - [x] Không còn link GitHub trên app, trang đích, `llms.txt` (kiểm trên production). Còn link mạng xã hội GitHub trên hồ sơ Polar: gỡ khi extension Chrome kết nối lại hoặc founder tự gỡ ở Settings.
 - [x] Bundle production không chứa link checkout giá vùng: biến `VITE_POLAR_CHECKOUT_URL_EMERGING` đã xóa khỏi GitHub ngày 2026-11-10; bundle sau lần deploy b388264 không còn link (0 lần xuất hiện), người xem ở Việt Nam vẫn thấy "$9.95, Price for Vietnam".
-- [ ] A12b: người dùng tiếng Anh không gặp chữ tiếng Việt ở mọi màn hình (script kiểm kê trả về 0 chuỗi chỉ có tiếng Việt, kiểm thêm trên trình duyệt mới).
-- [ ] A12b: không còn emoji trong giao diện và báo cáo Markdown (trừ bộ nhận diện ký hiệu đầu dòng khi dán danh sách).
+- [x] A12b: người dùng tiếng Anh không gặp chữ tiếng Việt. Script kiểm kê chỉ còn chuỗi cố ý (dữ liệu song ngữ, nhãn ngày tiếng Việt, regex nhận đơn vị giờ tiếng Việt, tên "Tiếng Việt" ở bộ chọn ngôn ngữ, nhãn cũ để đọc dữ liệu đã lưu). Kiểm trên bản build bằng trình duyệt mới: màn hình chính, menu, Thống kê, thẻ chia sẻ, Sao lưu (3 thẻ), Hướng dẫn, Góp ý, Báo cáo Markdown, Dán nhiều việc, hộp xác nhận xóa dự án, Dùng trên điện thoại, Thêm nhanh trên điện thoại. Test `src/i18n/__tests__/catalog.test.ts` chặn tiếng Việt lọt vào bản tiếng Anh, lệch khóa hoặc lệch placeholder giữa hai ngôn ngữ, và emoji trong bộ dịch.
+- [x] A12b: không còn emoji trong giao diện và báo cáo Markdown; chỉ còn bộ nhận diện ký hiệu đầu dòng khi dán danh sách (để làm sạch chữ người dùng dán vào).
 
 ## Rủi ro & rollback
 VPN lách giá: chấp nhận, đo bằng log. Worker lỗi: app dùng kết quả nhớ hoặc suy đoán, vẫn bán được. Rollback app bằng revert; rollback Worker bằng `wrangler rollback`.

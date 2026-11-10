@@ -1,14 +1,55 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { HelpCircle, X } from 'lucide-react';
+import { useLanguage, formatMessage } from '../../../i18n';
+import { RichText } from '../../../components/ui/RichText';
 
 interface GuideModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+interface GuideSection {
+  title: string;
+  body?: string;
+  items?: string[];
+  note?: string;
+}
+
+const KBD_CLASS =
+  'bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-[10px]';
+
 export function GuideModal({ isOpen, onClose }: GuideModalProps) {
+  const { t } = useLanguage();
   if (!isOpen) return null;
+
+  const g = t.guide;
+  const sections: GuideSection[] = [
+    { title: g.s1Title, body: g.s1Body, items: [g.s1Item1, g.s1Item2, g.s1Item3] },
+    {
+      title: g.s2Title,
+      body: g.s2Body,
+      items: [
+        formatMessage(g.s2Item1, { daily: t.taskRow.daily, weekdays: t.taskRow.weekdaysLong, weekly: t.taskRow.weekly }),
+        g.s2Item2,
+        formatMessage(g.s2Item3, { redo: t.taskRow.redo }),
+      ],
+    },
+    { title: g.s3Title, body: g.s3Body },
+    { title: g.s4Title, body: g.s4Body, note: formatMessage(g.s4Note, { backup: t.header.backupLabel }) },
+    { title: g.s5Title, body: g.s5Body, items: [g.s5Item1, g.s5Item2, g.s5Item3, g.s5Item4] },
+  ];
+  const shortcuts: Array<[keys: string, label: string]> = [
+    ['Ctrl + K', g.keyPalette],
+    ['B', g.keyBoard],
+    ['1 · 2 · 3', g.keyReview],
+    ['Shift + Enter', g.keyFocusStart],
+    ['/', g.keySearch],
+    ['F', g.keyFocusMode],
+    ['D', g.keyTheme],
+    ['Ctrl + Z', g.keyUndo],
+  ];
+  const number = (index: number) => String(index + 1).padStart(2, '0') + '.';
 
   return createPortal(
     <div
@@ -27,19 +68,17 @@ export function GuideModal({ isOpen, onClose }: GuideModalProps) {
             </div>
             <div className="min-w-0">
               <h3 className="text-[13px] sm:text-[13.5px] font-semibold text-slate-900 dark:text-slate-100 truncate">
-                Cách Dùng & Cơ Chế Phân Cấp Thông Minh
+                {g.title}
               </h3>
-              <p className="text-[11px] text-slate-400 dark:text-slate-500 font-normal truncate mt-0.5">
-                Tối giản · Chạy offline 100% · Tự động hoàn thành theo cấp bậc
-              </p>
+              <p className="text-[11px] text-slate-400 dark:text-slate-500 font-normal truncate mt-0.5">{g.subtitle}</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors cursor-pointer shrink-0"
-            title="Đóng (Esc)"
-            aria-label="Đóng"
+            title={t.common.closeEsc}
+            aria-label={t.common.close}
           >
             <X className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
           </button>
@@ -47,153 +86,48 @@ export function GuideModal({ isOpen, onClose }: GuideModalProps) {
 
         {/* Body */}
         <div className="p-4 sm:p-5 space-y-2.5 overflow-y-auto overflow-x-hidden text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-          <div className="p-3 bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 rounded-xl space-y-1">
-            <div className="font-semibold text-slate-900 dark:text-slate-100 text-[12px] flex items-center gap-1.5">
-              <span className="font-mono text-slate-500 dark:text-slate-400 text-[11px]">01.</span>
-              <span>Việc con lồng nhau & Tự động hoàn thành (Cascade & Rollup)</span>
+          {sections.map((section, index) => (
+            <div
+              key={section.title}
+              className="p-3 bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 rounded-xl space-y-1"
+            >
+              <div className="font-semibold text-slate-900 dark:text-slate-100 text-[12px] flex items-center gap-1.5">
+                <span className="font-mono text-slate-500 dark:text-slate-400 text-[11px]">{number(index)}</span>
+                <span>{section.title}</span>
+              </div>
+              {section.body && (
+                <p className="text-slate-600 dark:text-slate-300">
+                  <RichText text={section.body} />
+                </p>
+              )}
+              {section.items && (
+                <ul className="list-disc pl-4 space-y-0.5 text-[11.5px] text-slate-500 dark:text-slate-400 pt-0.5">
+                  {section.items.map((item) => (
+                    <li key={item}>
+                      <RichText text={item} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {section.note && (
+                <p className="text-[11.5px] text-slate-500 dark:text-slate-400 pt-0.5">
+                  <RichText text={section.note} />
+                </p>
+              )}
             </div>
-            <p className="text-slate-600 dark:text-slate-300">
-              Mỗi bước con có thể chứa các bước con cấp 2, cấp 3 lồng nhau không giới hạn.
-            </p>
-            <ul className="list-disc pl-4 space-y-0.5 text-[11.5px] text-slate-500 dark:text-slate-400 pt-0.5">
-              <li>
-                <strong>Bọt khí nổi (Bubble up)</strong>: Khi tick xong toàn bộ bước con ở tầng trong cùng, bước cha tự động chuyển sang hoàn thành. Khi xong hết các bước, Task gốc tự động chuyển sang <strong>&quot;Xong&quot;</strong> và tính chuỗi Streak!
-              </li>
-              <li>
-                <strong>Thác đổ (Cascade down)</strong>: Khi bạn tick chọn việc cha, toàn bộ các việc con/cháu bên trong tự động hoàn thành theo.
-              </li>
-              <li>
-                <strong>Tạo việc con nhanh</strong>: Di chuột vào bước bất kỳ và bấm biểu tượng <strong>(+)</strong> để mở ô nhập trực tiếp bước con cho nhánh đó. Bấm mũi tên <strong>(&gt;)</strong> để gập/mở nhánh việc.
-              </li>
-            </ul>
-          </div>
+          ))}
 
           <div className="p-3 bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 rounded-xl space-y-1">
             <div className="font-semibold text-slate-900 dark:text-slate-100 text-[12px] flex items-center gap-1.5">
-              <span className="font-mono text-slate-500 dark:text-slate-400 text-[11px]">02.</span>
-              <span>Việc lặp lại định kỳ (Hàng ngày, T2-T6, Hàng tuần)</span>
-            </div>
-            <p className="text-slate-600 dark:text-slate-300">
-              Giải pháp cho các công việc thói quen như <em>&quot;Post Video X / Shorts hàng ngày&quot;</em> mà không cần tạo mới thủ công mỗi ngày:
-            </p>
-            <ul className="list-disc pl-4 space-y-0.5 text-[11.5px] text-slate-500 dark:text-slate-400 pt-0.5">
-              <li>
-                <strong>Cách bật</strong>: Nhấp vào nút <strong>···</strong> ở cạnh việc cha hoặc việc con, chọn <strong>Hàng ngày</strong>, <strong>Ngày làm việc (T2-T6)</strong> hoặc <strong>Hàng tuần</strong>.
-              </li>
-              <li>
-                <strong>Tự động làm mới khi sang ngày mới</strong>: Hôm nay bạn hoàn thành việc và được ghi nhận vào lịch sử & tính chuỗi Streak liên tục. Khi sang ngày mới, ứng dụng tự động mở lại việc (và các bước con) về trạng thái sẵn sàng làm mà không mất lịch sử cũ!
-              </li>
-              <li>
-                <strong>Làm mới tức thì</strong>: Nếu bạn muốn làm lại ngay trong ngày, bấm nút <strong>Làm mới</strong> cạnh huy hiệu hoặc trong menu <strong>···</strong>.
-              </li>
-            </ul>
-          </div>
-
-          <div className="p-3 bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 rounded-xl space-y-1">
-            <div className="font-semibold text-slate-900 dark:text-slate-100 text-[12px] flex items-center gap-1.5">
-              <span className="font-mono text-slate-500 dark:text-slate-400 text-[11px]">03.</span>
-              <span>Chạy trên bất kỳ máy nào (100% Offline)</span>
-            </div>
-            <p className="text-slate-600 dark:text-slate-300">
-              Tải file{' '}
-              <code className="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-[11px] text-slate-800 dark:text-slate-200">
-                quan-ly-cong-viec.html
-              </code>{' '}
-              nặng chỉ vài chục KB. Cất ở USB hay Desktop (Windows, Mac, Linux), nhấp đúp chuột là mở lên dùng ngay mà không cần cài đặt phần mềm nào.
-            </p>
-          </div>
-
-          <div className="p-3 bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 rounded-xl space-y-1">
-            <div className="font-semibold text-slate-900 dark:text-slate-100 text-[12px] flex items-center gap-1.5">
-              <span className="font-mono text-slate-500 dark:text-slate-400 text-[11px]">04.</span>
-              <span>Dữ liệu lưu ở đâu? Có an toàn không?</span>
-            </div>
-            <p className="text-slate-600 dark:text-slate-300">
-              Dữ liệu được lưu trực tiếp vào <strong>ổ cứng / chip nhớ</strong> của thiết bị bạn (thông qua phân vùng bảo mật LocalStorage và IndexedDB 3 lớp). Không có máy chủ, không thu thập dữ liệu cá nhân, hoạt động vĩnh viễn khi tắt mạng.
-            </p>
-            <p className="text-[11.5px] text-slate-500 dark:text-slate-400 pt-0.5">
-              Bạn có thể bấm <strong>Sao lưu dữ liệu</strong> ở thanh trên để tải file JSON dự phòng, xem Két ảnh chụp khôi phục hoặc chuyển sang thiết bị khác.
-            </p>
-          </div>
-
-          <div className="p-3 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200/70 dark:border-indigo-900/50 rounded-xl space-y-1">
-            <div className="font-semibold text-slate-900 dark:text-slate-100 text-[12px] flex items-center gap-1.5">
-              <span className="font-mono text-indigo-600 dark:text-indigo-400 text-[11px]">05.</span>
-              <span>Cú pháp Gõ Nhanh Thông Minh (Todoist NLP) & Chốt Ca Sunsama</span>
-            </div>
-            <p className="text-slate-600 dark:text-slate-300">
-              Khi thêm công việc mới ở cuối dự án hoặc trong <kbd className="font-mono text-[10px]">Ctrl + K</kbd>, bạn có thể bấm nút <strong>Gắn nhanh</strong> hoặc gõ trực tiếp các ký hiệu:
-            </p>
-            <ul className="list-disc pl-4 space-y-0.5 text-[11.5px] text-slate-500 dark:text-slate-400 pt-0.5">
-              <li>
-                <code className="font-mono text-indigo-600 dark:text-indigo-400">~15m</code>, <code className="font-mono text-indigo-600 dark:text-indigo-400">~30m</code>, <code className="font-mono text-indigo-600 dark:text-indigo-400">~1h</code>: Đặt quỹ thời gian dự kiến (Time-Budget) để đối chiếu với số phút chạy đồng hồ Pomodoro thực tế (<code className="font-mono">25/45m</code>).
-              </li>
-              <li>
-                <code className="font-mono text-amber-600 dark:text-amber-400">!pin</code>: Ghim thẳng lên khu vực Ưu tiên cao nhất (Top 3).
-              </li>
-              <li>
-                <code className="font-mono text-sky-600 dark:text-sky-400">#doing</code>, <code className="font-mono text-sky-600 dark:text-sky-400">#review</code>, <code className="font-mono text-sky-600 dark:text-sky-400">#done</code>: Phân bổ thẳng vào cột trạng thái tương ứng.
-              </li>
-              <li>
-                <code className="font-mono text-violet-600 dark:text-violet-400">@today</code>, <code className="font-mono text-violet-600 dark:text-violet-400">@tomorrow</code>, <code className="font-mono text-teal-600 dark:text-teal-400">@daily</code>: Lên lịch nhắc tự động hoặc thiết lập lặp lại hàng ngày.
-              </li>
-            </ul>
-          </div>
-
-          <div className="p-3 bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 rounded-xl space-y-1">
-            <div className="font-semibold text-slate-900 dark:text-slate-100 text-[12px] flex items-center gap-1.5">
-              <span className="font-mono text-slate-500 dark:text-slate-400 text-[11px]">06.</span>
-              <span>Phím tắt năng suất cao (Power User chuẩn Linear / Anki)</span>
+              <span className="font-mono text-slate-500 dark:text-slate-400 text-[11px]">{number(sections.length)}</span>
+              <span>{g.s6Title}</span>
             </div>
             <div className="grid grid-cols-2 gap-1.5 text-[11px] pt-1">
-              <div>
-                <kbd className="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-[10px]">
-                  Ctrl + K
-                </kbd>{' '}
-                Thanh Lệnh Nhanh
-              </div>
-              <div>
-                <kbd className="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-[10px]">
-                  B
-                </kbd>{' '}
-                Đổi Bảng Kanban 4 cột
-              </div>
-              <div>
-                <kbd className="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-[10px]">
-                  1 - 2 - 3
-                </kbd>{' '}
-                Chấm điểm Anki SM-2
-              </div>
-              <div>
-                <kbd className="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-[10px]">
-                  Shift + Enter
-                </kbd>{' '}
-                Chạy Focus 25p
-              </div>
-              <div>
-                <kbd className="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-[10px]">
-                  /
-                </kbd>{' '}
-                Tìm kiếm việc
-              </div>
-              <div>
-                <kbd className="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-[10px]">
-                  F
-                </kbd>{' '}
-                Bật/tắt Tập trung
-              </div>
-              <div>
-                <kbd className="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-[10px]">
-                  D
-                </kbd>{' '}
-                Đổi giao diện Sáng/Tối
-              </div>
-              <div>
-                <kbd className="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-[10px]">
-                  Ctrl + Z
-                </kbd>{' '}
-                Hoàn tác việc xóa
-              </div>
+              {shortcuts.map(([keys, label]) => (
+                <div key={keys}>
+                  <kbd className={KBD_CLASS}>{keys}</kbd> {label}
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -205,7 +139,7 @@ export function GuideModal({ isOpen, onClose }: GuideModalProps) {
             onClick={onClose}
             className="h-7.5 px-3.5 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-slate-950 rounded-lg text-xs font-medium cursor-pointer shadow-xs active:scale-[0.98] transition-all"
           >
-            Đóng
+            {t.common.close}
           </button>
         </div>
       </div>

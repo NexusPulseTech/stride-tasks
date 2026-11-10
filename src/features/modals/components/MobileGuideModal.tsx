@@ -2,6 +2,8 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { Smartphone, Check, X, FileCode } from 'lucide-react';
 import { MobileGuideTab } from '../../../types';
+import { useLanguage } from '../../../i18n';
+import { RichText } from '../../../components/ui/RichText';
 
 interface MobileGuideModalProps {
   isOpen: boolean;
@@ -16,7 +18,12 @@ export function MobileGuideModal({
   onTabChange,
   onClose,
 }: MobileGuideModalProps) {
+  const { t, language } = useLanguage();
   if (!isOpen) return null;
+  const m = t.mobileGuide;
+  // Tệp HTML độc lập là bản cũ chỉ có tiếng Việt, nên thẻ này chỉ hiện cho giao diện tiếng Việt
+  const showFileTab = language === 'vi';
+  const tab: MobileGuideTab = activeTab === 'file' && !showFileTab ? 'ios' : activeTab;
 
   return createPortal(
     <div
@@ -35,10 +42,10 @@ export function MobileGuideModal({
             </div>
             <div className="min-w-0">
               <h3 className="text-[13px] sm:text-[13.5px] font-semibold text-slate-900 dark:text-slate-100 truncate">
-                Dùng Trên Điện Thoại
+                {m.title}
               </h3>
               <p className="text-[11px] text-slate-400 dark:text-slate-500 font-normal truncate mt-0.5">
-                Cài làm web app toàn màn hình · Chạy offline mượt mà
+                {m.subtitle}
               </p>
             </div>
           </div>
@@ -46,8 +53,8 @@ export function MobileGuideModal({
             type="button"
             onClick={onClose}
             className="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors cursor-pointer shrink-0"
-            title="Đóng (Esc)"
-            aria-label="Đóng"
+            title={t.common.closeEsc}
+            aria-label={t.common.close}
           >
             <X className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
           </button>
@@ -60,7 +67,7 @@ export function MobileGuideModal({
               type="button"
               onClick={() => onTabChange('ios')}
               className={`flex-1 py-1.5 rounded-md transition-all cursor-pointer text-center ${
-                activeTab === 'ios'
+                tab === 'ios'
                   ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 font-semibold shadow-2xs'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
@@ -71,37 +78,39 @@ export function MobileGuideModal({
               type="button"
               onClick={() => onTabChange('android')}
               className={`flex-1 py-1.5 rounded-md transition-all cursor-pointer text-center ${
-                activeTab === 'android'
+                tab === 'android'
                   ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 font-semibold shadow-2xs'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
               Android
             </button>
+            {showFileTab && (
             <button
               type="button"
               onClick={() => onTabChange('file')}
               className={`flex-1 py-1.5 rounded-md transition-all cursor-pointer text-center ${
-                activeTab === 'file'
+                tab === 'file'
                   ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 font-semibold shadow-2xs'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              File HTML
+              {m.tabFile}
             </button>
+            )}
           </div>
         </div>
 
         {/* Body Guide */}
         <div className="p-4 sm:p-5 overflow-y-auto overflow-x-hidden text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-          {activeTab === 'ios' && (
+          {tab === 'ios' && (
             <div className="space-y-2">
               <div className="flex gap-2.5 items-start">
                 <span className="w-4.5 h-4.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center justify-center font-semibold text-[10.5px] shrink-0 mt-0.5">
                   1
                 </span>
                 <p>
-                  Mở đường link ứng dụng này trong trình duyệt <strong>Safari</strong> trên iPhone.
+                  <RichText text={m.iosStep1} />
                 </p>
               </div>
               <div className="flex gap-2.5 items-start">
@@ -109,7 +118,7 @@ export function MobileGuideModal({
                   2
                 </span>
                 <p>
-                  Chạm vào biểu tượng <strong>Chia sẻ (Share)</strong> ở thanh công cụ dưới cùng.
+                  <RichText text={m.iosStep2} />
                 </p>
               </div>
               <div className="flex gap-2.5 items-start">
@@ -117,26 +126,26 @@ export function MobileGuideModal({
                   3
                 </span>
                 <p>
-                  Chọn <strong>&quot;Thêm vào Màn hình chính&quot; (Add to Home Screen)</strong>.
+                  <RichText text={m.iosStep3} />
                 </p>
               </div>
               <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-[11px] border border-emerald-100 dark:border-emerald-900/60 flex items-center gap-1.5 mt-1.5">
                 <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2.25} aria-hidden="true" />
                 <span>
-                  Xong! Biểu tượng app sẽ nằm trên màn hình chính, mở toàn màn hình và lưu dữ liệu offline 100%.
+                  {m.iosDone}
                 </span>
               </div>
             </div>
           )}
 
-          {activeTab === 'android' && (
+          {tab === 'android' && (
             <div className="space-y-2">
               <div className="flex gap-2.5 items-start">
                 <span className="w-4.5 h-4.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center justify-center font-semibold text-[10.5px] shrink-0 mt-0.5">
                   1
                 </span>
                 <p>
-                  Mở đường dẫn ứng dụng bằng trình duyệt <strong>Chrome</strong> hoặc <strong>Brave</strong>.
+                  <RichText text={m.androidStep1} />
                 </p>
               </div>
               <div className="flex gap-2.5 items-start">
@@ -144,7 +153,7 @@ export function MobileGuideModal({
                   2
                 </span>
                 <p>
-                  Chạm biểu tượng <strong>Menu 3 chấm (⋮)</strong> ở góc trên bên phải.
+                  <RichText text={m.androidStep2} />
                 </p>
               </div>
               <div className="flex gap-2.5 items-start">
@@ -152,27 +161,27 @@ export function MobileGuideModal({
                   3
                 </span>
                 <p>
-                  Chọn <strong>&quot;Cài đặt ứng dụng&quot;</strong> hoặc <strong>&quot;Thêm vào Màn hình chính&quot;</strong>.
+                  <RichText text={m.androidStep3} />
                 </p>
               </div>
               <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-[11px] border border-emerald-100 dark:border-emerald-900/60 flex items-center gap-1.5 mt-1.5">
                 <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2.25} aria-hidden="true" />
                 <span>
-                  Ứng dụng chạy mượt mà như app gốc tải từ CH Play, không cần mạng vẫn dùng bình thường.
+                  {m.androidDone}
                 </span>
               </div>
             </div>
           )}
 
-          {activeTab === 'file' && (
+          {tab === 'file' && (
             <div className="space-y-2">
               <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 space-y-1.5">
                 <div className="font-semibold text-slate-900 dark:text-slate-100 text-xs flex items-center gap-1.5">
                   <FileCode className="w-3.5 h-3.5 shrink-0 text-indigo-500" strokeWidth={1.5} aria-hidden="true" />
-                  <span>Dùng offline không cần internet</span>
+                  <span>{m.fileTitle}</span>
                 </div>
                 <p className="text-[11.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
-                  Bấm nút tải file HTML trên thanh công cụ desktop để tải toàn bộ mã nguồn đóng gói gọn trong 1 file duy nhất. Chép file vào điện thoại hoặc máy tính và mở bằng bất kỳ trình duyệt nào.
+                  {m.fileBody}
                 </p>
               </div>
             </div>
@@ -186,7 +195,7 @@ export function MobileGuideModal({
             onClick={onClose}
             className="h-7.5 px-3.5 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-slate-950 rounded-lg text-xs font-medium cursor-pointer shadow-xs active:scale-[0.98] transition-all"
           >
-            Đã hiểu
+            {m.gotIt}
           </button>
         </div>
       </div>

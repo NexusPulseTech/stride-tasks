@@ -2,6 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { Plus, Pin, X } from 'lucide-react';
 import { Project } from '../../../types';
+import { useLanguage, pluralize } from '../../../i18n';
 
 interface MobileAddModalProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ export function MobileAddModal({
   onClose,
   onSubmit,
 }: MobileAddModalProps) {
+  const { t } = useLanguage();
   if (!isOpen) return null;
 
   return createPortal(
@@ -47,10 +49,10 @@ export function MobileAddModal({
             </div>
             <div className="min-w-0">
               <h3 className="text-[13px] sm:text-[13.5px] font-semibold text-slate-900 dark:text-slate-100 truncate">
-                Thêm Việc Nhanh
+                {t.taskRow.quickAdd}
               </h3>
               <p className="text-[11px] text-slate-400 dark:text-slate-500 font-normal truncate mt-0.5">
-                Tạo việc mới hoặc dán kèm liên kết web
+                {t.mobileAdd.subtitle}
               </p>
             </div>
           </div>
@@ -58,8 +60,8 @@ export function MobileAddModal({
             type="button"
             onClick={onClose}
             className="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors cursor-pointer shrink-0"
-            title="Đóng (Esc)"
-            aria-label="Đóng"
+            title={t.common.closeEsc}
+            aria-label={t.common.close}
           >
             <X className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
           </button>
@@ -70,7 +72,7 @@ export function MobileAddModal({
           <div className="p-4 sm:p-5 space-y-3.5 overflow-y-auto overflow-x-hidden text-xs">
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-                Dự án tiếp nhận
+                {t.mobileAdd.projectLabel}
               </label>
               <select
                 value={selectedProjId}
@@ -79,7 +81,7 @@ export function MobileAddModal({
               >
                 {projects.map((p) => (
                   <option key={p.id} value={p.id} className="bg-white dark:bg-[#161b22] text-slate-900 dark:text-slate-100">
-                    {p.name} ({p.tasks.length} việc)
+                    {p.name} ({p.tasks.length} {pluralize(p.tasks.length, t.analytics.unitTaskOne, t.analytics.unitTaskOther)})
                   </option>
                 ))}
               </select>
@@ -87,12 +89,12 @@ export function MobileAddModal({
 
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-                Nội dung công việc
+                {t.mobileAdd.taskLabel}
               </label>
               <textarea
                 value={taskTitle}
                 onChange={(e) => onTaskTitleChange(e.target.value)}
-                placeholder="Nhập tên việc hoặc dán link web..."
+                placeholder={t.mobileAdd.placeholder}
                 rows={3}
                 className="w-full p-3 bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200/90 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-slate-400 dark:focus:border-slate-600 focus:bg-white dark:focus:bg-[#161b22] leading-relaxed transition-all resize-none"
                 autoFocus
@@ -109,7 +111,7 @@ export function MobileAddModal({
                 />
                 <span className="text-xs text-slate-700 dark:text-slate-300 flex items-center gap-1.5 font-medium">
                   <Pin className="w-3.5 h-3.5 shrink-0 text-amber-500 fill-amber-500" strokeWidth={1.5} aria-hidden="true" />
-                  <span>Ghim lên Tiêu điểm ưu tiên</span>
+                  <span>{t.mobileAdd.pinLabel}</span>
                 </span>
               </label>
             </div>
@@ -122,7 +124,7 @@ export function MobileAddModal({
               onClick={onClose}
               className="h-7.5 px-3 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/60 dark:hover:bg-slate-800 rounded-lg cursor-pointer transition-colors"
             >
-              Hủy
+              {t.common.cancel}
             </button>
             <button
               type="submit"
@@ -130,7 +132,7 @@ export function MobileAddModal({
               className="h-7.5 px-3.5 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white disabled:opacity-40 text-white dark:text-slate-950 rounded-lg text-xs font-medium cursor-pointer shadow-xs active:scale-[0.98] transition-all flex items-center gap-1.5"
             >
               <Plus className="w-3.5 h-3.5 shrink-0" strokeWidth={2} aria-hidden="true" />
-              <span>Tạo việc</span>
+              <span>{t.mobileAdd.submit}</span>
             </button>
           </div>
         </form>

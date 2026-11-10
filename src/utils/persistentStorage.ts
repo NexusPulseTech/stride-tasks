@@ -33,9 +33,21 @@ export interface SnapshotItem {
   label?: string;
 }
 
+/** Bản chụp cũ lưu nhãn tiếng Việt cố định cho bản tự động; nhãn trống hoặc nhãn cũ này đều là bản tự động, giao diện tự dịch. */
+const LEGACY_AUTO_SNAPSHOT_LABEL = 'Tự động sao lưu';
+
+export function isAutoSnapshotLabel(label?: string): boolean {
+  return !label || label === LEGACY_AUTO_SNAPSHOT_LABEL;
+}
+
 export interface DiscoveredRecoverySource {
   key: string;
-  label: string;
+  /** Loại nguồn; giao diện tự dịch nhãn theo loại */
+  kind: 'current' | 'emergency' | 'auto' | 'legacy' | 'snapshot';
+  /** Số thứ tự bản chụp, bắt đầu từ 1 (chỉ khi kind = 'snapshot') */
+  snapshotIndex?: number;
+  /** Nhãn người dùng đặt cho bản chụp; không có nghĩa là bản tự động */
+  snapshotLabel?: string;
   timestamp: string;
   projectCount: number;
   taskCount: number;
@@ -199,7 +211,7 @@ export function deepScanAllRecoverySources(): DiscoveredRecoverySource[] {
         const count = countTotalTasks(targetProjects);
         sources.push({
           key,
-          label: key === STORAGE_KEY ? 'Khóa hiện tại (Storage)' : key === STRIDE_EMERGENCY_RECOVERY_KEY ? 'Dự phòng khẩn cấp' : key === STRIDE_AUTO_BACKUP_KEY ? 'Bản sao lưu tự động' : `Khóa cũ: ${key}`,
+          kind: key === STORAGE_KEY ? 'current' : key === STRIDE_EMERGENCY_RECOVERY_KEY ? 'emergency' : key === STRIDE_AUTO_BACKUP_KEY ? 'auto' : 'legacy',
           timestamp,
           projectCount: targetProjects.length,
           taskCount: count,
@@ -215,7 +227,9 @@ export function deepScanAllRecoverySources(): DiscoveredRecoverySource[] {
     vault.forEach((snap, idx) => {
       sources.push({
         key: `vault_${snap.id || idx}`,
-        label: `Snapshot #${idx + 1} (${snap.label || 'Tự động'})`,
+        kind: 'snapshot',
+        snapshotIndex: idx + 1,
+        snapshotLabel: isAutoSnapshotLabel(snap.label) ? undefined : snap.label,
         timestamp: snap.timestamp,
         projectCount: snap.projectCount || snap.projects.length,
         taskCount: snap.taskCount || countTotalTasks(snap.projects),
@@ -302,7 +316,7 @@ export function saveSnapshotToVault(projects: Project[], label?: string): void {
       projectCount: projects.length,
       taskCount: countTotalTasks(projects),
       projects,
-      label: label || 'Tự động sao lưu',
+      label,
     };
 
     // Kiểm tra trùng lặp với snapshot mới nhất

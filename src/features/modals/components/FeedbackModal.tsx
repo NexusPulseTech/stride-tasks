@@ -8,7 +8,7 @@ import {
   Check,
 } from 'lucide-react';
 import { triggerHaptic } from '../../../utils';
-import { useLanguage } from '../../../i18n';
+import { useLanguage, formatMessage } from '../../../i18n';
 import { COMMERCE_CONFIG } from '../../../config/commerceConfig';
 import { APP_VERSION } from '../../../constants';
 
@@ -27,7 +27,7 @@ export function FeedbackModal({
   totalTasksCount,
   showToast,
 }: FeedbackModalProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [activeTab, setActiveTab] = useState<'bug' | 'feature'>('bug');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -38,22 +38,28 @@ export function FeedbackModal({
 
   // Hộp thư hỗ trợ trên domain sản phẩm (chuyển tiếp về hộp thư của founder), không lộ email cá nhân
   const targetEmail = COMMERCE_CONFIG.supportEmail;
+  const f = t.feedback;
 
   const getSystemDiagnostics = () => {
     return [
-      '### THÔNG SỐ HỆ THỐNG',
-      `- Thời gian: ${new Date().toLocaleString('vi-VN')}`,
-      `- Nền tảng: ${typeof navigator !== 'undefined' ? navigator.userAgent : 'N/A'}`,
-      `- Màn hình: ${typeof window !== 'undefined' ? `${window.innerWidth}x${window.innerHeight} (DPR: ${window.devicePixelRatio || 1})` : 'N/A'}`,
-      `- Dữ liệu: ${projectsCount} danh mục, ${totalTasksCount} công việc`,
-      `- Ứng dụng: Stride Tasks v${APP_VERSION}`,
+      f.diagHeading,
+      formatMessage(f.diagTime, { value: new Date().toLocaleString(language === 'vi' ? 'vi-VN' : undefined) }),
+      formatMessage(f.diagPlatform, { value: typeof navigator !== 'undefined' ? navigator.userAgent : 'N/A' }),
+      formatMessage(f.diagScreen, {
+        value:
+          typeof window !== 'undefined'
+            ? `${window.innerWidth}x${window.innerHeight} (DPR: ${window.devicePixelRatio || 1})`
+            : 'N/A',
+      }),
+      formatMessage(f.diagData, { projects: projectsCount, tasks: totalTasksCount }),
+      formatMessage(f.diagApp, { version: APP_VERSION }),
     ].join('\n');
   };
 
   const getFullReportText = () => {
-    const typeLabel = activeTab === 'bug' ? 'BÁO LỖI' : 'GÓP Ý CẢI TIẾN';
-    let body = `## [${typeLabel}] ${title.trim() || 'Chưa đặt tiêu đề'}\n\n`;
-    body += `### Nội dung:\n${description.trim() || 'Không có mô tả chi tiết.'}\n\n`;
+    const typeLabel = activeTab === 'bug' ? f.typeBug : f.typeFeature;
+    let body = `## [${typeLabel}] ${title.trim() || f.untitled}\n\n`;
+    body += `### ${f.contentHeading}\n${description.trim() || f.noDescription}\n\n`;
     if (includeDiagnostics) {
       body += `${getSystemDiagnostics()}\n`;
     }
@@ -62,8 +68,8 @@ export function FeedbackModal({
 
   const handleSendEmail = () => {
     triggerHaptic();
-    const subjectPrefix = activeTab === 'bug' ? '[Stride Tasks] Báo lỗi' : '[Stride Tasks] Góp ý';
-    const subject = encodeURIComponent(`${subjectPrefix} ${title.trim() || 'Phản hồi người dùng'}`);
+    const subjectPrefix = activeTab === 'bug' ? f.subjectBug : f.subjectFeature;
+    const subject = encodeURIComponent(`${subjectPrefix} ${title.trim() || f.subjectFallback}`);
     const body = encodeURIComponent(getFullReportText());
     const mailtoUrl = `mailto:${targetEmail}?subject=${subject}&body=${body}`;
     window.location.href = mailtoUrl;
@@ -96,15 +102,15 @@ export function FeedbackModal({
               <MessageSquare className="w-3.5 h-3.5" strokeWidth={1.5} aria-hidden="true" />
             </div>
             <h3 className="text-[13px] sm:text-[13.5px] font-semibold text-slate-900 dark:text-slate-100">
-              Góp ý & Báo lỗi
+              {f.title}
             </h3>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="w-6.5 h-6.5 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors cursor-pointer"
-            title="Đóng (Esc)"
-            aria-label="Đóng"
+            title={t.common.closeEsc}
+            aria-label={t.common.close}
           >
             <X className="w-3.5 h-3.5" strokeWidth={1.5} aria-hidden="true" />
           </button>
@@ -122,7 +128,7 @@ export function FeedbackModal({
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              Báo sự cố kỹ thuật
+              {f.tabBug}
             </button>
             <button
               type="button"
@@ -133,7 +139,7 @@ export function FeedbackModal({
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              Góp ý tính năng
+              {f.tabFeature}
             </button>
           </div>
         </div>
@@ -142,7 +148,7 @@ export function FeedbackModal({
         <div className="p-4 overflow-y-auto space-y-3 flex-1 text-xs">
           <div>
             <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-400 mb-1">
-              {activeTab === 'bug' ? 'Tóm tắt sự cố:' : 'Tiêu đề đề xuất:'}
+              {activeTab === 'bug' ? f.bugTitleLabel : f.featureTitleLabel}
             </label>
             <input
               type="text"
@@ -150,8 +156,8 @@ export function FeedbackModal({
               onChange={(e) => setTitle(e.target.value)}
               placeholder={
                 activeTab === 'bug'
-                  ? 'Ví dụ: Nút đánh dấu không phản hồi ở danh sách con...'
-                  : 'Ví dụ: Thêm phím tắt di chuyển công việc...'
+                  ? f.bugTitlePlaceholder
+                  : f.featureTitlePlaceholder
               }
               className="w-full h-8 px-2.5 bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 outline-none focus:border-slate-800 dark:focus:border-slate-400 shadow-2xs"
               autoFocus
@@ -160,7 +166,7 @@ export function FeedbackModal({
 
           <div>
             <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-400 mb-1">
-              {activeTab === 'bug' ? 'Chi tiết mô tả sự cố:' : 'Mô tả chi tiết ý tưởng:'}
+              {activeTab === 'bug' ? f.bugDetailLabel : f.featureDetailLabel}
             </label>
             <textarea
               value={description}
@@ -168,8 +174,8 @@ export function FeedbackModal({
               rows={3}
               placeholder={
                 activeTab === 'bug'
-                  ? 'Mô tả ngắn gọn các bước bạn thực hiện khi gặp sự cố...'
-                  : 'Nêu ngắn gọn cách tính năng này giúp nâng cao hiệu quả công việc...'
+                  ? f.bugDetailPlaceholder
+                  : f.featureDetailPlaceholder
               }
               className="w-full p-2.5 bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 outline-none focus:border-slate-800 dark:focus:border-slate-400 shadow-2xs resize-none"
             />
@@ -183,7 +189,7 @@ export function FeedbackModal({
               onChange={(e) => setIncludeDiagnostics(e.target.checked)}
               className="rounded border-slate-300 text-slate-900 focus:ring-0 cursor-pointer"
             />
-            <span>Tự động đính kèm thông số kỹ thuật (hệ điều hành, trình duyệt)</span>
+            <span>{f.includeDiagnostics}</span>
           </label>
         </div>
 
@@ -193,10 +199,10 @@ export function FeedbackModal({
             type="button"
             onClick={handleCopyReport}
             className="h-7.5 px-2.5 text-xs text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/60 dark:hover:bg-slate-800 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors"
-            title="Sao chép toàn bộ nội dung"
+            title={f.copyTitle}
           >
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" strokeWidth={1.5} /> : <Copy className="w-3.5 h-3.5" strokeWidth={1.5} />}
-            <span>{copied ? 'Đã sao chép' : 'Sao chép'}</span>
+            <span>{copied ? f.copied : t.common.copy}</span>
           </button>
 
           <div className="flex items-center gap-1.5">
@@ -204,10 +210,10 @@ export function FeedbackModal({
               type="button"
               onClick={handleSendEmail}
               className="h-7.5 px-3 text-xs font-medium text-white dark:text-slate-950 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white rounded-lg flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-[0.98] transition-all"
-              title={`Gửi email trực tiếp đến ${targetEmail}`}
+              title={formatMessage(f.sendTitle, { email: targetEmail })}
             >
               <Mail className="w-3.5 h-3.5" strokeWidth={1.5} />
-              <span>Gửi Email</span>
+              <span>{f.send}</span>
             </button>
           </div>
         </div>

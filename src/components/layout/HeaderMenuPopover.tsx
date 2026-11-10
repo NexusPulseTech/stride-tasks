@@ -481,8 +481,8 @@ export function HeaderMenuPopover({
             </button>
           )}
 
-          {/* Tải trang HTML Offline */}
-          {onDownloadHtml && (
+          {/* Tệp HTML offline độc lập là bản cũ chỉ có tiếng Việt, nên chỉ hiện cho giao diện tiếng Việt */}
+          {onDownloadHtml && language === 'vi' && (
             <button
               type="button"
               onClick={() => {

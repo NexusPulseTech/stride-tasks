@@ -16,10 +16,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - The PRO dialog was redesigned to match the rest of the app in light and dark mode, with one clear price, plain wording and no emoji.
 - New users get example projects in their own language that show how each feature works, instead of the previous Vietnamese-only sample.
 - Links to the source code repository were removed from the app and the landing pages.
+- Every screen follows the chosen language: confirm dialogs, stats, the share card, backup, feedback, batch paste, and the help and phone setup guides. English users no longer see Vietnamese text, and dates, months and weekdays use English labels.
+- Markdown reports, quick capture labels and the focus timer tab title no longer use emoji.
+- The standalone offline HTML file is offered only in the Vietnamese interface, because that file is Vietnamese only. The English guides explain how to install the app instead.
+- The help guide describes sync accurately: data is encrypted on the device before upload, so the server cannot read it.
 
 ### Fixed
 - PRO now activates within seconds of a payment instead of up to a minute: paid order records moved from the eventually consistent KV store to D1, and duplicate webhooks can no longer issue a second license.
 - The shareable productivity card shows the Stride Tasks name instead of the old product name.
+- The share card's "Best day" showed the weekly total; it now shows the busiest day.
+- The weekly Markdown report labeled a Monday-based count as "last 7 days".
+- Confirm dialogs now keep line breaks, so multi-line restore summaries are readable.
 
 ### Security
 - Content Security Policy for the web app: only the app's own scripts, its API and privacy-friendly analytics may load. The policy is generated at build time with hashes for inline scripts.

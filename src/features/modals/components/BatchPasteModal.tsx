@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Project, BatchPasteTarget, SubTask } from '../../../types';
 import { parsePastedTasks, parsePastedHierarchy, parsePastedSubtasks } from '../../tasks';
+import { useLanguage, formatMessage, pluralize } from '../../../i18n';
 
 interface BatchPasteModalProps {
   batchPasteProject?: Project | null;
@@ -33,6 +34,8 @@ export function BatchPasteModal({
   onExecute,
 }: BatchPasteModalProps) {
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
+  const { t } = useLanguage();
+  const bp = t.batchPaste;
 
   const target: BatchPasteTarget | null =
     batchPasteTarget ||
@@ -65,15 +68,15 @@ export function BatchPasteModal({
 
   const modalTitle =
     target.type === 'subtask'
-      ? `Dán nhiều việc con cho "${target.subTitle || 'mục con'}"`
+      ? formatMessage(bp.titleSubtask, { name: target.subTitle || bp.fallbackSubtask })
       : target.type === 'task'
-      ? `Dán nhiều việc con vào "${target.taskTitle || 'công việc'}"`
-      : `Dán nhiều việc vào "${target.projectName}"`;
+      ? formatMessage(bp.titleTask, { name: target.taskTitle || bp.fallbackTask })
+      : formatMessage(bp.titleProject, { name: target.projectName });
 
   const modalSubtitle =
     target.type === 'project'
-      ? 'Mỗi dòng một việc · Hỗ trợ thụt lề để tự tạo việc con'
-      : 'Mỗi dòng một việc con · Tự động làm sạch bullet và số thứ tự';
+      ? bp.subtitleProject
+      : bp.subtitleSubtasks;
 
   const renderSubtaskPreview = (subs: SubTask[], level = 0) => {
     return (
@@ -125,8 +128,8 @@ export function BatchPasteModal({
             type="button"
             onClick={onClose}
             className="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors cursor-pointer shrink-0"
-            title="Đóng (Esc)"
-            aria-label="Đóng"
+            title={t.common.closeEsc}
+            aria-label={t.common.close}
           >
             <X className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
           </button>
@@ -145,7 +148,7 @@ export function BatchPasteModal({
               }`}
             >
               <Edit3 className="w-3 h-3" />
-              <span>Nhập văn bản</span>
+              <span>{bp.tabEdit}</span>
             </button>
             <button
               type="button"
@@ -157,7 +160,7 @@ export function BatchPasteModal({
               }`}
             >
               <Eye className="w-3 h-3" />
-              <span>Xem trước cây việc</span>
+              <span>{bp.tabPreview}</span>
               {detectedCount > 0 && (
                 <span className="text-[10px] font-mono px-1 rounded bg-slate-200/80 dark:bg-slate-600">
                   {detectedCount}
@@ -170,10 +173,10 @@ export function BatchPasteModal({
             type="button"
             onClick={handlePasteFromClipboard}
             className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer transition-colors"
-            title="Tự động lấy văn bản từ bộ nhớ tạm"
+            title={bp.pasteTitle}
           >
             <ClipboardCopy className="w-3 h-3" />
-            <span>Dán từ Clipboard</span>
+            <span>{bp.pasteButton}</span>
           </button>
         </div>
 
@@ -185,32 +188,32 @@ export function BatchPasteModal({
                 <textarea
                   value={batchPasteText}
                   onChange={(e) => onTextChange(e.target.value)}
-                  placeholder={`Ví dụ:\n1. Phân tích yêu cầu bài toán\n- Thiết kế kiến trúc giải pháp\n  - Vẽ sơ đồ database\n  - Thiết kế REST API\n* Triển khai code và kiểm thử unit\nhttps://linear.app/tasks/123`}
+                  placeholder={bp.placeholder}
                   rows={8}
                   className="w-full p-3 bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200/90 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-slate-400 dark:focus:border-slate-600 focus:bg-white dark:focus:bg-[#161b22] font-mono leading-relaxed transition-all resize-none"
                   autoFocus
                 />
                 {batchPasteText.trim() && (
                   <span className="absolute bottom-2.5 right-2.5 text-[10px] bg-white/90 dark:bg-slate-800/90 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 shadow-2xs font-sans font-medium tabular-nums">
-                    Nhận diện {detectedCount} việc
+                    {pluralize(detectedCount, bp.detectedOne, bp.detectedOther)}
                   </span>
                 )}
               </div>
               <div className="text-[11px] text-slate-400 dark:text-slate-500 leading-normal flex items-center gap-1.5">
                 <ListFilter className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" strokeWidth={1.5} aria-hidden="true" />
-                <span>Tự động làm sạch các tiền tố (1., -, •, [ ]) và giữ nguyên link web. Thụt lề để tự tạo việc con lồng nhau.</span>
+                <span>{bp.cleanupHint}</span>
               </div>
             </div>
           ) : (
             <div className="space-y-2">
               {!batchPasteText.trim() ? (
                 <div className="py-8 text-center text-xs text-slate-400 dark:text-slate-500 italic">
-                  Chưa có nội dung. Chuyển sang tab "Nhập văn bản" hoặc bấm "Dán từ Clipboard".
+                  {formatMessage(bp.emptyPreview, { tab: bp.tabEdit, paste: bp.pasteButton })}
                 </div>
               ) : target.type === 'project' ? (
                 <div className="space-y-2 border border-slate-200/80 dark:border-slate-800 rounded-xl p-3 bg-slate-50/60 dark:bg-slate-900/40">
                   <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Dự án: {target.projectName} ({hierarchyTasks.length} việc chính)
+                    {formatMessage(bp.previewProject, { name: target.projectName, count: hierarchyTasks.length })}
                   </div>
                   <div className="space-y-2 pt-1">
                     {hierarchyTasks.map((t, idx) => (
@@ -240,7 +243,7 @@ export function BatchPasteModal({
               ) : (
                 <div className="space-y-2 border border-slate-200/80 dark:border-slate-800 rounded-xl p-3 bg-slate-50/60 dark:bg-slate-900/40">
                   <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Mục tiêu: {target.subTitle || target.taskTitle} ({subtaskTree.length} việc con)
+                    {formatMessage(bp.previewTarget, { name: target.subTitle || target.taskTitle || '', count: subtaskTree.length })}
                   </div>
                   <div className="pt-1">
                     {renderSubtaskPreview(subtaskTree)}
@@ -258,7 +261,7 @@ export function BatchPasteModal({
             onClick={onClose}
             className="h-7.5 px-3 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/60 dark:hover:bg-slate-800 rounded-lg cursor-pointer transition-colors"
           >
-            Hủy
+            {t.common.cancel}
           </button>
           <button
             type="button"
@@ -269,8 +272,8 @@ export function BatchPasteModal({
             <Plus className="w-3.5 h-3.5 shrink-0" strokeWidth={2} aria-hidden="true" />
             <span>
               {batchPasteText.trim()
-                ? `Thêm ${detectedCount} việc`
-                : 'Thêm tất cả'}
+                ? pluralize(detectedCount, bp.addCountOne, bp.addCountOther)
+                : bp.addAll}
             </span>
           </button>
         </div>
