@@ -41,6 +41,8 @@ Ghi mọi yêu cầu vào một bảng (ngày, kênh, loại, trạng thái, n�
 
 Đường đi: khách gửi tới `support@nexuspulsetech.xyz` → Cloudflare Email Routing chuyển tiếp → hộp Gmail của founder. DNS hiện có MX Cloudflare, SPF `include:_spf.mx.cloudflare.net` và DKIM `cf2024-1`, nhưng **chưa có bản ghi DMARC**. Thư chuyển tiếp hay bị Gmail nghi ngờ (SPF của người gửi gốc không còn khớp sau khi chuyển tiếp; tên miền .xyz còn mới, uy tín thấp), và từ 2025-07 Cloudflare chỉ coi là tin cậy thư gốc đạt SPF hoặc DKIM.
 
+Đã làm ngày 2026-11-10 (founder duyệt): bộ lọc Gmail "Stride Support" (bước 1) và DMARC Management với `p=none` (bước 2, đã kiểm bản ghi `_dmarc` trên DNS). Báo cáo DMARC đầu tiên về sau khoảng 24 giờ, xem ở Cloudflare, Email, DMARC Management.
+
 Cách xử lý, theo thứ tự:
 1. Trong Gmail, mở thư bị vào thư rác, bấm "Không phải thư rác". Sau đó tạo bộ lọc: Đến `support@nexuspulsetech.xyz` → "Không bao giờ gửi vào Thư rác" (thêm nhãn "Stride Support" cho dễ tìm). Đây là cách chắc chắn nhất với thư chuyển tiếp.
 2. Cloudflare, Email, DMARC Management: bật để Cloudflare tạo bản ghi `_dmarc` với chính sách `p=none` (chỉ theo dõi, không chặn thư) và địa chỉ nhận báo cáo. Không đặt `quarantine` hay `reject` khi chưa có dịch vụ gửi thư đã ký DKIM cho tên miền, vì sẽ làm hỏng thư trả lời.
