@@ -304,6 +304,7 @@ export interface Translations {
     terms: string;
     refund: string;
     guide: string;
+    about: string;
   };
   projectHeader: {
     dragSort: string;

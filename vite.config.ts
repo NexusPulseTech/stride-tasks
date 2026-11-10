@@ -33,12 +33,13 @@ export default defineConfig(({ mode }) => {
             // Trang marketing tĩnh: không đưa vào precache của app, luôn lấy bản mới từ mạng
             '**/en/**',
             '**/vi/**',
+            '**/vn/**',
             '**/site.css',
             '**/site-pricing.js',
           ],
           navigateFallback: 'index.html',
           // Trang tĩnh độc lập (kể cả /en/, /vi/) và file .txt (robots, llms, khóa IndexNow) phải được phục vụ đúng file, không bị thay bằng index.html
-          navigateFallbackDenylist: [/\/[^/?]+\.html$/, /\/sitemap\.xml$/, /\/[^/?]+\.txt$/, /^\/(en|vi)(\/|$)/],
+          navigateFallbackDenylist: [/\/[^/?]+\.html$/, /\/sitemap\.xml$/, /\/[^/?]+\.txt$/, /^\/(en|vi|vn)(\/|$)/],
           // Tham số phiên bản ?v= trên CSS tĩnh chỉ để phá cache CDN; khi offline vẫn khớp bản đã precache
           ignoreURLParametersMatching: [/^utm_/, /^fbclid$/, /^v$/],
           cleanupOutdatedCaches: true,

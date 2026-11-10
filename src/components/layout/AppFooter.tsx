@@ -22,7 +22,7 @@ export function AppFooter({
   themeMode,
   onSetThemeMode,
 }: AppFooterProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   return (
     <footer className="text-center text-[11px] text-slate-400 dark:text-slate-500 pt-6 pb-4 space-y-2.5">
@@ -122,6 +122,15 @@ export function AppFooter({
         >
           {t.footer.feedback}
         </button>
+        <span aria-hidden="true">·</span>
+        {/* Trang giới thiệu theo ngôn ngữ: lối cho khách tìm hiểu, và là link nội bộ giúp Google lập chỉ mục /en/, /vi/ */}
+        <a
+          href={language === 'vi' ? '/vi/' : '/en/'}
+          hrefLang={language}
+          className="hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+        >
+          {t.footer.about}
+        </a>
         <span aria-hidden="true">·</span>
         <a
           href="/privacy.html"

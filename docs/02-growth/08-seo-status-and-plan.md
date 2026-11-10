@@ -19,6 +19,17 @@
 
 Google nói rõ: thu thập dữ liệu mất **"từ vài ngày đến vài tuần"**, yêu cầu lập chỉ mục nhiều lần cho cùng URL **không** nhanh hơn, và **"không ai có thể đảm bảo vị trí số 1"**.
 
+### Cập nhật 2026-11-11 (đọc trực tiếp Search Console, Cloudflare Web Analytics, Polar)
+
+| Hạng mục | Kết quả |
+| :--- | :--- |
+| Search Console 28 ngày | 2 lượt nhấp, 3 lượt hiển thị, vị trí trung bình 1,3 (chỉ truy vấn thương hiệu) |
+| Lập chỉ mục | Chỉ `/` (app) được lập chỉ mục; `/en/` và `/vi/` ở trạng thái "Đã thu thập, hiện chưa được lập chỉ mục" |
+| Cloudflare Web Analytics 30 ngày | 150 lượt truy cập, 180 lượt xem; Việt Nam 140, Mỹ 30, Singapore 10; 130 trực tiếp, 20 từ Google; phần lớn là founder và lượt thử nội bộ; có 10 lượt vào `/vn` (không tồn tại) |
+| Polar | 2 đơn $0 (đơn thử), chưa có đơn trả tiền thật |
+
+Đã xử lý ngay: footer app có link "About Stride Tasks" tới `/en/` hoặc `/vi/` (app là trang duy nhất đã được lập chỉ mục, nên đây là link nội bộ nhanh nhất cho Google); `/vn` chuyển hướng về `/vi/`. Cần làm tiếp: yêu cầu lập chỉ mục `/en/`, `/vi/` trong Search Console; lấy backlink thật (AlternativeTo, SaaSHub, Product Hunt, bài cộng đồng).
+
 ## 2. Rủi ro đã phát hiện
 
 | Rủi ro | Ảnh hưởng | Xử lý |

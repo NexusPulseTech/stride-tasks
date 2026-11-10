@@ -304,6 +304,7 @@ export const en: Translations = {
     terms: 'Terms',
     refund: 'Refunds',
     guide: 'User guide',
+    about: 'About Stride Tasks',
   },
   projectHeader: {
     dragSort: 'Drag to reorder project',

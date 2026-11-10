@@ -304,6 +304,7 @@ export const vi: Translations = {
     terms: 'Điều khoản',
     refund: 'Hoàn tiền',
     guide: 'Hướng dẫn sử dụng',
+    about: 'Giới thiệu Stride Tasks',
   },
   projectHeader: {
     dragSort: 'Kéo thả sắp xếp thứ tự danh mục',
