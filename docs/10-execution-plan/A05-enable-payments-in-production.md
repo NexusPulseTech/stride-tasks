@@ -6,7 +6,7 @@
 | Ưu tiên | P0 |
 | Ước lượng | 0,5 ngày làm + chờ Polar duyệt (tối đa 14 ngày, không chặn việc bán) |
 | Phụ thuộc | A01, A02, A04 (☑); A03 phần tạo organization production |
-| Trạng thái | ◐ Đã bật bán và mua thử $0 thành công trên production 2026-11-10; chờ founder bấm Submit for review |
+| Trạng thái | ☑ Polar duyệt 2026-11-10 (status active, checkout_payments true); PRO đang bán thật. Còn A11 để kích hoạt nhanh |
 | Người làm | Founder: danh tính, KYC, tài khoản nhận tiền, nạp secret. Claude: sản phẩm, link, webhook, mã giảm giá qua API; biến GitHub; kiểm tra |
 
 ## Mục tiêu
@@ -71,7 +71,7 @@ Khách quốc tế mua được PRO bằng thẻ qua Polar và nhận PRO tự �
 - [x] Đơn production dùng mã 100% → PRO tự kích hoạt ≤ 60 giây (đo được khoảng 43 giây; A11 rút xuống vài giây), đồng bộ chạy giữa 2 thiết bị.
 - [x] Lịch sử gửi webhook production trả 202.
 - [x] Không có bí mật trong bundle hay diff; `secret list` có đủ `POLAR_WEBHOOK_SECRET` và `STRIDE_ED25519_PRIVATE_KEY`.
-- [ ] Đã nộp duyệt Polar; trạng thái tài khoản nhận tiền được ghi vào A03.
+- [x] Đã nộp duyệt Polar 2026-11-10 và được duyệt cùng ngày (Account approved, payout account connected, identity verified); ghi vào A03.
 
 ## Rủi ro & rollback
 Lỗi thanh toán sau khi bật: xóa giá trị `VITE_ENABLE_PAYWALL` rồi deploy lại (quay về chế độ miễn phí), cấp bản quyền thủ công cho khách đã trả (runbook mục 2).

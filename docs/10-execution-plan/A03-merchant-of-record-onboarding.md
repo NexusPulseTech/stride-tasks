@@ -6,7 +6,7 @@
 | Ưu tiên | P0 |
 | Ước lượng | 1-3 ngày (phần lớn là chờ duyệt) |
 | Phụ thuộc | A02 (trang pháp lý phải có trước khi nộp hồ sơ) |
-| Trạng thái | ◐ Org production tạo 2026-11-10 (cá nhân, USD); còn KYC, payout, nộp duyệt |
+| Trạng thái | ☑ Xong 2026-11-10: org production (cá nhân, USD) được Polar duyệt, payout Stripe Connect Express đã nối, danh tính đã xác minh |
 | Người làm | **Founder** (tạo tài khoản, xác minh danh tính, nhập thông tin ngân hàng, AI không làm thay) |
 
 ## Mục tiêu
@@ -29,7 +29,7 @@ LemonSqueezy chuyển sang Stripe Managed Payments (không hỗ trợ người b
 8. Cập nhật ADR-0006 → `Accepted` (hoặc ghi phương án thay thế đã chọn).
 
 ## Tiêu chí nghiệm thu
-- [ ] Payout onboarding hoàn tất (trạng thái "verified"/"active").
+- [x] Payout onboarding hoàn tất 2026-11-10: Polar báo "Payout account connected" (Stripe Connect Express, ngân hàng Việt Nam, mã CITAD của chi nhánh quản lý tài khoản), org `status: active`, `capabilities.payouts: true`. Payout rút tay khi số dư từ $10, có 7 ngày chờ quyết toán, phí $2/tháng có payout + 0,25% + $0,25 mỗi lần.
 - [x] Mua thử trong sandbox bằng thẻ test: webhook `order.paid` tới Worker, app nhận PRO; hoàn tiền thử thì bản quyền bị thu hồi (2026-11-09, chi tiết ở A04).
 - [x] Trang checkout hiển thị đúng giá, thuế, link pháp lý. Production 2026-11-10: $19, thuế đã gồm trong giá ($1,73 ở Việt Nam), logo và tên org hiện đúng, điều khoản do Polar (MoR) hiển thị.
 
