@@ -6,7 +6,7 @@
 | Ưu tiên | P0 (đang bán thật, ảnh hưởng trực tiếp tỉ lệ chuyển đổi) |
 | Ước lượng | 1 ngày (A12a) + 2 ngày (A12b) |
 | Phụ thuộc | A05, A11 |
-| Trạng thái | ◐ A12a đang làm |
+| Trạng thái | ◐ A12a: code xong và đã lên web (c3baeed); chờ founder deploy Worker, gỡ link GitHub trên hồ sơ Polar. A12b chưa làm |
 
 ## Vấn đề (founder rà ngày 2026-11-10)
 1. Hộp nâng cấp PRO luôn tối, dùng sky/indigo/emerald/amber, lệch hẳn với phần còn lại của app (nền trắng hoặc tối theo giao diện, màu thương hiệu đỏ `#B20015`). Nhìn như giao diện sinh tự động.
@@ -43,10 +43,10 @@
 8. Bỏ emoji trong báo cáo Markdown và nhãn nhập nhanh, dùng icon của bộ icon chung.
 
 ## Tiêu chí nghiệm thu
-- [ ] `/v1/pricing`: VN → `vn-ppp`, IN → `emerging-ppp`, US → `global-us`, không rõ → `global-us`; link giá vùng chỉ trả cho nước đủ điều kiện (test Worker).
-- [ ] Hộp nâng cấp hiện đúng một giá, không có nút đổi vùng, không emoji, đúng màu ở cả giao diện sáng và tối.
-- [ ] Người dùng tiếng Anh mới thấy dữ liệu mẫu tiếng Anh; người dùng hiện có với bộ mẫu cũ vẫn thấy banner mẫu.
-- [ ] Không còn link GitHub trên app, trang đích, `llms.txt`.
+- [x] `/v1/pricing`: VN → `vn-ppp`, IN → `emerging-ppp`, US → `global-us`, không rõ → `global-us`; link giá vùng chỉ trả cho nước đủ điều kiện (6 test Worker, tổng 45/45). Còn đợi deploy Worker để chạy thật.
+- [x] Hộp nâng cấp hiện đúng một giá, không có nút đổi vùng, không emoji, đúng màu ở cả giao diện sáng và tối (chụp kiểm tra trên bản build 2026-11-10).
+- [x] Người dùng tiếng Anh mới thấy dữ liệu ví dụ tiếng Anh ("Getting started", "Learning"); bộ mẫu cũ vẫn được nhận diện (test). Màn hình chính tiếng Anh không còn chữ tiếng Việt hiển thị (kiểm bằng script trên trình duyệt mới).
+- [x] Không còn link GitHub trên app, trang đích, `llms.txt` (kiểm trên production). Còn link mạng xã hội GitHub trên hồ sơ Polar: gỡ khi extension Chrome kết nối lại hoặc founder tự gỡ ở Settings.
 - [ ] Bundle production không chứa link checkout giá vùng (sau bước 6).
 
 ## Rủi ro & rollback
