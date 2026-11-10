@@ -291,7 +291,7 @@ export function ActionBar({
               >
                 <Target className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
                 <span className="hidden sm:inline font-semibold text-[11px] truncate">
-                  {t.actionBar.allFilter === 'Tất cả' ? 'Tiêu điểm' : 'Focus'}
+                  {t.dailyFocus.shortLabel}
                 </span>
                 {dailyFocusCount > 0 && (
                   <span className="font-mono tabular-nums font-bold text-[9.5px] px-1 py-0.2 bg-amber-500/20 dark:bg-amber-500/30 text-amber-800 dark:text-amber-200 rounded shrink-0">

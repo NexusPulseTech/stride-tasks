@@ -332,7 +332,7 @@ export function SmartScheduleModal({
                       </span>
                       <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold text-rose-700 dark:text-rose-300">
                         <Pin className="w-2.5 h-2.5 fill-current" />
-                        <span>Mức 1</span>
+                        <span>{language === 'vi' ? 'Mức 1' : 'Lvl 1'}</span>
                       </span>
                     </div>
                     <div className="text-[11px] font-bold text-rose-950 dark:text-rose-100 truncate">
@@ -354,7 +354,7 @@ export function SmartScheduleModal({
                         2
                       </span>
                       <span className="text-[9px] font-mono font-semibold text-blue-700 dark:text-blue-300">
-                        Mức {ankiOptions[1].nextLevel}
+                        {language === 'vi' ? 'Mức' : 'Lvl'} {ankiOptions[1].nextLevel}
                       </span>
                     </div>
                     <div className="text-[11px] font-bold text-blue-950 dark:text-blue-100 truncate">
@@ -376,7 +376,7 @@ export function SmartScheduleModal({
                         3
                       </span>
                       <span className="text-[9px] font-mono font-semibold text-emerald-700 dark:text-emerald-300">
-                        Mức {ankiOptions[2].nextLevel}
+                        {language === 'vi' ? 'Mức' : 'Lvl'} {ankiOptions[2].nextLevel}
                       </span>
                     </div>
                     <div className="text-[11px] font-bold text-emerald-950 dark:text-emerald-100 truncate">

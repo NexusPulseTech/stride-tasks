@@ -129,8 +129,8 @@ export function SubTaskRow({
         <div
           data-subtask-drag-handle="true"
           className="cursor-grab active:cursor-grabbing p-0.5 -ml-0.5 text-slate-300 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-300 opacity-0 group-hover/sub:opacity-100 transition-opacity select-none hidden sm:flex items-center justify-center shrink-0"
-          title="Kéo thả để sắp xếp lại việc con"
-          aria-label="Kéo thả sắp xếp việc con"
+          title={t.taskRow.dragSubtaskTitle}
+          aria-label={t.taskRow.dragSubtaskLabel}
         >
           <GripVertical className="w-3 h-3 shrink-0" strokeWidth={1.5} aria-hidden="true" />
         </div>
@@ -196,7 +196,7 @@ export function SubTaskRow({
                 onClick={handleSaveEdit}
                 className="h-5 px-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 text-[10px] font-medium rounded cursor-pointer shrink-0 whitespace-nowrap"
               >
-                Lưu
+                {t.common.save}
               </button>
             </div>
           ) : (
@@ -209,7 +209,7 @@ export function SubTaskRow({
               className={`text-xs text-slate-700 dark:text-slate-300 cursor-pointer hover:text-slate-950 dark:hover:text-white transition-colors min-w-0 ${
                 isExpandedText ? 'break-words' : 'truncate'
               }`}
-              title="Nhấp để xem toàn bộ nội dung (nhấp đúp để sửa tên)"
+              title={t.taskRow.subtaskTextHint}
             >
               <FormattedTaskText text={sub.title} isDone={isSubDone} />
             </span>
@@ -257,7 +257,7 @@ export function SubTaskRow({
                         ? 'text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border-rose-200/80 dark:border-rose-800/60 hover:bg-rose-100/80'
                         : 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/60 hover:bg-amber-100/80'
                     }`}
-                    title={`${sub.snoozeUntil} • Nhấn để đổi chu kỳ nhắc lặp`}
+                    title={`${sub.snoozeUntil} • ${t.taskRow.snoozeHint}`}
                   >
                     <RotateCcw className="w-2.5 h-2.5 shrink-0" strokeWidth={1.75} />
                     <span>{countdown.text}</span>

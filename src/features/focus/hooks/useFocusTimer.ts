@@ -173,7 +173,7 @@ export function useFocusTimer({ isMuted, showToast, onLogFocusedMinutes }: UseFo
     }
     const mins = String(Math.floor(session.remainingSeconds / 60)).padStart(2, '0');
     const secs = String(session.remainingSeconds % 60).padStart(2, '0');
-    document.title = `⏳ ${mins}:${secs} · ${session.taskTitle.slice(0, 24)} | Stride Tasks`;
+    document.title = `${mins}:${secs} · ${session.taskTitle.slice(0, 24)} | Stride Tasks`;
     return () => {
       document.title = defaultTitle;
     };

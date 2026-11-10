@@ -466,13 +466,13 @@ export default function App() {
               <div className="bg-white dark:bg-[#161b22] rounded-xl p-8 text-center border border-slate-200/80 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 space-y-2">
                 {manager.projects.length === 0 ? (
                   <>
-                    <p className="font-medium text-slate-700 dark:text-slate-300">Không gian làm việc đang trống</p>
+                    <p className="font-medium text-slate-700 dark:text-slate-300">{t.emptyState.noWorkspaceProjects}</p>
                     <p className="text-[11.5px] text-slate-400 dark:text-slate-500">
-                      Bạn có thể tạo dự án mới ở ô nhập bên trên hoặc mở menu để khôi phục dữ liệu mẫu bất kỳ lúc nào.
+                      {t.emptyState.noWorkspaceProjectsHint}
                     </p>
                   </>
                 ) : (
-                  <p>Không có công việc nào phù hợp với bộ lọc hoặc từ khóa tìm kiếm.</p>
+                  <p>{t.emptyState.noFilteredTasks}</p>
                 )}
               </div>
             ) : (

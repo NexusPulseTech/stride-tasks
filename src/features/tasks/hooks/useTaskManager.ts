@@ -492,14 +492,19 @@ export function useTaskManager() {
       celebration.showToast(tRef.current.toast.noAutoBackup);
       return;
     }
-    const formattedDate = new Date(autoBackupData.timestamp).toLocaleString('vi-VN');
+    const formattedDate = new Date(autoBackupData.timestamp).toLocaleString(languageRef.current === 'vi' ? 'vi-VN' : undefined);
     const histCount = autoBackupData.historyCount ?? (autoBackupData.completedLogs ? autoBackupData.completedLogs.length : 0);
     setConfirmDialog({
       isOpen: true,
-      title: 'Khôi phục từ bản tự động sao lưu?',
-      message: `Hệ thống sẽ khôi phục dữ liệu đã tự động lưu lúc ${formattedDate} (${autoBackupData.projectCount} dự án, ${autoBackupData.taskCount} công việc${histCount > 0 ? `, ${histCount} lịch sử Heatmap` : ''}). Dữ liệu hiện tại sẽ được thay thế bằng bản sao lưu này. Bạn có muốn tiếp tục?`,
-      confirmText: 'Khôi phục bản này',
-      cancelText: 'Hủy',
+      title: tRef.current.dialogs.restoreAutoTitle,
+      message: formatMessage(tRef.current.dialogs.restoreAutoMessage, {
+        date: formattedDate,
+        projects: autoBackupData.projectCount,
+        tasks: autoBackupData.taskCount,
+        history: histCount > 0 ? formatMessage(tRef.current.dialogs.restoreAutoHistory, { count: histCount }) : '',
+      }),
+      confirmText: tRef.current.dialogs.restoreAutoConfirm,
+      cancelText: tRef.current.common.cancel,
       isDestructive: false,
       onConfirm: () => {
         crud.setProjects(autoBackupData.projects);
@@ -565,11 +570,10 @@ export function useTaskManager() {
   const clearAllData = () => {
     setConfirmDialog({
       isOpen: true,
-      title: 'Xóa toàn bộ dự án, công việc và lịch sử?',
-      message:
-        'Thao tác này sẽ xóa sạch tất cả danh mục, công việc và lịch sử hoàn thành Heatmap hiện có, đưa ứng dụng về không gian làm việc trống hoàn toàn. Bạn có chắc chắn muốn xóa?',
-      confirmText: 'Xóa tất cả',
-      cancelText: 'Hủy',
+      title: tRef.current.dialogs.clearAllTitle,
+      message: tRef.current.dialogs.clearAllMessage,
+      confirmText: tRef.current.dialogs.clearAllConfirm,
+      cancelText: tRef.current.common.cancel,
       isDestructive: true,
       onConfirm: () => {
         crud.setProjects([]);
@@ -677,12 +681,17 @@ export function useTaskManager() {
 
         setConfirmDialog({
           isOpen: true,
-          title: 'Khôi phục dữ liệu từ tệp sao lưu JSON?',
+          title: tRef.current.dialogs.importTitle,
           message: isFullSnapshot && historyCount > 0
-            ? `Tệp sao lưu toàn diện chứa:\n• ${incomingProjects.length} dự án & ${taskCount} công việc\n• ${historyCount} lịch sử hoàn thành (Activity Heatmap & Streak)\n• ${(incomingCustomStatuses || []).length} trạng thái tùy chỉnh.\n\nThao tác này sẽ cập nhật toàn diện dữ liệu. Bạn có muốn tiếp tục?`
-            : `Tệp sao lưu chứa ${incomingProjects.length} dự án và ${taskCount} công việc (định dạng cũ). Lịch sử Heatmap hiện tại sẽ được giữ nguyên. Bạn có muốn tiếp tục?`,
-          confirmText: 'Khôi phục toàn diện',
-          cancelText: 'Hủy',
+            ? formatMessage(tRef.current.dialogs.importFullMessage, {
+                projects: incomingProjects.length,
+                tasks: taskCount,
+                history: historyCount,
+                statuses: (incomingCustomStatuses || []).length,
+              })
+            : formatMessage(tRef.current.dialogs.importLegacyMessage, { projects: incomingProjects.length, tasks: taskCount }),
+          confirmText: tRef.current.dialogs.importConfirm,
+          cancelText: tRef.current.common.cancel,
           isDestructive: true,
           onConfirm: () => {
             crud.setProjects(incomingProjects);
@@ -718,10 +727,10 @@ export function useTaskManager() {
     if (projToDelete.tasks && projToDelete.tasks.length > 0) {
       setConfirmDialog({
         isOpen: true,
-        title: `Xóa dự án "${projToDelete.name}"?`,
-        message: `Dự án này đang có ${projToDelete.tasks.length} công việc bên trong. Thao tác xóa sẽ loại bỏ toàn bộ các công việc này. Bạn có chắc chắn muốn xóa không?`,
-        confirmText: 'Xóa dự án',
-        cancelText: 'Hủy',
+        title: formatMessage(tRef.current.dialogs.deleteProjectTitle, { name: projToDelete.name }),
+        message: formatMessage(tRef.current.dialogs.deleteProjectMessage, { count: projToDelete.tasks.length }),
+        confirmText: tRef.current.dialogs.deleteProjectConfirm,
+        cancelText: tRef.current.common.cancel,
         isDestructive: true,
         onConfirm: () => {
           crud.handleDeleteProject(id);
@@ -736,11 +745,10 @@ export function useTaskManager() {
   const clearSampleData = () => {
     setConfirmDialog({
       isOpen: true,
-      title: 'Xóa toàn bộ dữ liệu mẫu ban đầu?',
-      message:
-        'Thao tác này sẽ xóa sạch tất cả dự án và công việc mẫu ban đầu, đưa ứng dụng về không gian làm việc trống (trang trắng) hoàn toàn. Bạn có chắc chắn muốn xóa không?',
-      confirmText: 'Xóa dữ liệu mẫu',
-      cancelText: 'Hủy',
+      title: tRef.current.dialogs.clearSampleTitle,
+      message: tRef.current.dialogs.clearSampleMessage,
+      confirmText: tRef.current.samples.clearButton,
+      cancelText: tRef.current.common.cancel,
       isDestructive: true,
       onConfirm: () => {
         crud.setProjects([]);

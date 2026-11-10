@@ -1,5 +1,8 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { downloadEmergencyBackup } from '../utils/emergencyBackup';
+import { detectInitialLanguage } from '../i18n/detectLanguage';
+import { en } from '../i18n/en';
+import { vi } from '../i18n/vi';
 
 const ERROR_LOG_KEY = 'STRIDE_ERROR_LOG_V1';
 const MAX_ERROR_LOG = 20;
@@ -29,7 +32,7 @@ function recordError(error: Error, info: ErrorInfo): void {
 }
 
 /**
- * Lỗi render không được làm trắng màn hình. Chữ song ngữ cố định vì màn hình này nằm ngoài LanguageProvider,
+ * Lỗi render không được làm trắng màn hình. Màn hình này nằm ngoài LanguageProvider nên tự đọc ngôn ngữ đã lưu,
  * và nút sao lưu đọc thẳng localStorage nên vẫn chạy khi state của app hỏng.
  */
 export class AppErrorBoundary extends Component<Props, State> {
@@ -45,8 +48,11 @@ export class AppErrorBoundary extends Component<Props, State> {
 
   render() {
     if (!this.state.error) return this.props.children;
+    const language = detectInitialLanguage();
+    const copy = (language === 'vi' ? vi : en).errorBoundary;
     return (
       <main
+        lang={language}
         role="alert"
         style={{
           minHeight: '100vh',
@@ -58,15 +64,14 @@ export class AppErrorBoundary extends Component<Props, State> {
         }}
       >
         <div style={{ maxWidth: 480 }}>
-          <h1 style={{ fontSize: 20, margin: '0 0 8px' }}>Có lỗi xảy ra · Something went wrong</h1>
-          <p style={{ margin: '0 0 4px' }}>Dữ liệu của bạn vẫn nằm an toàn trên máy. Hãy tải lại trang, hoặc lưu một bản sao lưu trước.</p>
-          <p style={{ margin: '0 0 16px' }}>Your data is still safe on this device. Reload the page, or save a backup first.</p>
+          <h1 style={{ fontSize: 20, margin: '0 0 8px' }}>{copy.title}</h1>
+          <p style={{ margin: '0 0 16px' }}>{copy.body}</p>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <button type="button" onClick={() => window.location.reload()} style={{ padding: '8px 14px', cursor: 'pointer' }}>
-              Tải lại · Reload
+              {copy.reload}
             </button>
             <button type="button" onClick={downloadEmergencyBackup} style={{ padding: '8px 14px', cursor: 'pointer' }}>
-              Lưu bản sao lưu · Save backup (.json)
+              {copy.saveBackup}
             </button>
           </div>
           <p style={{ margin: '16px 0 0', fontSize: 13, opacity: 0.75 }}>

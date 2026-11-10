@@ -23,6 +23,9 @@ export interface Translations {
     close: string;
     expand: string;
     collapse: string;
+    closeEsc: string;
+    dismissNotification: string;
+    yesterday: string;
   };
   header: {
     streakDays: string;
@@ -133,6 +136,7 @@ export interface Translations {
     notificationBody: string;
     inAppBannerTitle: string;
     dismiss: string;
+    openFocusHint: string;
   };
   schedule: {
     modalTitle: string;
@@ -294,6 +298,7 @@ export interface Translations {
     snoozeBadge: string;
     snoozePresetsTitle: string;
     customDays: string;
+    shortLabel: string;
   };
   store: {
     modalTitle: string;
@@ -611,6 +616,34 @@ export interface Translations {
     mobileActions: string;
     quickAdd: string;
     addTask: string;
+    dragSubtaskTitle: string;
+    dragSubtaskLabel: string;
+    subtaskTextHint: string;
+    newSubtaskPlaceholder: string;
+  };
+  dialogs: {
+    restoreAutoTitle: string;
+    restoreAutoMessage: string;
+    restoreAutoHistory: string;
+    restoreAutoConfirm: string;
+    clearAllTitle: string;
+    clearAllMessage: string;
+    clearAllConfirm: string;
+    importTitle: string;
+    importFullMessage: string;
+    importLegacyMessage: string;
+    importConfirm: string;
+    deleteProjectTitle: string;
+    deleteProjectMessage: string;
+    deleteProjectConfirm: string;
+    clearSampleTitle: string;
+    clearSampleMessage: string;
+  };
+  errorBoundary: {
+    title: string;
+    body: string;
+    reload: string;
+    saveBackup: string;
   };
 }
 

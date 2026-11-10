@@ -304,7 +304,7 @@ export function SubtaskList({
                   setIsRootInputOpen(false);
                 }
               }}
-              placeholder="Nhập tên việc con... (Enter để lưu, hoặc dán nhiều dòng)"
+              placeholder={t.taskRow.newSubtaskPlaceholder}
               className="flex-1 min-w-0 h-6.5 px-2 bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-700 rounded-md text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-slate-800 dark:focus:border-slate-400 transition-colors shadow-2xs"
             />
             <button
@@ -312,7 +312,7 @@ export function SubtaskList({
               disabled={!newSubTaskTitle.trim()}
               className="h-6.5 px-2.5 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white disabled:opacity-40 text-white dark:text-slate-950 rounded-md text-[11px] font-medium cursor-pointer transition-colors shrink-0 whitespace-nowrap shadow-2xs"
             >
-              Lưu
+              {t.common.save}
             </button>
             <button
               type="button"

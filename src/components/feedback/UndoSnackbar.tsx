@@ -45,8 +45,8 @@ export function UndoSnackbar({ undoState, onDismiss }: UndoSnackbarProps) {
             type="button"
             onClick={onDismiss}
             className="w-6 h-6 rounded-md hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
-            title="Đóng (Esc)"
-            aria-label="Đóng thông báo"
+            title={t.common.closeEsc}
+            aria-label={t.common.dismissNotification}
           >
             <X className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
           </button>

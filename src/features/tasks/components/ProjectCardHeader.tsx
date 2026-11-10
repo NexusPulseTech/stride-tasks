@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, Trash2, Copy, ClipboardPaste, GripVertical, ArrowUp, ArrowDown } from 'lucide-react';
+import { ChevronRight, Trash2, Copy, ClipboardPaste, GripVertical, ArrowUp, ArrowDown, Timer } from 'lucide-react';
 import { Project } from '../../../types';
 import { useLanguage, formatMessage } from '../../../i18n';
 
@@ -122,10 +122,11 @@ export function ProjectCardHeader({
         </span>
         {timeBudgetLabel && (
           <span
-            className="text-[11px] text-indigo-600/80 dark:text-indigo-400/80 shrink-0 font-mono whitespace-nowrap tabular-nums hidden xs:inline"
+            className="text-[11px] text-indigo-600/80 dark:text-indigo-400/80 shrink-0 font-mono whitespace-nowrap tabular-nums hidden xs:inline-flex items-center gap-1"
             title={formatMessage(t.taskRow.projectTimeBudget, { budget: timeBudgetLabel })}
           >
-            · ⏱ {timeBudgetLabel}
+            · <Timer className="w-3 h-3 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+            {timeBudgetLabel}
           </span>
         )}
       </div>

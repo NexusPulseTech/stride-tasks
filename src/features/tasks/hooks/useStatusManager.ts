@@ -1,14 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import { StatusDefinition } from '../../../types';
 
+// Nhãn của trạng thái mặc định chỉ là tên nội bộ: giao diện dịch theo `id` qua t.status, chỉ trạng thái tùy chỉnh mới hiện `label`.
 export const DEFAULT_STATUSES: StatusDefinition[] = [
-  { id: 'todo', label: 'Chờ', category: 'todo', color: '#64748b' },
-  { id: 'doing', label: 'Đang làm', category: 'doing', color: '#2563eb' },
-  { id: 'review', label: 'Đang duyệt', category: 'doing', color: '#d97706' },
-  { id: 'testing', label: 'Kiểm thử', category: 'doing', color: '#8b5cf6' },
-  { id: 'blocked', label: 'Bị nghẽn', category: 'doing', color: '#dc2626' },
-  { id: 'paused', label: 'Tạm dừng', category: 'doing', color: '#ea580c' },
-  { id: 'done', label: 'Đã xong', category: 'done', color: '#16a34a' },
+  { id: 'todo', label: 'To do', category: 'todo', color: '#64748b' },
+  { id: 'doing', label: 'In progress', category: 'doing', color: '#2563eb' },
+  { id: 'review', label: 'In review', category: 'doing', color: '#d97706' },
+  { id: 'testing', label: 'Testing', category: 'doing', color: '#8b5cf6' },
+  { id: 'blocked', label: 'Blocked', category: 'doing', color: '#dc2626' },
+  { id: 'paused', label: 'Paused', category: 'doing', color: '#ea580c' },
+  { id: 'done', label: 'Done', category: 'done', color: '#16a34a' },
 ];
 
 export const STRIDE_CUSTOM_STATUSES_KEY = 'STRIDE_CUSTOM_STATUSES_V1';

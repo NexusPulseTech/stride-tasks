@@ -1,4 +1,5 @@
 import React from 'react';
+import { AlertTriangle } from 'lucide-react';
 import { parseSmartTaskInput, hasParsedMetadata } from '../utils/smartTaskParser';
 import { useLanguage, formatMessage, Translations } from '../../../i18n';
 
@@ -127,7 +128,10 @@ export const SmartCaptureHelperBar: React.FC<SmartCaptureHelperBarProps> = ({ va
           {parsed.cleanTitle ? (
             <span className="font-medium text-slate-800 dark:text-slate-100 truncate max-w-[200px]">“{parsed.cleanTitle}”</span>
           ) : (
-            <span className="font-semibold text-rose-600 dark:text-rose-400">⚠ {sc.emptyTitleWarning}</span>
+            <span className="inline-flex items-center gap-0.5 font-semibold text-rose-600 dark:text-rose-400">
+              <AlertTriangle className="w-3 h-3 shrink-0" strokeWidth={2} aria-hidden="true" />
+              {sc.emptyTitleWarning}
+            </span>
           )}
           {parsed.estimatedMinutes !== undefined && (
             <span className="font-mono tabular-nums font-semibold text-indigo-600 dark:text-indigo-400">
@@ -136,7 +140,7 @@ export const SmartCaptureHelperBar: React.FC<SmartCaptureHelperBarProps> = ({ va
           )}
           {parsed.isPinned && <span className="font-semibold text-amber-600 dark:text-amber-400">· {sc.pinned}</span>}
           {parsed.status && (
-            <span className="font-semibold text-sky-600 dark:text-sky-400">· ⚡ {statusLabels[parsed.status] || parsed.status}</span>
+            <span className="font-semibold text-sky-600 dark:text-sky-400">· {statusLabels[parsed.status] || parsed.status}</span>
           )}
           {parsed.reminderAt && (
             <span className="font-mono tabular-nums text-violet-600 dark:text-violet-400">

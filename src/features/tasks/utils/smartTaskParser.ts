@@ -213,16 +213,16 @@ export function buildSmartTask(
 
 /**
  * Tóm tắt ngắn các thuộc tính đã nhận diện (dùng cho toast) bằng ký hiệu trung lập ngôn ngữ,
- * VD: "~90m · 📌 · #doing · 🔔 17:00 27/10 · ↻ daily". Trả về '' nếu không có gì.
+ * cùng cú pháp người dùng gõ, VD: "~90m · !pin · #doing · @17:00 27/10 · ↻ daily". Trả về '' nếu không có gì.
  */
 export function summarizeSmartTask(task: Task): string {
   const parts: string[] = [];
   if (task.estimatedMinutes) parts.push(`~${task.estimatedMinutes}m`);
-  if (task.isPinned) parts.push('📌');
+  if (task.isPinned) parts.push('!pin');
   if (task.status && task.status !== 'todo') parts.push(`#${task.status}`);
   if (task.reminderAt) {
     const d = new Date(task.reminderAt);
-    parts.push(`🔔 ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} ${d.getDate()}/${d.getMonth() + 1}`);
+    parts.push(`@${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} ${d.getDate()}/${d.getMonth() + 1}`);
   }
   if (task.recurrence) parts.push(`↻ ${task.recurrence}`);
   return parts.join(' · ');

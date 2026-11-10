@@ -2,6 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { Trash2, HelpCircle, X } from 'lucide-react';
 import { ConfirmDialogState } from '../../../types';
+import { useLanguage } from '../../../i18n';
 
 interface ConfirmDialogProps {
   confirmDialog: ConfirmDialogState | null;
@@ -9,6 +10,7 @@ interface ConfirmDialogProps {
 }
 
 export function ConfirmDialog({ confirmDialog, onClose }: ConfirmDialogProps) {
+  const { t } = useLanguage();
   if (!confirmDialog?.isOpen) return null;
 
   return createPortal(
@@ -47,8 +49,8 @@ export function ConfirmDialog({ confirmDialog, onClose }: ConfirmDialogProps) {
             type="button"
             onClick={onClose}
             className="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors cursor-pointer shrink-0"
-            title="Đóng (Esc)"
-            aria-label="Đóng"
+            title={t.common.closeEsc}
+            aria-label={t.common.close}
           >
             <X className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
           </button>
@@ -56,7 +58,7 @@ export function ConfirmDialog({ confirmDialog, onClose }: ConfirmDialogProps) {
 
         {/* Body */}
         <div className="p-4 sm:p-5 overflow-y-auto overflow-x-hidden text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-          <p>{confirmDialog.message}</p>
+          <p className="whitespace-pre-line">{confirmDialog.message}</p>
         </div>
 
         {/* Footer */}
@@ -66,7 +68,7 @@ export function ConfirmDialog({ confirmDialog, onClose }: ConfirmDialogProps) {
             onClick={onClose}
             className="h-7.5 px-3 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/60 dark:hover:bg-slate-800 rounded-lg cursor-pointer transition-colors"
           >
-            {confirmDialog.cancelText || 'Hủy'}
+            {confirmDialog.cancelText || t.common.cancel}
           </button>
           <button
             type="button"
@@ -82,7 +84,7 @@ export function ConfirmDialog({ confirmDialog, onClose }: ConfirmDialogProps) {
             {confirmDialog.isDestructive && (
               <Trash2 className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
             )}
-            <span>{confirmDialog.confirmText || 'Xác nhận'}</span>
+            <span>{confirmDialog.confirmText || t.common.confirm}</span>
           </button>
         </div>
       </div>

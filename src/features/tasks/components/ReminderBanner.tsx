@@ -48,7 +48,7 @@ export function ReminderBanner({ banner, onDismiss, onReviewTask }: ReminderBann
             }
           }}
           className="text-[11.5px] text-slate-700 dark:text-slate-200 truncate mt-0.5 font-medium cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-          title="Nhấp để chọn chu kỳ nhắc cấp số nhân (1, 2, 3)"
+          title={t.reminder.openFocusHint}
         >
           "{banner.topTaskTitle}"
         </p>

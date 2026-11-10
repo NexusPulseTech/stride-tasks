@@ -6,14 +6,14 @@
 | Ưu tiên | P0 (đang bán thật, ảnh hưởng trực tiếp tỉ lệ chuyển đổi) |
 | Ước lượng | 1 ngày (A12a) + 2 ngày (A12b) |
 | Phụ thuộc | A05, A11 |
-| Trạng thái | ◐ A12a xong 2026-11-10 (web c3baeed, Worker `19629ff5`, đã xóa biến GitHub link giá vùng); còn gỡ link GitHub trên hồ sơ Polar. A12b chưa làm |
+| Trạng thái | ◐ A12a xong 2026-11-10 (web c3baeed, Worker `19629ff5`, đã xóa biến GitHub link giá vùng); còn gỡ link GitHub trên hồ sơ Polar. A12b đang làm: đợt 1 xong (màn hình chính, hộp xác nhận, việc con, nhãn nhập nhanh, màn hình lỗi) |
 
 ## Vấn đề (founder rà ngày 2026-11-10)
 1. Hộp nâng cấp PRO luôn tối, dùng sky/indigo/emerald/amber, lệch hẳn với phần còn lại của app (nền trắng hoặc tối theo giao diện, màu thương hiệu đỏ `#B20015`). Nhìn như giao diện sinh tự động.
 2. Hai nút "🌎 Global · $19" và "🌏 Emerging markets · $9.95" để **người mua tự chọn**, ai cũng bấm được giá rẻ. Cờ emoji thiếu chuyên nghiệp.
 3. Link GitHub ở footer, menu, modal góp ý, trang đích, `llms.txt`: kéo người dùng khỏi sản phẩm thương mại.
 4. Dữ liệu mẫu là một bộ tiếng Việt duy nhất ("Làm Game Kiếm Tiền YouTube", "Kênh TikTok triệu view") hiện với cả người dùng tiếng Anh, nội dung không phải ví dụ minh họa tính năng.
-5. Kiểm kê thêm: **596 dòng tiếng Việt viết cứng** trong khoảng 40 component (Backup, Guide, Feedback, Command palette, Daily Focus, Kanban, Stats...), banner dữ liệu mẫu cũng tiếng Việt cứng; 34 dòng có emoji (cờ, báo cáo Markdown).
+5. Kiểm kê thêm: **596 dòng tiếng Việt viết cứng** trong khoảng 40 component (Backup, Guide, Feedback, Command palette, Daily Focus, Kanban, Stats...), banner dữ liệu mẫu cũng tiếng Việt cứng; 34 dòng có emoji (cờ, báo cáo Markdown). Kiểm kê lại bằng script bỏ qua chuỗi đã song ngữ (`language === 'vi' ? ... : ...`): **330 dòng trong 34 file** là chuỗi chỉ có tiếng Việt, người dùng tiếng Anh thật sự thấy.
 
 ## Chuẩn tham chiếu
 - **Giá theo sức mua (PPP)**: Paddle, ParityDeals, Netflix, Spotify xác định giá theo **quốc gia của người mua phía máy chủ** (IP, sau đó đối chiếu quốc gia thanh toán). Người mua thấy một giá, không có nút tự chọn giá rẻ. Rò rỉ qua VPN được chấp nhận, đo bằng log thay vì chặn.
@@ -39,7 +39,7 @@
 6. Founder: thêm `POLAR_CHECKOUT_URL_EMERGING` vào `[vars]` của `wrangler.toml`, deploy Worker. Sau đó xóa biến GitHub `VITE_POLAR_CHECKOUT_URL_EMERGING` và deploy lại web.
 
 **A12b (tiếp theo)**
-7. Chuyển 596 dòng tiếng Việt viết cứng vào i18n, theo thứ tự màn hình người dùng gặp nhiều nhất: màn hình chính, Kanban, Daily Focus, Backup, Feedback, Guide, Command palette, Stats.
+7. Chuyển 330 dòng chỉ có tiếng Việt vào i18n, theo thứ tự màn hình người dùng gặp nhiều nhất. Đợt 1: màn hình chính, hộp xác nhận (xóa dự án, xóa dữ liệu, khôi phục), hàng việc con, Anki, màn hình lỗi (tự đọc ngôn ngữ đã lưu vì nằm ngoài LanguageProvider). Đợt 2: Thống kê, biểu đồ hoạt động, lịch sử, thẻ chia sẻ, báo cáo Markdown. Đợt 3: Sao lưu, Góp ý, Dán nhiều việc, Thêm nhanh trên điện thoại, Hướng dẫn.
 8. Bỏ emoji trong báo cáo Markdown và nhãn nhập nhanh, dùng icon của bộ icon chung.
 
 ## Tiêu chí nghiệm thu
@@ -47,7 +47,9 @@
 - [x] Hộp nâng cấp hiện đúng một giá, không có nút đổi vùng, không emoji, đúng màu ở cả giao diện sáng và tối (chụp kiểm tra trên bản build 2026-11-10).
 - [x] Người dùng tiếng Anh mới thấy dữ liệu ví dụ tiếng Anh ("Getting started", "Learning"); bộ mẫu cũ vẫn được nhận diện (test). Màn hình chính tiếng Anh không còn chữ tiếng Việt hiển thị (kiểm bằng script trên trình duyệt mới).
 - [x] Không còn link GitHub trên app, trang đích, `llms.txt` (kiểm trên production). Còn link mạng xã hội GitHub trên hồ sơ Polar: gỡ khi extension Chrome kết nối lại hoặc founder tự gỡ ở Settings.
-- [ ] Bundle production không chứa link checkout giá vùng: biến `VITE_POLAR_CHECKOUT_URL_EMERGING` đã xóa khỏi GitHub ngày 2026-11-10, kiểm lại sau lần deploy web kế tiếp.
+- [x] Bundle production không chứa link checkout giá vùng: biến `VITE_POLAR_CHECKOUT_URL_EMERGING` đã xóa khỏi GitHub ngày 2026-11-10; bundle sau lần deploy b388264 không còn link (0 lần xuất hiện), người xem ở Việt Nam vẫn thấy "$9.95, Price for Vietnam".
+- [ ] A12b: người dùng tiếng Anh không gặp chữ tiếng Việt ở mọi màn hình (script kiểm kê trả về 0 chuỗi chỉ có tiếng Việt, kiểm thêm trên trình duyệt mới).
+- [ ] A12b: không còn emoji trong giao diện và báo cáo Markdown (trừ bộ nhận diện ký hiệu đầu dòng khi dán danh sách).
 
 ## Rủi ro & rollback
 VPN lách giá: chấp nhận, đo bằng log. Worker lỗi: app dùng kết quả nhớ hoặc suy đoán, vẫn bán được. Rollback app bằng revert; rollback Worker bằng `wrangler rollback`.

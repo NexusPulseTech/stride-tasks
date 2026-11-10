@@ -231,8 +231,8 @@ export function KanbanBoardView({
 
         <span className="text-[11px] text-slate-400 dark:text-slate-500 hidden md:inline whitespace-nowrap">
           {language === 'vi'
-            ? 'Kéo thả thẻ giữa 4 cột chuẩn Linear hoặc bấm ▶ để chạy Pomodoro'
-            : 'Drag cards across Linear columns or click ▶ to start Pomodoro'}
+            ? 'Kéo thả thẻ giữa các cột, hoặc bấm nút chạy trên thẻ để bắt đầu Pomodoro'
+            : 'Drag cards between columns, or press play on a card to start a Pomodoro'}
         </span>
       </div>
 

@@ -342,8 +342,8 @@ export function TaskItem({
                 onOpenDetail(task, projectId);
               }}
               className="w-6 h-6 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer shrink-0 transition-colors hidden sm:inline-flex items-center justify-center"
-              title={t.taskMenu?.viewDetail || 'Xem chi tiết & Ghi chú'}
-              aria-label={t.taskMenu?.viewDetail || 'Xem chi tiết'}
+              title={t.taskMenu.viewDetail}
+              aria-label={t.taskMenu.viewDetail}
             >
               <Eye className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
             </button>
@@ -357,8 +357,8 @@ export function TaskItem({
               onOpenAddSubtask(task.id);
             }}
             className="w-6 h-6 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer shrink-0 transition-colors inline-flex items-center justify-center"
-            title={t.taskMenu?.addSubtask || 'Thêm việc con'}
-            aria-label={t.taskMenu?.addSubtask || 'Thêm việc con'}
+            title={t.taskMenu.addSubtask}
+            aria-label={t.taskMenu.addSubtask}
           >
             <Plus className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} />
           </button>

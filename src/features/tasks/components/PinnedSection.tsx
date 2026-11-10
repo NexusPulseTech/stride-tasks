@@ -524,7 +524,7 @@ export function PinnedSection({
                               ? 'text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border-rose-200/80 dark:border-rose-800/60 hover:bg-rose-100/80'
                               : 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/60 hover:bg-amber-100/80'
                           }`}
-                          title={`${snoozeVal} • Nhấn để đổi chu kỳ nhắc lặp (Anki SRS)`}
+                          title={`${snoozeVal} • ${t.taskRow.snoozeHint}`}
                         >
                           <RotateCcw className="w-2.5 h-2.5 shrink-0" strokeWidth={1.75} />
                           <span>{countdown.text}</span>

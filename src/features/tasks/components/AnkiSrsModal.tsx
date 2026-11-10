@@ -53,7 +53,7 @@ export function AnkiSrsModal({
   onSelectSrsOption,
   onMarkTaskDone,
 }: AnkiSrsModalProps) {
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
 
   const currentLevel = target?.currentLevel || 1;
   const options = getAnkiSrs3Options(currentLevel);
@@ -140,8 +140,8 @@ export function AnkiSrsModal({
             type="button"
             onClick={onClose}
             className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer shrink-0 transition-colors"
-            title="Đóng (Esc)"
-            aria-label="Đóng"
+            title={t.common.closeEsc}
+            aria-label={t.common.close}
           >
             <X className="w-4 h-4" />
           </button>
@@ -162,7 +162,7 @@ export function AnkiSrsModal({
               {target.subId && (
                 <span className="text-[9.5px] px-1.5 py-0.2 rounded bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-200/50 flex items-center gap-0.5">
                   <Layers className="w-2.5 h-2.5" />
-                  <span>Việc con</span>
+                  <span>{language === 'vi' ? 'Việc con' : 'Subtask'}</span>
                 </span>
               )}
             </div>
@@ -189,10 +189,10 @@ export function AnkiSrsModal({
                 type="button"
                 onClick={handleDone}
                 className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-2xs shrink-0 cursor-pointer"
-                title="Đánh dấu đã hoàn thành việc này"
+                title={t.taskRow.markDone}
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Đã xong</span>
+                <span className="hidden sm:inline">{language === 'vi' ? 'Đã xong' : 'Done'}</span>
               </button>
             )}
           </div>
@@ -254,7 +254,7 @@ export function AnkiSrsModal({
                   2
                 </span>
                 <span className="inline-flex items-center text-[9.5px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-100/80 dark:bg-blue-900/50 px-1.5 py-0.5 rounded border border-blue-200/50">
-                  Mức {options[1].nextLevel}
+                  {language === 'vi' ? 'Mức' : 'Lvl'} {options[1].nextLevel}
                 </span>
               </div>
               <div>
@@ -282,7 +282,7 @@ export function AnkiSrsModal({
                   3
                 </span>
                 <span className="inline-flex items-center text-[9.5px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-900/50 px-1.5 py-0.5 rounded border border-emerald-200/50">
-                  Mức {options[2].nextLevel}
+                  {language === 'vi' ? 'Mức' : 'Lvl'} {options[2].nextLevel}
                 </span>
               </div>
               <div>
