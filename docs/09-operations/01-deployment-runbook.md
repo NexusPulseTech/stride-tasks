@@ -47,7 +47,7 @@ Header CSP ở đây chỉ có `frame-ancestors`. Trình duyệt áp dụng đ�
 
 Kiểm tra sau khi bật: `curl -sI https://tasks.nexuspulsetech.xyz/ | grep -iE "frame|content-security|nosniff|strict-transport"`.
 
-Trạng thái: chờ founder duyệt, vì đây là thay đổi cấu hình tài khoản Cloudflare.
+Trạng thái: **đã bật 2026-11-10** (founder duyệt), rule tên "Security headers: tasks.nexuspulsetech.xyz", là rule duy nhất trong mục Response Header Transform Rules của zone. Kiểm chứng: curl thấy đủ 6 header trên `/`, `/en/` và `/sw.js`, host `tasks-api` không bị ảnh hưởng; trang lạ nhúng `/en/` bị Chrome chặn với lỗi `frame-ancestors 'none'`; app vẫn tải CSS, service worker và manifest bình thường với `nosniff`, 0 vi phạm CSP.
 
 ## 2. Worker (`stride-license`)
 
