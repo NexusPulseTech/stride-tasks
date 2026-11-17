@@ -22,8 +22,8 @@ Paywall đang **tắt** (`VITE_ENABLE_PAYWALL` chưa đặt) → hiện chưa th
 
 | Đối thủ | Giá | Stride rẻ/đắt hơn? |
 | :--- | :--- | :--- |
-| TickTick | ≈ $35.99/năm | PRO lifetime $19 (sáng lập), $29 sau đó: **rẻ hơn 1 năm** TickTick |
-| Todoist Pro | ≈ $60/năm | Rẻ hơn ~2,3 lần chỉ riêng năm đầu |
+| TickTick | $49.99/năm (từ khoảng 11/2026) | PRO lifetime $19 (sáng lập), $29 sau đó: **rẻ hơn 1 năm** TickTick |
+| Todoist Pro | $60/năm hoặc $7/tháng | Rẻ hơn ~2,3 lần chỉ riêng năm đầu |
 | Things 3 (Mac) | $49.99 một lần | Rẻ hơn, lại đa nền tảng |
 | Focus To-Do lifetime | $11.99 | Đắt hơn ở bậc global; bậc emerging/VN tương đương hoặc rẻ hơn |
 

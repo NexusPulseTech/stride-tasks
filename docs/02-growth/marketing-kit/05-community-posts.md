@@ -21,7 +21,7 @@ Mình là dev nên tự làm một app miễn phí để làm việc này tự �
 
 ### Bài B: xin góp ý (nhóm IT, lập trình, startup)
 ```
-Mình vừa làm xong một app quản lý công việc chạy offline: nhập việc 1 dòng, Pomodoro, nhắc ôn lại theo SM-2, đồng bộ mã hóa đầu-cuối trên Cloudflare (máy chủ chỉ giữ bản mã). Làm một mình, chi phí hạ tầng hiện là 0đ.
+Mình vừa làm xong một app quản lý công việc chạy offline: nhập việc 1 dòng, Pomodoro, nhắc ôn lại theo lịch giãn dần, đồng bộ mã hóa đầu-cuối trên Cloudflare (máy chủ chỉ giữ bản mã). Làm một mình, chi phí hạ tầng hiện là 0đ.
 
 Mình cần 10 người dùng thật góp ý thẳng: chỗ nào khó hiểu, chỗ nào thừa. Ai rảnh dùng thử 3 ngày giúp mình nhé. Link ở bình luận. Cảm ơn mọi người!
 ```
@@ -36,10 +36,10 @@ Hi all, solo dev from Vietnam here.
 Stride is a task manager for people who study or do deep work:
 - one-line capture: "Review chapter 3 ~45m @daily !pin"
 - Pomodoro with a deep-work log next to your tasks
-- spaced-repetition reviews (SM-2) for tasks and topics, not just flashcards
+- spaced-repetition reviews for tasks and topics, not just flashcards
 - no account, works offline; optional end-to-end encrypted sync (server only stores ciphertext)
 
-Stack: React + Vite PWA, Cloudflare Workers + D1. Free to use. I'd love honest feedback on onboarding and on whether the SM-2 reviews make sense to you.
+Stack: React + Vite PWA, Cloudflare Workers + D1. Free to use. I'd love honest feedback on onboarding and on whether the review schedule makes sense to you.
 
 Link in the comments.
 ```
@@ -61,17 +61,18 @@ Nội dung: chia sẻ phương pháp như Bài A tiếng Việt; chỉ nhắc ap
 ```
 Hi HN, I'm the solo developer behind Stride.
 
-Why: I used three tools for one study session (Anki, a notes app, a timer). Stride puts planning, focus (Pomodoro) and spaced-repetition reviews (SM-2) for tasks in one offline app.
+Why: I used three tools for one study session (Anki, a notes app, a timer). Stride puts planning, focus (Pomodoro) and spaced-repetition reviews for tasks in one offline app.
 
 How it works:
 - Local-first: data lives in localStorage/IndexedDB, no account.
 - Optional sync: a random 128-bit code (never leaves the device) derives an AES-256-GCM key via HKDF. The server (Cloudflare Workers + D1) stores only ciphertext and a hashed vault ID.
 - Writes use optimistic concurrency (expected version, 409 on conflict), merge is per-entity last-writer-wins with tombstones.
 - Licenses are Ed25519-signed tokens verified offline.
+- Reviews use a fixed expanding ladder (1, 3, 7, 16, 35 days, then ×2.2 per step, capped at a year) rather than per-item ease factors like SM-2. Simple on purpose.
 
 Limitations: no native mobile apps yet (it's a PWA), reminders when the app is closed are limited by the web platform, and conflict resolution is last-writer-wins.
 
-The source code is public on GitHub. I'd really like feedback on the sync design and on the first-run experience.
+I'd really like feedback on the sync design and on the first-run experience.
 ```
 
 ## 4. Indie Hackers
@@ -82,7 +83,7 @@ Nội dung: vì sao làm, quyết định giá (PPP, mua một lần), số li�
 ## 5. Viblo / dev.to (bài kỹ thuật)
 
 **Tiêu đề**: "Đồng bộ mã hóa đầu-cuối cho app offline trên Cloudflare Workers miễn phí"
-**Dàn ý**: (1) bài toán local-first và đồng bộ; (2) sinh mã đồng bộ, vaultId, HKDF, AES-GCM; (3) CAS theo version và xử lý 409; (4) hợp nhất LWW + tombstone; (5) kiểm thử trên production; (6) chi phí. Cuối bài: link repo và app.
+**Dàn ý**: (1) bài toán local-first và đồng bộ; (2) sinh mã đồng bộ, vaultId, HKDF, AES-GCM; (3) CAS theo version và xử lý 409; (4) hợp nhất LWW + tombstone; (5) kiểm thử trên production; (6) chi phí. Cuối bài: link app (không đưa link GitHub).
 
 ## 6. Spiderum (bài dài, giọng kể chuyện)
 
@@ -95,8 +96,8 @@ Nội dung: vì sao làm, quyết định giá (PPP, mua một lần), số li�
 🎉 Stride PRO đã mở bán!
 
 Giá Thành viên sáng lập cho 100 suất đầu:
-• Việt Nam: 149.000₫ (sau đó 199.000₫)
-• Quốc tế: $19 (sau đó $29), thị trường mới nổi $9.95
+• Quốc tế: $19 (sau 100 bản quyền: $29)
+• Việt Nam và các nước thu nhập thấp, trung bình: $9.95 (sau đó $14.95), trả bằng thẻ
 
 PRO trọn đời gồm đồng bộ mã hóa giữa các thiết bị, không giới hạn dự án, báo cáo Markdown không giới hạn và mọi bản cập nhật.
 Hoàn tiền 14 ngày, không cần lý do.

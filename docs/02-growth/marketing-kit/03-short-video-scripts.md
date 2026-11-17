@@ -56,14 +56,14 @@
 - **CTA**: "Lưu video lại cho mùa thi."
 
 ### V10. "Mở bán suất Thành viên sáng lập" (chỉ đăng khi PRO đã mở bán)
-- **Hook**: "100 suất đầu tiên, giá 149.000₫ dùng trọn đời."
+- **Hook**: "100 suất đầu tiên, giá $9.95 dùng trọn đời (giá cho Việt Nam, trả bằng thẻ)."
 - **Thân**: PRO có đồng bộ mã hóa giữa các máy, không giới hạn dự án; hoàn tiền 14 ngày; đếm số suất còn lại thật.
-- **CTA**: "Link ở bio. Hết 100 suất là về giá 199.000₫."
+- **CTA**: "Link ở bio. Hết 100 suất là về giá $14.95."
 
 ## English (5 videos)
 
 ### E1. "Why you forget what you studied"
-Hook: "You're not bad at studying. You're reviewing at the wrong time." Body: forgetting curve → Stride review schedule with growing SM-2 intervals. CTA: "Free, no account. Link in bio."
+Hook: "You're not bad at studying. You're reviewing at the wrong time." Body: forgetting curve → Stride review schedule with growing intervals (1, 3, 7, 16, 35 days). CTA: "Free, no account. Link in bio."
 
 ### E2. "One line, a whole plan"
 Hook: type `Review chapter 3 ~45m @daily !pin`. Body: show the created task (45 minutes, daily, pinned). CTA: "Try the syntax yourself."

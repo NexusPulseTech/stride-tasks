@@ -1,6 +1,6 @@
 # Ưu đãi Thành viên sáng lập & danh sách chờ
 
-> **Thuộc**: 02-growth/marketing-kit · **Trạng thái**: Accepted · **Cập nhật**: 2026-10-30
+> **Thuộc**: 02-growth/marketing-kit · **Trạng thái**: Accepted · **Cập nhật**: 2026-11-17
 > **Mục đích**: tạo lý do mua sớm một cách trung thực, giúp có 100 khách đầu tiên nhanh nhất.
 
 ## 1. Cơ chế
@@ -8,19 +8,19 @@
 | Mục | Quy định |
 | :--- | :--- |
 | Số suất | **100 bản quyền đầu tiên** (tính chung mọi kênh và mọi khu vực) |
-| Giá sáng lập | Việt Nam **149.000₫** · Quốc tế **$19** · Thị trường mới nổi **$9.95** |
-| Giá sau 100 suất | 199.000₫ · $29 · $14.95 |
+| Giá sáng lập | Quốc tế **$19** · Việt Nam và thị trường mới nổi **$9.95**, trả bằng thẻ qua Polar. Giá VietQR 149.000₫ chỉ dùng khi kênh VietQR được bật |
+| Giá sau 100 suất | $29 · $14.95 (VietQR, nếu bật: 199.000₫) |
 | Quyền lợi | Như PRO trọn đời: đồng bộ mã hóa, không giới hạn dự án, báo cáo không giới hạn, mọi bản cập nhật |
 | Cam kết | Hoàn tiền 14 ngày, không cần lý do |
 
 ## 2. Quy tắc trung thực (bắt buộc)
 
-- Số suất còn lại hiển thị là **số thật**, đếm từ sổ cái đơn hàng (đơn hoàn tiền vẫn tính đã dùng suất).
+- Số suất còn lại hiển thị là **số thật**, đếm từ sổ cái đơn hàng (đơn hoàn tiền vẫn tính đã dùng suất). Hiện chưa có bộ đếm tự động: đếm tay từ danh sách đơn trên Polar.
 - Không đặt đồng hồ đếm ngược giả, không "chỉ còn 3 suất" khi không đúng.
 - Ghi rõ giá sau ưu đãi là giá sẽ áp dụng, không trình bày như "giá gốc đã giảm" khi chưa từng bán ở giá đó (tránh vi phạm quy định về công bố giảm giá của EU và FTC).
 - Người mua ở giá sáng lập giữ toàn bộ quyền lợi khi giá tăng.
 
-## 3. Danh sách chờ (trước khi mở bán)
+## 3. Danh sách chờ (trước khi mở bán; đã qua, PRO mở bán từ 2026-11-10)
 
 - **Kênh chính**: Telegram channel (không cần thu thập email, người dùng tự rời kênh khi muốn).
 - **Kênh phụ**: nút "giữ suất" trên trang đích mở email tới `support@nexuspulsetech.xyz`. Trả lời mỗi email bằng một câu cảm ơn và lời hứa báo ngay khi mở bán; lưu email vào một danh sách riêng chỉ dùng cho việc này.

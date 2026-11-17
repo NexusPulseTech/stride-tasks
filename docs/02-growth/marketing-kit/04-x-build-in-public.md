@@ -5,7 +5,7 @@
 
 ## 15 bài đăng
 
-1. **Intro**: "I'm building Stride, a task manager for people who study. Plan in one line, focus with Pomodoro, and get spaced-repetition reviews (SM-2) for your tasks. No account, works offline. Building it in public from Vietnam. Day 1 👋"
+1. **Intro**: "I'm building Stride, a task manager for people who study. Plan in one line, focus with Pomodoro, and get spaced-repetition reviews for your tasks. No account, works offline. Building it in public from Vietnam. Day 1 👋"
 2. **Problem**: "I used Anki for flashcards, Notion for plans and a separate timer app. Three apps for one study session. Stride puts all three in one place."
 3. **Tech**: "Stride's sync is end-to-end encrypted. Your device encrypts everything with AES-256-GCM before upload. My server stores ciphertext only. I literally can't read your tasks."
 4. **Cost**: "Backend for my task app: Cloudflare Workers + D1 + KV. Monthly bill so far: $0. My estimate: the free tier covers about 600 daily sync users with the current polling. Will share real numbers when that changes."
@@ -17,7 +17,7 @@
 10. **Question**: "Students and self-learners: how do you decide what to review today? Genuinely curious, it shapes what I build next."
 11. **Behind the scenes**: "Spaced repetition for tasks works like this in Stride: when a review is due you pick how it went, and the next review moves further out. Simple, but it's the part people love most."
 12. **Metrics** (khi có số thật): "Week 1 numbers: X visitors, Y people created 3+ tasks, Z joined the founding list. Small, but real."
-13. **Source available**: "Stride's code is public on GitHub. If you care about privacy, you shouldn't have to trust me. You can read the sync code yourself."
+13. **What the server sees**: "When you turn on sync in Stride, your data is encrypted on your device first. The server stores ciphertext and a hashed vault ID, nothing it can read."
 14. **Founding** (khi mở bán): "Founding offer is live: Lifetime PRO for $19 for the first 100 licenses, then $29. 14-day refund, no questions. Thank you to everyone who tested early."
 15. **Thank you**: "First paying customer today. Someone I've never met decided Stride was worth paying for. I'm not going to pretend that doesn't feel amazing."
 

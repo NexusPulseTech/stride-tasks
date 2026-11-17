@@ -1,6 +1,6 @@
 # Bộ nội dung đăng thư mục phần mềm (tiếng Anh)
 
-> **Thuộc**: 02-growth/marketing-kit · **Trạng thái**: Ready · **Cập nhật**: 2026-10-30
+> **Thuộc**: 02-growth/marketing-kit · **Trạng thái**: Ready · **Cập nhật**: 2026-11-17
 > **Dùng cho**: task [C07](../../10-execution-plan/C07-directories-and-listicle-outreach.md) (và C04 khi launch Product Hunt).
 > **Ai làm**: founder tạo tài khoản bằng tên thật, xác minh email. Khi đã đăng nhập, AI có thể điền form theo nội dung dưới đây; founder bấm gửi.
 
@@ -10,9 +10,9 @@
 | :--- | :--- |
 | Tên | Stride Tasks (luôn ghi đủ hai chữ, tránh trùng các app "Stride" khác) |
 | Website | `https://tasks.nexuspulsetech.xyz/en/?utm_source=<tên-trang>&utm_medium=directory&utm_campaign=listing` |
-| Mã nguồn | `https://github.com/NexusPulseTech/stride-tasks` (giấy phép FSL-1.1-MIT: mã công khai, mỗi phiên bản thành MIT sau 2 năm; không phải "open source") |
+| Mã nguồn | Không điền (founder chốt 2026-11-10: không đưa GitHub ra trước khách). Thư mục nào bắt buộc link mã nguồn thì hỏi founder trước khi gửi |
 | Email hỗ trợ | `support@nexuspulsetech.xyz` (dùng được để xác minh domain) |
-| Giá | Freemium. Chỉ ghi giá PRO khi PRO đã mở bán thật: $19 trọn đời cho 100 bản quyền sáng lập, sau đó $29 |
+| Giá | Freemium. PRO trọn đời $19 cho 100 bản quyền sáng lập, sau đó $29. Việt Nam và các nước thu nhập thấp, trung bình (World Bank) tự thấy $9.95, sau đó $14.95 |
 | Nền tảng | Web, PWA cài được trên Windows, macOS, Linux, Android, iOS |
 | Logo | `public/icon-512.png` (512x512) |
 | Ảnh chụp | `public/screenshots/wide-list.png`, `wide-kanban.png`, `wide-daily-focus.png` (1280x800), `narrow-list.png` (di động) |
@@ -34,9 +34,9 @@ Quy định chính trong [FAQ chính thức](https://alternativeto.net/faq):
 | :--- | :--- |
 | Name | `Stride Tasks` |
 | Website | link mục 0 với `utm_source=alternativeto` |
-| Source code | link GitHub |
+| Source code | bỏ trống |
 | Platforms | Online, Progressive Web App, Windows, Mac, Linux, Android, iPhone, iPad |
-| License | Không chọn Open Source vì FSL không phải giấy phép OSI. Nếu form bắt chọn, chọn Proprietary; mô tả đã ghi rõ mã nguồn công khai |
+| License | Không chọn Open Source vì FSL không phải giấy phép OSI. Nếu form bắt chọn, chọn Proprietary |
 | Pricing | Freemium |
 | Tags / features | Works offline, No registration required, Privacy focused, End-to-end encryption, Pomodoro, Spaced repetition, Kanban board, Subtasks, Dark mode, Markdown support |
 | Alternative to | 6 app ở mục 0 |
@@ -44,20 +44,20 @@ Quy định chính trong [FAQ chính thức](https://alternativeto.net/faq):
 
 **Short description**
 ```
-Offline-first task manager with Pomodoro and SM-2 spaced repetition. No account needed.
+Offline-first task manager with Pomodoro and spaced repetition. No account needed.
 ```
 
 **Description** (không chứa link)
 ```
 Stride Tasks is an offline-first task manager for people who study and do deep work. It brings together three things that usually live in separate apps: a to-do list, a Pomodoro timer and spaced-repetition reviews.
 
-Type one line such as "Review chapter 3 ~45m @daily !pin" and Stride creates a pinned, daily, 45-minute task. Start a Pomodoro next to your list, and every session is logged to a deep-work history. When a study topic is due, rate how well you remembered it and Stride schedules the next review with the SM-2 algorithm, the method Anki's classic scheduler is based on.
+Type one line such as "Review chapter 3 ~45m @daily !pin" and Stride creates a pinned, daily, 45-minute task. Start a Pomodoro next to your list, and every session is logged to a deep-work history. When a study topic is due, tell Stride how well you remembered it and the next review moves out on an expanding schedule: 1, 3, 7, 16 and 35 days, then about 2.2 times longer each step, up to a year.
 
 There is no account and no sign-up. Your data stays in your browser or desktop app storage, the app works offline after the first visit, and you can export a JSON backup at any time. It installs as a Progressive Web App on Windows, macOS, Linux, Android and iOS.
 
-Free features: natural-language quick capture, nested subtasks, a 4-column Kanban board, Pomodoro timer and deep-work log, SM-2 reviews, activity heatmap and streaks, 3 Markdown reports, command palette, light and dark themes, English and Vietnamese.
+Free features: natural-language quick capture, nested subtasks, a 4-column Kanban board, Pomodoro timer and deep-work log, spaced-repetition reviews, activity heatmap and streaks, 3 Markdown reports, command palette, light and dark themes, English and Vietnamese.
 
-The optional PRO lifetime license adds end-to-end encrypted sync across devices (AES-256-GCM, the server only stores ciphertext), unlimited projects and unlimited Markdown reports. The source code is public on GitHub under the Functional Source License, and each version becomes MIT-licensed two years after release.
+The optional PRO lifetime license adds end-to-end encrypted sync across devices (AES-256-GCM, the server only stores ciphertext), unlimited projects and unlimited Markdown reports.
 ```
 
 ## 2. SaaSHub
@@ -90,7 +90,7 @@ Offline task manager with Pomodoro and spaced repetition
 
 **Description** (dưới 500 ký tự)
 ```
-Stride Tasks is an offline-first task manager for people who study and do deep work. Type one line to create a task, focus with the built-in Pomodoro timer, and get SM-2 spaced-repetition reviews so you keep what you learn. No account, your data stays on your device, and it installs as an app on any platform. Optional PRO adds end-to-end encrypted sync for a one-time payment. The source code is public.
+Stride Tasks is an offline-first task manager for people who study and do deep work. Type one line to create a task, focus with the built-in Pomodoro timer, and get spaced-repetition reviews so you keep what you learn. No account, your data stays on your device, and it installs as an app on any platform. Optional PRO adds end-to-end encrypted sync for a one-time payment.
 ```
 
 **Maker first comment** (founder sửa theo giọng mình trước khi đăng)
@@ -102,11 +102,9 @@ I built Stride Tasks because I kept forgetting what I had studied a week earlier
 Stride puts them in one place:
 • One-line capture: "Review chapter 3 ~45m @daily !pin"
 • A Pomodoro timer and deep-work log right next to your tasks
-• SM-2 spaced repetition for tasks and study topics, not just flashcards
+• Spaced repetition for tasks and study topics, not just flashcards
 • No account, works offline, data stays on your device
 • Optional PRO: end-to-end encrypted sync, pay once
-
-The source code is public on GitHub, so you can check how the encryption works.
 
 I'd love your feedback: what would make you switch from the to-do app you use today?
 ```

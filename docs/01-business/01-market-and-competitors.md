@@ -12,8 +12,8 @@
 
 | Sản phẩm | Mô hình & giá | Điểm mạnh | Điểm yếu so với Stride |
 | :--- | :--- | :--- | :--- |
-| Todoist | Thuê bao, Pro ≈ $60/năm (tăng từ $48 vào 12/2025 theo nguồn thứ ba) | NLP nhập nhanh tốt, đa nền tảng, tích hợp nhiều | Bắt buộc tài khoản cloud, không có SRS, Pomodoro không có sẵn |
-| TickTick | Thuê bao ≈ $35.99/năm | Có Pomodoro, lịch, habit | Bắt buộc tài khoản, dữ liệu trên cloud, không SRS |
+| Todoist | Thuê bao, Pro $60/năm hoặc $7/tháng (tăng từ $48 ngày 2025-12-10, theo trang trợ giúp Todoist) | NLP nhập nhanh tốt, đa nền tảng, tích hợp nhiều | Bắt buộc tài khoản cloud, không có SRS, Pomodoro không có sẵn |
+| TickTick | Thuê bao $49.99/năm (tăng từ $35.99 khoảng 11/2026) | Có Pomodoro, lịch, habit | Bắt buộc tài khoản, dữ liệu trên cloud, không SRS |
 | Things 3 | Mua một lần: $49.99 (Mac), $19.99 (iPad), $9.99 (iPhone) | Thiết kế đẹp, mua một lần | Chỉ Apple, không Windows/Android/web |
 | Microsoft To Do | Miễn phí | Sẵn trên Windows, đồng bộ Microsoft | Đơn giản, không Pomodoro/SRS/Kanban, cần tài khoản Microsoft |
 | **Focus To-Do** | Freemium: Premium $1.99/tháng, **lifetime $11.99** (App Store) | Pomodoro + task; **trả tiền chủ yếu để đồng bộ** | Không SRS, không local-first E2E, *đây là đối thủ có mô hình giống Stride nhất* |
@@ -57,5 +57,6 @@
 
 - Focus To-Do (App Store, mục In-App Purchases): <https://apple.co/2Txpjcq>; review 2026: <https://goalsandprogress.com/focus-to-do-review-2026/>
 - Todoist/TickTick/Things (nguồn thứ ba, **cần xác minh**): <https://www.asianefficiency.com/task-management/todoist-vs-ticktick/>, <https://toolradar.com/tools/things-3/pricing>, <https://aicores.io/pricing/ticktick>
+- Cập nhật 2026-11-17: TickTick $49.99/năm theo Toolradar (đối chiếu trang giá TickTick ngày 2026-11-12) <https://toolradar.com/tools/ticktick/pricing> và Activepieces (2026-10-30) <https://www.activepieces.com/blog/ticktick-pricing-in-2026-for-free-and-premium-plans>; Todoist Pro theo Todoist Help Center <https://www.todoist.com/help/articles/todoist-pro-pricing-update-in-2025-bxBvHZuJZ>
 - Obsidian Standard plan: <https://obsidian.md/fr/blog/standard-plan/>
 - Ứng dụng revision planner: <https://apps.apple.com/us/app/-/id6748602127>, <https://mwm.ai/apps/spaced-repetition-synapse/6672094098>

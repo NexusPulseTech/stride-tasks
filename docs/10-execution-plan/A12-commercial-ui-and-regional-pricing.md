@@ -6,7 +6,7 @@
 | Ưu tiên | P0 (đang bán thật, ảnh hưởng trực tiếp tỉ lệ chuyển đổi) |
 | Ước lượng | 1 ngày (A12a) + 2 ngày (A12b) |
 | Phụ thuộc | A05, A11 |
-| Trạng thái | ◐ A12a xong 2026-11-10 (web c3baeed, Worker `19629ff5`, đã xóa biến GitHub link giá vùng). A12b xong 2026-11-10 (3 đợt, kiểm trên bản build bằng trình duyệt). Còn: gỡ link GitHub trên hồ sơ Polar |
+| Trạng thái | ☑ A12a xong 2026-11-10 (web c3baeed, Worker `19629ff5`, đã xóa biến GitHub link giá vùng). A12b xong 2026-11-10 (3 đợt, kiểm trên bản build bằng trình duyệt). Link GitHub trên hồ sơ Polar đã gỡ 2026-11-10 |
 
 ## Vấn đề (founder rà ngày 2026-11-10)
 1. Hộp nâng cấp PRO luôn tối, dùng sky/indigo/emerald/amber, lệch hẳn với phần còn lại của app (nền trắng hoặc tối theo giao diện, màu thương hiệu đỏ `#B20015`). Nhìn như giao diện sinh tự động.

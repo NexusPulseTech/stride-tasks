@@ -6,7 +6,7 @@
 | Ưu tiên | P0 |
 | Ước lượng | 0,5 ngày làm + chờ Polar duyệt (tối đa 14 ngày, không chặn việc bán) |
 | Phụ thuộc | A01, A02, A04 (☑); A03 phần tạo organization production |
-| Trạng thái | ☑ Polar duyệt 2026-11-10 (status active, checkout_payments true); PRO đang bán thật. Còn A11 để kích hoạt nhanh |
+| Trạng thái | ☑ Polar duyệt 2026-11-10 (status active, checkout_payments true); PRO đang bán thật. A11 (kích hoạt nhanh) xong 2026-11-10 |
 | Người làm | Founder: danh tính, KYC, tài khoản nhận tiền, nạp secret. Claude: sản phẩm, link, webhook, mã giảm giá qua API; biến GitHub; kiểm tra |
 
 ## Mục tiêu
