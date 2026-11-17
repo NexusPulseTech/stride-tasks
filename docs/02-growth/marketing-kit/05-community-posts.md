@@ -1,7 +1,8 @@
 # Bài đăng cộng đồng dán sẵn
 
-> **Thuộc**: 02-growth/marketing-kit · **Trạng thái**: Ready · **Cập nhật**: 2026-10-30
+> **Thuộc**: 02-growth/marketing-kit · **Trạng thái**: Ready · **Cập nhật**: 2026-11-18
 > **Trước khi đăng ở bất kỳ nhóm/subreddit nào**: đọc luật của nơi đó. Nhiều nơi cấm link hoặc chỉ cho tự giới thiệu trong thread riêng. Viết như người chia sẻ kinh nghiệm, sản phẩm là phần phụ. Trả lời mọi bình luận trong ngày.
+> **Video demo** (38 giây, giọng đọc AI, hình quay app thật): `https://tasks.nexuspulsetech.xyz/en/#demo-title`. Nơi cấm link thì không dán; nơi cho đăng video thì tải file lên trực tiếp. Luôn ghi rõ giọng đọc là AI.
 
 ## 1. Facebook group (tiếng Việt)
 
@@ -72,7 +73,7 @@ How it works:
 
 Limitations: no native mobile apps yet (it's a PWA), reminders when the app is closed are limited by the web platform, and conflict resolution is last-writer-wins.
 
-I'd really like feedback on the sync design and on the first-run experience.
+There's a 38-second demo on the landing page (real app footage, AI voiceover). I'd really like feedback on the sync design and on the first-run experience.
 ```
 
 ## 4. Indie Hackers

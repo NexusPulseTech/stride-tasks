@@ -1,6 +1,6 @@
 # Bộ nội dung đăng thư mục phần mềm (tiếng Anh)
 
-> **Thuộc**: 02-growth/marketing-kit · **Trạng thái**: Ready · **Cập nhật**: 2026-11-17
+> **Thuộc**: 02-growth/marketing-kit · **Trạng thái**: Ready · **Cập nhật**: 2026-11-18
 > **Dùng cho**: task [C07](../../10-execution-plan/C07-directories-and-listicle-outreach.md) (và C04 khi launch Product Hunt).
 > **Ai làm**: founder tạo tài khoản bằng tên thật, xác minh email. Khi đã đăng nhập, AI có thể điền form theo nội dung dưới đây; founder bấm gửi.
 
@@ -16,6 +16,8 @@
 | Nền tảng | Web, PWA cài được trên Windows, macOS, Linux, Android, iOS |
 | Logo | `public/icon-512.png` (512x512) |
 | Ảnh chụp | `public/screenshots/wide-list.png`, `wide-kanban.png`, `wide-daily-focus.png` (1280x800), `narrow-list.png` (di động) |
+| Ảnh cho thư mục | 5 ảnh app thật 1270x760 và icon 240x240 do phiên chụp ảnh chuẩn bị ngày 2026-11-18 (lưu ngoài repo); dùng thay bộ ảnh ở dòng trên khi form nhận kích thước này |
+| Video demo | Trên trang đích: `https://tasks.nexuspulsetech.xyz/en/#demo-title` (38 giây, dọc 9:16, giọng đọc AI, hình quay app thật). File gốc: `https://tasks.nexuspulsetech.xyz/media/stride-demo-web-720_2026-11-18.mp4`. Product Hunt chỉ nhận link YouTube công khai: founder đăng bản YouTube trước khi launch |
 | "Alternative to" | Todoist, TickTick, Microsoft To Do, Super Productivity, Focus To-Do, Things |
 
 Quy tắc chung (theo [01-brand-messaging.md](./01-brand-messaging.md) mục 5): không ghi số người dùng, không "best", "#1", không nhắc AI. Khi một thư mục từ chối, ghi lý do vào bảng theo dõi ở mục 6, không gửi lại ngay.
@@ -81,7 +83,7 @@ Thư mục này chỉ nhận phần mềm mã nguồn mở. Từ 2026-10-31 Stri
 
 Thông số theo [hướng dẫn launch chính thức](https://www.producthunt.com/launch/preparing-for-launch): tagline tối đa 60 ký tự; mô tả tối đa 500 ký tự; thumbnail vuông, khuyến nghị 240x240; gallery ít nhất 2 ảnh, khuyến nghị 1270x760; mọi ảnh dưới 3MB; video chỉ nhận link YouTube công khai. Product Hunt không còn trang "coming soon" riêng: có thể lên lịch launch trước tối đa 1 tháng. Giờ khuyến nghị 12:01 sáng giờ Thái Bình Dương. Lời mời trong comment là xin góp ý, không xin upvote.
 
-Trước ngày launch: tạo thumbnail 240x240 từ `icon-512.png` và 3 ảnh gallery 1270x760 từ ảnh chụp `wide-*.png` (việc của C04).
+Trước ngày launch: thumbnail 240x240 và ảnh gallery 1270x760 lấy từ bộ ảnh cho thư mục (mục 0); video cần bản YouTube công khai (việc của C04).
 
 **Tagline** (56 ký tự)
 ```
