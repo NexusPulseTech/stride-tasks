@@ -17,7 +17,7 @@ Người xem trang đích thấy app chạy thật trong chưa đầy 40 giây m
 3. Đặt ngay sau phần hero của `/en/` và `/vi/`: nút CTA chính không bị đẩy xuống. Thẻ `<video controls playsinline preload="none" data-poster=…>`, không tự phát; `width`/`height` và `aspect-ratio: 9 / 16` giữ chỗ để không xô lệch; rộng tối đa 360 px.
 4. Dòng chú thích: EN "AI voiceover · real app footage"; VI "Video tiếng Anh · giọng đọc AI · hình quay app thật".
 5. Không đưa video vào bộ nhớ đệm PWA (mẫu precache chỉ gồm js, css, html, svg, png, json).
-6. Không thêm `<track kind="captions">`: theo phiên Cố vấn (người dựng video), video có phụ đề in sẵn theo từng câu, phủ toàn bộ lời đọc (khung 0:13 có chữ in sẵn "Focus on it."). WCAG 1.2.2 chấp nhận phụ đề in sẵn; thêm track sẽ hiện chữ trùng. Lighthouse không trừ điểm.
+6. Không thêm `<track kind="captions">`: video có phụ đề in sẵn (open captions), WCAG 1.2.2 chấp nhận; thêm track sẽ hiện chữ trùng. Lighthouse không trừ điểm. Đối chiếu mã nguồn video (ngoài repo, 2026-11-18): lời đọc gồm 6 câu; câu 0 hiện nguyên văn ở màn mở đầu (cũng là ảnh bìa), câu 1, 2, 4 hiện từng câu nguyên văn theo mốc thời gian của giọng đọc, câu 3 nguyên văn trừ đoạn cuối "One day, three, seven, sixteen." hiện bằng các nút trên dòng thời gian "1 day / 3 days / 7 days / 16 days / 35 days" (cùng nghĩa, không nguyên văn), câu 5 hiện ở màn kết.
 
 ## Các bước
 1. Chép video và ảnh bìa vào `public/media/`; thêm khối video và CSS; tăng `?v=` của `site.css`.
