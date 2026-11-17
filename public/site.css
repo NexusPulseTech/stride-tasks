@@ -63,6 +63,12 @@ nav.top a:hover { color: var(--text); }
 .shot { margin: 40px auto 0; border-radius: var(--radius-card); border: 1px solid var(--border); box-shadow: var(--shadow-raised); overflow: hidden; max-width: 1000px; }
 
 section { padding: 56px 0; }
+/* A16: video demo dọc 9:16 ngay sau hero; width/height + aspect-ratio giữ chỗ để bố cục không nhảy */
+section.demo { padding: 8px 0 48px; text-align: center; }
+.demo h2 { margin-bottom: 20px; }
+.demo-video { margin: 0 auto; max-width: 360px; }
+.demo-video video { display: block; width: 100%; height: auto; aspect-ratio: 9 / 16; border-radius: var(--radius-card); border: 1px solid var(--border); box-shadow: var(--shadow-raised); background: #0b1020; }
+.demo-video figcaption { margin-top: 10px; font-size: 0.85rem; color: var(--text-muted); }
 section.alt { background: var(--surface-raised); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 section h2 { font-size: clamp(1.5rem, 3.5vw, 2.1rem); margin: 0 0 12px; text-align: center; letter-spacing: -0.01em; }
 section p.sub { text-align: center; color: var(--text-muted); max-width: 680px; margin: 0 auto 32px; }
