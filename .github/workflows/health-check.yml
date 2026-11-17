@@ -41,7 +41,9 @@ jobs:
           for path in /en/ /vi/ /privacy.html /terms.html /refund.html /sitemap.xml /manifest.json /sw.js; do
             curl -fsS --max-time 20 -o /dev/null "$APP$path" || { echo "failed: $path"; exit 1; }
           done
-          curl -fsS --max-time 20 "$APP/en/" | grep -q 'upgrade=pro'
+          # Đọc hết trang rồi mới grep: ống curl | grep -q làm curl lỗi 23 khi grep thoát sớm (báo động giả 2026-11-16, 2026-11-17)
+          landing=$(curl -fsS --max-time 20 "$APP/en/")
+          grep -q 'upgrade=pro' <<<"$landing"
 
       - name: Worker routes, validation and CORS answer as expected
         run: |
@@ -51,3 +53,4 @@ jobs:
           test "$(status -X POST -H 'Content-Type: application/json' -d '{}' "$API/webhooks/polar")" = "403"
           test "$(status -X OPTIONS -H 'Origin: https://tasks.nexuspulsetech.xyz' -H 'Access-Control-Request-Method: POST' "$API/v1/orders")" = "204"
           test "$(status "$API/nope")" = "404"
+          test "$(status "$API/v1/pricing")" = "200"

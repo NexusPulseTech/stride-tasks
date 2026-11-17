@@ -32,7 +32,7 @@ Ký hiệu: ☐ Todo · ◐ In progress · ☑ Done · ⏸ Blocked (ghi lý do)
 | [A11](./A11-instant-activation-strong-consistency.md) | Kích hoạt PRO ngay sau khi trả tiền (đơn hàng trên D1) | P1 | 0,5 ngày | A04, A05 | ☑ |
 | [A12](./A12-commercial-ui-and-regional-pricing.md) | Giao diện thương mại chuẩn, giá theo vùng do máy chủ quyết định, dữ liệu ví dụ theo ngôn ngữ | P0 | 3 ngày | A05, A11 | ☑ 2026-11-10 |
 | [A13](./A13-free-vs-pro-humane-upgrade.md) | Free và PRO rõ ràng, mời nâng cấp tử tế, giá theo quốc gia trên trang đích, bỏ bản HTML cũ | P0 | 1 ngày | A12 | ☑ 2026-11-10 |
-| [A14](./A14-trial-sale-readiness-fixes.md) | Sửa nhỏ trước đợt bán thử: bài đăng, nhãn ôn tập, cache giá trang đích | P0 | 0,5 ngày | A13 | ◐ 2026-11-17 |
+| [A14](./A14-trial-sale-readiness-fixes.md) | Sửa nhỏ trước đợt bán thử: bài đăng, nhãn ôn tập, cache giá trang đích | P0 | 0,5 ngày | A13 | ☑ 2026-11-17 |
 | [B01](./B01-test-suite-in-repo.md) | Bộ test trong repo (Vitest, Worker, E2E khung) | P1 | 2 ngày | - | ◐ |
 | [B02](./B02-lint-format-strict-typescript.md) | ESLint, Prettier, TS strict, dọn phụ thuộc | P1 | 2-3 ngày | B01 | ☐ |
 | [B03](./B03-ci-quality-gates.md) | CI quality gates + chuỗi cung ứng | P1 | 1 ngày | B01, B02 | ☐ |
