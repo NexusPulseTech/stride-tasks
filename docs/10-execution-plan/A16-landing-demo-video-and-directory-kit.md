@@ -6,7 +6,7 @@
 | Ưu tiên | P1 (đợt bán thử; thư mục phần mềm tuần 2 đến 3) |
 | Ước lượng | 2 giờ |
 | Phụ thuộc | A15 |
-| Trạng thái | ◐ 2026-11-18 (video xong và đã kiểm production: 724fb76, d64068a, 9bd31fb; chữ bộ thư mục xong; còn ảnh từ phiên chụp ảnh và đọc số lần 1) |
+| Trạng thái | ◐ 2026-11-18 (video xong, phiên Cố vấn nghiệm thu đạt 2026-11-18: 724fb76, d64068a, 9bd31fb; chữ bộ thư mục xong; còn ảnh từ phiên chụp ảnh, đọc số lần 1, bản YouTube) |
 
 ## Mục tiêu
 Người xem trang đích thấy app chạy thật trong chưa đầy 40 giây mà không làm trang chậm hay xô lệch; bộ đăng thư mục (AlternativeTo, SaaSHub, Product Hunt) có sẵn ảnh đúng kích thước và câu chữ đúng trạng thái hiện tại.
@@ -14,10 +14,10 @@ Người xem trang đích thấy app chạy thật trong chưa đầy 40 giây m
 ## Quyết định
 1. Video `public/media/stride-demo-web-720_2026-11-18.mp4` (720×1280, 38,7 giây, H.264 và AAC, moov đặt trước mdat để phát ngay) và ảnh bìa `stride-demo-poster-720_2026-11-18.jpg`, do phiên Cố vấn Life OS dựng từ hình quay app thật, giọng đọc AI. Tên file có ngày nên không cần tham số `?v=`.
 2. Ảnh bìa không gắn thẳng trong HTML (`data-poster`): `public/site-pricing.js` gắn sau sự kiện load, khi video sắp vào màn hình. Đo production: gắn thẳng làm LCP tăng khoảng 240 ms vì ảnh bìa tranh băng thông với ảnh hero.
-3. Đặt ngay sau phần hero của `/en/` và `/vi/`: nút CTA chính không bị đẩy xuống. Thẻ `<video controls playsinline preload="none" poster=…>`, không tự phát; `width`/`height` và `aspect-ratio: 9 / 16` giữ chỗ để không xô lệch; rộng tối đa 360 px.
+3. Đặt ngay sau phần hero của `/en/` và `/vi/`: nút CTA chính không bị đẩy xuống. Thẻ `<video controls playsinline preload="none" data-poster=…>`, không tự phát; `width`/`height` và `aspect-ratio: 9 / 16` giữ chỗ để không xô lệch; rộng tối đa 360 px.
 4. Dòng chú thích: EN "AI voiceover · real app footage"; VI "Video tiếng Anh · giọng đọc AI · hình quay app thật".
 5. Không đưa video vào bộ nhớ đệm PWA (mẫu precache chỉ gồm js, css, html, svg, png, json).
-6. Chưa có phụ đề vì chưa có bản lời thoại; Lighthouse không trừ điểm (`video-caption` chỉ mang tính thông tin). Thêm `<track kind="captions">` khi có lời thoại.
+6. Không thêm `<track kind="captions">`: theo phiên Cố vấn (người dựng video), video có phụ đề in sẵn theo từng câu, phủ toàn bộ lời đọc (khung 0:13 có chữ in sẵn "Focus on it."). WCAG 1.2.2 chấp nhận phụ đề in sẵn; thêm track sẽ hiện chữ trùng. Lighthouse không trừ điểm.
 
 ## Các bước
 1. Chép video và ảnh bìa vào `public/media/`; thêm khối video và CSS; tăng `?v=` của `site.css`.
@@ -34,9 +34,8 @@ Người xem trang đích thấy app chạy thật trong chưa đầy 40 giây m
 - [ ] Ảnh cho thư mục (5 ảnh 1270x760, icon 240x240): phiên chụp ảnh làm, lưu ngoài repo; nhận khi phiên đó báo xong.
 
 ## Còn lại (roadmap)
-- Đọc số lần 1 (Workers Logs: `/v1/pricing`, `POST /v1/orders`, PUT sync; Polar: checkout, bỏ dở, đơn): chưa đọc được 2026-11-18 vì tiện ích Claude in Chrome mất kết nối; cần founder bật lại tiện ích hoặc gửi ảnh chụp.
-- Phụ đề cho video: cần bản lời thoại từ phiên Cố vấn.
-- Bản YouTube công khai của video để dùng cho Product Hunt (founder đăng).
+- Đọc số lần 1 (Workers Logs: `/v1/pricing`, `POST /v1/orders`, PUT sync; Polar: checkout, bỏ dở, đơn): chưa đọc được 2026-11-18 vì tiện ích Claude in Chrome mất kết nối. Phiên Cố vấn đọc Chủ nhật 2026-11-22 khi founder kết nối lại. Không dùng token của wrangler để đọc số.
+- Bản YouTube công khai của video để dùng cho Product Hunt: chờ founder quyết việc mở kênh YouTube.
 
 ## Rủi ro & rollback
 - Video nặng 2,27 MB chỉ tải khi người xem bấm phát. Rollback: bỏ khối `section.demo` hoặc revert commit.
