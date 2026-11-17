@@ -101,7 +101,7 @@ export function TaskMoreMenu({
         </button>
       )}
 
-      {/* Lặp lại ngắt quãng Anki SM-2 */}
+      {/* Lặp lại ngắt quãng (thang giãn dần) */}
       {onOpenAnkiSrs && (
         <button
           type="button"

@@ -348,7 +348,7 @@ export function CommandPaletteModal({
           return;
         }
 
-        // Alt + Enter trên một Task: Mở hộp thoại Ôn tập Anki SM-2
+        // Alt + Enter trên một Task: Mở hộp thoại ôn tập ngắt quãng
         if (e.altKey && current.taskRef && onOpenAnkiSrs) {
           onClose();
           onOpenAnkiSrs(current.taskRef.task, current.taskRef.project.id);

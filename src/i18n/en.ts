@@ -378,7 +378,7 @@ export const en: Translations = {
     activateButton: 'Activate',
     activateHint: 'Your license is checked on this device. Nothing is uploaded.',
     whyTitle: 'An execution cockpit, not a document store',
-    whyIntro: 'Stride Tasks is about getting today’s work done: one-line quick capture, Kanban, Pomodoro and SM-2 spaced repetition, running 100% on your device with no account.',
+    whyIntro: 'Stride Tasks is about getting today’s work done: one-line quick capture, Kanban, Pomodoro and spaced repetition, running 100% on your device with no account.',
     whyUseBoth: 'Use both: keep your wiki and docs in Notion, run your daily execution in Stride Tasks.',
     compareFeature: 'Criteria',
     compareRows: [
@@ -386,7 +386,7 @@ export const en: Translations = {
       { feature: 'Works without an account', stride: 'Yes', notion: 'No', todoist: 'No', things: 'Yes', ticktick: 'No' },
       { feature: 'Default data location', stride: 'On device', notion: 'Cloud', todoist: 'Cloud', things: 'Device + Things Cloud', ticktick: 'Cloud' },
       { feature: 'Natural-language quick capture', stride: 'Yes', notion: 'Limited', todoist: 'Yes', things: 'Yes (dates)', ticktick: 'Yes' },
-      { feature: 'Built-in SM-2 spaced repetition', stride: 'Yes', notion: 'No', todoist: 'No', things: 'No', ticktick: 'No' },
+      { feature: 'Built-in spaced repetition', stride: 'Yes', notion: 'No', todoist: 'No', things: 'No', ticktick: 'No' },
       { feature: 'Built-in Pomodoro', stride: 'Yes', notion: 'No', todoist: 'No', things: 'No', ticktick: 'Yes' },
       { feature: 'Platforms', stride: 'Web/PWA · Windows', notion: 'Cross-platform', todoist: 'Cross-platform', things: 'Apple only', ticktick: 'Cross-platform' },
     ],

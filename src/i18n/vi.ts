@@ -378,7 +378,7 @@ export const vi: Translations = {
     activateButton: 'Kích hoạt',
     activateHint: 'Bản quyền được kiểm tra ngay trên thiết bị, không tải gì lên máy chủ.',
     whyTitle: 'Buồng lái thực thi, không phải kho tài liệu',
-    whyIntro: 'Stride Tasks tập trung vào việc làm xong việc mỗi ngày: nhập nhanh 1 dòng, Kanban, Pomodoro, ôn tập ngắt quãng SM-2, chạy 100% trên thiết bị, không cần tài khoản.',
+    whyIntro: 'Stride Tasks tập trung vào việc làm xong việc mỗi ngày: nhập nhanh 1 dòng, Kanban, Pomodoro, ôn tập ngắt quãng, chạy 100% trên thiết bị, không cần tài khoản.',
     whyUseBoth: 'Dùng song song: giữ wiki và tài liệu ở Notion, dùng Stride Tasks để thực thi hằng ngày.',
     compareFeature: 'Tiêu chí',
     compareRows: [
@@ -386,7 +386,7 @@ export const vi: Translations = {
       { feature: 'Dùng không cần tài khoản', stride: 'Có', notion: 'Không', todoist: 'Không', things: 'Có', ticktick: 'Không' },
       { feature: 'Nơi lưu dữ liệu mặc định', stride: 'Trên thiết bị', notion: 'Đám mây', todoist: 'Đám mây', things: 'Thiết bị + Things Cloud', ticktick: 'Đám mây' },
       { feature: 'Nhập nhanh ngôn ngữ tự nhiên', stride: 'Có', notion: 'Hạn chế', todoist: 'Có', things: 'Có (ngày giờ)', ticktick: 'Có' },
-      { feature: 'Ôn tập ngắt quãng SM-2 tích hợp', stride: 'Có', notion: 'Không', todoist: 'Không', things: 'Không', ticktick: 'Không' },
+      { feature: 'Ôn tập ngắt quãng tích hợp', stride: 'Có', notion: 'Không', todoist: 'Không', things: 'Không', ticktick: 'Không' },
       { feature: 'Pomodoro tích hợp', stride: 'Có', notion: 'Không', todoist: 'Không', things: 'Không', ticktick: 'Có' },
       { feature: 'Nền tảng', stride: 'Web/PWA · Windows', notion: 'Đa nền tảng', todoist: 'Đa nền tảng', things: 'Chỉ Apple', ticktick: 'Đa nền tảng' },
     ],

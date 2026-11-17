@@ -200,9 +200,9 @@ export interface SnoozePresetOption {
 }
 
 /**
- * MÔ HÌNH NHẮC LẶP CẤP SỐ NHÂN CHUẨN ANKIWEB (SM-2 / FSRS SPACED REPETITION)
- * Nguyên lý Toán học AnkiWeb:
- * - Khoảng cách nhắc tiếp theo tăng theo cấp số nhân: I(n) = round(I(n-1) × EF) với Ease Factor EF ≈ 2.2 - 2.5
+ * LỊCH ÔN GIÃN DẦN: lấy ý tưởng giãn cách cấp số nhân như Anki, nhưng KHÔNG phải SM-2 hay FSRS.
+ * - Thang cố định, chung cho mọi việc; không có hệ số dễ (ease) riêng từng việc như SM-2. Bậc chỉ đổi theo nút người dùng chọn.
+ * - Sau bậc 5, mỗi bậc nhân 2,2 (ANKI_EASE_FACTOR), tối đa 365 ngày.
  * - Chuỗi cấp số nhân chuẩn: 1 ngày -> 3 ngày -> 7 ngày -> 16 ngày -> 35 ngày -> 77 ngày -> 170 ngày -> 365 ngày
  * - Option 1 (Phím 1 - Again): days = 0, reset lập tức về Mức 1 (dù đang ở mức cao nhất), tự động Ghim ưu tiên lên đầu.
  * - Option 2 (Phím 2 / Space - Good): Tăng 1 cấp (currentLevel + 1), nhân khoảng cách theo cấp số nhân chuẩn.
@@ -307,7 +307,7 @@ export function getAnkiSrs3Options(level: number = 1): [AnkiSrsOption, AnkiSrsOp
     badgeColor: 'rose',
   };
 
-  // OPTION 2 (Good): Nhân theo cấp số nhân chuẩn Anki SM-2 (bậc hiện tại -> bậc + 1)
+  // OPTION 2 (Good): lên 1 bậc trên thang giãn dần (bậc hiện tại -> bậc + 1)
   const opt2Days = calculateAnkiExponentialDays(currentLvl);
   const opt2NextLevel = currentLvl + 1;
   const opt2Formatted = formatAnkiIntervalLabels(opt2Days);

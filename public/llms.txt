@@ -1,11 +1,11 @@
 # Stride Tasks
 
-> Stride Tasks is an offline-first task manager for people who study and do deep work. It combines one-line task capture, a built-in Pomodoro timer and SM-2 spaced-repetition reviews for tasks and study topics. No account is needed, data stays on the user's device, and optional sync is end-to-end encrypted.
+> Stride Tasks is an offline-first task manager for people who study and do deep work. It combines one-line task capture, a built-in Pomodoro timer and spaced-repetition reviews for tasks and study topics (each review pushes the next one further out: 1, 3, 7, 16 and 35 days, then about 2.2 times longer each step, up to a year). No account is needed, data stays on the user's device, and optional sync is end-to-end encrypted.
 
 Key facts:
 
 - Runs in any modern browser as a Progressive Web App and installs on Windows, macOS, Linux, Android and iOS. Works offline after the first visit.
-- Free version, no time limit: natural-language quick capture, nested subtasks, a 4-column Kanban board, Pomodoro timer and deep-work log, SM-2 reviews, activity heatmap and streaks, JSON backup, up to 5 projects and 3 Markdown reports.
+- Free version, no time limit: natural-language quick capture, nested subtasks, a 4-column Kanban board, Pomodoro timer and deep-work log, spaced-repetition reviews, activity heatmap and streaks, JSON backup, up to 5 projects and 3 Markdown reports.
 - PRO Lifetime is a one-time payment, not a subscription. It adds end-to-end encrypted sync (AES-256-GCM, the key never leaves the user's devices), unlimited projects and unlimited Markdown reports. Founding price: $19 for the first 100 licenses, then $29. Buyers in emerging markets automatically get a lower regional price ($9.95). 14-day refund. Checkout is handled by Polar, the merchant of record.
 - Interface languages: English and Vietnamese.
 - Made by NexusPulse Studio.

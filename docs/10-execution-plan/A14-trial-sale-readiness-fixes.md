@@ -40,7 +40,7 @@ Trước khi đi bán (đợt thử 2026-11-16 đến 2026-12-27), mọi câu ch
 - [x] Nút Good hiện ×2.2.
 - [x] Trang đích: lượt xem đầu không gọi `/v1/pricing` khi chưa kéo tới bảng giá; khi tới bảng giá thì hiện đúng giá theo nước; tải lại trong 24 giờ không gọi lại. Production 2026-11-17 từ IP Việt Nam: `/en/` lúc tải 0 lượt gọi, kéo tới bảng giá 1 lượt, hiện "$9.95, Price for Vietnam." và lưu bậc vn-ppp; mở tiếp `/vi/` 0 lượt gọi, hiện $9.95. Trên máy: giá đã nhớ quá 24 giờ thì hỏi lại. Chặn localStorage: mọi lần đọc ghi đều nằm trong try/catch (chưa thử trên trình duyệt chặn bộ nhớ).
 - [x] Bundle production có nhãn "Exponential ×2.2"; sitemap production có lastmod 2026-11-17 cho 3 trang.
-- [ ] Workflow kiểm sức khỏe chạy tay sau khi sửa: xanh.
+- [x] Workflow kiểm sức khỏe chạy tay sau khi sửa (fbad604): xanh.
 - [x] Test `src/config/__tests__/sitePricing.test.ts` vẫn qua (81 test app, 45 test Worker).
 
 ## Rủi ro & rollback
