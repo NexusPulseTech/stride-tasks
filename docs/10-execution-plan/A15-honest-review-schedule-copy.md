@@ -6,7 +6,7 @@
 | Ưu tiên | P0 (đang đi bán; Show HN khoảng 2026-12-08) |
 | Ước lượng | 1 giờ |
 | Phụ thuộc | A14 |
-| Trạng thái | ◐ 2026-11-18 |
+| Trạng thái | ☑ 2026-11-18 (web e1afda8, kiểm trên production) |
 
 ## Mục tiêu
 Mọi câu khách đọc về lịch ôn (trang đích, vỏ app, bảng so sánh trong app, llms.txt, trang quyền riêng tư, bản giới thiệu cho Microsoft Store) nói đúng điều code đang làm, không gọi là SM-2 hay "thuật toán của Anki".
@@ -29,7 +29,7 @@ Mọi câu khách đọc về lịch ôn (trang đích, vỏ app, bảng so sán
 ## Tiêu chí nghiệm thu
 - [x] Không còn "SM-2", "the algorithm behind Anki", "thuật toán của Anki" trong mọi file trên (chỉ còn chú thích code giải thích vì sao KHÔNG phải SM-2).
 - [x] Lint, test app (81, gồm test bộ dịch EN/VI), test Worker (45), quét bí mật qua.
-- [ ] Production: `/`, `/en/`, `/vi/`, `/llms.txt` không còn "SM-2"; sitemap lastmod cập nhật; yêu cầu Google lập chỉ mục lại `/`, `/en/`, `/vi/`.
+- [x] Production: `/`, `/en/`, `/vi/`, `/llms.txt`, `/privacy.html` không còn "SM-2" (curl 2026-11-18); bundle app có "Built-in spaced repetition"; sitemap lastmod 2026-11-18; đã yêu cầu Google lập chỉ mục lại `/`, `/en/`, `/vi/` và gửi lại sitemap (chi tiết ở `docs/02-growth/08-seo-status-and-plan.md`).
 
 ## Rủi ro & rollback
 - Mất từ khóa "SM-2" trên trang đích: lượng tìm kiếm rất nhỏ so với "spaced repetition"; chấp nhận. Rollback bằng revert.

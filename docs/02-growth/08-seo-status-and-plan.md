@@ -30,6 +30,12 @@ Google nói rõ: thu thập dữ liệu mất **"từ vài ngày đến vài tu�
 
 Đã xử lý ngay: footer app có link "About Stride Tasks" tới `/en/` hoặc `/vi/` (app là trang duy nhất đã được lập chỉ mục, nên đây là link nội bộ nhanh nhất cho Google); `/vn` chuyển hướng về `/vi/`. Cần làm tiếp: yêu cầu lập chỉ mục `/en/`, `/vi/` trong Search Console; lấy backlink thật (AlternativeTo, SaaSHub, Product Hunt, bài cộng đồng).
 
+### Cập nhật 2026-11-18 (Search Console, tài khoản sở hữu property)
+
+- Kiểm tra URL: cả `/`, `/en/`, `/vi/` đều "Đã thu thập dữ liệu, hiện chưa được lập chỉ mục"; lần thu thập gần nhất 2026-10-30; được phép thu thập và lập chỉ mục; `/en/` và `/vi/` ghi "không phát hiện sơ đồ trang web giới thiệu nào".
+- Báo cáo Sơ đồ trang web: `/sitemap.xml` gửi 2026-10-30 ở trạng thái "Không thể tìm nạp", 0 trang được khám phá. Tải thử với User-Agent Googlebot ngày 2026-11-18: 200, `application/xml`, nội dung đúng; robots.txt cho phép và trỏ tới sitemap.
+- Đã làm 2026-11-18 (sau khi bỏ chữ SM-2 ở A15): yêu cầu lập chỉ mục `/en/`, `/vi/`, `/`; gửi lại `sitemap.xml`. Ngay sau khi gửi, trạng thái vẫn hiện "Không thể tìm nạp"; xem lại sau 2-3 ngày. Nếu vẫn lỗi: thử gửi `https://tasks.nexuspulsetech.xyz/sitemap.xml` ở property miền `sc-domain:nexuspulsetech.xyz`, và kiểm tra Cloudflare Security Events xem có chặn Googlebot không.
+
 ## 2. Rủi ro đã phát hiện
 
 | Rủi ro | Ảnh hưởng | Xử lý |
