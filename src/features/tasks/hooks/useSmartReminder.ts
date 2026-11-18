@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Project } from '../../../types';
 import { playChime } from '../../../utils';
 import { useTranslationRef, formatMessage } from '../../../i18n';
+import { isSampleTemplate } from '../../../utils/persistentStorage';
 
 export type ReminderIntervalMinutes = 15 | 30 | 60;
 
@@ -112,6 +113,12 @@ export function useSmartReminder({ projects, isMuted, showToast }: UseSmartRemin
   const triggerReminderCheck = useCallback(() => {
     const currentProjects = projectsRef.current;
     const now = Date.now();
+
+    // A17: người mới mở app chỉ có việc mẫu; nhắc "còn 5 việc" lúc này vô nghĩa và che nút thêm việc
+    if (isSampleTemplate(currentProjects)) {
+      setInAppBanner(null);
+      return;
+    }
 
     const activePendingList: { task: Project['tasks'][number]; projectId: string }[] = [];
     for (const p of currentProjects) {

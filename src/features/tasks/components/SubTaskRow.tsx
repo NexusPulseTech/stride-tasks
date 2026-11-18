@@ -122,7 +122,7 @@ export function SubTaskRow({
         onDragOver={(e) => onSubDragOver?.(e, sub.id)}
         onDrop={(e) => onSubDrop?.(e, sub.id)}
         onDragEnd={onSubDragEnd}
-        className={`group/sub flex items-center gap-1.5 py-0.5 px-1.5 rounded-md hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors w-full min-h-[28px] flex-nowrap overflow-hidden ${
+        className={`group/sub flex items-center gap-2 sm:gap-1.5 py-0.5 px-1.5 rounded-md hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors w-full min-h-[40px] sm:min-h-[28px] flex-nowrap overflow-hidden ${
           isDragging ? 'opacity-30 scale-[0.99] border-dashed border border-slate-300 dark:border-slate-600' : ''
         }`}
       >
@@ -139,7 +139,7 @@ export function SubTaskRow({
           <button
             type="button"
             onClick={() => onToggleExpandNode(sub.id)}
-            className="w-4 h-4 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 flex items-center justify-center cursor-pointer shrink-0 transition-colors rounded hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
+            className="touch-hit [--hit:36px] w-4 h-4 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 flex items-center justify-center cursor-pointer shrink-0 transition-colors rounded hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
             title={isNodeExpanded ? t.pinned.collapseSubtasks : t.pinned.expandSubtasks}
             aria-label={isNodeExpanded ? t.pinned.collapseSubtasks : t.pinned.expandSubtasks}
           >
@@ -160,7 +160,7 @@ export function SubTaskRow({
             e.stopPropagation();
             onToggleSubTask(projectId, taskId, sub.id, !isSubDone);
           }}
-          className="shrink-0 cursor-pointer p-0.5 -m-0.5 rounded-full flex items-center justify-center"
+          className="touch-hit [--hit:40px] shrink-0 cursor-pointer p-0.5 -m-0.5 rounded-full flex items-center justify-center"
           aria-label={isSubDone ? t.common.reset : t.common.completed}
         >
           <div
@@ -174,7 +174,7 @@ export function SubTaskRow({
           </div>
         </button>
 
-        <div className="flex-1 min-w-0 flex items-center gap-1 flex-nowrap overflow-hidden">
+        <div className="flex-1 min-w-0 flex flex-wrap sm:flex-nowrap items-center gap-x-1 gap-y-1 overflow-hidden">
           {isEditing ? (
             <div className="flex items-center gap-1 w-full min-w-0 flex-nowrap" onClick={(e) => e.stopPropagation()}>
               <input
@@ -321,7 +321,7 @@ export function SubTaskRow({
               onSetAddingChildToSubId(isAddingChild ? null : sub.id);
               if (!isAddingChild) onToggleExpandNode(sub.id, true);
             }}
-            className="w-6 h-6 text-slate-400 hover:text-slate-800 dark:text-slate-500 dark:hover:text-slate-100 hover:bg-slate-200/70 dark:hover:bg-slate-700 rounded cursor-pointer shrink-0 transition-colors inline-flex items-center justify-center"
+            className="touch-hit w-6 h-6 text-slate-400 hover:text-slate-800 dark:text-slate-500 dark:hover:text-slate-100 hover:bg-slate-200/70 dark:hover:bg-slate-700 rounded cursor-pointer shrink-0 transition-colors inline-flex items-center justify-center"
             title={t.subtaskMenu.addSubtask}
             aria-label={t.subtaskMenu.addSubtask}
           >
@@ -344,7 +344,7 @@ export function SubTaskRow({
               } catch (err) {}
               onOpenBatchPasteForTask?.(projectId, taskId, sub.id, sub.title);
             }}
-            className="w-6 h-6 text-slate-400 hover:text-slate-800 dark:text-slate-500 dark:hover:text-slate-100 hover:bg-slate-200/70 dark:hover:bg-slate-700 rounded cursor-pointer shrink-0 transition-colors inline-flex items-center justify-center"
+            className="touch-hit w-6 h-6 text-slate-400 hover:text-slate-800 dark:text-slate-500 dark:hover:text-slate-100 hover:bg-slate-200/70 dark:hover:bg-slate-700 rounded cursor-pointer shrink-0 transition-colors inline-flex items-center justify-center"
             title={t.subtaskMenu.batchPaste}
             aria-label={t.subtaskMenu.batchPaste}
           >
@@ -355,7 +355,7 @@ export function SubTaskRow({
             ref={subMenuButtonRef}
             type="button"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="w-6 h-6 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/70 dark:hover:bg-slate-700 rounded cursor-pointer shrink-0 transition-colors inline-flex items-center justify-center"
+            className="touch-hit w-6 h-6 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/70 dark:hover:bg-slate-700 rounded cursor-pointer shrink-0 transition-colors inline-flex items-center justify-center"
             title={t.tasks.moreActions}
             aria-label={t.tasks.moreActions}
           >

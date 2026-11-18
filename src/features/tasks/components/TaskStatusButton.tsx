@@ -85,7 +85,7 @@ export function TaskStatusButton({
           e.stopPropagation();
           setIsOpen(!isOpen);
         }}
-        className={`shrink-0 whitespace-nowrap rounded-md border transition-colors cursor-pointer select-none font-medium flex items-center justify-between gap-1 shadow-2xs ${
+        className={`touch-hit shrink-0 whitespace-nowrap rounded-md border transition-colors cursor-pointer select-none font-medium flex items-center justify-between gap-1 shadow-2xs ${
           size === 'sm'
             ? 'text-[10px] px-1.5 py-0.2 h-[22px] sm:w-[72px]'
             : 'text-[10.5px] px-1.5 sm:px-2 py-0.5 h-[24px] sm:w-[78px]'

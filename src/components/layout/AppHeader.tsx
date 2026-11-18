@@ -88,7 +88,7 @@ export function AppHeader({
       <div
         className={`${
           isBoardMode ? 'max-w-6xl' : 'max-w-2xl'
-        } mx-auto px-2.5 sm:px-4 h-11 sm:h-12 flex items-center justify-between gap-1.5 sm:gap-2 w-full transition-all`}
+        } mx-auto px-2.5 sm:px-4 h-12 flex items-center justify-between gap-1.5 sm:gap-2 w-full transition-all`}
       >
         {/* Left Zone: Brand & Compact Progress - Khóa kích thước cố định không đẩy nút bên phải */}
         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 overflow-hidden">
@@ -115,7 +115,7 @@ export function AppHeader({
             <button
               type="button"
               onClick={onOpenStoreModal}
-              className={`h-7.5 px-2 rounded-lg border text-[11px] font-semibold transition-colors cursor-pointer shrink-0 flex items-center justify-center gap-1 shadow-2xs ${
+              className={`touch-hit h-10 sm:h-7.5 px-2.5 sm:px-2 rounded-lg border text-[11px] font-semibold transition-colors cursor-pointer shrink-0 flex items-center justify-center gap-1 shadow-2xs ${
                 isPro
                   ? 'bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
                   : 'bg-amber-500/10 dark:bg-amber-500/15 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/30'
@@ -124,7 +124,7 @@ export function AppHeader({
               aria-label={t.store.entryTitle}
             >
               <Crown className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 shrink-0" strokeWidth={2} />
-              <span className="hidden xs:inline font-mono">{isPro ? t.store.proActiveShort : 'PRO'}</span>
+              <span className="font-mono">{isPro ? t.store.proActiveShort : 'PRO'}</span>
             </button>
           )}
 
@@ -144,7 +144,7 @@ export function AppHeader({
             <button
               type="button"
               onClick={onToggleFocusMode}
-              className={`h-7.5 w-7.5 sm:w-[92px] sm:px-2 rounded-lg border text-xs font-medium transition-colors cursor-pointer shrink-0 flex items-center justify-center gap-1.5 ${
+              className={`touch-hit h-10 w-10 sm:h-7.5 sm:w-[92px] sm:px-2 rounded-lg border text-xs font-medium transition-colors cursor-pointer shrink-0 flex items-center justify-center gap-1.5 ${
                 isFocusMode
                   ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-950 border-slate-900 dark:border-slate-100 shadow-2xs font-semibold'
                   : 'bg-white dark:bg-slate-800/70 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200/90 dark:border-slate-700/80 shadow-2xs'
@@ -166,7 +166,7 @@ export function AppHeader({
             <button
               type="button"
               onClick={onToggleStats}
-              className={`h-7.5 w-7.5 sm:w-[76px] sm:px-2 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1 cursor-pointer shrink-0 border ${
+              className={`touch-hit h-10 w-10 sm:h-7.5 sm:w-[76px] sm:px-2 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1 cursor-pointer shrink-0 border ${
                 showStats
                   ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border-slate-900 dark:border-slate-100 font-semibold'
                   : 'bg-white dark:bg-slate-800/70 border-slate-200/90 dark:border-slate-700/80 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 shadow-2xs'
@@ -184,7 +184,7 @@ export function AppHeader({
             <button
               type="button"
               onClick={toggleLanguage}
-              className="h-7.5 w-[50px] px-1.5 rounded-lg border border-slate-200/90 dark:border-slate-700/80 bg-white dark:bg-slate-800/70 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-mono text-[11px] font-semibold transition-colors cursor-pointer shrink-0 flex items-center justify-center gap-1 shadow-2xs"
+              className="touch-hit h-10 sm:h-7.5 w-[56px] sm:w-[50px] px-1.5 rounded-lg border border-slate-200/90 dark:border-slate-700/80 bg-white dark:bg-slate-800/70 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-mono text-[11px] font-semibold transition-colors cursor-pointer shrink-0 flex items-center justify-center gap-1 shadow-2xs"
               title={language === 'vi' ? 'Chuyển sang tiếng Anh (English)' : 'Switch to Vietnamese (Tiếng Việt)'}
               aria-label={language === 'vi' ? 'Chuyển sang tiếng Anh (English)' : 'Switch to Vietnamese (Tiếng Việt)'}
             >
@@ -198,7 +198,7 @@ export function AppHeader({
             ref={menuButtonRef}
             type="button"
             onClick={() => setIsMenuOpen((prev) => !prev)}
-            className={`h-7.5 w-7.5 md:w-[78px] md:px-2 rounded-lg border transition-colors cursor-pointer shrink-0 flex items-center justify-center gap-1 shadow-2xs ${
+            className={`touch-hit h-10 w-10 sm:h-7.5 sm:w-7.5 md:w-[78px] md:px-2 rounded-lg border transition-colors cursor-pointer shrink-0 flex items-center justify-center gap-1 shadow-2xs ${
               isMenuOpen || viewPreferences.zenMode
                 ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-950 border-slate-900 dark:border-slate-100 font-semibold'
                 : 'border-slate-200/90 dark:border-slate-700/80 bg-white dark:bg-slate-800/70 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'

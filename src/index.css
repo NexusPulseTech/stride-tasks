@@ -2,6 +2,23 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* A17: nới vùng chạm của nút nhỏ trên màn cảm ứng mà không đổi hình. Mặc định 44 px, chỉnh bằng biến --hit
+   (ví dụ [--hit:40px] khi hai nút đứng sát nhau). Không có tác dụng với chuột. */
+@media (pointer: coarse) {
+  .touch-hit {
+    position: relative;
+  }
+  .touch-hit::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, var(--hit, 44px));
+    height: max(100%, var(--hit, 44px));
+    transform: translate(-50%, -50%);
+  }
+}
+
 @layer base {
   :root {
     --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";

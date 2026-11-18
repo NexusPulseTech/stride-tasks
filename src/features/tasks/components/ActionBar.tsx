@@ -93,7 +93,7 @@ export function ActionBar({
   return (
     <div className="w-full overflow-hidden">
       {mobileSearchOpen ? (
-        <div className="h-8.5 flex items-center gap-1.5 bg-white dark:bg-[#161b22] border border-slate-200/90 dark:border-slate-800 rounded-lg px-2.5 shadow-2xs w-full overflow-hidden">
+        <div className="h-11 sm:h-8.5 flex items-center gap-1.5 bg-white dark:bg-[#161b22] border border-slate-200/90 dark:border-slate-800 rounded-lg px-2.5 shadow-2xs w-full overflow-hidden">
           <Search className="w-3.5 h-3.5 shrink-0 text-slate-400" strokeWidth={1.75} aria-hidden="true" />
           <input
             ref={mobileSearchRef}
@@ -124,11 +124,12 @@ export function ActionBar({
           </button>
         </div>
       ) : (
-        <div className="h-8.5 flex items-center justify-between gap-1 sm:gap-1.5 flex-nowrap w-full overflow-hidden">
+        <div className="flex flex-wrap items-center justify-between gap-1.5 w-full">
+          {/* A17: xuống dòng ở mọi kích thước. Ở chế độ danh sách trên desktop cột chỉ rộng 640 px, không đủ cho tab lọc và nhóm nút bên phải (cần khoảng 800 px), trước đây ô tìm kiếm bị cắt mất */}
           {/* Khu vực 4 tabs lọc + nút ẩn việc xong: Cố định bằng Grid tỷ lệ chuẩn, không bao giờ tràn hay đẩy mất nút cuối */}
           {showFilterTabs ? (
-            <div className="flex items-center gap-1 sm:gap-1.5 flex-1 min-w-0 sm:flex-none flex-nowrap">
-              <div className="flex-1 min-w-0 sm:flex-none sm:w-[312px] h-8 grid grid-cols-[0.82fr_1.18fr_1.18fr_0.82fr] items-center gap-0.5 bg-slate-200/75 dark:bg-slate-800/85 p-0.5 rounded-lg text-[10.5px] sm:text-[11.5px] font-medium overflow-hidden">
+            <div className="flex items-center gap-1.5 basis-full sm:basis-auto flex-1 min-w-0 sm:flex-none flex-nowrap">
+              <div className="flex-1 min-w-0 sm:flex-none sm:w-[312px] h-12 sm:h-8 grid grid-cols-[0.82fr_1.18fr_1.18fr_0.82fr] items-center gap-0.5 bg-slate-200/75 dark:bg-slate-800/85 p-0.5 rounded-lg text-[12.5px] sm:text-[11.5px] font-medium overflow-hidden">
                 <button
                   type="button"
                   onPointerDown={handleAllPointerDown}
@@ -136,7 +137,7 @@ export function ActionBar({
                   onPointerLeave={handleAllPointerCancel}
                   onPointerCancel={handleAllPointerCancel}
                   title={`${hideCompletedInAllView ? t.actionBar.allActiveOnly : t.actionBar.allWithCompleted} • ${t.actionBar.longPressHint}`}
-                  className={`h-7 px-1 rounded-md transition-colors cursor-pointer whitespace-nowrap min-w-0 overflow-hidden flex items-center justify-center relative select-none ${
+                  className={`h-11 sm:h-7 px-1 rounded-md transition-colors cursor-pointer whitespace-nowrap min-w-0 overflow-hidden flex items-center justify-center relative select-none ${
                     filter === 'all'
                       ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-2xs font-semibold'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
@@ -153,7 +154,7 @@ export function ActionBar({
                 <button
                   type="button"
                   onClick={() => onFilterChange('doing')}
-                  className={`h-7 px-1 rounded-md transition-colors cursor-pointer whitespace-nowrap min-w-0 overflow-hidden flex items-center justify-center gap-0.5 select-none ${
+                  className={`h-11 sm:h-7 px-1 rounded-md transition-colors cursor-pointer whitespace-nowrap min-w-0 overflow-hidden flex items-center justify-center gap-0.5 select-none ${
                     filter === 'doing'
                       ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-2xs font-semibold'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
@@ -169,7 +170,7 @@ export function ActionBar({
                 <button
                   type="button"
                   onClick={() => onFilterChange('scheduled')}
-                  className={`h-7 px-1 rounded-md transition-colors cursor-pointer whitespace-nowrap min-w-0 overflow-hidden flex items-center justify-center gap-0.5 select-none ${
+                  className={`h-11 sm:h-7 px-1 rounded-md transition-colors cursor-pointer whitespace-nowrap min-w-0 overflow-hidden flex items-center justify-center gap-0.5 select-none ${
                     filter === 'scheduled'
                       ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-2xs font-semibold'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
@@ -185,7 +186,7 @@ export function ActionBar({
                 <button
                   type="button"
                   onClick={() => onFilterChange('completed')}
-                  className={`h-7 px-1 rounded-md transition-colors cursor-pointer whitespace-nowrap min-w-0 overflow-hidden flex items-center justify-center select-none ${
+                  className={`h-11 sm:h-7 px-1 rounded-md transition-colors cursor-pointer whitespace-nowrap min-w-0 overflow-hidden flex items-center justify-center select-none ${
                     filter === 'completed'
                       ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-2xs font-semibold'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
@@ -205,7 +206,7 @@ export function ActionBar({
                     }
                     onToggleHideCompletedInAll();
                   }}
-                  className={`relative w-8 h-8 rounded-lg flex items-center justify-center transition-colors cursor-pointer shrink-0 border ${
+                  className={`relative w-12 h-12 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-colors cursor-pointer shrink-0 border ${
                     filter === 'all'
                       ? hideCompletedInAllView
                         ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 hover:bg-amber-500/25 border-amber-300/60 dark:border-amber-700/60 shadow-2xs'
@@ -243,14 +244,14 @@ export function ActionBar({
           )}
 
           {/* Khu vực phải: Chuyển List/Board, Tiêu điểm hôm nay, Ctrl+K & Tìm kiếm (Khóa cứng kích thước) */}
-          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 flex-nowrap">
+          <div className="flex items-center justify-end gap-1.5 shrink-0 flex-nowrap w-full sm:w-auto ml-auto">
             {/* Nút chuyển đổi List View ⇄ Kanban Board View (Chuẩn Linear) */}
             {onWorkspaceViewModeChange && (
-              <div className="h-8 p-0.5 bg-slate-200/75 dark:bg-slate-800/85 rounded-lg flex items-center gap-0.5 shrink-0">
+              <div className="h-12 sm:h-8 p-0.5 bg-slate-200/75 dark:bg-slate-800/85 rounded-lg flex items-center gap-0.5 shrink-0">
                 <button
                   type="button"
                   onClick={() => onWorkspaceViewModeChange('list')}
-                  className={`h-7 px-2 rounded-md text-[11px] font-medium flex items-center gap-1 transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
+                  className={`h-11 sm:h-7 px-3 sm:px-2 rounded-md text-[11px] font-medium flex items-center gap-1 transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
                     workspaceViewMode === 'list'
                       ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs font-semibold'
                       : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -263,7 +264,7 @@ export function ActionBar({
                 <button
                   type="button"
                   onClick={() => onWorkspaceViewModeChange('board')}
-                  className={`h-7 px-2 rounded-md text-[11px] font-medium flex items-center gap-1 transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
+                  className={`h-11 sm:h-7 px-3 sm:px-2 rounded-md text-[11px] font-medium flex items-center gap-1 transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
                     workspaceViewMode === 'board'
                       ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs font-semibold'
                       : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -281,7 +282,7 @@ export function ActionBar({
               <button
                 type="button"
                 onClick={onOpenDailyFocus}
-                className={`h-8 px-2 sm:w-[106px] sm:px-2 rounded-lg border text-xs font-medium flex items-center justify-center gap-1 transition-colors cursor-pointer shadow-2xs shrink-0 overflow-hidden whitespace-nowrap ${
+                className={`h-11 sm:h-8 px-3 sm:px-2 sm:w-[106px] rounded-lg border text-xs font-medium flex items-center justify-center gap-1 transition-colors cursor-pointer shadow-2xs shrink-0 overflow-hidden whitespace-nowrap ${
                   dailyFocusCount > 0
                     ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-200 border-amber-300/80 dark:border-amber-800/80'
                     : 'bg-white dark:bg-[#161b22] border-slate-200/90 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
@@ -290,7 +291,7 @@ export function ActionBar({
                 aria-label={t.dailyFocus.buttonTooltip}
               >
                 <Target className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                <span className="hidden sm:inline font-semibold text-[11px] truncate">
+                <span className="font-semibold text-[11px] truncate">
                   {t.dailyFocus.shortLabel}
                 </span>
                 {dailyFocusCount > 0 && (
@@ -306,7 +307,7 @@ export function ActionBar({
               <button
                 type="button"
                 onClick={onOpenCommandPalette}
-                className="h-8 px-2 rounded-lg bg-white dark:bg-[#161b22] border border-slate-200/90 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center justify-center gap-1 cursor-pointer shrink-0 shadow-2xs whitespace-nowrap"
+                className="h-11 min-w-11 sm:min-w-0 sm:h-8 px-2 rounded-lg bg-white dark:bg-[#161b22] border border-slate-200/90 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center justify-center gap-1 cursor-pointer shrink-0 shadow-2xs whitespace-nowrap"
                 title={language === 'vi' ? 'Thanh lệnh nhanh (Ctrl + K)' : 'Command Palette (Ctrl + K)'}
               >
                 <Command className="w-3.5 h-3.5 shrink-0" />
@@ -318,7 +319,7 @@ export function ActionBar({
             <button
               type="button"
               onClick={onOpenMobileSearch}
-              className="sm:hidden h-8 w-8 rounded-lg bg-white dark:bg-[#161b22] border border-slate-200/90 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center justify-center cursor-pointer shrink-0 shadow-2xs"
+              className="sm:hidden h-11 w-11 rounded-lg bg-white dark:bg-[#161b22] border border-slate-200/90 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center justify-center cursor-pointer shrink-0 shadow-2xs"
               title={t.actionBar.searchPlaceholder}
               aria-label={t.actionBar.searchPlaceholder}
             >

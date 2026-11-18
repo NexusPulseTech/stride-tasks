@@ -925,5 +925,16 @@ export interface Translations {
     bodyNoSync: string;
     dontShow: string;
   };
+  inAppBrowser: {
+    title: string;
+    body: string;
+    openButton: string;
+    copyLink: string;
+    copied: string;
+    copyFailed: string;
+    manualHint: string;
+    notNow: string;
+    yourBrowser: string;
+  };
 }
 

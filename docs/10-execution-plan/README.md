@@ -35,6 +35,7 @@ Ký hiệu: ☐ Todo · ◐ In progress · ☑ Done · ⏸ Blocked (ghi lý do)
 | [A14](./A14-trial-sale-readiness-fixes.md) | Sửa nhỏ trước đợt bán thử: bài đăng, nhãn ôn tập, cache giá trang đích | P0 | 0,5 ngày | A13 | ☑ 2026-11-17 |
 | [A15](./A15-honest-review-schedule-copy.md) | Mô tả lịch ôn đúng như code, bỏ chữ SM-2 ở mọi chỗ khách thấy | P0 | 1 giờ | A14 | ☑ 2026-11-18 |
 | [A16](./A16-landing-demo-video-and-directory-kit.md) | Video demo trên trang đích, bộ ảnh cho thư mục phần mềm | P1 | 2 giờ | A15 | ◐ 2026-11-18 (video xong; còn ảnh, đọc số, bản YouTube) |
+| [A17](./A17-mobile-trial-fixes.md) | Sửa lỗi dùng thử trên điện thoại và 4 lỗi đúng/sai (Doing, WIP, Scheduled, ô tìm kiếm) | P1 | 4 giờ | A16 | ◐ 2026-11-19 |
 | [B01](./B01-test-suite-in-repo.md) | Bộ test trong repo (Vitest, Worker, E2E khung) | P1 | 2 ngày | - | ◐ |
 | [B02](./B02-lint-format-strict-typescript.md) | ESLint, Prettier, TS strict, dọn phụ thuộc | P1 | 2-3 ngày | B01 | ☐ |
 | [B03](./B03-ci-quality-gates.md) | CI quality gates + chuỗi cung ứng | P1 | 1 ngày | B01, B02 | ☐ |

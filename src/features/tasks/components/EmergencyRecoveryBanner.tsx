@@ -92,7 +92,7 @@ export function EmergencyRecoveryBanner({ currentProjects, onRestore, onOpenBack
       <div className="mb-3 p-2.5 px-3 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 rounded-xl flex items-center justify-between gap-3 text-xs text-blue-900 dark:text-blue-200 animate-in fade-in duration-150 flex-wrap sm:flex-nowrap">
         <div className="flex items-center gap-2 min-w-0">
           <ArrowRightLeft className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
-          <span className="truncate text-[11.5px]">
+          <span className="text-[11.5px] leading-snug">
             {formatMessage(s.bannerText, { count: currentProjects.length })}
           </span>
         </div>
@@ -101,7 +101,7 @@ export function EmergencyRecoveryBanner({ currentProjects, onRestore, onOpenBack
             <button
               type="button"
               onClick={onClearSampleData}
-              className="h-6.5 px-2 bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800/70 rounded text-[11px] font-medium flex items-center gap-1 cursor-pointer transition-colors"
+              className="h-9 sm:h-6.5 px-2.5 sm:px-2 bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800/70 rounded text-[11px] font-medium flex items-center gap-1 cursor-pointer transition-colors"
               title={s.clearTooltip}
             >
               <Trash2 className="w-3 h-3 shrink-0" />
@@ -112,7 +112,7 @@ export function EmergencyRecoveryBanner({ currentProjects, onRestore, onOpenBack
             <button
               type="button"
               onClick={onOpenBackupModal}
-              className="h-6.5 px-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-[11px] font-medium flex items-center gap-1 cursor-pointer transition-colors"
+              className="h-9 sm:h-6.5 px-2.5 sm:px-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-[11px] font-medium flex items-center gap-1 cursor-pointer transition-colors"
             >
               <span>{s.restoreOldButton}</span>
             </button>
@@ -120,7 +120,7 @@ export function EmergencyRecoveryBanner({ currentProjects, onRestore, onOpenBack
           <button
             type="button"
             onClick={() => setDismissed(true)}
-            className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+            className="touch-hit p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
             title={s.dismiss}
             aria-label={s.dismiss}
           >

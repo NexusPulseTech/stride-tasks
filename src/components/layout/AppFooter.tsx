@@ -35,7 +35,7 @@ export function AppFooter({
           <button
             type="button"
             onClick={() => onSetThemeMode('system')}
-            className={`px-2 py-0.5 rounded-md flex items-center gap-1 cursor-pointer transition-all ${
+            className={`touch-hit px-2 py-0.5 rounded-md flex items-center gap-1 cursor-pointer transition-all ${
               themeMode === 'system'
                 ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 font-medium shadow-2xs'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
@@ -49,7 +49,7 @@ export function AppFooter({
           <button
             type="button"
             onClick={() => onSetThemeMode('light')}
-            className={`px-2 py-0.5 rounded-md flex items-center gap-1 cursor-pointer transition-all ${
+            className={`touch-hit px-2 py-0.5 rounded-md flex items-center gap-1 cursor-pointer transition-all ${
               themeMode === 'light'
                 ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 font-medium shadow-2xs'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
@@ -63,7 +63,7 @@ export function AppFooter({
           <button
             type="button"
             onClick={() => onSetThemeMode('dark')}
-            className={`px-2 py-0.5 rounded-md flex items-center gap-1 cursor-pointer transition-all ${
+            className={`touch-hit px-2 py-0.5 rounded-md flex items-center gap-1 cursor-pointer transition-all ${
               themeMode === 'dark'
                 ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 font-medium shadow-2xs'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
@@ -83,7 +83,7 @@ export function AppFooter({
             <button
               type="button"
               onClick={onOpenStoreModal}
-              className="hover:underline text-amber-600 dark:text-amber-400 font-semibold cursor-pointer inline-flex items-center gap-1"
+              className="py-3.5 sm:py-0 hover:underline text-amber-600 dark:text-amber-400 font-semibold cursor-pointer inline-flex items-center gap-1"
             >
               <Crown className="w-3 h-3" />
               <span>{t.store.entryLabel}</span>
@@ -94,7 +94,7 @@ export function AppFooter({
         <button
           type="button"
           onClick={onOpenMobileGuide}
-          className="hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+          className="inline-block py-3.5 sm:py-0 hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
         >
           {t.footer.pwa}
         </button>
@@ -102,7 +102,7 @@ export function AppFooter({
         <button
           type="button"
           onClick={onOpenGuide}
-          className="hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+          className="inline-block py-3.5 sm:py-0 hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
         >
           {t.footer.guide}
         </button>
@@ -110,7 +110,7 @@ export function AppFooter({
         <button
           type="button"
           onClick={onOpenBackup}
-          className="hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+          className="inline-block py-3.5 sm:py-0 hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
         >
           {t.footer.backupData}
         </button>
@@ -118,7 +118,7 @@ export function AppFooter({
         <button
           type="button"
           onClick={onOpenFeedback}
-          className="hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+          className="inline-block py-3.5 sm:py-0 hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
         >
           {t.footer.feedback}
         </button>
@@ -127,7 +127,7 @@ export function AppFooter({
         <a
           href={language === 'vi' ? '/vi/' : '/en/'}
           hrefLang={language}
-          className="hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+          className="inline-block py-3.5 sm:py-0 hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
         >
           {t.footer.about}
         </a>
@@ -136,7 +136,7 @@ export function AppFooter({
           href="/privacy.html"
           target="_blank"
           rel="noopener noreferrer"
-          className="hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+          className="inline-block py-3.5 sm:py-0 hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
         >
           {t.footer.privacy}
         </a>
@@ -145,7 +145,7 @@ export function AppFooter({
           href="/terms.html"
           target="_blank"
           rel="noopener noreferrer"
-          className="hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+          className="inline-block py-3.5 sm:py-0 hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
         >
           {t.footer.terms}
         </a>
@@ -154,7 +154,7 @@ export function AppFooter({
           href="/refund.html"
           target="_blank"
           rel="noopener noreferrer"
-          className="hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+          className="inline-block py-3.5 sm:py-0 hover:underline hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
         >
           {t.footer.refund}
         </a>

@@ -17,7 +17,7 @@ import { triggerHaptic, playChime } from '../../../utils';
 import { useLanguage, useTranslationRef, formatMessage } from '../../../i18n';
 import { parsePastedTasks, parsePastedHierarchy } from '../utils/batchParser';
 import { buildSmartTask, summarizeSmartTask } from '../utils/smartTaskParser';
-import { isDoingStatus, isDoneStatus } from '../utils/statusCategory';
+import { isDoingStatus, isDoneStatus, isScheduledTask } from '../utils/statusCategory';
 import { matchTaskDeep } from '../utils/searchHelper';
 import { useCelebrationAndStreak } from './useCelebrationAndStreak';
 import { useSmartReminder } from './useSmartReminder';
@@ -451,16 +451,8 @@ export function useTaskManager() {
       celebration.showToast(tRef.current.toast.taskAdded);
       const targetProj = crud.projects.find((p) => p.id === targetProjId);
       if (isDone) onTaskDone(true, newTask, targetProj);
-      setAnkiModalTarget({
-        projectId: targetProjId,
-        projectName: targetProj?.name,
-        taskId: newTask.id,
-        title: newTask.title,
-        currentLevel: 1,
-        isNewTask: true,
-        isPinned: mobileTaskPinned,
-      });
-      setIsAnkiModalOpen(true);
+      // A17: không tự bật hộp ôn tập sau mỗi việc mới (trên điện thoại hộp chen ngang và nuốt cú bấm kế tiếp);
+      // hộp vẫn mở được từ menu của việc, Tiêu điểm hôm nay và bảng lệnh.
     }
     setMobileTaskTitle('');
     setMobileTaskPinned(false);
@@ -759,7 +751,7 @@ export function useTaskManager() {
     p.tasks.forEach((t) => {
       if (isDoneStatus(t.status, statusManager.statuses)) totalDone++;
       if (isDoingStatus(t.status, statusManager.statuses)) totalDoing++;
-      if (Boolean(t.reminderAt || t.deadline) && !isDoneStatus(t.status, statusManager.statuses)) totalScheduled++;
+      if (isScheduledTask(t, statusManager.statuses)) totalScheduled++;
     });
   });
 
@@ -786,7 +778,7 @@ export function useTaskManager() {
         return p.tasks.some((t) => isDoingStatus(t.status, statusManager.statuses));
       }
       if (filter === 'scheduled') {
-        return p.tasks.some((t) => Boolean(t.reminderAt || t.deadline) && !isDoneStatus(t.status, statusManager.statuses));
+        return p.tasks.some((t) => isScheduledTask(t, statusManager.statuses));
       }
       if (filter === 'completed') {
         return p.tasks.some((t) => isDoneStatus(t.status, statusManager.statuses));

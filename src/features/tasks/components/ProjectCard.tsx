@@ -261,7 +261,7 @@ export function ProjectCard({
                     <button
                       type="button"
                       onClick={onToggleHideCompletedInAll}
-                      className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline cursor-pointer font-medium"
+                      className="touch-hit text-[11px] text-blue-600 dark:text-blue-400 hover:underline cursor-pointer font-medium"
                     >
                       {t.actionBar.showCompleted}
                     </button>
@@ -370,7 +370,7 @@ export function ProjectCard({
                 <button
                   type="button"
                   onClick={onToggleHideCompletedInAll}
-                  className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline cursor-pointer font-medium"
+                  className="touch-hit text-[11px] text-blue-600 dark:text-blue-400 hover:underline cursor-pointer font-medium"
                 >
                   {t.actionBar.showCompleted}
                 </button>

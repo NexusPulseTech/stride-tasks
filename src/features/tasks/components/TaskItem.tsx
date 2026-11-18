@@ -88,7 +88,7 @@ export function TaskItem({
       {/* Item container - Single-line, fixed min-height, zero layout shift */}
       <div
         data-task-card="true"
-        className={`group flex items-center gap-1.5 py-1 px-2 sm:px-2.5 min-h-[34px] rounded-lg border transition-colors duration-150 flex-nowrap w-full overflow-hidden ${
+        className={`group flex items-center gap-2 sm:gap-1.5 py-1 px-2 sm:px-2.5 min-h-[44px] sm:min-h-[34px] rounded-lg border transition-colors duration-150 flex-nowrap w-full overflow-hidden ${
           isCurrentlyFocused
             ? 'bg-amber-50/50 dark:bg-amber-950/20 border-amber-400/80 dark:border-amber-600/70 text-slate-900 dark:text-slate-100 shadow-2xs'
             : isDone
@@ -114,7 +114,7 @@ export function TaskItem({
               e.stopPropagation();
               onToggleExpandSubtasks(task.id);
             }}
-            className="w-4 h-4 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 flex items-center justify-center cursor-pointer shrink-0 transition-colors rounded hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
+            className="touch-hit [--hit:36px] w-4 h-4 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 flex items-center justify-center cursor-pointer shrink-0 transition-colors rounded hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
             title={isSubOpen ? t.pinned.collapseSubtasks : `${t.pinned.expandSubtasks} (${totalSubs})`}
             aria-label={isSubOpen ? t.pinned.collapseSubtasks : t.pinned.expandSubtasks}
           >
@@ -138,7 +138,7 @@ export function TaskItem({
             e.stopPropagation();
             onToggleTaskDone(projectId, task.id, !isDone);
           }}
-          className="shrink-0 cursor-pointer p-0.5 -m-0.5 rounded-full flex items-center justify-center"
+          className="touch-hit [--hit:40px] shrink-0 cursor-pointer p-0.5 -m-0.5 rounded-full flex items-center justify-center"
           aria-label={isDone ? t.taskRow.markNotDone : t.taskRow.markDone}
         >
           <div
@@ -153,7 +153,7 @@ export function TaskItem({
         </button>
 
         {/* Khu vực tiêu đề chính + micro badges trên cùng 1 hàng (không nhảy dòng) */}
-        <div className="flex-1 min-w-0 flex items-center gap-1.5 flex-nowrap overflow-hidden pr-1">
+        <div className="flex-1 min-w-0 flex flex-wrap sm:flex-nowrap items-center gap-x-1.5 gap-y-1 overflow-hidden pr-1">
           {isEditingTitle ? (
             <input
               type="text"
@@ -341,7 +341,7 @@ export function TaskItem({
                 e.stopPropagation();
                 onOpenDetail(task, projectId);
               }}
-              className="w-6 h-6 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer shrink-0 transition-colors hidden sm:inline-flex items-center justify-center"
+              className="touch-hit w-6 h-6 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer shrink-0 transition-colors hidden sm:inline-flex items-center justify-center"
               title={t.taskMenu.viewDetail}
               aria-label={t.taskMenu.viewDetail}
             >
@@ -356,7 +356,7 @@ export function TaskItem({
               e.stopPropagation();
               onOpenAddSubtask(task.id);
             }}
-            className="w-6 h-6 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer shrink-0 transition-colors inline-flex items-center justify-center"
+            className="touch-hit w-6 h-6 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer shrink-0 transition-colors inline-flex items-center justify-center"
             title={t.taskMenu.addSubtask}
             aria-label={t.taskMenu.addSubtask}
           >
@@ -408,7 +408,7 @@ export function TaskItem({
                 e.stopPropagation();
                 onSetActiveMenuTaskId(activeMenuTaskId === task.id ? null : task.id);
               }}
-              className={`w-6 h-6 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer shrink-0 transition-colors inline-flex items-center justify-center ${
+              className={`touch-hit w-6 h-6 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer shrink-0 transition-colors inline-flex items-center justify-center ${
                 activeMenuTaskId === task.id ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200' : ''
               }`}
               title={t.taskRow.moreOptions}

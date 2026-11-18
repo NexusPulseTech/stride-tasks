@@ -73,7 +73,7 @@ export const en: Translations = {
     hiddenCompletedCountOne: '{count} completed task hidden',
   },
   tasks: {
-    addProjectPlaceholder: 'New category name... (e.g. SaaS Project, Learning)',
+    addProjectPlaceholder: 'New project, e.g. Biology exam',
     addProjectButton: 'Add',
     addTaskPlaceholder: 'Enter a task... (Press Enter to save)',
     addTaskButton: 'Add task',
@@ -915,5 +915,16 @@ export const en: Translations = {
     body: 'You\'ve finished {count} tasks here. If Stride Tasks helps you, PRO adds encrypted sync and unlimited projects for {price}, paid once, and keeps the app independent.',
     bodyNoSync: 'You\'ve finished {count} tasks here. If Stride Tasks helps you, PRO adds unlimited projects and reports for {price}, paid once, and keeps the app independent.',
     dontShow: 'Don\'t show this again',
+  },
+  inAppBrowser: {
+    title: 'Open Stride in {browser}',
+    body: 'You\'re in {app}\'s built-in browser. Your tasks are saved in this browser only, and payment may not open here. Open Stride in {browser} so your tasks are still there tomorrow.',
+    openButton: 'Open in {browser}',
+    copyLink: 'Copy link',
+    copied: 'Link copied. Paste it into {browser}.',
+    copyFailed: 'Copy this link and open it in {browser}:',
+    manualHint: 'Or tap ••• at the top right, then Open in browser.',
+    notNow: 'Not now',
+    yourBrowser: 'your browser',
   },
 };

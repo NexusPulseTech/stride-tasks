@@ -53,6 +53,7 @@ export function MarkdownReportModal({
     let totalFocusMinutes = 0;
     let totalEstimatedMinutes = 0;
     let totalPomodoroSessions = 0;
+    let wipCount = 0;
 
     projects.forEach((p) => {
       p.tasks.forEach((t) => {
@@ -64,7 +65,9 @@ export function MarkdownReportModal({
 
         if (isDoneStatus(t.status, statuses)) {
           doneTasks.push({ title: t.title, project: p.name, minutes: mins, estimated: est });
-        } else if (isDoingStatus(t.status, statuses)) {
+        } else {
+          // Mục "In progress and next up" liệt kê mọi việc chưa xong; số WIP chỉ đếm việc đang làm (A17)
+          if (isDoingStatus(t.status, statuses)) wipCount++;
           doingTasks.push({
             title: t.title,
             project: p.name,
@@ -199,7 +202,7 @@ export function MarkdownReportModal({
         totalEstimatedMinutes,
         totalPomodoroSessions,
         doneCount: doneTasks.length,
-        doingCount: doingTasks.length,
+        doingCount: wipCount,
         srsCount: srsTasks.length,
       },
     };

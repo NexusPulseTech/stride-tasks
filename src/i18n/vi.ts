@@ -73,7 +73,7 @@ export const vi: Translations = {
     hiddenCompletedCountOne: 'Đã ẩn {count} việc đã hoàn thành',
   },
   tasks: {
-    addProjectPlaceholder: 'Tên danh mục mới... (VD: Dự án SaaS, Học tập)',
+    addProjectPlaceholder: 'Dự án mới, vd. Ôn thi Sinh',
     addProjectButton: 'Thêm',
     addTaskPlaceholder: 'Thêm công việc... (Nhấn Enter để lưu)',
     addTaskButton: 'Thêm việc',
@@ -915,5 +915,16 @@ export const vi: Translations = {
     body: 'Bạn đã hoàn thành {count} việc ở đây. Nếu Stride Tasks có ích, PRO thêm đồng bộ mã hóa và dự án không giới hạn với giá {price}, trả một lần, và giúp ứng dụng tiếp tục độc lập.',
     bodyNoSync: 'Bạn đã hoàn thành {count} việc ở đây. Nếu Stride Tasks có ích, PRO thêm dự án và báo cáo không giới hạn với giá {price}, trả một lần, và giúp ứng dụng tiếp tục độc lập.',
     dontShow: 'Không hiện lại',
+  },
+  inAppBrowser: {
+    title: 'Mở Stride bằng {browser}',
+    body: 'Bạn đang dùng trình duyệt có sẵn của {app}. Việc của bạn chỉ lưu trong trình duyệt này, và trang thanh toán có thể không mở được ở đây. Hãy mở Stride bằng {browser} để ngày mai việc vẫn còn.',
+    openButton: 'Mở bằng {browser}',
+    copyLink: 'Sao chép link',
+    copied: 'Đã sao chép link. Dán vào {browser}.',
+    copyFailed: 'Sao chép link này rồi mở bằng {browser}:',
+    manualHint: 'Hoặc bấm ••• ở góc trên bên phải, rồi chọn Mở bằng trình duyệt.',
+    notNow: 'Để sau',
+    yourBrowser: 'trình duyệt của bạn',
   },
 };

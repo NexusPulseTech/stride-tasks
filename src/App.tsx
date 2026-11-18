@@ -13,6 +13,7 @@ import { usePWAInstall } from './hooks/usePWAInstall';
 import { AppHeader, AppFooter, MobileFab } from './components/layout';
 import { ToastNotification, UndoSnackbar, ConfettiEffect } from './components/feedback';
 import { UpgradeNudgeCard } from './components/feedback/UpgradeNudgeCard';
+import { InAppBrowserBanner } from './components/feedback/InAppBrowserBanner';
 import {
   AddProjectBar,
   ActionBar,
@@ -22,7 +23,7 @@ import {
   useTaskManager,
 } from './features/tasks';
 import { EmergencyRecoveryBanner } from './features/tasks/components/EmergencyRecoveryBanner';
-import { isDoingStatus, isDoneStatus } from './features/tasks/utils/statusCategory';
+import { taskMatchesListFilter } from './features/tasks/utils/statusCategory';
 import { FocusBanner, ActiveFocusStrip, useFocusTimer, useFocusLog, FocusLogEvent } from './features/focus';
 import { ModalsContainer } from './features/modals';
 import type { PaywallTriggerContext } from './features/modals/components/StoreCommercialModal';
@@ -419,6 +420,9 @@ export default function App() {
           </Suspense>
         )}
 
+        {/* A17: nhắc mở bằng Safari/Chrome khi đang ở trình duyệt có sẵn của TikTok, Instagram, Facebook */}
+        <InAppBrowserBanner />
+
         {/* Thanh thêm dự án nhanh (ẩn được theo setting) */}
         {viewPref.preferences.showAddProjectBar && !viewPref.preferences.zenMode && (
           <AddProjectBar
@@ -546,22 +550,19 @@ export default function App() {
               </div>
             ) : (
               manager.filteredProjects.map((p, idx) => {
-                const visibleTasks = p.tasks.filter((t) => {
-                  if (manager.search.trim()) {
-                    // Đã lọc deep bằng matchTaskDeep ở useTaskManager -> Hiện TẤT CẢ khi tìm kiếm kể cả việc đã làm!
-                    return true;
-                  }
-                  if (manager.isFocusMode || manager.filter === 'doing') {
-                    return isDoingStatus(t.status, manager.statuses);
-                  }
-                  if (manager.filter === 'completed') {
-                    return isDoneStatus(t.status, manager.statuses);
-                  }
-                  if (manager.filter === 'all' && viewPref.preferences.hideCompletedInAllView) {
-                    return !isDoneStatus(t.status, manager.statuses);
-                  }
-                  return true;
-                });
+                // Đang tìm kiếm thì hiện tất cả (đã lọc sâu bằng matchTaskDeep ở useTaskManager), kể cả việc đã xong
+                const visibleTasks = p.tasks.filter((t) =>
+                  taskMatchesListFilter(
+                    t,
+                    {
+                      filter: manager.filter,
+                      isFocusMode: manager.isFocusMode,
+                      hideCompletedInAll: viewPref.preferences.hideCompletedInAllView,
+                      searching: Boolean(manager.search.trim()),
+                    },
+                    manager.statuses
+                  )
+                );
 
                 return (
                   <ProjectCard

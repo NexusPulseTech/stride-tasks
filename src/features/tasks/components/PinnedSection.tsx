@@ -132,7 +132,7 @@ function PinnedSubtaskBranch({
                 <button
                   type="button"
                   onClick={() => onToggleExpandSub(childSub.id)}
-                  className="w-4 h-4 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center justify-center shrink-0 cursor-pointer rounded"
+                  className="touch-hit [--hit:36px] w-4 h-4 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center justify-center shrink-0 cursor-pointer rounded"
                   title={isChildExpanded ? t.pinned.collapseSubtasks : t.pinned.expandSubtasks}
                 >
                   <ChevronRight
@@ -155,7 +155,7 @@ function PinnedSubtaskBranch({
                     onToggleSubTask(projectId, parentTaskId, childSub.id, !childDone);
                   }
                 }}
-                className="shrink-0 cursor-pointer p-0.5 -m-0.5 rounded-full flex items-center justify-center"
+                className="touch-hit [--hit:40px] shrink-0 cursor-pointer p-0.5 -m-0.5 rounded-full flex items-center justify-center"
                 aria-label={childDone ? 'Uncheck' : 'Check'}
               >
                 <div
@@ -170,7 +170,7 @@ function PinnedSubtaskBranch({
               </button>
 
               {/* Tiêu đề subtask con + badges trên cùng 1 hàng */}
-              <div className="flex-1 min-w-0 flex items-center gap-1.5 flex-nowrap overflow-hidden pr-1">
+              <div className="flex-1 min-w-0 flex flex-wrap sm:flex-nowrap items-center gap-x-1.5 gap-y-1 overflow-hidden pr-1">
                 <span
                   className={`text-xs truncate min-w-0 ${
                     childDone
@@ -204,7 +204,7 @@ function PinnedSubtaskBranch({
                   <button
                     type="button"
                     onClick={() => onSetAddingToId(addingToId === childSub.id ? null : childSub.id)}
-                    className="w-6 h-6 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-700/60 cursor-pointer rounded shrink-0 transition-colors inline-flex items-center justify-center"
+                    className="touch-hit w-6 h-6 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-700/60 cursor-pointer rounded shrink-0 transition-colors inline-flex items-center justify-center"
                     title={t.pinned.addSubtask}
                     aria-label={t.pinned.addSubtask}
                   >
@@ -389,7 +389,7 @@ export function PinnedSection({
               }`}
             >
               {/* Item Header Row - Single-line, fixed min-height, zero layout shift */}
-              <div className="flex items-center gap-1.5 py-1 px-2 sm:px-2.5 min-h-[34px] flex-nowrap w-full overflow-hidden">
+              <div className="flex items-center gap-2 sm:gap-1.5 py-1 px-2 sm:px-2.5 min-h-[44px] sm:min-h-[34px] flex-nowrap w-full overflow-hidden">
                 {/* Cột cố định 16px: Nút dropdown sổ/gập việc con hoặc chấm căn lề */}
                 {hasSubs ? (
                   <button
@@ -398,7 +398,7 @@ export function PinnedSection({
                       e.stopPropagation();
                       toggleSubExpand(itemId);
                     }}
-                    className="w-4 h-4 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 flex items-center justify-center cursor-pointer shrink-0 transition-colors rounded hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
+                    className="touch-hit [--hit:36px] w-4 h-4 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 flex items-center justify-center cursor-pointer shrink-0 transition-colors rounded hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
                     title={isSubsOpen ? t.pinned.collapseSubtasks : `${t.pinned.expandSubtasks} (${stats.total})`}
                     aria-label={isSubsOpen ? t.pinned.collapseSubtasks : t.pinned.expandSubtasks}
                   >
@@ -425,7 +425,7 @@ export function PinnedSection({
                       onToggleSubTask(project.id, task.id, subtask.id, !isDone);
                     }
                   }}
-                  className="shrink-0 cursor-pointer p-0.5 -m-0.5 rounded-full flex items-center justify-center"
+                  className="touch-hit [--hit:40px] shrink-0 cursor-pointer p-0.5 -m-0.5 rounded-full flex items-center justify-center"
                   aria-label={isDone ? t.taskRow.markNotDone : t.taskRow.markDone}
                 >
                   <div
@@ -440,7 +440,7 @@ export function PinnedSection({
                 </button>
 
                 {/* Tiêu đề & Metadata trên cùng 1 hàng (không nhảy dòng) */}
-                <div className="flex-1 min-w-0 flex items-center gap-1.5 flex-nowrap overflow-hidden pr-1">
+                <div className="flex-1 min-w-0 flex flex-wrap sm:flex-nowrap items-center gap-x-1.5 gap-y-1 overflow-hidden pr-1">
                   <div
                     onClick={() => {
                       if (isTaskType && onOpenDetail) onOpenDetail(task, project.id);
@@ -581,7 +581,7 @@ export function PinnedSection({
                     <button
                       type="button"
                       onClick={() => onOpenDetail(task, project.id)}
-                      className="w-6 h-6 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer rounded shrink-0 transition-colors hidden sm:inline-flex items-center justify-center"
+                      className="touch-hit w-6 h-6 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer rounded shrink-0 transition-colors hidden sm:inline-flex items-center justify-center"
                       title={t.pinned.viewDetails}
                       aria-label={t.pinned.viewDetails}
                     >
@@ -597,7 +597,7 @@ export function PinnedSection({
                       if (!isSubsOpen) toggleSubExpand(itemId);
                       setAddingToId(addingToId === itemId ? null : itemId);
                     }}
-                    className="w-6 h-6 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer shrink-0 transition-colors inline-flex items-center justify-center"
+                    className="touch-hit w-6 h-6 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer shrink-0 transition-colors inline-flex items-center justify-center"
                     title={t.pinned.addSubtask}
                     aria-label={t.pinned.addSubtask}
                   >
@@ -642,7 +642,7 @@ export function PinnedSection({
                         onTogglePinSubTask(project.id, task.id, subtask.id);
                       }
                     }}
-                    className="w-6 h-6 text-amber-600 dark:text-amber-400 hover:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer rounded shrink-0 transition-colors inline-flex items-center justify-center"
+                    className="touch-hit w-6 h-6 text-amber-600 dark:text-amber-400 hover:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer rounded shrink-0 transition-colors inline-flex items-center justify-center"
                     title={t.pinned.unpin}
                     aria-label={t.pinned.unpin}
                   >

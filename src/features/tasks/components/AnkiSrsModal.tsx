@@ -226,7 +226,7 @@ export function AnkiSrsModal({
                 </span>
                 <span className="inline-flex items-center gap-1 text-[9.5px] font-semibold text-rose-700 dark:text-rose-300 bg-rose-100/80 dark:bg-rose-900/50 px-1.5 py-0.5 rounded border border-rose-200/50">
                   <Pin className="w-2.5 h-2.5 fill-current" />
-                  <span>Ghim</span>
+                  <span>{language === 'vi' ? 'Ghim' : 'Pin'}</span>
                 </span>
               </div>
               <div>
