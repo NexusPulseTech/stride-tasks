@@ -1,0 +1,17 @@
+# Dependabot nâng các action đã ghim SHA (giữ chú thích phiên bản cùng dòng). Xem B10.
+# npm để lại cho B03; cập nhật bảo mật npm đã bật ở cài đặt repo.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    # Chờ bản phát hành mới đủ 7 ngày rồi mới đề xuất; không áp cho cập nhật bảo mật.
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+    commit-message:
+      prefix: ci

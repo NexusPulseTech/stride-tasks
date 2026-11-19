@@ -2,22 +2,33 @@
 /**
  * Stride Tasks: nạp secret cho Cloudflare Worker mà không in giá trị ra màn hình. Founder tự chạy:
  *
- *   npm run worker:secrets                Khóa ký bản quyền (đọc từ .env.local) + secret webhook Polar (dán khi được hỏi)
+ *   npm run worker:secrets                    Khóa ký bản quyền + secret webhook Polar (dán khi được hỏi)
  *   npm run worker:secrets -- --key-only      Chỉ nạp khóa ký bản quyền
  *   npm run worker:secrets -- --webhook-only  Chỉ nạp lại secret webhook Polar
  *
- * Trước khi nạp, kiểm tra khóa trong .env.local khớp public key đang nhúng trong app (npm run keygen -- check).
+ * Khóa ký đọc giống `npm run keygen`: --key-stdin, --key-file <tệp ngoài repo>, biến STRIDE_ED25519_PRIVATE_KEY_FILE
+ * (môi trường hoặc một dòng trong .env.local), biến STRIDE_ED25519_PRIVATE_KEY, cuối cùng là dòng khóa cũ trong .env.local.
+ * Trước khi nạp, script tự kiểm khóa khớp public key đang nhúng trong app; không khớp thì dừng, không nạp gì.
  * Secret webhook lấy ở Polar → Settings → Webhooks → endpoint "Stride Worker". Không dán secret vào chat hay file.
  */
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  ENV_KEY,
+  ENV_KEY_FILE,
+  KEY_DOC,
+  SOURCE_LABEL,
+  KeyError,
+  resolvePrivateKey,
+  toPrivateKeyObject,
+  publicKeyB64Url,
+  readEmbeddedPublicKey,
+} from './lib/signing-key.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const WORKER_DIR = resolve(ROOT, 'cloudflare-worker');
 const WRANGLER = 'wrangler@4.153.0';
-const ENV_KEY = 'STRIDE_ED25519_PRIVATE_KEY';
 
 function die(message) {
   console.error(`\n✖ ${message}\n`);
@@ -37,24 +48,42 @@ function wrangler(args, options) {
   });
 }
 
-if (!process.argv.includes('--webhook-only')) {
-  const check = spawnSync(process.execPath, [resolve(ROOT, 'scripts/keygen.mjs'), 'check'], { stdio: 'inherit' });
-  if (check.status !== 0) die('Khóa trong .env.local không khớp app. Dừng, không nạp gì.');
+const args = process.argv.slice(2);
+const keyOnly = args.includes('--key-only');
+const webhookOnly = args.includes('--webhook-only');
+const keyFileAt = args.indexOf('--key-file');
+const flags = {
+  'key-stdin': args.includes('--key-stdin'),
+  'key-file': keyFileAt === -1 ? undefined : args[keyFileAt + 1] && !args[keyFileAt + 1].startsWith('--') ? args[keyFileAt + 1] : true,
+};
 
-  let privateKey;
+// Secret webhook chỉ được dán từ bàn phím. Nếu stdin là ống thì dừng ngay, trước khi nạp bất cứ thứ gì: wrangler sẽ đọc
+// nhầm dữ liệu trong ống (có thể chính là khóa ký) làm secret webhook. Trường hợp này xảy ra khi nối ống vào
+// `npm run` trong PowerShell: npm.ps1 làm rơi dấu `--`, các cờ như --key-only không tới được script.
+if (!keyOnly && !process.stdin.isTTY) {
+  die('stdin không phải bàn phím (đang có ống?). Secret webhook phải dán trong terminal tương tác. Khóa ký nối từ ống thì chạy: node scripts/worker-secrets.mjs --key-only --key-stdin');
+}
+
+if (!webhookOnly) {
+  let found;
+  let pub;
   try {
-    privateKey = readFileSync(resolve(ROOT, '.env.local'), 'utf8').match(new RegExp(`^${ENV_KEY}=(.+)$`, 'm'))?.[1].trim();
-  } catch {
-    die('Không đọc được .env.local');
+    found = await resolvePrivateKey({ flags });
+    if (!found) die(`Chưa có khóa ký. Dùng --key-file <tệp ngoài repo>, --key-stdin, hoặc đặt ${ENV_KEY_FILE}. Xem ${KEY_DOC}`);
+    pub = publicKeyB64Url(toPrivateKeyObject(found.b64));
+  } catch (error) {
+    if (error instanceof KeyError) die(error.message);
+    throw error;
   }
-  if (!privateKey) die(`Không thấy ${ENV_KEY} trong .env.local`);
+  const embedded = readEmbeddedPublicKey(ROOT);
+  if (!embedded || embedded !== pub) die('Khóa ký không khớp public key đang nhúng trong app. Dừng, không nạp gì.');
 
-  console.log(`Nạp ${ENV_KEY} (đọc từ .env.local, không in ra)...`);
-  const keyResult = wrangler(['secret', 'put', ENV_KEY], { input: privateKey, stdio: ['pipe', 'inherit', 'inherit'] });
+  console.log(`✔ Khóa khớp app (đọc từ ${SOURCE_LABEL[found.source]}). Nạp ${ENV_KEY}, không in giá trị...`);
+  const keyResult = wrangler(['secret', 'put', ENV_KEY], { input: found.b64, stdio: ['pipe', 'inherit', 'inherit'] });
   if (keyResult.status !== 0) die(`wrangler không nạp được ${ENV_KEY}`);
 }
 
-if (!process.argv.includes('--key-only')) {
+if (!keyOnly) {
   console.log('\nNạp POLAR_WEBHOOK_SECRET: dán secret lấy ở Polar → Settings → Webhooks khi wrangler hỏi.');
   const hookResult = wrangler(['secret', 'put', 'POLAR_WEBHOOK_SECRET'], { stdio: 'inherit' });
   if (hookResult.status !== 0) die('wrangler không nạp được POLAR_WEBHOOK_SECRET');

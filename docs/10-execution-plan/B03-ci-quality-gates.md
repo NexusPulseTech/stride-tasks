@@ -6,7 +6,7 @@
 | Ưu tiên | P1 |
 | Ước lượng | 1 ngày |
 | Phụ thuộc | B01, B02 |
-| Trạng thái | ◐ Cài đặt bảo mật repo đã bật 2026-11-10 (bước 7); còn workflow `ci`, Dependabot cấu hình, CodeQL, branch protection |
+| Trạng thái | ◐ Cài đặt bảo mật repo đã bật 2026-11-10 (bước 7); bước 4 (`npm ci`) và phần `github-actions` của bước 5 làm trong [B10](./B10-supply-chain-and-signing-key.md); còn workflow `ci`, Dependabot cho `npm`, CodeQL, branch protection |
 
 ## Mục tiêu
 Mọi PR và push `main` bị chặn khi type/lint/test/build/ngân sách/quét bí mật lỗi.

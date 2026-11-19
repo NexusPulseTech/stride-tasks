@@ -18,7 +18,8 @@ npx wrangler login
 npx wrangler kv namespace create LICENSES          # dán id vào wrangler.toml
 npx wrangler d1 create stride-sync                 # dán database_id vào wrangler.toml
 npx wrangler d1 execute stride-sync --remote --file=schema.sql
-npx wrangler secret put STRIDE_ED25519_PRIVATE_KEY # giá trị trong ../.env.local
+# Khóa ký STRIDE_ED25519_PRIVATE_KEY: ở thư mục gốc repo chạy `npm run worker:secrets -- --key-only`
+# (đọc từ tệp ngoài repo hoặc stdin, tự kiểm khớp app, không in ra; xem docs/06-security-privacy/02-secrets-and-key-management.md)
 npx wrangler secret put SEPAY_API_KEY
 npx wrangler secret put LEMONSQUEEZY_SIGNING_SECRET
 npx wrangler deploy
