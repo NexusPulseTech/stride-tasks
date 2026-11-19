@@ -45,6 +45,7 @@ Ký hiệu: ☐ Todo · ◐ In progress · ☑ Done · ⏸ Blocked (ghi lý do)
 | [B07](./B07-worker-cicd-staging-observability.md) | CI/CD Worker, staging, log, rate limit | P1 | 1,5 ngày | B05 | ☐ |
 | [B08](./B08-split-oversized-modules.md) | Tách 29 file > 300 dòng (từng PR) | P2 | liên tục | B01, B02 | ☐ |
 | [B12](./B12-logic-fixes.md) | Sửa lỗi logic việc lặp lại, Daily Focus, Workload Budget, Shutdown Ritual (F01 đến F08) | P1 | 1 ngày | A17 | ◐ 2026-11-19 |
+| [B15](./B15-logic-fixes-2.md) | Sửa lỗi logic đợt 2: phím Daily Focus, Undo khi Done, nhãn hệ số giãn cách, chuỗi việc con nhiều tầng, số ít số nhiều, Undo sau Shutdown | P2 | 0,5 ngày | B12 | ◐ 2026-11-20 |
 | [C01](./C01-marketing-site-ssg-i18n.md) | Site marketing đầy đủ (tính năng, so sánh, blog) | P1 | 3 ngày | A06 | ☐ |
 | [C02](./C02-content-pillars-and-comparison-pages.md) | Trụ cột nội dung & trang so sánh (8 tuần) | P1 | liên tục | C01 | ☐ |
 | [C03](./C03-localization-wave-1.md) | Bản địa hóa đợt 1 | P2 | 3-5 ngày | A07 (dữ liệu) | ☐ |

@@ -23,6 +23,7 @@ import {
 } from '../utils/spacedSnooze';
 import { Project } from '../../../types';
 import { computeWorkloadBudget } from '../utils/workloadBudget';
+import { resolveFocusShortcut } from '../utils/dailyFocusKeys';
 import { useLanguage } from '../../../i18n';
 import { triggerHaptic } from '../../../utils';
 
@@ -127,7 +128,7 @@ export function DailyFocusModal({
     [onSnoozeSubTask, onSnoozeTask]
   );
 
-  // Phím tắt chuẩn AnkiWeb: Phím 1, 2, 3 áp dụng trực tiếp cho công việc đầu tiên (#1) trong danh sách đang xem
+  // Phím 1, 2, 3 áp dụng cho công việc đầu tiên (#1) của tab Due Today (B15 F09: không áp ở tab Snoozed)
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -137,23 +138,14 @@ export function DailyFocusModal({
         onClose();
         return;
       }
-      const firstItem = currentList[0];
-      if (!firstItem) return;
-      const options = getAnkiSrs3Options(firstItem.snoozeLevel || 1);
-      if (e.key === '1') {
-        e.preventDefault();
-        handleApplyAnkiOption(firstItem, options[0]);
-      } else if (e.key === '2') {
-        e.preventDefault();
-        handleApplyAnkiOption(firstItem, options[1]);
-      } else if (e.key === '3') {
-        e.preventDefault();
-        handleApplyAnkiOption(firstItem, options[2]);
-      }
+      const shortcut = resolveFocusShortcut(e.key, activeTab, currentList);
+      if (!shortcut) return;
+      e.preventDefault();
+      handleApplyAnkiOption(shortcut.item, getAnkiSrs3Options(shortcut.item.snoozeLevel || 1)[shortcut.optionIndex]);
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, currentList, handleApplyAnkiOption, onClose]);
+  }, [isOpen, activeTab, currentList, handleApplyAnkiOption, onClose]);
 
   if (!isOpen) return null;
 
