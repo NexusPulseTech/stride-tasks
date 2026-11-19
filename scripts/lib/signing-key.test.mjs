@@ -4,6 +4,8 @@ import { generateKeyPairSync } from 'node:crypto';
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { EventEmitter } from 'node:events';
+import { Readable } from 'node:stream';
 import {
   ENV_KEY,
   ENV_KEY_FILE,
@@ -16,6 +18,7 @@ import {
   publicKeyB64Url,
   readEmbeddedPublicKey,
   writeNewKeyFile,
+  readStdinSecret,
 } from './signing-key.mjs';
 
 const newKeyB64 = () => generateKeyPairSync('ed25519').privateKey.export({ type: 'pkcs8', format: 'der' }).toString('base64');
@@ -158,6 +161,42 @@ describe('khóa và public key', () => {
     mkdirSync(join(root, 'src', 'utils'), { recursive: true });
     writeFileSync(join(root, 'src', 'utils', 'licenseCrypto.ts'), "export const LICENSE_PUBLIC_KEY_B64URL = 'abc_DEF-123';\n");
     expect(readEmbeddedPublicKey(root)).toBe('abc_DEF-123');
+  });
+});
+
+describe('readStdinSecret', () => {
+  const ESC = String.fromCharCode(27);
+  const DEL = String.fromCharCode(127);
+  const CR = String.fromCharCode(13);
+  const CTRL_C = String.fromCharCode(3);
+  // stdin giả lập bàn phím: phát các mảnh dữ liệu khi được resume, ghi lại các lần bật tắt raw mode
+  const fakeTty = (chunks) => {
+    const s = new EventEmitter();
+    s.isTTY = true;
+    s.rawModes = [];
+    s.setRawMode = (on) => s.rawModes.push(on);
+    s.setEncoding = () => {};
+    s.pause = () => {};
+    s.resume = () => setImmediate(() => chunks.forEach((c) => s.emit('data', c)));
+    return s;
+  };
+  const sink = () => ({ text: '', write(t) { this.text += t; } });
+
+  it('bàn phím: không hiện chữ, xử lý xóa lùi và mã dán, trả raw mode về như cũ', async () => {
+    const stdin = fakeTty([`${ESC}[200~abc${DEL}d${ESC}[201~`, CR]);
+    const stderr = sink();
+    expect(await readStdinSecret({ stdin, stderr })).toBe('abd');
+    expect(stdin.rawModes).toEqual([true, false]);
+    expect(stderr.text).not.toContain('abd');
+  });
+  it('bàn phím: Ctrl+C hủy và vẫn tắt raw mode', async () => {
+    const stdin = fakeTty([`ab${CTRL_C}`]);
+    await expect(readStdinSecret({ stdin, stderr: sink() })).rejects.toThrow(KeyError);
+    expect(stdin.rawModes).toEqual([true, false]);
+  });
+  it('ống: đọc tới hết dữ liệu', async () => {
+    const stdin = Readable.from(['abc', '123\n']);
+    expect(await readStdinSecret({ stdin, stderr: sink() })).toBe('abc123\n');
   });
 });
 
