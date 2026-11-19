@@ -16,6 +16,19 @@ env:
   API: https://tasks-api.nexuspulsetech.xyz
 
 jobs:
+  # B11: app thật sự chạy ngoại tuyến. Chrome có sẵn trên runner; pha 1 có mạng chờ service worker activated,
+  # pha 2 cắt mạng thật (proxy chết) rồi gõ một việc và mở hộp Daily Focus. Chặn Cloudflare analytics, không tạo dữ liệu trên máy chủ.
+  offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: App installs its service worker and works with the network off
+        run: node scripts/offline-check.mjs "$APP/"
+
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 5

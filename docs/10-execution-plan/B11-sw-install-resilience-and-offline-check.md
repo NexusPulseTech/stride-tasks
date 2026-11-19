@@ -6,7 +6,7 @@
 | Ưu tiên | P0 (lời hứa "chạy ngoại tuyến" trong bộ đăng thư mục) |
 | Ước lượng | 0,5 ngày |
 | Phụ thuộc | B04 |
-| Trạng thái | ◐ 2026-11-19 |
+| Trạng thái | ◐ 2026-11-19 (xong trên nhánh, chờ gộp và deploy) |
 
 ## Mục tiêu
 Khi service worker (SW) cài lỗi, app ghi lỗi rõ ràng và tự thử cài lại một lần thay vì im lặng mất chế độ ngoại tuyến. Có một lệnh kiểm tự động chứng minh app thật sự chạy ngoại tuyến: tải trang, SW activated, cắt mạng, tải lại, app mở được, gõ được việc và việc còn sau khi tải lại.
@@ -30,16 +30,19 @@ Dòng thời gian (giờ Việt Nam):
 | 19/11 01:34 đến 01:38 | Lỗi 5/5 lần (`swlog.mjs`) |
 | 19/11 01:38 đến 01:41 | Lẫn lộn: 4 lỗi, 5 sạch |
 | 19/11 01:42 đến 01:47 | Sạch 15/15 lần, ba vị trí hồ sơ |
+| 19/11 14:05 | Lỗi trên **bản build local** (`vite preview`, 127.0.0.1:4317) với `sw.js` gốc: lần cài đầu và lần thử lại 10 giây sau đều thất bại, code B11 ghi đủ hai dòng `[sw]` |
+| 19/11 14:06 đến 14:10 | Sạch 12/12 lần trên bản build local, ba kiểu đường dẫn hồ sơ |
 
 Đã loại trừ:
 - Đăng ký hai lần: chỉ có một lệnh `register` (`src/main.tsx`), `injectRegister: false` nên vite-plugin-pwa không chèn thêm.
 - Manifest precache hỏng: 27 mục, không trùng URL, đều trả 200, không chuyển hướng (kể cả có `?__WB_REVISION__`).
 - CSP chặn trong SW: header của `sw.js` chỉ có `frame-ancestors`.
 - App tự ghi vào Cache API: không có (chỉ có IndexedDB).
-- Đường dẫn hồ sơ Chrome: cùng một dạng đường dẫn lúc lỗi lúc sạch.
-- Chạy đua do deploy liên tục (giả thuyết của phiên 6b): deploy cuối lúc 18/11 03:03, nhưng lỗi vẫn xuất hiện lúc 14:00 và 19/11 01:35, cách hơn 10 và 22 giờ không có deploy nào. Giả thuyết này không giải thích được hai cửa sổ đó.
+- Đường dẫn hồ sơ Chrome (ổ C hay D, Temp hay không, có dấu `\` cuối hay không): kiểm có kiểm soát, cùng một dạng lúc lỗi lúc sạch.
+- Chạy đua do deploy liên tục (giả thuyết của phiên 6b): deploy cuối lúc 18/11 03:03, nhưng lỗi vẫn xuất hiện lúc 14:00 và 19/11 01:35, cách hơn 10 và 22 giờ không có deploy nào.
+- CDN trả các bản `sw.js` khác nhau: lỗi tái hiện cả trên bản build local không qua CDN (19/11 14:05); `sw.js` trên production trả cùng một bản 8/8 lần.
 
-Kết luận: lỗi có thật nhưng chập chờn, chỉ thấy trên máy này vào một số khung giờ, chưa tái hiện lại được sau 01:42 ngày 19/11 nên **chưa xác định được nguyên nhân gốc**. Ứng viên còn lại, chưa chứng minh: CDN (Cloudflare phía trước GitHub Pages, `sw.js` có `max-age=14400`) trả các bản khác nhau trong cùng một khoảng ngắn, hoặc phần mềm quét file can thiệp khi Chrome ghi bộ đệm. Vì chưa có nguyên nhân, B11 **không** đổi cấu hình Workbox hay `cacheId` (`cleanupOutdatedCaches` không xóa cache khác `cacheId`).
+Kết luận: lỗi có thật, nằm **phía trình duyệt**, xuất hiện thành từng đợt vài phút trên máy này rồi tự hết; không gây ra được theo ý muốn nên **chưa xác định được nguyên nhân gốc**. Ứng viên, chưa chứng minh: Cache Storage của Chrome ghi lỗi khi máy tải nặng (máy chạy nhiều phiên build, test, Chrome cùng lúc) hoặc phần mềm quét file can thiệp lúc Chrome ghi bộ đệm. Người dùng thật cũng có thể gặp khi máy bận; hậu quả là mất chế độ ngoại tuyến tới lần cài thành công sau. Vì chưa có nguyên nhân, B11 **không** đổi cấu hình Workbox hay `cacheId` (`cleanupOutdatedCaches` không xóa cache khác `cacheId`), chỉ làm lỗi hiện rõ, tự thử lại và có kiểm tự động.
 
 ## Phạm vi
 - Trong phạm vi:
@@ -66,30 +69,40 @@ Suy ra: lần cài đầu thất bại thì registration bị gỡ (Chrome có t
 1. Viết tài liệu này.
 2. Tách đăng ký SW sang `registerServiceWorker.ts`, viết test, gọi từ `main.tsx`.
 3. Viết `scripts/offline-check.mjs`, thêm script npm và job health-check.
-4. Kiểm trên bản build local (`npm run build`, `npx vite preview --port 4317 --strictPort`): `npm run check:offline -- http://localhost:4317/`.
+4. Kiểm trên bản build local (`npm run build`, `npx vite preview --port 4317 --strictPort --host 127.0.0.1`): `npm run check:offline -- http://127.0.0.1:4317/`.
 5. Kiểm production bằng cùng lệnh, chụp lại ảnh 04 "ngoại tuyến" cho bộ đăng thư mục.
-6. `npm run lint`, `npm test`, test Worker, quét bí mật; commit trên nhánh `fix/sw-precache`. Phiên 6b duyệt, gộp, deploy.
+6. `npm run lint`, `npm test`, test Worker, quét bí mật; commit trên nhánh `fix/sw-precache`. Stride Phiên 2 (phiên deploy duy nhất) duyệt, gộp, deploy sau khi Phúc đồng ý.
 
 ## Trạng thái và bước tiếp theo
-- 2026-11-19: tài liệu, `registerServiceWorker.ts` (hai nhánh a và b) và 6 test xong; `main.tsx` đã dùng hàm mới. Lint, test app, test Worker đạt.
-- Ảnh 04 ngoại tuyến đã chụp trên production lúc khoảng 01:55 (SW active, 27 mục precache, cắt mạng thật), lưu ở bộ ảnh thư mục.
-- Tiếp theo: `scripts/offline-check.mjs`, `npm run check:offline`, job `offline` trong `health-check.yml`; kiểm trên bản build local (cổng 4317) và production; commit; gửi Stride Phiên 2 (phiên deploy) và Cố vấn.
+- 2026-11-19: xong toàn bộ phần code trên nhánh `fix/sw-precache`, chưa gộp, chưa deploy.
+  - `registerServiceWorker.ts` hai nhánh (a) và (b), 6 test; `main.tsx` dùng hàm mới.
+  - `scripts/offline-check.mjs`, `npm run check:offline`, job `offline` trong `health-check.yml`, runbook triển khai mục 1 bước 5.
+  - Ảnh 04 ngoại tuyến đã chụp trên production lúc khoảng 01:55 (SW active, 27 mục precache, cắt mạng thật).
+- Kết quả kiểm: xem mục "Xác minh".
+- Tiếp theo (Stride Phiên 2): duyệt, gộp, deploy; sau deploy chạy `npm run check:offline` và chạy job `offline` một lần bằng `workflow_dispatch` (tiêu chí cuối). Nếu lỗi `Entry already exists` quay lại, ghi giờ và chạy `swlog.mjs` để bổ sung dòng thời gian.
 
 ## Tiêu chí nghiệm thu
-- [ ] Không còn `.catch(() => {})` nuốt lỗi đăng ký SW; lỗi cài SW hiện trong console với tiền tố `[sw]`.
-- [ ] Cài lỗi lần đầu thì tự đăng ký lại đúng một lần, không lặp vô hạn (có test).
-- [ ] `npm run check:offline` đạt trên bản build local.
-- [ ] `npm run check:offline` đạt trên production.
+- [x] Không còn `.catch(() => {})` nuốt lỗi đăng ký SW; lỗi đăng ký và lỗi cài SW hiện trong console với tiền tố `[sw]`.
+- [x] Cài lỗi lần đầu thì tự đăng ký lại đúng một lần, không lặp vô hạn (test đơn vị, và đã thấy trong Chrome thật).
+- [x] `npm run check:offline` đạt trên bản build local, và **trượt** đúng khi SW hỏng.
+- [x] `npm run check:offline` đạt trên production.
 - [ ] Job `offline` trong `health-check.yml` chạy đạt một lần bằng `workflow_dispatch` sau khi gộp.
 
 ## Xác minh
 ```
 npm test -- registerServiceWorker
 npm run build
-npx vite preview --port 4317 --strictPort
-npm run check:offline -- http://localhost:4317/
+npx vite preview --port 4317 --strictPort --host 127.0.0.1
+npm run check:offline -- http://127.0.0.1:4317/
 npm run check:offline
 ```
+
+Kết quả ngày 2026-11-19 (Chrome 157, Windows):
+- Production: đạt (pha 1: SW activated, 27 mục precache; pha 2: app mở do SW phục vụ, yêu cầu mạng thất bại, gõ "Offline check …" bằng phím thật, còn sau khi tải lại, hộp Daily Focus mở).
+- Bản build local: đạt, cùng các bước; yêu cầu mạng tới localhost cũng thất bại nên proxy chết chặn được cả localhost.
+- Kiểm âm 1, xóa `dist/sw.js`: trượt với mã 1, in `[sw] Service worker registration failed … unsupported MIME type ('text/html')` (lỗi này trước đây bị nuốt).
+- Kiểm âm 2, `sw.js` luôn cài lỗi: trượt với mã 1, in `[sw] … install failed … Retrying once in 10s.` rồi `[sw] … install failed again …`: lần gọi lại `register()` có tạo lượt cài mới, không lặp quá một lần.
+- Lỗi thật 14:05 trên bản build local (`sw.js` gốc): hai dòng `[sw]` như kiểm âm 2, đúng hành vi mong đợi.
 Tái hiện lỗi gốc nếu nó quay lại: `node D:\NguyenVinhPhuc\Video\Stride\store-shots\capture\swlog.mjs` (in dòng console của `sw.js`).
 
 ## Rủi ro & rollback

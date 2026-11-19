@@ -1,6 +1,6 @@
 # Runbook triển khai
 
-> **Thuộc**: 09-operations · **Trạng thái**: Reviewed · **Cập nhật**: 2026-10-30
+> **Thuộc**: 09-operations · **Trạng thái**: Reviewed · **Cập nhật**: 2026-11-19
 
 ## 1. Web app (GitHub Pages)
 
@@ -13,7 +13,8 @@
      curl -s -o /dev/null -w "%{http_code} $p\n" "$B$p?cb=$RANDOM"; done
    ```
 4. Quét bundle production tìm mảnh khóa riêng (script quét bí mật, tự động hóa ở B03).
-5. **Rollback**: `git revert <commit>` → push `main` (Service Worker `autoUpdate` sẽ kéo bản mới ở lần mở tiếp theo).
+5. Kiểm ngoại tuyến thật (B11): `npm run check:offline`. Đạt khi service worker activated, app mở được và gõ được việc khi cắt mạng. Job `offline` trong `health-check.yml` chạy lại kiểm này mỗi 6 giờ. Trước khi gộp có thể kiểm bản build local: `npm run build`, `npx vite preview --port 4317 --strictPort`, rồi `npm run check:offline -- http://127.0.0.1:4317/`.
+6. **Rollback**: `git revert <commit>` → push `main` (Service Worker `autoUpdate` sẽ kéo bản mới ở lần mở tiếp theo).
 
 ## 1a. Báo công cụ tìm kiếm khi thêm hoặc sửa trang (IndexNow)
 
