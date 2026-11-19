@@ -1,13 +1,8 @@
 import { useState } from 'react';
 import { Project, Task, SubTask } from '../../../types';
 import { parsePastedTasks, parsePastedSubtasks, cleanPastedLine } from '../utils/batchParser';
-import {
-  toggleSubtaskInTree,
-  addNestedSubtask,
-  deleteNestedSubtask,
-  updateSubtaskTitleInTree,
-  determineTaskStatusFromSubtasks,
-} from '../utils/subtaskTree';
+import { addNestedSubtask, deleteNestedSubtask, updateSubtaskTitleInTree } from '../utils/subtaskTree';
+import { toggleSubtaskTransition, withSubtasks } from '../utils/taskTransitions';
 import { reorderSubtaskTree } from '../utils/subtaskReorder';
 import { triggerHaptic, truncateText } from '../../../utils';
 import { useTranslationRef, formatMessage } from '../../../i18n';
@@ -106,8 +101,7 @@ export function useSubtaskOperations({
                 parsedSubs.forEach((newSub) => {
                   currentSubs = addNestedSubtask(currentSubs, parentSubId ?? null, newSub);
                 });
-                const nextStatus = determineTaskStatusFromSubtasks(t.status, currentSubs);
-                return { ...t, status: nextStatus, subtasks: currentSubs };
+                return withSubtasks(t, currentSubs);
               }),
             };
           })
@@ -134,9 +128,7 @@ export function useSubtaskOperations({
           ...p,
           tasks: p.tasks.map((t) => {
             if (t.id !== taskId) return t;
-            const currentSubs = addNestedSubtask(t.subtasks, parentSubId ?? null, newSub);
-            const nextStatus = determineTaskStatusFromSubtasks(t.status, currentSubs);
-            return { ...t, status: nextStatus, subtasks: currentSubs };
+            return withSubtasks(t, addNestedSubtask(t.subtasks, parentSubId ?? null, newSub));
           }),
         };
       })
@@ -157,20 +149,11 @@ export function useSubtaskOperations({
           ...p,
           tasks: p.tasks.map((t) => {
             if (t.id !== taskId) return t;
-            const { updatedSubtasks } = toggleSubtaskInTree(t.subtasks, subId, isChecked);
-            const nextStatus = determineTaskStatusFromSubtasks(t.status, updatedSubtasks);
-
-            if (nextStatus === 'done' && t.status !== 'done') {
+            const next = toggleSubtaskTransition(t, subId, isChecked);
+            if (next.status === 'done' && t.status !== 'done') {
               wasAllDoneTriggered = true;
             }
-
-            return {
-              ...t,
-              status: nextStatus,
-              completedAt: nextStatus === 'done' ? t.completedAt || new Date().toISOString() : undefined,
-              snoozeUntil: nextStatus === 'done' ? undefined : t.snoozeUntil,
-              subtasks: updatedSubtasks,
-            };
+            return next;
           }),
         };
       })
@@ -211,12 +194,7 @@ export function useSubtaskOperations({
             if (task.id !== taskId) return task;
             const { updatedSubtasks, deletedItem } = deleteNestedSubtask(task.subtasks, subId);
             deletedSub = deletedItem;
-            const nextStatus = determineTaskStatusFromSubtasks(task.status, updatedSubtasks);
-            return {
-              ...task,
-              status: nextStatus,
-              subtasks: updatedSubtasks,
-            };
+            return withSubtasks(task, updatedSubtasks);
           }),
         };
       })
@@ -231,8 +209,7 @@ export function useSubtaskOperations({
               ...proj,
               tasks: proj.tasks.map((task) => {
                 if (task.id !== taskId) return task;
-                const nextStatus = determineTaskStatusFromSubtasks(task.status, oldSubs);
-                return { ...task, status: nextStatus, subtasks: oldSubs };
+                return withSubtasks(task, oldSubs);
               }),
             };
           })
@@ -282,9 +259,7 @@ export function useSubtaskOperations({
           ...proj,
           tasks: proj.tasks.map((task) => {
             if (task.id !== taskId) return task;
-            const updated = reorderSubtaskTree(task.subtasks, sourceId, targetId, position);
-            const nextStatus = determineTaskStatusFromSubtasks(task.status, updated);
-            return { ...task, status: nextStatus, subtasks: updated };
+            return withSubtasks(task, reorderSubtaskTree(task.subtasks, sourceId, targetId, position));
           }),
         };
       })

@@ -1,0 +1,56 @@
+# B12: Sửa lỗi logic việc lặp lại, Daily Focus, Workload Budget và Shutdown Ritual
+
+| Thuộc tính | Giá trị |
+| :--- | :--- |
+| Phase | B: Chất lượng |
+| Ưu tiên | P1 (người dùng thử dùng việc lặp lại và Daily Focus ngay ngày đầu) |
+| Ước lượng | 1 ngày |
+| Phụ thuộc | A17 |
+| Trạng thái | ◐ 2026-11-19 (đang làm trên nhánh `fix/b12-logic`, chưa gộp, chưa deploy) |
+
+## Mục tiêu
+Tám lỗi logic F01 đến F08 trong báo cáo rà soát giao diện và chức năng ngày 2026-11-19 được sửa, mỗi lỗi có test tái hiện chạy đỏ trên code cũ và xanh sau khi sửa.
+
+## Vì sao
+Phiên rà soát (chỉ đọc, preview cục bộ, giả lập đồng hồ) thấy việc lặp lại không tự làm mới khi đánh dấu xong bằng ô trạng thái hoặc Kanban, chuỗi ngày bơm được và không bao giờ ngắt, Daily Focus xếp sai việc hôm nay, Workload Budget cộng cả tồn đọng, Shutdown Ritual báo sai và bỏ sót việc. Báo cáo gốc nằm ở kho tài liệu nội bộ của founder (thư mục `stride-qa/2026-11-19_ux-logic`), không đưa vào repo công khai.
+
+## Phạm vi
+- Trong phạm vi: F01, F06, F07, F08, F02, F03, F04, F05 (theo thứ tự sửa).
+- Ngoài phạm vi: F09 đến F11 (đợt sau), đổi giao diện ngoài những chỗ lỗi cần.
+
+## Các bước
+1. F01: một hàm chung ghi nhận việc lặp lại đã xong cho mọi đường đổi trạng thái (vòng tròn, ô trạng thái, Kanban, việc con xong hết đẩy việc cha lên Done, việc con).
+2. F06: "Due Today" của Daily Focus chỉ gồm việc đến hạn hôm nay hoặc quá hạn.
+3. F07: hoãn và ghim ở việc cha có việc con được Daily Focus tôn trọng.
+4. F08: Workload Budget chỉ cộng tải của hôm nay.
+5. F02: chuỗi ngày cộng tối đa 1 lần mỗi chu kỳ, bỏ tích thì trả lại, bỏ lỡ một chu kỳ thì về 0.
+6. F03: làm mới việc lặp lại khi app để mở qua nửa đêm hoặc quay lại tab.
+7. F04, F05: Shutdown Ritual tính kết quả trước khi cập nhật, dời cả nhắc đã quá hạn, theo nhóm trạng thái, có Hoàn tác.
+
+## Tiêu chí nghiệm thu
+- [ ] Mỗi lỗi có test tái hiện: đỏ trên code cũ, xanh sau khi sửa (ghi lại ở mục Nhật ký).
+- [ ] Kiểm lại trên preview bằng thao tác thật (gõ phím, bấm chuột).
+- [ ] `npm run lint`, `npm test`, test Worker, quét bí mật đều qua trước mỗi commit.
+- [ ] Không push main, không deploy (Stride Phiên 2 gộp và deploy).
+
+## Xác minh
+`npx vitest run src/features/tasks` cho các test mới; preview `npm run dev` hoặc `npm run build && npm run preview`, thao tác thật trên Chrome.
+
+## Rủi ro & rollback
+Đổi đường ghi trạng thái dùng chung nên có thể ảnh hưởng mọi nơi đánh dấu xong. Mỗi lỗi một commit, hoàn tác được từng commit.
+
+## Nhật ký
+
+### F01: việc lặp lại đánh dấu xong qua ô trạng thái hoặc Kanban không tự làm mới
+- Nguyên nhân: chỉ `toggleTaskDone` (vòng tròn) ghi `lastCompletedDate` và chuỗi. `changeStatus` (ô trạng thái, Kanban, Daily Focus qua ô trạng thái), `changeSubtaskStatus` và `toggleSubTask` (việc con xong hết đẩy việc cha lên Done) không ghi, nên `shouldResetRecurrence` trả false và việc nằm ở Done mãi. Việc con lặp lại đổi bằng ô trạng thái cũng không ghi; `cascadeSubtaskCompleted` ghi ngày theo giờ UTC thay vì giờ máy.
+- Sửa: `markRecurringDone` (trong `recurringHelper.ts`) là nơi duy nhất ghi ngày làm xong (giờ máy) và chuỗi. Các bước đổi trạng thái tách thành hàm thuần trong `utils/taskTransitions.ts` (`toggleTaskDoneTransition`, `changeTaskStatusTransition`, `changeSubtaskStatusTransition`, `toggleSubtaskTransition`, `withSubtasks`); hook chỉ gọi các hàm này. Việc chỉ được ghi nhận khi chuyển từ chưa xong sang xong, nên đổi giữa hai trạng thái nhóm done không cộng chuỗi lần nữa. Thêm, xóa, sắp xếp việc con cũng tính lại trạng thái việc cha qua `withSubtasks` (xóa việc con chưa xong cuối cùng thì việc cha lên Done và được ghi nhận; thêm việc con vào việc đã xong thì bỏ `completedAt`). `updateSubtaskStatusInTree` giữ trạng thái tùy chỉnh nhóm done của việc con thay vì ép về `done`.
+- Test: `src/features/tasks/utils/__tests__/taskTransitions.test.ts`. Chạy trên logic cũ (các hàm tách nguyên văn từ hook): 9 đỏ, 1 xanh (ca đối chứng việc không lặp lại). Sau khi sửa: 11 xanh.
+- Kiểm trên preview (dev server của worktree, Chrome, dữ liệu mẫu tiếng Anh): bấm ô trạng thái của "Plan your day in 10 minutes", chọn Done → `done`, `lastCompletedDate` = 2026-11-19, chuỗi 3 → 4, hai việc con xong. Tải lại cùng ngày vẫn `done`. Tải lại với đồng hồ +26 giờ → `todo`, việc con mở lại. Kanban: Move to Doing → Move to Review → Mark Done → `done`, chuỗi 5, ngày làm xong ghi đúng.
+- Chưa làm trong F01: việc con có con được đánh dấu xong do mọi việc con của nó xong (bọt khí nổi trong cây) chưa được ghi nhận chuỗi; hiếm, để lại.
+
+## Trạng thái và bước tiếp theo
+- Xong: F01.
+- Tiếp theo: F06, F07, F08, F02, F03, F04 và F05.
+
+## Tham chiếu
+- [A17](./A17-mobile-trial-fixes.md) (đợt sửa trước, cùng cách làm)

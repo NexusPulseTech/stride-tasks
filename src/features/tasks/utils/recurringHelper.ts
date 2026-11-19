@@ -11,6 +11,18 @@ export function getTodayDateString(): string {
   return `${year}-${month}-${day}`;
 }
 
+type RecurringFields = { recurrence?: RecurrenceType; lastCompletedDate?: string; recurrenceStreak?: number };
+
+/**
+ * Nơi duy nhất ghi nhận một việc lặp lại (việc chính hoặc việc con) vừa được làm xong: ngày làm xong theo giờ máy
+ * và chuỗi ngày. Chỉ gọi khi việc chuyển từ chưa xong sang xong, dù bằng vòng tròn, ô trạng thái, Kanban hay
+ * việc con xong hết. Thiếu ngày làm xong thì `shouldResetRecurrence` không bao giờ làm mới việc (B12 F01).
+ */
+export function markRecurringDone<T extends RecurringFields>(item: T): T {
+  if (!item.recurrence) return item;
+  return { ...item, lastCompletedDate: getTodayDateString(), recurrenceStreak: (item.recurrenceStreak || 0) + 1 };
+}
+
 /**
  * Kiểm tra xem công việc lặp lại có cần làm mới khi sang ngày mới hay không
  */

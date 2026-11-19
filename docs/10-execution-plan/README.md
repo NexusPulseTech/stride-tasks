@@ -44,6 +44,7 @@ Ký hiệu: ☐ Todo · ◐ In progress · ☑ Done · ⏸ Blocked (ghi lý do)
 | [B06](./B06-shared-contracts-package.md) | Gói `contracts` + `sync-core` dùng chung (npm workspaces) | P1 | 2 ngày | B05 | ☐ |
 | [B07](./B07-worker-cicd-staging-observability.md) | CI/CD Worker, staging, log, rate limit | P1 | 1,5 ngày | B05 | ☐ |
 | [B08](./B08-split-oversized-modules.md) | Tách 29 file > 300 dòng (từng PR) | P2 | liên tục | B01, B02 | ☐ |
+| [B12](./B12-logic-fixes.md) | Sửa lỗi logic việc lặp lại, Daily Focus, Workload Budget, Shutdown Ritual (F01 đến F08) | P1 | 1 ngày | A17 | ◐ 2026-11-19 |
 | [C01](./C01-marketing-site-ssg-i18n.md) | Site marketing đầy đủ (tính năng, so sánh, blog) | P1 | 3 ngày | A06 | ☐ |
 | [C02](./C02-content-pillars-and-comparison-pages.md) | Trụ cột nội dung & trang so sánh (8 tuần) | P1 | liên tục | C01 | ☐ |
 | [C03](./C03-localization-wave-1.md) | Bản địa hóa đợt 1 | P2 | 3-5 ngày | A07 (dữ liệu) | ☐ |

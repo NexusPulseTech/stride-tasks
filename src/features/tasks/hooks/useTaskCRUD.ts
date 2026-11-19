@@ -5,7 +5,7 @@ import { triggerHaptic, truncateText } from '../../../utils';
 import { useTranslationRef, formatMessage } from '../../../i18n';
 import { parsePastedTasks, parsePastedHierarchy } from '../utils/batchParser';
 import { buildSmartTask, summarizeSmartTask } from '../utils/smartTaskParser';
-import { cascadeSubtaskCompleted, updateSubtaskStatusInTree, determineTaskStatusFromSubtasks } from '../utils/subtaskTree';
+import { changeSubtaskStatusTransition, changeTaskStatusTransition, toggleTaskDoneTransition } from '../utils/taskTransitions';
 import { exportProjectToMarkdown } from '../utils/formatters';
 import { isDoneStatus } from '../utils/statusCategory';
 import { stampProjectsUpdatedAt } from '../utils/updatedAtStamp';
@@ -20,7 +20,6 @@ import {
   subscribeCrossTabSync,
 } from '../../../utils/persistentStorage';
 import {
-  getTodayDateString,
   processDailyRecurrenceRollover,
   manuallyResetRecurringTask,
   manuallyResetRecurringSubTask,
@@ -273,8 +272,6 @@ export function useTaskCRUD({
 
   const toggleTaskDone = (projId: string, taskId: string, isChecked: boolean) => {
     triggerHaptic();
-    const nextStatus: 'done' | 'todo' = isChecked ? 'done' : 'todo';
-    const todayStr = getTodayDateString();
 
     let completedRecurring = false;
     let newStreak = 0;
@@ -284,20 +281,12 @@ export function useTaskCRUD({
         ...p,
         tasks: p.tasks.map((t) => {
           if (t.id !== taskId) return t;
-          const isRecurring = Boolean(t.recurrence);
-          if (isChecked && isRecurring) {
+          const next = toggleTaskDoneTransition(t, isChecked);
+          if (next.lastCompletedDate !== t.lastCompletedDate || next.recurrenceStreak !== t.recurrenceStreak) {
             completedRecurring = true;
-            newStreak = (t.recurrenceStreak || 0) + 1;
+            newStreak = next.recurrenceStreak || 0;
           }
-          return {
-            ...t,
-            status: nextStatus,
-            completedAt: isChecked ? (t.completedAt || new Date().toISOString()) : undefined,
-            snoozeUntil: isChecked ? undefined : t.snoozeUntil,
-            lastCompletedDate: isChecked && isRecurring ? todayStr : t.lastCompletedDate,
-            recurrenceStreak: isChecked && isRecurring ? newStreak : t.recurrenceStreak,
-            subtasks: isChecked ? t.subtasks.map((s) => cascadeSubtaskCompleted(s, true)) : t.subtasks,
-          };
+          return next;
         }),
       })
     );
@@ -375,30 +364,7 @@ export function useTaskCRUD({
           ? p
           : {
               ...p,
-              tasks: p.tasks.map((t) => {
-                if (t.id !== taskId) return t;
-
-                let nextSubs = t.subtasks;
-                if (isDoneCategory) {
-                  // Khi chuyển sang Đã xong: Hoàn thành toàn bộ các bước con
-                  nextSubs = t.subtasks.map((s) => cascadeSubtaskCompleted(s, true));
-                } else if (status === 'todo') {
-                  // Khi chuyển về Chờ: Đưa tất cả bước con về chưa hoàn thành
-                  nextSubs = t.subtasks.map((s) => cascadeSubtaskCompleted(s, false));
-                } else if (t.status === 'done' && !isDoneCategory) {
-                  // Đang từ Đã xong chuyển sang Đang làm/Duyệt/Nghẽn/Custom:
-                  // Mở lại các việc con để không bị tự động bọt khí ép ngược về done
-                  nextSubs = t.subtasks.map((s) => cascadeSubtaskCompleted(s, false));
-                }
-
-                return {
-                  ...t,
-                  status,
-                  completedAt: isDoneCategory ? t.completedAt || new Date().toISOString() : undefined,
-                  snoozeUntil: isDoneCategory ? undefined : t.snoozeUntil,
-                  subtasks: nextSubs,
-                };
-              }),
+              tasks: p.tasks.map((t) => (t.id !== taskId ? t : changeTaskStatusTransition(t, status, isDoneCategory))),
             }
       )
     );
@@ -427,21 +393,7 @@ export function useTaskCRUD({
         if (p.id !== projId) return p;
         return {
           ...p,
-          tasks: p.tasks.map((t) => {
-            if (t.id !== taskId) return t;
-            const updatedSubs = updateSubtaskStatusInTree(t.subtasks, subId, status, isDoneCategory);
-            const nextTaskStatus = determineTaskStatusFromSubtasks(
-              t.status === 'done' || isDoneCategory ? (t.status === 'done' ? 'done' : 'doing') : t.status,
-              updatedSubs
-            );
-            return {
-              ...t,
-              status: nextTaskStatus,
-              subtasks: updatedSubs,
-              completedAt: nextTaskStatus === 'done' ? t.completedAt || new Date().toISOString() : undefined,
-              snoozeUntil: nextTaskStatus === 'done' ? undefined : t.snoozeUntil,
-            };
-          }),
+          tasks: p.tasks.map((t) => (t.id !== taskId ? t : changeSubtaskStatusTransition(t, subId, status, isDoneCategory))),
         };
       })
     );
