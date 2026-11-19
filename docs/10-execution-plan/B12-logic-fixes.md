@@ -48,9 +48,15 @@ Phiên rà soát (chỉ đọc, preview cục bộ, giả lập đồng hồ) th
 - Kiểm trên preview (dev server của worktree, Chrome, dữ liệu mẫu tiếng Anh): bấm ô trạng thái của "Plan your day in 10 minutes", chọn Done → `done`, `lastCompletedDate` = 2026-11-19, chuỗi 3 → 4, hai việc con xong. Tải lại cùng ngày vẫn `done`. Tải lại với đồng hồ +26 giờ → `todo`, việc con mở lại. Kanban: Move to Doing → Move to Review → Mark Done → `done`, chuỗi 5, ngày làm xong ghi đúng.
 - Chưa làm trong F01: việc con có con được đánh dấu xong do mọi việc con của nó xong (bọt khí nổi trong cây) chưa được ghi nhận chuỗi; hiếm, để lại.
 
+### F06: "Due Today" của Daily Focus xếp việc hẹn ngày mai lên đầu
+- Nguyên nhân: `getDailyFocusQueue` đưa mọi việc có giờ nhắc hoặc hạn chót bất kỳ lên trước, không so ngày, và không sắp theo thời điểm.
+- Sửa (`utils/spacedSnooze.ts`): `getDueTime` lấy thời điểm đến hạn sớm nhất (hạn chót chỉ có ngày tính tới cuối ngày theo giờ máy). `getWakeTime` cho biết lúc việc quay lại Due Today: hết hoãn, hoặc đầu ngày hẹn nếu ngày đó còn ở tương lai. Due Today chỉ gồm việc không có lúc quay lại; việc đến hạn hôm nay hoặc quá hạn xếp theo thời điểm sớm nhất, trước việc đang làm và việc chưa hẹn. Việc hẹn ngày sau nằm ở tab Snoozed, đếm ngược tới đầu ngày hẹn (`wakeAt`). Việc đã ghim (kể cả bằng nút "1 · Remind Now") luôn ở Due Today, để nút đó vẫn có tác dụng với việc hẹn ngày sau.
+- Test: `src/features/tasks/utils/__tests__/dailyFocusQueue.test.ts`. Trên code cũ: 3 đỏ, 1 xanh (ca sáng hôm sau). Sau khi sửa: 5 xanh (thêm ca việc đã ghim).
+- Kiểm trên preview: gõ "Call the bank @tomorrow" + Enter trong dự án "Getting started" → nhắc 9:00 mai. Daily Focus: Due Today 4, không có "Call the bank"; tab Snoozed 1, "Call the bank", đếm ngược tới nửa đêm. Bấm "1 · NOW Remind Now" → Due Today 5, Snoozed 0.
+
 ## Trạng thái và bước tiếp theo
-- Xong: F01.
-- Tiếp theo: F06, F07, F08, F02, F03, F04 và F05.
+- Xong: F01, F06.
+- Tiếp theo: F07, F08, F02, F03, F04 và F05.
 
 ## Tham chiếu
 - [A17](./A17-mobile-trial-fixes.md) (đợt sửa trước, cùng cách làm)

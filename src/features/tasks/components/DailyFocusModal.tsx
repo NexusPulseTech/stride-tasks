@@ -345,7 +345,7 @@ export function DailyFocusModal({
             currentList.map((item, index) => {
               const currentLevel = Math.max(1, item.snoozeLevel || 1);
               const ankiOptions = getAnkiSrs3Options(currentLevel);
-              const countdown = formatSnoozeCountdown(item.snoozeUntil, language);
+              const countdown = formatSnoozeCountdown(item.wakeAt ?? item.snoozeUntil, language);
               const isReviewedNowInSession = reviewedNowKeys.has(getItemKey(item));
 
               const handleMarkDone = () => {
