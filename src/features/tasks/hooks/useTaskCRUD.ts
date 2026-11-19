@@ -6,6 +6,7 @@ import { useTranslationRef, formatMessage } from '../../../i18n';
 import { parsePastedTasks, parsePastedHierarchy } from '../utils/batchParser';
 import { buildSmartTask, summarizeSmartTask } from '../utils/smartTaskParser';
 import { changeSubtaskStatusTransition, changeTaskStatusTransition, toggleTaskDoneTransition } from '../utils/taskTransitions';
+import { startDayWatcher } from '../utils/dayWatcher';
 import { exportProjectToMarkdown } from '../utils/formatters';
 import { isDoneStatus } from '../utils/statusCategory';
 import { stampProjectsUpdatedAt } from '../utils/updatedAtStamp';
@@ -75,16 +76,25 @@ export function useTaskCRUD({
     showToastRef.current = showToast;
   }, [showToast]);
 
-  // 1. Tự động kiểm tra làm mới việc lặp lại khi sang ngày mới (Auto-Rollover) - chạy 1 lần khi khởi động
+  const projectsRef = useRef(projects);
+  projectsRef.current = projects;
+
+  // 1. Tự động làm mới việc lặp lại khi sang ngày mới (Auto-Rollover): lúc khởi động, lúc qua nửa đêm khi app đang mở
+  // và khi quay lại tab (B12 F03). Số việc được làm mới tính trước, ngoài hàm cập nhật state (B12 F04); áp cả thay đổi
+  // chỉ ngắt chuỗi (B12 F02), rollover giữ nguyên tham chiếu khi không có gì đổi.
   useEffect(() => {
-    setProjects((current) => {
-      const { updatedProjects, resetCount } = processDailyRecurrenceRollover(current);
+    const runRollover = () => {
+      const { resetCount } = processDailyRecurrenceRollover(projectsRef.current);
+      setProjects((current) => {
+        const { updatedProjects } = processDailyRecurrenceRollover(current);
+        return updatedProjects.every((p, i) => p === current[i]) ? current : updatedProjects;
+      });
       if (resetCount > 0) {
         showToastRef.current?.(formatMessage(tRef.current.toast.recurringRolledOver, { count: resetCount }));
-        return updatedProjects;
       }
-      return current;
-    });
+    };
+    runRollover();
+    return startDayWatcher(runRollover);
   }, []);
 
   // 2. Khởi tạo bảo vệ: Yêu cầu Persistent Storage & kiểm tra phục hồi sâu từ IndexedDB (chỉ khi LocalStorage bị xóa sạch bởi trình duyệt)

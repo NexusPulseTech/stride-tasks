@@ -77,9 +77,15 @@ Phiên rà soát (chỉ đọc, preview cục bộ, giả lập đồng hồ) th
 - Test: 10 ca mới trong `taskTransitions.test.ts`. Trên code sau F01: 8 đỏ, 2 xanh (ca hôm sau giữ chuỗi, ca việc mẫu). Sau khi sửa: 21 xanh cho cả F01 và F02.
 - Kiểm trên preview (ngữ cảnh trình duyệt sạch, dữ liệu mẫu tiếng Anh, bấm vòng tròn thật): "Plan your day in 10 minutes" `todo/3 → done/4 → todo/3 → done/4` (trước đây `done/4 → todo/4 → done/5`). Đồng hồ sang 8:00 hôm sau: `todo`, chuỗi 4; tích tiếp: chuỗi 5, ngày 2026-11-20. Ngữ cảnh khác, đồng hồ +26 giờ rơi vào ngày thứ ba (lỡ một ngày): `todo`, chuỗi 0.
 
+### F03: việc lặp lại chỉ làm mới khi mở lại app, không làm mới khi app để mở qua nửa đêm
+- Nguyên nhân: `processDailyRecurrenceRollover` chỉ chạy trong `useEffect([])` lúc khởi động. Ngoài ra hook bỏ kết quả rollover khi không có việc nào được làm mới, nên thay đổi chỉ ngắt chuỗi (F02) của việc chưa tích bị mất; thông báo được gọi bên trong hàm cập nhật state (kiểu lỗi F04).
+- Sửa: `utils/dayWatcher.ts` (`startDayWatcher`) gọi lại khi sang ngày theo giờ máy: hẹn giờ tới 00:00:01 (kiểm lại ít nhất mỗi giờ vì tab nền có thể bị hoãn hẹn giờ) và khi quay lại tab (`visibilitychange`, cho trường hợp máy ngủ qua đêm). `useTaskCRUD` chạy rollover lúc khởi động và mỗi lần sang ngày, áp mọi thay đổi (giữ nguyên state khi không có gì đổi), tính số việc làm mới từ dữ liệu hiện tại trước khi cập nhật rồi mới thông báo.
+- Test: `src/features/tasks/utils/__tests__/dayWatcher.test.ts` (4 ca: qua nửa đêm gọi đúng một lần, máy ngủ rồi mở lại tab, quay lại tab cùng ngày không gọi, đã dừng không gọi). Trước khi sửa: đỏ vì chưa có cơ chế nào chạy lại rollover (module chưa tồn tại). Sau khi sửa: 4 xanh.
+- Kiểm trên preview (trang có đồng hồ chỉnh được, không tải lại trang): bấm vòng tròn "Plan your day" → `done/4`; đẩy đồng hồ sang 7:30 hôm sau và phát `visibilitychange` như khi quay lại tab → `todo/4`, hiện thông báo "Refreshed 1 recurring tasks for today." (chữ số nhiều sai ngữ pháp khi 1 việc là lỗi chữ có sẵn, ngoài phạm vi).
+
 ## Trạng thái và bước tiếp theo
-- Xong: F01, F06, F07, F08, F02.
-- Tiếp theo: F03, F04 và F05.
+- Xong: F01, F06, F07, F08, F02, F03.
+- Tiếp theo: F04 và F05.
 
 ## Tham chiếu
 - [A17](./A17-mobile-trial-fixes.md) (đợt sửa trước, cùng cách làm)
