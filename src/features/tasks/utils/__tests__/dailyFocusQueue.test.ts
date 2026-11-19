@@ -1,11 +1,11 @@
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Project, Task } from '../../../../types';
 import { getDailyFocusQueue, getSnoozedItemsQueue } from '../spacedSnooze';
 
+// Đặt múi giờ ngay lúc nạp file, TRƯỚC khi dựng NOW và dữ liệu thử bên dưới (chúng được tạo lúc nạp file, trước mọi beforeAll).
+// Đặt trong beforeAll thì máy chạy UTC (CI) dựng dữ liệu theo UTC còn code tính "hôm nay" theo giờ Việt Nam, và test trượt.
 const ORIGINAL_TZ = process.env.TZ;
-beforeAll(() => {
-  process.env.TZ = 'Asia/Ho_Chi_Minh';
-});
+process.env.TZ = 'Asia/Ho_Chi_Minh';
 afterAll(() => {
   process.env.TZ = ORIGINAL_TZ;
 });
