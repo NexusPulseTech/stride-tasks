@@ -6,10 +6,10 @@
 | Ưu tiên | P1 |
 | Ước lượng | B14a 0,5 ngày · B14b 1,5 ngày |
 | Phụ thuộc | A17, B11; B14b chờ B12 gộp lên `main` |
-| Trạng thái | ◐ 2026-11-20 (B14a đang làm trên nhánh `fix/b14a-notify-webp`) |
+| Trạng thái | ◐ 2026-11-20 (B14a xong trên nhánh `fix/b14a-notify-webp`, chờ gộp; B14b chờ B12) |
 
 ## Trạng thái và bước tiếp theo
-- **B14a** (nhánh `fix/b14a-notify-webp`, worktree `../stride-wt-b14`, tách từ `main` 20a7a9e): mục 1 (thông báo nhắc việc) xong và đã commit; đang làm mục 2 (ảnh WebP trang đích). Xong thì bàn giao Stride Phiên 2, phiên duy nhất gộp và deploy. Không push, không deploy từ nhánh này.
+- **B14a** (nhánh `fix/b14a-notify-webp`, worktree `../stride-wt-b14`, tách từ `main` 20a7a9e): mục 1 và mục 2 xong, mỗi mục một commit. Đã bàn giao Stride Phiên 2 (phiên duy nhất gộp và deploy). Không push, không deploy từ nhánh này. Sau deploy: đo lại Lighthouse mobile `/vi/` trên production, thử nhắc việc trên một máy Android thật.
 - **B14b**: chưa bắt đầu. Bắt đầu sau khi B12 gộp lên `main`, tách nhánh mới từ `main` lúc đó.
 - Phiên nào tiếp quản: đọc mục "Các bước", làm tiếp mục đầu tiên chưa đánh dấu; mỗi mục một commit có cập nhật file này.
 
@@ -38,7 +38,9 @@
 1. [x] B14a mục 1 (2026-11-20): `src/utils/systemNotification.ts` (8 test), `src/features/tasks/utils/reminderChannel.ts` (hàm thuần chọn kênh và thông điệp, 7 test), `useSmartReminder.ts` dùng hai hàm này và giữ `channel`; `useCelebrationAndStreak.ts` cũng chuyển sang hàm dùng chung; menu Options ghi "ON", nhãn trong app (`header.reminderInApp`) hoặc "OFF"; khóa mới `toast.systemNotifyFailed`. Khi bật nhắc việc: gửi một thông báo xác nhận, rồi kiểm việc chờ mà không gửi thêm thông báo hệ thống (tránh hai thông báo cùng lúc).
    - Kiểm trên bản build local (`vite preview`, Chrome 157, quyền thông báo cấp qua CDP): (a) desktop có SW: toast "Periodic reminders enabled!", menu "ON"; (b) giả lập điện thoại, constructor ném `TypeError` như Chrome Android, SW chạy: thông báo xác nhận đi qua `registration.showNotification` đúng 1 lần, toast "Periodic reminders enabled!", không có cảnh báo; (c) giả lập điện thoại và `showNotification` cũng lỗi: toast "System notifications didn't show on this device...", menu "In-app", console có `[notify] registration.showNotification() failed`.
    - Ghi nhận cho đợt sau, không sửa ở B14a: `useCelebrationAndStreak.ts` còn một vòng nhắc riêng 20 phút theo khóa cũ `SOLO_REMINDER_V1` (mặc định tắt, chỉ chạy với người dùng bản rất cũ từng bật); với họ, desktop có thể nhận hai luồng nhắc. Đề xuất gỡ vòng này khi dọn mã.
-2. [ ] B14a mục 2: WebP và `<picture>` cho `public/en/index.html`, `public/vi/index.html`; đo lại.
+2. [x] B14a mục 2 (2026-11-20): 12 file WebP (828 và 1280 px, chất lượng 0,85, mã hóa bằng OffscreenCanvas của Chrome 157) trong `public/screenshots/` và `public/screenshots/vi/`; 3 ảnh mỗi trang bọc `<picture>` với `srcset` và `sizes` theo `public/site.css` (hero `.shot` tối đa 1000 px; gallery 1 cột dưới 648 px, 2 cột rộng 516 px trên desktop); PNG giữ làm dự phòng, giữ `width`/`height`, `fetchpriority`, `loading`. Ảnh không thuộc precache của SW (precache vẫn 27 mục, 1025,88 KiB).
+   - Đo trên bản build local (`vite preview`), Lighthouse 13.6.0 mobile mặc định (Slow 4G mô phỏng, CPU 4x), 3 lần lấy trung vị, bản cũ đặt ở `/vi-old/` cùng máy chủ để so cùng điều kiện: `/vi/` **532 KB thành 111 KB**, LCP **2331 ms thành 1383 ms**, CLS 0 cả hai; `/en/` 87 KB, LCP 1383 ms. Bố cục giống hệt bản cũ ở 390 px và 1280 px (khung ảnh và chiều cao trang, lệch tối đa 1 px do làm tròn). Mobile tải bản 828, desktop DPR 2 tải bản 1280.
+   - Sau deploy cần đo lại trên production (3 lần, trung vị) và ghi vào đây.
 3. [ ] B14a: bàn giao Stride Phiên 2.
 4. [ ] B14b (sau khi B12 gộp): theo thứ tự trong báo cáo trợ năng.
 
