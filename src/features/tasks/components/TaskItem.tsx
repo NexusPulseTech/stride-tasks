@@ -114,7 +114,7 @@ export function TaskItem({
               e.stopPropagation();
               onToggleExpandSubtasks(task.id);
             }}
-            className="touch-hit [--hit:36px] w-4 h-4 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 flex items-center justify-center cursor-pointer shrink-0 transition-colors rounded hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
+            className="touch-hit [--hit:36px] pointer-coarse:mr-1.5 w-4 h-4 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 flex items-center justify-center cursor-pointer shrink-0 transition-colors rounded hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
             title={isSubOpen ? t.pinned.collapseSubtasks : `${t.pinned.expandSubtasks} (${totalSubs})`}
             aria-label={isSubOpen ? t.pinned.collapseSubtasks : t.pinned.expandSubtasks}
           >
@@ -203,7 +203,7 @@ export function TaskItem({
           )}
 
           {!isEditingTitle && (
-            <div className="flex items-center gap-1 shrink-0 flex-nowrap">
+            <div className="flex items-center gap-1 flex-wrap max-w-full sm:shrink-0 sm:flex-nowrap">
               {isCurrentlyFocused && (
                 <span className="inline-flex items-center gap-1 text-[10px] font-mono tabular-nums text-amber-700 dark:text-amber-300 bg-amber-100/80 dark:bg-amber-950/60 px-1.5 py-0.5 rounded font-semibold shrink-0 whitespace-nowrap">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />

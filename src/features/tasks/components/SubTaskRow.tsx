@@ -139,7 +139,7 @@ export function SubTaskRow({
           <button
             type="button"
             onClick={() => onToggleExpandNode(sub.id)}
-            className="touch-hit [--hit:36px] w-4 h-4 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 flex items-center justify-center cursor-pointer shrink-0 transition-colors rounded hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
+            className="touch-hit [--hit:36px] pointer-coarse:mr-1.5 w-4 h-4 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 flex items-center justify-center cursor-pointer shrink-0 transition-colors rounded hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
             title={isNodeExpanded ? t.pinned.collapseSubtasks : t.pinned.expandSubtasks}
             aria-label={isNodeExpanded ? t.pinned.collapseSubtasks : t.pinned.expandSubtasks}
           >
@@ -216,7 +216,7 @@ export function SubTaskRow({
           )}
 
           {!isEditing && (
-            <div className="flex items-center gap-1 shrink-0 flex-nowrap">
+            <div className="flex items-center gap-1 flex-wrap max-w-full sm:shrink-0 sm:flex-nowrap">
               {sub.title.length > 45 && (
                 <button
                   type="button"

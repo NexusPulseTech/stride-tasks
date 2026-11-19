@@ -156,7 +156,7 @@ export function ProjectCardHeader({
                 e.stopPropagation();
                 onMoveProject(project.id, 'up');
               }}
-              className="p-1 text-slate-300 dark:text-slate-600 hover:text-slate-700 dark:hover:text-slate-200 disabled:opacity-20 disabled:pointer-events-none rounded transition-colors cursor-pointer shrink-0"
+              className="p-1 pointer-coarse:p-1.5 text-slate-300 dark:text-slate-600 hover:text-slate-700 dark:hover:text-slate-200 disabled:opacity-20 disabled:pointer-events-none rounded transition-colors cursor-pointer shrink-0"
               title={t.projectHeader.moveUp}
               aria-label={t.projectHeader.moveUp}
             >
@@ -169,7 +169,7 @@ export function ProjectCardHeader({
                 e.stopPropagation();
                 onMoveProject(project.id, 'down');
               }}
-              className="p-1 text-slate-300 dark:text-slate-600 hover:text-slate-700 dark:hover:text-slate-200 disabled:opacity-20 disabled:pointer-events-none rounded transition-colors cursor-pointer shrink-0"
+              className="p-1 pointer-coarse:p-1.5 text-slate-300 dark:text-slate-600 hover:text-slate-700 dark:hover:text-slate-200 disabled:opacity-20 disabled:pointer-events-none rounded transition-colors cursor-pointer shrink-0"
               title={t.projectHeader.moveDown}
               aria-label={t.projectHeader.moveDown}
             >
@@ -193,7 +193,7 @@ export function ProjectCardHeader({
         <button
           type="button"
           onClick={() => onOpenBatchPaste(project)}
-          className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 rounded transition-colors cursor-pointer shrink-0"
+          className="p-1 pointer-coarse:p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 rounded transition-colors cursor-pointer shrink-0"
           title={t.projectHeader.batchPaste}
           aria-label={t.projectHeader.batchPaste}
         >
@@ -204,7 +204,7 @@ export function ProjectCardHeader({
         <button
           type="button"
           onClick={(e) => onDeleteProject(project.id, e)}
-          className="p-1 text-slate-300 dark:text-slate-600 hover:text-rose-500 rounded transition-colors cursor-pointer shrink-0"
+          className="p-1 pointer-coarse:p-1.5 text-slate-300 dark:text-slate-600 hover:text-rose-500 rounded transition-colors cursor-pointer shrink-0"
           title={t.projectHeader.deleteProject}
           aria-label={t.projectHeader.deleteProject}
         >
@@ -215,7 +215,7 @@ export function ProjectCardHeader({
         <button
           type="button"
           onClick={() => onToggleExpand(project.id)}
-          className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer shrink-0"
+          className="p-1 pointer-coarse:p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer shrink-0"
           title={project.isExpanded ? t.projectHeader.collapseProject : t.projectHeader.expandProject}
           aria-label={project.isExpanded ? t.projectHeader.collapseProject : t.projectHeader.expandProject}
         >

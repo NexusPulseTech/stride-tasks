@@ -47,7 +47,15 @@ Founder chọn sửa cả 6 mục ngày 2026-11-18 (banner trình duyệt trong 
 - [x] Giao diện tiếng Anh không còn "Ghim"; lần đầu mở app với dữ liệu mẫu, sau 7 giây không hiện nhắc việc (khi đã có việc thật thì nhắc như cũ).
 - [x] Banner chỉ hiện với User-Agent của trình duyệt trong ứng dụng (test `src/utils/__tests__/inAppBrowser.test.ts`); giả UA TikTok iPhone: banner "Open Stride in Safari" nằm trên ô thêm dự án. Nút mở bằng Safari/Chrome chỉ có trên https (kiểm trên production sau deploy).
 - [x] Tab Doing đếm 2 với dữ liệu mẫu (khớp Kanban); test `statusCategory.test.ts` cho Doing, Scheduled, Completed, All, Focus, tìm kiếm; ô tìm kiếm hiện đủ ở desktop 1920 px.
-- [ ] Lint, test app, test Worker, quét bí mật qua; kiểm trên trình duyệt EN/VI, sáng/tối, 390 px và desktop; founder duyệt rồi mới deploy.
+- [x] Vùng chạm đạt WCAG 2.2 SC 2.5.8 (tối thiểu 24 px) ở 390 và 412 px (đo lại 2026-11-19, xem bên dưới).
+- [x] Lint, test app (99/99), test Worker (45/45), quét bí mật qua; kiểm trên trình duyệt EN/VI, sáng/tối, 390, 412 px và desktop 1280 px: không phần tử nào bị khung cắt.
+- [ ] Founder duyệt rồi mới deploy.
+
+## Đo lại vùng chạm theo WCAG 2.2 SC 2.5.8 (2026-11-19)
+- Cách đo: Chrome giả lập cảm ứng (`pointer: coarse`), dữ liệu mẫu, đo vùng nhận chạm thật bằng `elementFromPoint` theo hàng ngang và cột dọc qua tâm (tính cả vùng nới `::after` của `.touch-hit` và phần bị nút bên cạnh che); mục dưới 24 px thì áp ngoại lệ khoảng cách (vòng tròn đường kính 24 px quanh tâm không chạm mục tiêu khác). Con số 40 của lần đo trước tính theo khung hình, chưa tính vùng nới.
+- Trước khi sửa (390 px): 74 mục tiêu, 17 mục có một chiều dưới 24 px, 11 đạt nhờ khoảng cách, 6 không đạt: 4 mũi tên mở việc con (vùng chạm thật 20 đến 22 px do vùng nới của nút hoàn thành đè lên) và cặp "chuyển dự án xuống" 20 px, "dán nhanh" 22 px đứng sát nhau ở đầu thẻ dự án.
+- Sửa (chỉ trên màn cảm ứng, desktop không đổi): mũi tên mở việc con thêm `pointer-coarse:mr-1.5`; 5 nút ở đầu thẻ dự án thành `pointer-coarse:p-1.5` (24 đến 26 px). Khoảng cách mới làm nhãn "0/2" bị cắt 5 px, nên nhóm nhãn cạnh tên việc được xuống dòng trên màn hẹp (`flex-wrap max-w-full`, giữ một dòng từ `sm`); trước đây nhóm này cũng sẽ bị cắt khi một việc có nhiều nhãn.
+- Sau khi sửa: 390 và 412 px, EN và VI, sáng và tối: 0 mục không đạt; 5 mục cao 22 px đạt nhờ khoảng cách (4 huy hiệu số việc con, 1 liên kết trong tên việc, vốn thuộc ngoại lệ inline). Kiểm bằng phép tính: 0 phần tử bị khung cắt ở 390, 412 và 1280 px; đã thử trả nhóm nhãn về kiểu cũ thì bộ kiểm tra báo đúng "0/2" bị cắt.
 
 ## Rủi ro & rollback
 - Đổi bố cục có thể làm lệch giao diện desktop: mọi thay đổi bố cục chỉ áp dụng dưới `sm` (640 px) hoặc với `pointer: coarse`; kiểm desktop trước khi gửi duyệt.

@@ -132,7 +132,7 @@ function PinnedSubtaskBranch({
                 <button
                   type="button"
                   onClick={() => onToggleExpandSub(childSub.id)}
-                  className="touch-hit [--hit:36px] w-4 h-4 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center justify-center shrink-0 cursor-pointer rounded"
+                  className="touch-hit [--hit:36px] pointer-coarse:mr-1.5 w-4 h-4 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center justify-center shrink-0 cursor-pointer rounded"
                   title={isChildExpanded ? t.pinned.collapseSubtasks : t.pinned.expandSubtasks}
                 >
                   <ChevronRight
@@ -181,7 +181,7 @@ function PinnedSubtaskBranch({
                   <FormattedTaskText text={childSub.title} isDone={childDone} />
                 </span>
 
-                <div className="flex items-center gap-1 shrink-0 flex-nowrap">
+                <div className="flex items-center gap-1 flex-wrap max-w-full sm:shrink-0 sm:flex-nowrap">
                   {hasChildren && (
                     <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono tabular-nums shrink-0 whitespace-nowrap">
                       {childStats.completed}/{childStats.total}
@@ -398,7 +398,7 @@ export function PinnedSection({
                       e.stopPropagation();
                       toggleSubExpand(itemId);
                     }}
-                    className="touch-hit [--hit:36px] w-4 h-4 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 flex items-center justify-center cursor-pointer shrink-0 transition-colors rounded hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
+                    className="touch-hit [--hit:36px] pointer-coarse:mr-1.5 w-4 h-4 text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 flex items-center justify-center cursor-pointer shrink-0 transition-colors rounded hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
                     title={isSubsOpen ? t.pinned.collapseSubtasks : `${t.pinned.expandSubtasks} (${stats.total})`}
                     aria-label={isSubsOpen ? t.pinned.collapseSubtasks : t.pinned.expandSubtasks}
                   >
@@ -454,7 +454,7 @@ export function PinnedSection({
                   </div>
 
                   {/* Metadata Badges (shrink-0, không xuống dòng) */}
-                  <div className="flex items-center gap-1 shrink-0 flex-nowrap">
+                  <div className="flex items-center gap-1 flex-wrap max-w-full sm:shrink-0 sm:flex-nowrap">
                     <span
                       className="hidden sm:inline-flex items-center gap-1 text-[10px] text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 px-1.5 py-0.5 rounded font-medium max-w-[140px] truncate shrink-0 whitespace-nowrap"
                       title={project.name}
