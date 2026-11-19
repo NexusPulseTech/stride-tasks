@@ -57,9 +57,15 @@ Mỗi lỗi một commit, hoàn tác được từng commit. Nhánh tách từ `
 - Test: `src/features/tasks/utils/__tests__/taskSnapshot.test.ts` (3 ca). Trước khi sửa: đỏ vì chưa có cơ chế khôi phục (module chưa tồn tại). Sau khi sửa: 3 xanh; 61 test của tasks vẫn xanh sau khi Shutdown Ritual chuyển sang hàm dùng chung.
 - Kiểm trên preview: Daily Focus, bấm nút Done thật của "Study chapter 3" (Doing) → `done`, có dòng nhật ký, thanh "Done: "Study chapter 3" · Undo (Ctrl+Z)". Bấm Ctrl+Z → `doing`, không còn `completedAt`, dòng nhật ký bị gỡ, hiện "Restored successfully!", việc quay lại Due Today.
 
+### F11: nhãn hệ số giãn cách không khớp ("Good (×2.3)" ở Smart schedule, 2.2 trong code)
+- Nguyên nhân: `SmartScheduleModal.tsx` viết cứng "×2.3"; `spacedSnooze.ts` viết cứng "×2.2" trong nhãn của lựa chọn thứ hai; hằng số thật là 2.2.
+- Sửa: `spacedSnooze.ts` xuất `SNOOZE_GROWTH_FACTOR` (2.2) và `SNOOZE_GROWTH_LABEL` ("×2.2"); nhãn trong `getAnkiSrs3Options` và Smart schedule đọc từ đó. Chỉ đổi con số; chữ Good, Anki và các nhãn khác giữ nguyên cho đợt B13.
+- Test: `src/features/tasks/utils/__tests__/snoozeGrowthLabel.test.ts` (không file mã nguồn nào viết cứng "×" kèm số; nhãn dùng chung khớp hệ số và có trong lựa chọn thứ hai). Trước khi sửa: 2 đỏ (2 file viết cứng, chưa có hằng số xuất ra). Sau khi sửa: 2 xanh.
+- Kiểm trên preview: mở "Smart schedule / reminder" của một việc → lựa chọn 2 ghi "Good (×2.2)", không còn "×2.3".
+
 ## Trạng thái và bước tiếp theo
-- Xong: F09, F10.
-- Tiếp theo: F11, chuỗi việc con nhiều tầng, chữ số nhiều, Undo sau Shutdown Ritual.
+- Xong: F09, F10, F11.
+- Tiếp theo: chuỗi việc con nhiều tầng, chữ số nhiều, Undo sau Shutdown Ritual.
 
 ## Tham chiếu
 - [B12](./B12-logic-fixes.md)

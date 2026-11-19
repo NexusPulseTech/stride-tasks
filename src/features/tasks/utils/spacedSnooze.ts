@@ -253,7 +253,7 @@ export interface SnoozePresetOption {
 /**
  * LỊCH ÔN GIÃN DẦN: lấy ý tưởng giãn cách cấp số nhân như Anki, nhưng KHÔNG phải SM-2 hay FSRS.
  * - Thang cố định, chung cho mọi việc; không có hệ số dễ (ease) riêng từng việc như SM-2. Bậc chỉ đổi theo nút người dùng chọn.
- * - Sau bậc 5, mỗi bậc nhân 2,2 (ANKI_EASE_FACTOR), tối đa 365 ngày.
+ * - Sau bậc 5, mỗi bậc nhân SNOOZE_GROWTH_FACTOR (2,2), tối đa 365 ngày.
  * - Chuỗi cấp số nhân chuẩn: 1 ngày -> 3 ngày -> 7 ngày -> 16 ngày -> 35 ngày -> 77 ngày -> 170 ngày -> 365 ngày
  * - Option 1 (Phím 1 - Again): days = 0, reset lập tức về Mức 1 (dù đang ở mức cao nhất), tự động Ghim ưu tiên lên đầu.
  * - Option 2 (Phím 2 / Space - Good): Tăng 1 cấp (currentLevel + 1), nhân khoảng cách theo cấp số nhân chuẩn.
@@ -277,7 +277,10 @@ export interface AnkiSrsOption {
 }
 
 const ANKI_EXPONENTIAL_BASE_DAYS = [1, 3, 7, 16, 35];
-const ANKI_EASE_FACTOR = 2.2;
+/** Hệ số giãn cách sau bậc cuối của bảng. Mọi nhãn hiển thị hệ số đọc từ đây (B15 F11) */
+export const SNOOZE_GROWTH_FACTOR = 2.2;
+export const SNOOZE_GROWTH_LABEL = `×${SNOOZE_GROWTH_FACTOR}`;
+const ANKI_EASE_FACTOR = SNOOZE_GROWTH_FACTOR;
 const ANKI_MAX_INTERVAL_DAYS = 365;
 
 export function calculateAnkiExponentialDays(stepLevel: number): number {
@@ -375,8 +378,8 @@ export function getAnkiSrs3Options(level: number = 1): [AnkiSrsOption, AnkiSrsOp
     ankiRatingEn: 'Exponential (Good)',
     labelVi: opt2Formatted.textVi,
     labelEn: opt2Formatted.textEn,
-    subLabelVi: `Cấp số nhân ×2.2 • Lên Mức ${opt2NextLevel}`,
-    subLabelEn: `Exponential ×2.2 • To Lvl ${opt2NextLevel}`,
+    subLabelVi: `Cấp số nhân ${SNOOZE_GROWTH_LABEL} • Lên Mức ${opt2NextLevel}`,
+    subLabelEn: `Exponential ${SNOOZE_GROWTH_LABEL} • To Lvl ${opt2NextLevel}`,
     intervalTagVi: opt2Formatted.tagVi,
     intervalTagEn: opt2Formatted.tagEn,
     days: opt2Days,
