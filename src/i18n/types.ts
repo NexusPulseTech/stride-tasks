@@ -33,6 +33,7 @@ export interface Translations {
     focusing: string;
     focusTooltip: string;
     reminderTooltip: string;
+    reminderInApp: string;
     analyticsTooltip: string;
     settingsTooltip: string;
     menuTooltip: string;
@@ -542,6 +543,7 @@ export interface Translations {
     notifUnsupported: string;
     periodicReminderOn: string;
     inAppReminderOn: string;
+    systemNotifyFailed: string;
     taskRemindersOff: string;
     scheduledNotificationTitle: string;
     scheduledNotificationBody: string;

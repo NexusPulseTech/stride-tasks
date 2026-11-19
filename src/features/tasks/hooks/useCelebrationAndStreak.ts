@@ -3,6 +3,7 @@ import { STREAK_KEY, MUTED_KEY, REMINDER_KEY } from '../../../constants';
 import { triggerHaptic, playChime } from '../../../utils';
 import { UndoAction, Project } from '../../../types';
 import { useTranslationRef, formatMessage } from '../../../i18n';
+import { showSystemNotification } from '../../../utils/systemNotification';
 
 export function useCelebrationAndStreak(projects?: Project[]) {
   const tRef = useTranslationRef();
@@ -120,7 +121,7 @@ export function useCelebrationAndStreak(projects?: Project[]) {
               localStorage.setItem(REMINDER_KEY, 'true');
             } catch (e) {}
             showToast(tRef.current.toast.remindersOn);
-            new Notification(tRef.current.reminder.notificationTitle, {
+            void showSystemNotification(tRef.current.reminder.notificationTitle, {
               body: tRef.current.toast.remindersOn,
               icon: '/icon-192.png',
             });
@@ -152,15 +153,13 @@ export function useCelebrationAndStreak(projects?: Project[]) {
       const pendingTasks = projects.flatMap((p) => p.tasks).filter((t) => t.status !== 'done');
       if (pendingTasks.length > 0) {
         const topTask = pendingTasks.find((t) => t.isPinned || t.status === 'doing') || pendingTasks[0];
-        try {
-          new Notification(tRef.current.reminder.notificationTitle, {
-            body: formatMessage(tRef.current.reminder.notificationBody, {
-              count: pendingTasks.length,
-              task: topTask.title.slice(0, 32),
-            }),
-            icon: '/icon-192.png',
-          });
-        } catch (e) {}
+        void showSystemNotification(tRef.current.reminder.notificationTitle, {
+          body: formatMessage(tRef.current.reminder.notificationBody, {
+            count: pendingTasks.length,
+            task: topTask.title.slice(0, 32),
+          }),
+          icon: '/icon-192.png',
+        });
       }
     };
 

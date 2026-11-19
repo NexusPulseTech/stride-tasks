@@ -46,6 +46,7 @@ Ký hiệu: ☐ Todo · ◐ In progress · ☑ Done · ⏸ Blocked (ghi lý do)
 | [B08](./B08-split-oversized-modules.md) | Tách 29 file > 300 dòng (từng PR) | P2 | liên tục | B01, B02 | ☐ |
 | [B10](./B10-supply-chain-and-signing-key.md) | Ghim action theo SHA, quyền token theo job, `npm ci`, khóa ký đọc ngoài repo | P1 | 0,5 ngày | - | ◐ 2026-11-19 (xong trên nhánh, chờ gộp và việc của founder) |
 | [B11](./B11-sw-install-resilience-and-offline-check.md) | SW cài lỗi sau deploy (`sw.js` cũ ở biên Cloudflare): Cache Rule cho Phúc, lớp phục hồi, kiểm ngoại tuyến sau deploy | P0 | 1 ngày | B04 | ◐ 2026-11-19 (đã deploy 17:13 UTC; chờ Phúc bật Cache Rule) |
+| [B14](./B14-perf-a11y.md) | Sau kiểm hiệu năng và trợ năng: B14a thông báo nhắc việc qua service worker và báo đúng trạng thái, ảnh WebP trang đích; B14b lỗi trợ năng WCAG 2.2 AA mức P1 | P1 | 2 ngày | A17, B11, B12 | ◐ 2026-11-20 (B14a đang làm trên nhánh) |
 | [C01](./C01-marketing-site-ssg-i18n.md) | Site marketing đầy đủ (tính năng, so sánh, blog) | P1 | 3 ngày | A06 | ☐ |
 | [C02](./C02-content-pillars-and-comparison-pages.md) | Trụ cột nội dung & trang so sánh (8 tuần) | P1 | liên tục | C01 | ☐ |
 | [C03](./C03-localization-wave-1.md) | Bản địa hóa đợt 1 | P2 | 3-5 ngày | A07 (dữ liệu) | ☐ |
