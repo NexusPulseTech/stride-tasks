@@ -815,6 +815,7 @@ export default function App() {
         items={manager.dailyFocusQueue}
         snoozedItems={manager.snoozedFocusQueue}
         projects={manager.projects}
+        focusTodayMinutes={focusLog.summary.todayMinutes}
         onToggleTaskDone={manager.toggleTaskDone}
         onToggleSubTask={manager.toggleSubTask}
         onTogglePinTask={(projId, taskId) => {

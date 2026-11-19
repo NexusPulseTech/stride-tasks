@@ -60,9 +60,15 @@ Phiên rà soát (chỉ đọc, preview cục bộ, giả lập đồng hồ) th
 - Test: thêm 3 ca vào `dailyFocusQueue.test.ts`. Trên code cũ: 3 đỏ. Sau khi sửa: 8 xanh.
 - Kiểm trên preview: nút "Smart schedule / reminder" của "Launch a personal website" (9 việc con, đang ghim) → phím 2 thật → `snoozeUntil` 9:00 mai, mức 2. Daily Focus: Due Today 4, không còn "Write the About page"; Snoozed 1 là "Launch a personal website", Lvl 2, còn 10 giờ.
 
+### F08: Workload Budget cộng toàn bộ backlog và mọi phút Focus từ trước tới nay
+- Nguyên nhân: thanh Workload Budget trong `DailyFocusModal.tsx` cộng `estimatedMinutes` của mọi việc chưa xong ở mọi dự án (kể cả việc đang hoãn, hẹn tuần sau) và `focusedMinutes` của mọi việc kể cả việc đã xong.
+- Sửa: hàm thuần `computeWorkloadBudget` (`utils/workloadBudget.ts`) cộng ước tính của đúng các việc trong Due Today, mỗi việc một lần (bước con tính theo ước tính của việc cha, vì việc con không có ước tính riêng), và lấy phút Focus của hôm nay từ nhật ký tập trung (`focusLog.summary.todayMinutes`, truyền từ `App.tsx`). Ngưỡng quá tải vẫn là 6 giờ. Bỏ điều kiện luôn đúng `activeDoingCount >= 0` ở nút Shutdown Ritual.
+- Test: `src/features/tasks/utils/__tests__/workloadBudget.test.ts`. Trên logic cũ (chép nguyên văn vào hàm): 4 đỏ, 1 xanh (ca quá 6 giờ). Sau khi sửa: 5 xanh.
+- Kiểm trên preview (cùng dữ liệu sau F06, F07): trước "~2h 15m · 50m Focus", sau "~45m · 0m Focus · +3 unestimated" = đúng ước tính của "Study chapter 3", việc duy nhất có ước tính trong Due Today; nhật ký tập trung hôm nay 0 phút.
+
 ## Trạng thái và bước tiếp theo
-- Xong: F01, F06, F07.
-- Tiếp theo: F08, F02, F03, F04 và F05.
+- Xong: F01, F06, F07, F08.
+- Tiếp theo: F02, F03, F04 và F05.
 
 ## Tham chiếu
 - [A17](./A17-mobile-trial-fixes.md) (đợt sửa trước, cùng cách làm)
