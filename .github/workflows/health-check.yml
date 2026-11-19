@@ -1,12 +1,17 @@
 name: Production health check
 
-# Kiểm tra sống mỗi 6 giờ bằng curl, không tạo đơn hay dữ liệu: app, header bảo mật ở edge, trang đích, trang pháp lý
-# và Worker (định dạng claim, webhook fail-closed, CORS). Bước nào lỗi thì GitHub gửi email cho người sửa workflow gần nhất.
+# Kiểm tra sống mỗi 6 giờ và ngay sau mỗi lần deploy thành công, không tạo đơn hay dữ liệu trên máy chủ. Job check (curl): app,
+# header bảo mật ở edge, trang đích, trang pháp lý và Worker (định dạng claim, webhook fail-closed, CORS). Job offline (Chrome):
+# chế độ ngoại tuyến thật (B11). Bước nào lỗi thì GitHub gửi email cho người sửa workflow gần nhất.
 # Lưu ý: GitHub tự tắt lịch này sau 60 ngày repo không có commit; bật lại ở tab Actions.
 on:
   schedule:
     - cron: '17 */6 * * *'
   workflow_dispatch:
+  # B11: chạy ngay sau mỗi lần deploy, vì khung lỗi service worker nằm ngay sau deploy (sw.js cũ ở cache biên Cloudflare)
+  workflow_run:
+    workflows: ['Deploy to GitHub Pages']
+    types: [completed]
 
 permissions:
   contents: read
@@ -16,7 +21,22 @@ env:
   API: https://tasks-api.nexuspulsetech.xyz
 
 jobs:
+  # B11: app thật sự chạy ngoại tuyến. Chrome có sẵn trên runner; pha 1 có mạng chờ service worker activated,
+  # pha 2 cắt mạng thật (proxy chết) rồi gõ một việc và mở hộp Daily Focus. Chặn Cloudflare analytics, không tạo dữ liệu trên máy chủ.
+  offline:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: App installs its service worker and works with the network off
+        run: node scripts/offline-check.mjs "$APP/"
+
   check:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
