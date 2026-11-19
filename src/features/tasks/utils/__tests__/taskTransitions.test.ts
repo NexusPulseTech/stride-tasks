@@ -1,6 +1,6 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Project, SubTask, Task } from '../../../../types';
-import { processDailyRecurrenceRollover } from '../recurringHelper';
+import { manuallyResetRecurringTask, processDailyRecurrenceRollover } from '../recurringHelper';
 import {
   changeSubtaskStatusTransition,
   changeTaskStatusTransition,
@@ -134,5 +134,90 @@ describe('F01: mọi đường đánh dấu xong đều ghi nhận việc lặp 
     const next = changeTaskStatusTransition(plain, 'done', true);
     expect(next.lastCompletedDate).toBeUndefined();
     expect(next.recurrenceStreak).toBeUndefined();
+  });
+});
+
+describe('F02: chuỗi ngày cộng tối đa 1 lần mỗi chu kỳ, bỏ lỡ thì về 0', () => {
+  const projectsOf = (task: Task): Project[] => [{ id: 'p1', name: 'P', tasks: [task] } as Project];
+
+  it('tích, bỏ tích, tích lại trong cùng ngày chỉ cộng 1; bỏ tích trả lại ngày làm xong trước đó', () => {
+    const done = toggleTaskDoneTransition(dailyTask(), true);
+    expect(done.recurrenceStreak).toBe(4);
+    const undone = toggleTaskDoneTransition(done, false);
+    expect(undone.recurrenceStreak).toBe(3);
+    expect(undone.lastCompletedDate).toBe('2026-11-18');
+    const again = toggleTaskDoneTransition(undone, true);
+    expect(again.recurrenceStreak).toBe(4);
+    expect(again.lastCompletedDate).toBe(DAY1_KEY);
+  });
+
+  it('qua ô trạng thái: Done, về Todo, Done lại vẫn chỉ cộng 1', () => {
+    const a = changeTaskStatusTransition(dailyTask(), 'done', true);
+    const b = changeTaskStatusTransition(a, 'todo', false);
+    const c = changeTaskStatusTransition(b, 'done', true);
+    expect([a.recurrenceStreak, b.recurrenceStreak, c.recurrenceStreak]).toEqual([4, 3, 4]);
+  });
+
+  it('làm mới thủ công rồi tích lại trong cùng ngày không cộng thêm', () => {
+    const done = toggleTaskDoneTransition(dailyTask(), true);
+    const reset = manuallyResetRecurringTask(projectsOf(done), 'p1', 't1')[0].tasks[0];
+    expect(reset.status).toBe('todo');
+    expect(toggleTaskDoneTransition(reset, true).recurrenceStreak).toBe(4);
+  });
+
+  it('hôm sau chuỗi còn nguyên và làm tiếp thì cộng 1', () => {
+    const done = toggleTaskDoneTransition(dailyTask(), true);
+    vi.setSystemTime(DAY2_MORNING);
+    const next = rollover(done);
+    expect(next.status).toBe('todo');
+    expect(next.recurrenceStreak).toBe(4);
+    expect(toggleTaskDoneTransition(next, true).recurrenceStreak).toBe(5);
+  });
+
+  it('bỏ 5 ngày không làm thì khi mở app chuỗi về 0', () => {
+    const done = toggleTaskDoneTransition(dailyTask(), true);
+    vi.setSystemTime(new Date(2026, 10, 25, 8, 0, 0));
+    const next = rollover(done);
+    expect(next.status).toBe('todo');
+    expect(next.recurrenceStreak).toBe(0);
+  });
+
+  it('việc chưa tích hôm qua mà lỡ cả hôm qua thì chuỗi cũng về 0 khi mở app', () => {
+    // Làm lần cuối 17/11, hôm nay 19/11: đã lỡ 18/11
+    const stale = dailyTask({ lastCompletedDate: '2026-11-17', recurrenceStreak: 6 });
+    expect(rollover(stale).recurrenceStreak).toBe(0);
+    expect(toggleTaskDoneTransition(stale, true).recurrenceStreak).toBe(1);
+  });
+
+  it('ngày thường: làm thứ Sáu, thứ Hai làm tiếp vẫn liền chuỗi; lỡ thứ Hai thì thứ Ba về 1', () => {
+    vi.setSystemTime(new Date(2026, 10, 20, 10, 0, 0)); // thứ Sáu
+    const fri = toggleTaskDoneTransition(dailyTask({ recurrence: 'weekdays', lastCompletedDate: '2026-11-19' }), true);
+    expect(fri.recurrenceStreak).toBe(4);
+    vi.setSystemTime(new Date(2026, 10, 23, 10, 0, 0)); // thứ Hai
+    expect(toggleTaskDoneTransition(rollover(fri), true).recurrenceStreak).toBe(5);
+    vi.setSystemTime(new Date(2026, 10, 24, 10, 0, 0)); // thứ Ba, đã lỡ thứ Hai
+    expect(toggleTaskDoneTransition(rollover(fri), true).recurrenceStreak).toBe(1);
+  });
+
+  it('hằng tuần: làm lại trong tuần kế tiếp thì liền chuỗi, quá 2 tuần thì về 1', () => {
+    const wk = toggleTaskDoneTransition(dailyTask({ recurrence: 'weekly', lastCompletedDate: '2026-11-12' }), true);
+    expect(wk.recurrenceStreak).toBe(4);
+    vi.setSystemTime(new Date(2026, 10, 30, 10, 0, 0)); // 11 ngày sau
+    expect(toggleTaskDoneTransition(rollover(wk), true).recurrenceStreak).toBe(5);
+    vi.setSystemTime(new Date(2026, 11, 4, 10, 0, 0)); // 15 ngày sau
+    expect(toggleTaskDoneTransition(rollover(wk), true).recurrenceStreak).toBe(1);
+  });
+
+  it('việc mẫu có chuỗi nhưng chưa có ngày làm xong: lần đầu làm thì cộng tiếp', () => {
+    expect(toggleTaskDoneTransition(dailyTask({ lastCompletedDate: undefined }), true).recurrenceStreak).toBe(4);
+  });
+
+  it('việc con lặp lại: tích, bỏ tích, tích lại chỉ cộng 1', () => {
+    const task: Task = { id: 't2', title: 'Habits', status: 'todo', subtasks: [sub({ recurrence: 'daily', recurrenceStreak: 2, lastCompletedDate: '2026-11-18' }), sub({ id: 's2' })] };
+    const a = toggleSubtaskTransition(task, 's1', true);
+    const b = toggleSubtaskTransition(a, 's1', false);
+    const c = toggleSubtaskTransition(b, 's1', true);
+    expect([a.subtasks[0].recurrenceStreak, b.subtasks[0].recurrenceStreak, c.subtasks[0].recurrenceStreak]).toEqual([3, 2, 3]);
+    expect(b.subtasks[0].lastCompletedDate).toBe('2026-11-18');
   });
 });

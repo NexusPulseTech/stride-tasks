@@ -66,9 +66,20 @@ Phiên rà soát (chỉ đọc, preview cục bộ, giả lập đồng hồ) th
 - Test: `src/features/tasks/utils/__tests__/workloadBudget.test.ts`. Trên logic cũ (chép nguyên văn vào hàm): 4 đỏ, 1 xanh (ca quá 6 giờ). Sau khi sửa: 5 xanh.
 - Kiểm trên preview (cùng dữ liệu sau F06, F07): trước "~2h 15m · 50m Focus", sau "~45m · 0m Focus · +3 unestimated" = đúng ước tính của "Study chapter 3", việc duy nhất có ước tính trong Due Today; nhật ký tập trung hôm nay 0 phút.
 
+### F02: chuỗi ngày không bao giờ bị ngắt và bơm được bằng bỏ tích rồi tích lại
+- Nguyên nhân: mỗi lần chuyển sang xong đều cộng 1, bỏ tích không trừ lại; rollover xóa `lastCompletedDate` nên không còn gì để biết đã lỡ ngày; làm mới thủ công cũng xóa ngày nên tích lại được cộng tiếp.
+- Sửa (`recurringHelper.ts`, `taskTransitions.ts`, `subtaskTree.ts`, kiểu `StreakUndo` trong `types/index.ts`):
+  - `markRecurringDone`: đã làm hôm nay thì không cộng; liền chuỗi thì +1, lỡ một chu kỳ thì bắt đầu lại từ 1; lưu giá trị cũ vào `streakUndo`. Việc chưa có ngày làm xong (dữ liệu cũ, việc mẫu "Daily 3d") thì cộng tiếp vì không biết lịch sử.
+  - `unmarkRecurringDone`: bỏ xong (vòng tròn, ô trạng thái, việc con) thì trả ngày làm xong và chuỗi về trước lần làm xong đó.
+  - `streakContinues`: hằng ngày cách tối đa 1 ngày; ngày thường không bỏ qua thứ Hai đến thứ Sáu nào; hằng tuần cách tối đa 13 ngày (làm mới sau 7 ngày, có 7 ngày để làm).
+  - Rollover giữ `lastCompletedDate`, đặt chuỗi về 0 bằng `breakStaleStreak` khi đã lỡ chu kỳ (cả việc chưa tích), và giữ nguyên tham chiếu khi không có gì đổi. Làm mới thủ công giữ ngày làm xong nên tích lại trong ngày không cộng thêm.
+  - Dữ liệu cũ: lần làm xong trước bản này không có `streakUndo`, nên bỏ tích lần đó không trừ chuỗi; tích lại trong ngày cũng không cộng.
+- Test: 10 ca mới trong `taskTransitions.test.ts`. Trên code sau F01: 8 đỏ, 2 xanh (ca hôm sau giữ chuỗi, ca việc mẫu). Sau khi sửa: 21 xanh cho cả F01 và F02.
+- Kiểm trên preview (ngữ cảnh trình duyệt sạch, dữ liệu mẫu tiếng Anh, bấm vòng tròn thật): "Plan your day in 10 minutes" `todo/3 → done/4 → todo/3 → done/4` (trước đây `done/4 → todo/4 → done/5`). Đồng hồ sang 8:00 hôm sau: `todo`, chuỗi 4; tích tiếp: chuỗi 5, ngày 2026-11-20. Ngữ cảnh khác, đồng hồ +26 giờ rơi vào ngày thứ ba (lỡ một ngày): `todo`, chuỗi 0.
+
 ## Trạng thái và bước tiếp theo
-- Xong: F01, F06, F07, F08.
-- Tiếp theo: F02, F03, F04 và F05.
+- Xong: F01, F06, F07, F08, F02.
+- Tiếp theo: F03, F04 và F05.
 
 ## Tham chiếu
 - [A17](./A17-mobile-trial-fixes.md) (đợt sửa trước, cùng cách làm)

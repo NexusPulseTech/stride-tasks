@@ -8,6 +8,12 @@ export interface StatusDefinition {
 
 export type RecurrenceType = 'daily' | 'weekdays' | 'weekly' | null;
 
+/** Ngày làm xong và chuỗi ngay trước lần làm xong gần nhất của việc lặp lại */
+export interface StreakUndo {
+  lastCompletedDate?: string;
+  recurrenceStreak?: number;
+}
+
 export interface SubTask {
   id: string;
   title: string;
@@ -17,6 +23,7 @@ export interface SubTask {
   recurrence?: RecurrenceType;
   lastCompletedDate?: string; // 'YYYY-MM-DD'
   recurrenceStreak?: number;
+  streakUndo?: StreakUndo; // Giá trị trước lần làm xong gần nhất, để bỏ tích thì trả lại chuỗi (B12 F02)
   isPinned?: boolean;
   snoozeUntil?: string; // ISO string thời điểm hết hoãn / đếm ngược nhắc lại
   snoozeLevel?: number; // Cấp độ hoãn lũy tiến (1 = 1 ngày, 2 = 3 ngày, 3 = 9 ngày...)
@@ -36,6 +43,7 @@ export interface Task {
   recurrence?: RecurrenceType;
   lastCompletedDate?: string; // 'YYYY-MM-DD'
   recurrenceStreak?: number;
+  streakUndo?: StreakUndo; // Giá trị trước lần làm xong gần nhất, để bỏ tích thì trả lại chuỗi (B12 F02)
   snoozeUntil?: string; // ISO string thời điểm hết hoãn / đếm ngược nhắc lại
   snoozeLevel?: number; // Cấp độ hoãn lũy tiến (1 = 1 ngày, 2 = 3 ngày, 3 = 9 ngày...)
   focusedMinutes?: number; // Số phút tập trung của chu kỳ hiện tại (reset khi việc lặp lại sang chu kỳ mới; lịch sử nằm ở focus log)

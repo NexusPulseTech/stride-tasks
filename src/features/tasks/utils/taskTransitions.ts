@@ -1,5 +1,5 @@
 import type { SubTask, Task } from '../../../types';
-import { markRecurringDone } from './recurringHelper';
+import { markRecurringDone, unmarkRecurringDone } from './recurringHelper';
 import {
   cascadeSubtaskCompleted,
   determineTaskStatusFromSubtasks,
@@ -28,7 +28,11 @@ function withTaskStatus(t: Task, status: string, isDone: boolean): Task {
     completedAt: isDone ? t.completedAt || new Date().toISOString() : undefined,
     snoozeUntil: isDone ? undefined : t.snoozeUntil,
   };
-  return isDone && !isTaskMarkedDone(t) ? markRecurringDone(next) : next;
+  const wasDone = isTaskMarkedDone(t);
+  if (isDone && !wasDone) return markRecurringDone(next);
+  // B12 F02: bỏ xong thì trả chuỗi về trước lần làm xong đó, để tích lại không bơm chuỗi
+  if (!isDone && wasDone) return unmarkRecurringDone(next);
+  return next;
 }
 
 /** Vòng tròn "Mark done" của một việc. */

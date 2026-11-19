@@ -1,5 +1,5 @@
 import { SubTask, Task } from '../../../types';
-import { markRecurringDone } from './recurringHelper';
+import { markRecurringDone, unmarkRecurringDone } from './recurringHelper';
 
 /**
  * UTILITIES & ALGORITHMS FOR RECURSIVE HIERARCHICAL SUBTASKS
@@ -74,7 +74,10 @@ export function cascadeSubtaskCompleted(sub: SubTask, completed: boolean): SubTa
       : undefined,
   };
   // B12 F01: chỉ ghi nhận khi việc con vừa chuyển sang xong (trước đây ghi lại mỗi lần thác đổ, và lấy ngày theo UTC)
-  return completed && !sub.completed ? markRecurringDone(next) : next;
+  if (completed && !sub.completed) return markRecurringDone(next);
+  // B12 F02: bỏ tích thì trả chuỗi về trước lần làm xong đó
+  if (!completed && sub.completed) return unmarkRecurringDone(next);
+  return next;
 }
 
 /**
@@ -317,8 +320,10 @@ export function updateSubtaskStatusInTree(
             ? item.subtasks.map((child) => cascadeSubtaskCompleted(child, true))
             : item.subtasks,
       };
-      // B12 F01: việc con lặp lại đổi sang nhóm done bằng ô trạng thái cũng được ghi nhận
-      return isDoneCategory && !item.completed ? markRecurringDone(updatedItem) : updatedItem;
+      // B12 F01: việc con lặp lại đổi sang nhóm done bằng ô trạng thái cũng được ghi nhận; F02: rời nhóm done thì trả chuỗi
+      if (isDoneCategory && !item.completed) return markRecurringDone(updatedItem);
+      if (!isDoneCategory && item.completed) return unmarkRecurringDone(updatedItem);
+      return updatedItem;
     }
     if (item.subtasks && item.subtasks.length > 0) {
       const updatedChildren = updateSubtaskStatusInTree(item.subtasks, subId, newStatus, isDoneCategory);
