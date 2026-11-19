@@ -6,7 +6,7 @@
 | Ưu tiên | P1 (khách từ video ngắn vào bằng điện thoại) |
 | Ước lượng | 4 giờ |
 | Phụ thuộc | A16 |
-| Trạng thái | ◐ 2026-11-19 (xong trên nhánh `a17-mobile-trial-fixes`; chờ gộp với các nhánh sửa lỗi khác và founder duyệt deploy) |
+| Trạng thái | ◐ 2026-11-19: đã deploy production (founder duyệt; `main` = `36b2c86`, Deploy xanh 07:06:10 UTC). Còn kiểm nút mở bằng trình duyệt ngoài trên https (Instagram, TikTok iOS) |
 
 ## Mục tiêu
 Người mở app lần đầu trên điện thoại thêm được việc không bị hộp thoại chen ngang, đọc được tên việc và các tab lọc ở màn 390 px, bấm trúng các nút chính, và được nhắc mở app trong Safari hoặc Chrome khi đang ở trình duyệt trong TikTok, Instagram, Facebook.
@@ -49,7 +49,13 @@ Founder chọn sửa cả 6 mục ngày 2026-11-18 (banner trình duyệt trong 
 - [x] Tab Doing đếm 2 với dữ liệu mẫu (khớp Kanban); test `statusCategory.test.ts` cho Doing, Scheduled, Completed, All, Focus, tìm kiếm; ô tìm kiếm hiện đủ ở desktop 1920 px.
 - [x] Vùng chạm đạt WCAG 2.2 SC 2.5.8 (tối thiểu 24 px) ở 390 và 412 px (đo lại 2026-11-19, xem bên dưới).
 - [x] Lint, test app (99/99), test Worker (45/45), quét bí mật qua; kiểm trên trình duyệt EN/VI, sáng/tối, 390, 412 px và desktop 1280 px: không phần tử nào bị khung cắt.
-- [ ] Founder duyệt rồi mới deploy.
+- [x] Founder duyệt rồi mới deploy (2026-11-19, push 07:05:32 UTC, Deploy xanh 07:06:10 UTC).
+
+## Kiểm sau deploy (2026-11-19, production)
+- Bundle mới `index-DieLmWn1.js` được phục vụ từ 07:06:43 UTC.
+- 390 và 412 px: 0 vùng chạm không đạt SC 2.5.8, 0 phần tử bị khung cắt, không có lỗi console mới.
+- Lighthouse mobile (trợ năng, best practices, SEO): Accessibility 78 lên 83 (mục `target-size` qua), Best Practices 96, SEO 100 không đổi. Slow 4G, cache lạnh: LCP 2644 ms (trước 2656 ms), CLS 0, 211 KB (trước 208 KB).
+- Ngoại tuyến: 07:10 đến 07:13 UTC trượt 3/3 (service worker không cài được); 07:21 UTC đạt 2/2, thêm việc khi mất mạng rồi tải lại vẫn còn. Lỗi trượt là `sw.js` cũ ở cache biên Cloudflare sau deploy (B11, lỗi 1), không do A17: A17 không đổi cấu hình build hay service worker, và cùng bản A17 chạy ở máy thì đạt.
 
 ## Đo lại vùng chạm theo WCAG 2.2 SC 2.5.8 (2026-11-19)
 - Cách đo: Chrome giả lập cảm ứng (`pointer: coarse`), dữ liệu mẫu, đo vùng nhận chạm thật bằng `elementFromPoint` theo hàng ngang và cột dọc qua tâm (tính cả vùng nới `::after` của `.touch-hit` và phần bị nút bên cạnh che); mục dưới 24 px thì áp ngoại lệ khoảng cách (vòng tròn đường kính 24 px quanh tâm không chạm mục tiêu khác). Con số 40 của lần đo trước tính theo khung hình, chưa tính vùng nới.
