@@ -66,3 +66,36 @@ describe('F06: Due Today chỉ gồm việc đến hạn hôm nay, quá hạn ho
     expect(titles(getDailyFocusQueue(projects, []))).toContain('callBankTomorrow');
   });
 });
+
+describe('F07: hoãn và ghim ở việc cha có việc con được Daily Focus tôn trọng', () => {
+  const steps = [
+    { id: 's1', title: 'Pick a domain', completed: true, status: 'done' },
+    { id: 's2', title: 'Write the About page', completed: false, status: 'todo' },
+  ];
+  const website = (patch: Partial<Task> = {}) => task('Launch a personal website', { status: 'doing', subtasks: steps, ...patch });
+
+  it('việc cha đang hoãn (Smart schedule, Good +1d) thì cả việc rời Due Today, sang Snoozed', () => {
+    const projects = [project([task('undated'), website({ snoozeUntil: at(2026, 11, 20, 9), snoozeLevel: 2 })])];
+    expect(titles(getDailyFocusQueue(projects, []))).toEqual(['undated']);
+    const snoozed = getSnoozedItemsQueue(projects, []);
+    expect(titles(snoozed)).toEqual(['Launch a personal website']);
+    // Mục ở tab Snoozed là việc cha, để "Remind Now" gỡ đúng lần hoãn của việc cha
+    expect(snoozed[0].isSubtask).toBe(false);
+    expect(snoozed[0].snoozeLevel).toBe(2);
+  });
+
+  it('việc cha hết hoãn thì bước con tiếp theo quay lại Due Today', () => {
+    const projects = [project([website({ snoozeUntil: at(2026, 11, 19, 9), snoozeLevel: 2 })])];
+    const due = getDailyFocusQueue(projects, []);
+    expect(titles(due)).toEqual(['Write the About page']);
+    expect(due[0].snoozeLevel).toBe(2);
+  });
+
+  it('việc cha đang ghim thì bước con của nó được xếp như việc ghim', () => {
+    const projects = [project([task('pinnedPlain', { isPinned: false, deadline: '2026-11-19' }), website({ isPinned: true })])];
+    const due = getDailyFocusQueue(projects, []);
+    expect(titles(due)).toEqual(['Write the About page', 'pinnedPlain']);
+    expect(due[0].isPinned).toBe(true);
+    expect(due[0].pinSource).toBe('task');
+  });
+});

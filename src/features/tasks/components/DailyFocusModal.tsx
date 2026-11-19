@@ -359,7 +359,8 @@ export function DailyFocusModal({
 
               const handleTogglePin = () => {
                 triggerHaptic();
-                if (item.isSubtask && item.subtaskId) {
+                // Bước con được ghim nhờ việc cha thì gỡ ghim ở việc cha (B12 F07)
+                if (item.isSubtask && item.subtaskId && item.pinSource !== 'task') {
                   onTogglePinSubTask(item.projectId, item.taskId, item.subtaskId);
                 } else {
                   onTogglePinTask(item.projectId, item.taskId);

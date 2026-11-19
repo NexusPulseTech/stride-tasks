@@ -29,6 +29,7 @@ export interface ActionableItem {
   reminderAt?: string;
   deadline?: string;
   wakeAt?: string;               // Lúc việc quay lại Due Today (hết hoãn hoặc tới ngày hẹn); chỉ có ở tab Snoozed
+  pinSource?: 'subtask' | 'task'; // Bước con được ghim do chính nó hay do việc cha (nút ghim gỡ đúng chỗ)
 }
 
 /**
@@ -121,10 +122,14 @@ export function resolveActionableItemForTask(
     return null;
   }
 
-  // Nếu task có subtasks
-  if (task.subtasks && task.subtasks.length > 0) {
+  // Nếu task có subtasks. B12 F07: việc cha đang hoãn thì cả việc đi theo việc cha (mục ở tab Snoozed là việc cha,
+  // để "Remind Now" gỡ đúng lần hoãn đó); việc cha đang ghim thì bước con cũng được xếp như việc ghim.
+  const parentSnoozed = isCurrentlySnoozed(task.snoozeUntil);
+  if (!parentSnoozed && task.subtasks && task.subtasks.length > 0) {
     const leaf = findFirstActionableLeafSubtask(task.subtasks);
     if (leaf) {
+      const pinSource: ActionableItem['pinSource'] = leaf.subtask.isPinned ? 'subtask' : task.isPinned ? 'task' : undefined;
+      const levels = [leaf.subtask.snoozeLevel, task.snoozeLevel].filter((n): n is number => typeof n === 'number');
       return {
         id: leaf.subtask.id,
         title: leaf.subtask.title,
@@ -138,16 +143,17 @@ export function resolveActionableItemForTask(
         parentPath: [task.title, ...leaf.parentChain.map((p) => p.title)],
         depth: leaf.depth + 1,
         snoozeUntil: leaf.subtask.snoozeUntil,
-        snoozeLevel: leaf.subtask.snoozeLevel,
+        snoozeLevel: levels.length > 0 ? Math.max(...levels) : undefined,
         status: leaf.subtask.status || 'todo',
-        isPinned: leaf.subtask.isPinned,
+        isPinned: Boolean(pinSource),
+        pinSource,
         reminderAt: task.reminderAt,
         deadline: task.deadline,
       };
     }
   }
 
-  // Nếu không có subtasks hoặc tất cả subtasks đã xong -> chính task này là hành động
+  // Không có subtasks, tất cả subtasks đã xong, hoặc việc cha đang hoãn -> chính task này là hành động
   return {
     id: task.id,
     title: task.title,

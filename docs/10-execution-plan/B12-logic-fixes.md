@@ -54,9 +54,15 @@ Phiên rà soát (chỉ đọc, preview cục bộ, giả lập đồng hồ) th
 - Test: `src/features/tasks/utils/__tests__/dailyFocusQueue.test.ts`. Trên code cũ: 3 đỏ, 1 xanh (ca sáng hôm sau). Sau khi sửa: 5 xanh (thêm ca việc đã ghim).
 - Kiểm trên preview: gõ "Call the bank @tomorrow" + Enter trong dự án "Getting started" → nhắc 9:00 mai. Daily Focus: Due Today 4, không có "Call the bank"; tab Snoozed 1, "Call the bank", đếm ngược tới nửa đêm. Bấm "1 · NOW Remind Now" → Due Today 5, Snoozed 0.
 
+### F07: hoãn và ghim ở việc cha có việc con bị Daily Focus bỏ qua
+- Nguyên nhân: `resolveActionableItemForTask` trả về bước con tiếp theo và chỉ lấy `snoozeUntil`, `snoozeLevel`, `isPinned` của bước con. Smart schedule ghi hoãn lên việc cha nên việc vẫn ở Due Today, tab Snoozed trống; việc cha đang ghim không được xếp trước.
+- Sửa (`utils/spacedSnooze.ts`): việc cha đang hoãn thì mục đại diện là chính việc cha (rời Due Today, sang Snoozed; "Remind Now" ở đó gỡ đúng lần hoãn của việc cha). Hết hoãn thì bước con tiếp theo quay lại, mức hoãn là mức cao hơn của cha và con. Bước con được xếp như việc ghim khi nó hoặc việc cha đang ghim; `pinSource` cho nút ghim trong Daily Focus biết gỡ ghim ở đâu (`DailyFocusModal.tsx`).
+- Test: thêm 3 ca vào `dailyFocusQueue.test.ts`. Trên code cũ: 3 đỏ. Sau khi sửa: 8 xanh.
+- Kiểm trên preview: nút "Smart schedule / reminder" của "Launch a personal website" (9 việc con, đang ghim) → phím 2 thật → `snoozeUntil` 9:00 mai, mức 2. Daily Focus: Due Today 4, không còn "Write the About page"; Snoozed 1 là "Launch a personal website", Lvl 2, còn 10 giờ.
+
 ## Trạng thái và bước tiếp theo
-- Xong: F01, F06.
-- Tiếp theo: F07, F08, F02, F03, F04 và F05.
+- Xong: F01, F06, F07.
+- Tiếp theo: F08, F02, F03, F04 và F05.
 
 ## Tham chiếu
 - [A17](./A17-mobile-trial-fixes.md) (đợt sửa trước, cùng cách làm)
