@@ -140,21 +140,18 @@ export function useSubtaskOperations({
 
   const toggleSubTask = (projId: string, taskId: string, subId: string, isChecked: boolean) => {
     triggerHaptic();
-    let wasAllDoneTriggered = false;
+    // B12 F04: biết trước việc cha có lên Done không, thay vì đọc biến được gán bên trong hàm cập nhật state
+    const before = projects.find((item) => item.id === projId)?.tasks.find((item) => item.id === taskId);
+    const wasAllDoneTriggered = Boolean(
+      before && before.status !== 'done' && toggleSubtaskTransition(before, subId, isChecked).status === 'done'
+    );
 
     setProjects((prev) =>
       prev.map((p) => {
         if (p.id !== projId) return p;
         return {
           ...p,
-          tasks: p.tasks.map((t) => {
-            if (t.id !== taskId) return t;
-            const next = toggleSubtaskTransition(t, subId, isChecked);
-            if (next.status === 'done' && t.status !== 'done') {
-              wasAllDoneTriggered = true;
-            }
-            return next;
-          }),
+          tasks: p.tasks.map((t) => (t.id !== taskId ? t : toggleSubtaskTransition(t, subId, isChecked))),
         };
       })
     );

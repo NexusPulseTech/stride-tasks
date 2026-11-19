@@ -83,9 +83,20 @@ Phiên rà soát (chỉ đọc, preview cục bộ, giả lập đồng hồ) th
 - Test: `src/features/tasks/utils/__tests__/dayWatcher.test.ts` (4 ca: qua nửa đêm gọi đúng một lần, máy ngủ rồi mở lại tab, quay lại tab cùng ngày không gọi, đã dừng không gọi). Trước khi sửa: đỏ vì chưa có cơ chế nào chạy lại rollover (module chưa tồn tại). Sau khi sửa: 4 xanh.
 - Kiểm trên preview (trang có đồng hồ chỉnh được, không tải lại trang): bấm vòng tròn "Plan your day" → `done/4`; đẩy đồng hồ sang 7:30 hôm sau và phát `visibilitychange` như khi quay lại tab → `todo/4`, hiện thông báo "Refreshed 1 recurring tasks for today." (chữ số nhiều sai ngữ pháp khi 1 việc là lỗi chữ có sẵn, ngoài phạm vi).
 
+### F04: thông báo của Shutdown Ritual và chuỗi việc lặp lại đọc biến được gán bên trong hàm cập nhật state
+- Kiểm trên preview trước khi sửa (code sau F03, dev có StrictMode, 2 việc Doing của dữ liệu mẫu, bấm Shutdown Ritual thật): thông báo đúng "Moved 2 in-progress tasks". Không tái hiện được vì React tính trước hàm cập nhật khi hàng đợi trống. Lỗi vẫn có thật về nguyên tắc: hàm cập nhật phải thuần, React có thể chạy nó sau hoặc hai lần.
+- Sửa: Shutdown Ritual tính kết quả bằng hàm thuần `planShutdownRitual` trên dữ liệu hiện tại trước khi cập nhật. Vòng tròn Mark done tính chuỗi cho thông báo trước khi cập nhật. `toggleSubTask` biết trước việc cha có lên Done không. Rollover đã sửa cùng kiểu ở F03.
+- Test: ca "2 việc đang làm thì báo đã dời 2" trong `shutdownRitual.test.ts` (xanh cả trước và sau vì là hàm thuần; không có test đỏ cho F04 do không tái hiện được).
+
+### F05: Shutdown Ritual giữ nguyên nhắc đã quá hạn, bỏ sót trạng thái tùy chỉnh, không hoàn tác được
+- Sửa (`utils/shutdownRitual.ts`, `useTaskCRUD.ts`, `useTaskManager.ts`): dời mọi việc thuộc nhóm "đang làm" theo `statusCategory` (gồm Testing, Review và trạng thái tùy chỉnh nhóm đang làm, danh sách trạng thái truyền từ `useTaskManager`), trừ Blocked và Paused vì đó là việc người dùng chủ động gác lại. Việc con đang làm (chưa xong) cũng về Todo và việc cha được tính là đã dời. Nhắc chưa có hoặc đã quá hạn thì đặt 9:00 sáng mai, nhắc trong tương lai giữ nguyên. Thông báo có Undo (`triggerUndoableAction`): chỉ trả lại các việc đã dời, bỏ `updatedAt` ở bản khôi phục để được đóng dấu mới, không thua bản đã dời khi đồng bộ.
+- Test: `src/features/tasks/utils/__tests__/shutdownRitual.test.ts`. Trên logic cũ (chép nguyên văn vào hàm): 4 đỏ (nhắc quá hạn, Testing và trạng thái tùy chỉnh, việc con đang làm, hoàn tác), 2 xanh (đếm 2 việc, Blocked và Paused giữ nguyên). Sau khi sửa: 7 xanh (thêm ca dấu thời gian khi hoàn tác).
+- Kiểm trên preview (dữ liệu mẫu chỉnh trước khi app chạy: "Launch a personal website" Doing có nhắc 9:00 hôm qua, "Study chapter 3" Testing, "See how Stride Tasks works" Blocked): bấm Shutdown Ritual thật → "Moved 2 in-progress tasks" kèm Undo; "Launch" và "Study" về Todo, nhắc 9:00 mai; Blocked giữ nguyên. Lần sau bấm Ctrl+Z ngay → "Restored successfully!", "Launch" về Doing với nhắc cũ, "Study" về Testing.
+- Thấy thêm, chưa sửa: nút Shutdown Ritual mở ngay ô báo cáo Markdown; thanh Undo (4,5 giây) nằm trên lớp ô báo cáo nhưng nằm ngoài vùng `aria-modal` nên trình đọc màn hình không tới được, và Ctrl+Z không tác dụng nếu bấm sau 4,5 giây.
+
 ## Trạng thái và bước tiếp theo
-- Xong: F01, F06, F07, F08, F02, F03.
-- Tiếp theo: F04 và F05.
+- Xong: F01, F06, F07, F08, F02, F03, F05. F04 không tái hiện được trên preview, đã sửa theo nguyên tắc hàm cập nhật thuần.
+- Tiếp theo: gửi Stride Phiên 2 và Cố vấn để gộp. Chưa làm: F09 đến F11 (ngoài đợt này), ghi nhận ở các mục trên (bọt khí việc con nhiều tầng ở F01, chữ số nhiều trong thông báo làm mới ở F03, thanh Undo sau Shutdown Ritual ở F05).
 
 ## Tham chiếu
 - [A17](./A17-mobile-trial-fixes.md) (đợt sửa trước, cùng cách làm)
