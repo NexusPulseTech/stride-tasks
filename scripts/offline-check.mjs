@@ -22,7 +22,8 @@ import { setTimeout as sleep } from 'node:timers/promises';
 
 const TARGET = new URL(process.argv[2] || 'https://tasks.nexuspulsetech.xyz/');
 const OVERALL_TIMEOUT_MS = 180_000;
-const SHELL_READY = `!!document.querySelector('input[placeholder^="New category"]')`;
+// App đã vẽ xong khi có ô nhập trong #root; không dựa vào chữ trên giao diện vì chữ có thể đổi (A17 đổi chữ ô tạo dự án)
+const SHELL_READY = `!!document.querySelector('#root input')`;
 const BLOCKED = ['*cloudflareinsights.com*', '*/cdn-cgi/rum*'];
 // Proxy chết: cổng 9 không có gì lắng nghe; <-loopback> bỏ ngoại lệ mặc định để localhost cũng mất mạng
 const DEAD_PROXY = ['--proxy-server=http://127.0.0.1:9', '--proxy-bypass-list=<-loopback>'];
