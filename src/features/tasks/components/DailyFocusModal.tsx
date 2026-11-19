@@ -37,6 +37,8 @@ export interface DailyFocusModalProps {
   focusTodayMinutes?: number;
   onToggleTaskDone: (projectId: string, taskId: string, completed: boolean) => void;
   onToggleSubTask: (projectId: string, taskId: string, subId: string, completed: boolean) => void;
+  /** Đánh dấu xong kèm Hoàn tác (B15 F10); không truyền thì dùng onToggleTaskDone / onToggleSubTask */
+  onMarkDone?: (item: ActionableItem) => void;
   onTogglePinTask: (projectId: string, taskId: string) => void;
   onTogglePinSubTask: (projectId: string, taskId: string, subId: string) => void;
   onSnoozeTask: (projectId: string, taskId: string, snoozeUntil: string | null, snoozeLevel?: number, autoPin?: boolean) => void;
@@ -63,6 +65,7 @@ export function DailyFocusModal({
   focusTodayMinutes = 0,
   onToggleTaskDone,
   onToggleSubTask,
+  onMarkDone,
   onTogglePinTask,
   onTogglePinSubTask,
   onSnoozeTask,
@@ -333,7 +336,9 @@ export function DailyFocusModal({
 
               const handleMarkDone = () => {
                 triggerHaptic();
-                if (item.isSubtask && item.subtaskId) {
+                if (onMarkDone) {
+                  onMarkDone(item);
+                } else if (item.isSubtask && item.subtaskId) {
                   onToggleSubTask(item.projectId, item.taskId, item.subtaskId, true);
                 } else {
                   onToggleTaskDone(item.projectId, item.taskId, true);

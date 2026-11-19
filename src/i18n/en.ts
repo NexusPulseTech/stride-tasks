@@ -484,6 +484,7 @@ export const en: Translations = {
     projectAllDone: 'Every task in "{name}" is done.',
     taskRenamed: 'Task renamed!',
     taskDeleted: 'Deleted "{title}"',
+    focusDoneUndo: 'Done: "{title}"',
     taskCopied: 'Task copied!',
     checklistCopied: 'Copied the whole checklist (Notion Markdown)!',
     taskPinUpdated: 'Priority pin updated!',

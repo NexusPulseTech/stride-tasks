@@ -485,6 +485,7 @@ export interface Translations {
     projectAllDone: string;
     taskRenamed: string;
     taskDeleted: string;
+    focusDoneUndo: string;
     taskCopied: string;
     checklistCopied: string;
     taskPinUpdated: string;

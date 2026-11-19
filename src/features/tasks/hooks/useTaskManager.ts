@@ -13,12 +13,14 @@ import {
 } from '../../../types';
 import { APP_VERSION } from '../../../constants';
 import { getSampleProjects } from '../../../constants/sampleProjects';
-import { triggerHaptic, playChime } from '../../../utils';
+import { triggerHaptic, playChime, truncateText } from '../../../utils';
 import { useLanguage, useTranslationRef, formatMessage } from '../../../i18n';
 import { parsePastedTasks, parsePastedHierarchy } from '../utils/batchParser';
 import { buildSmartTask, summarizeSmartTask } from '../utils/smartTaskParser';
 import { isDoingStatus, isDoneStatus, isScheduledTask } from '../utils/statusCategory';
 import { matchTaskDeep } from '../utils/searchHelper';
+import { isTaskMarkedDone, toggleSubtaskTransition, toggleTaskDoneTransition } from '../utils/taskTransitions';
+import { restoreTaskSnapshot } from '../utils/taskSnapshot';
 import { useCelebrationAndStreak } from './useCelebrationAndStreak';
 import { useSmartReminder } from './useSmartReminder';
 import { useTaskCRUD, STRIDE_AUTO_BACKUP_KEY } from './useTaskCRUD';
@@ -275,6 +277,34 @@ export function useTaskManager() {
       celebration.showToast(tRef.current.toast.taskCompletedCongrats);
     },
     [crud, subtasks, celebration]
+  );
+
+  /**
+   * B15 F10: bấm Done trong Daily Focus có Hoàn tác. Chụp bản trước của việc (cả việc cha khi đánh dấu một bước con),
+   * đánh dấu xong như cũ, rồi hiện thanh Undo trả việc về đúng bản đó (trạng thái cũ, việc con, chuỗi ngày) và gỡ dòng
+   * nhật ký hoàn thành nếu thao tác đã làm việc lên Done.
+   */
+  const completeFocusItemWithUndo = useCallback(
+    (item: Pick<ActionableItem, 'projectId' | 'taskId' | 'subtaskId' | 'isSubtask' | 'title'>) => {
+      const project = crud.projects.find((p) => p.id === item.projectId);
+      const before = project?.tasks.find((t) => t.id === item.taskId);
+      if (!project || !before) return;
+      const subId = item.isSubtask ? item.subtaskId : undefined;
+      const after = subId ? toggleSubtaskTransition(before, subId, true) : toggleTaskDoneTransition(before, true);
+      const taskBecameDone = !isTaskMarkedDone(before) && isTaskMarkedDone(after);
+
+      if (subId) subtasks.toggleSubTask(item.projectId, item.taskId, subId, true);
+      else crud.toggleTaskDone(item.projectId, item.taskId, true);
+
+      celebration.triggerUndoableAction(
+        formatMessage(tRef.current.toast.focusDoneUndo, { title: truncateText(item.title, 28) }),
+        () => {
+          crud.setProjects((prev) => restoreTaskSnapshot(prev, item.projectId, before));
+          if (taskBecameDone) onTaskDone(false, before, project);
+        }
+      );
+    },
+    [crud, subtasks, celebration, onTaskDone]
   );
 
   const openAnkiModalForTask = useCallback(
@@ -968,6 +998,7 @@ export function useTaskManager() {
     addTaskFocusedMinutes: crud.addTaskFocusedMinutes,
     setTaskEstimatedMinutes: crud.setTaskEstimatedMinutes,
     executeDailyShutdownRitual: () => crud.executeDailyShutdownRitual(statusManager.statuses),
+    completeFocusItemWithUndo,
     handleQuickAddTaskToColumn: (projectId: string, title: string, status: string) => {
       const trimmed = title.trim();
       if (!trimmed) return;

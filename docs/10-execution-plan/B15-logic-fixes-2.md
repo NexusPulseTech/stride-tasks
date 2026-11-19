@@ -51,9 +51,15 @@ Mỗi lỗi một commit, hoàn tác được từng commit. Nhánh tách từ `
 - Test: `src/features/tasks/utils/__tests__/dailyFocusKeys.test.ts`. Trên logic cũ (chép nguyên văn vào hàm): 1 đỏ (tab Snoozed), 2 xanh. Sau khi sửa: 3 xanh.
 - Kiểm trên preview (dev server của worktree, dữ liệu mẫu tiếng Anh): gõ "Call the bank @tomorrow" + Enter, mở Daily Focus (Due Today 5, Snoozed 1), sang tab Snoozed, bấm phím 2 thật → việc không đổi (không có `snoozeUntil`, `snoozeLevel`). Sang Due Today, bấm phím 2 → việc đầu tiên được hoãn, tab thành 4 và 2.
 
+### F10: bấm Done trong Daily Focus không có Undo
+- Nguyên nhân: `handleMarkDone` gọi thẳng `onToggleTaskDone(..., true)` hoặc `onToggleSubTask`, không có thanh hoàn tác.
+- Sửa: `completeFocusItemWithUndo` trong `useTaskManager.ts` chụp bản trước của việc (cả việc cha khi đánh dấu một bước con), đánh dấu xong như cũ, rồi gọi `triggerUndoableAction` với thông báo mới `toast.focusDoneUndo` (EN "Done: "{title}"", VI "Đã xong: "{title}""). Hoàn tác dùng `restoreTaskSnapshot` (`utils/taskSnapshot.ts`): trả đúng bản trước (trạng thái cũ như Doing chứ không phải Todo, việc con, chuỗi ngày), bỏ `updatedAt` để được đóng dấu mới, không hồi sinh việc đã bị xóa; nếu thao tác đã làm việc lên Done thì gỡ dòng nhật ký hoàn thành. Modal nhận prop `onMarkDone`. Hàm đóng dấu mới tách từ Shutdown Ritual (B12) sang `taskSnapshot.ts` để dùng chung.
+- Test: `src/features/tasks/utils/__tests__/taskSnapshot.test.ts` (3 ca). Trước khi sửa: đỏ vì chưa có cơ chế khôi phục (module chưa tồn tại). Sau khi sửa: 3 xanh; 61 test của tasks vẫn xanh sau khi Shutdown Ritual chuyển sang hàm dùng chung.
+- Kiểm trên preview: Daily Focus, bấm nút Done thật của "Study chapter 3" (Doing) → `done`, có dòng nhật ký, thanh "Done: "Study chapter 3" · Undo (Ctrl+Z)". Bấm Ctrl+Z → `doing`, không còn `completedAt`, dòng nhật ký bị gỡ, hiện "Restored successfully!", việc quay lại Due Today.
+
 ## Trạng thái và bước tiếp theo
-- Xong: F09.
-- Tiếp theo: F10, F11, chuỗi việc con nhiều tầng, chữ số nhiều, Undo sau Shutdown Ritual.
+- Xong: F09, F10.
+- Tiếp theo: F11, chuỗi việc con nhiều tầng, chữ số nhiều, Undo sau Shutdown Ritual.
 
 ## Tham chiếu
 - [B12](./B12-logic-fixes.md)

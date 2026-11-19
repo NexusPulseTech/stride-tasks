@@ -484,6 +484,7 @@ export const vi: Translations = {
     projectAllDone: 'Đã hoàn thành toàn bộ công việc trong danh mục "{name}".',
     taskRenamed: 'Đã cập nhật tên công việc!',
     taskDeleted: 'Đã xóa "{title}"',
+    focusDoneUndo: 'Đã xong: "{title}"',
     taskCopied: 'Đã sao chép công việc!',
     checklistCopied: 'Đã sao chép toàn bộ checklist (Notion Markdown)!',
     taskPinUpdated: 'Đã cập nhật ghim ưu tiên!',
