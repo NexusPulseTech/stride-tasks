@@ -57,12 +57,14 @@ const flags = {
   'key-file': keyFileAt === -1 ? undefined : args[keyFileAt + 1] && !args[keyFileAt + 1].startsWith('--') ? args[keyFileAt + 1] : true,
 };
 
-if (!webhookOnly) {
-  // Khóa đến qua ống thì stdin đã hết, lời nhắc dán secret webhook phía sau không đọc được bàn phím
-  if (flags['key-stdin'] && !process.stdin.isTTY && !keyOnly) {
-    die('Khóa đọc từ ống (stdin) thì chạy kèm --key-only; nạp secret webhook ở một lượt riêng với --webhook-only.');
-  }
+// Secret webhook chỉ được dán từ bàn phím. Nếu stdin là ống thì dừng ngay, trước khi nạp bất cứ thứ gì: wrangler sẽ đọc
+// nhầm dữ liệu trong ống (có thể chính là khóa ký) làm secret webhook. Trường hợp này xảy ra khi nối ống vào
+// `npm run` trong PowerShell: npm.ps1 làm rơi dấu `--`, các cờ như --key-only không tới được script.
+if (!keyOnly && !process.stdin.isTTY) {
+  die('stdin không phải bàn phím (đang có ống?). Secret webhook phải dán trong terminal tương tác. Khóa ký nối từ ống thì chạy: node scripts/worker-secrets.mjs --key-only --key-stdin');
+}
 
+if (!webhookOnly) {
   let found;
   let pub;
   try {

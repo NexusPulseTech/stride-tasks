@@ -14,10 +14,12 @@ Cập nhật 2026-11-19, nhánh `fix/supply-chain` (worktree `stride-wt-supply`,
 - Xong cả 7 bước, đã kiểm:
   - Workflow: bộ kiểm cấu trúc (ghim SHA kèm chú thích, quyền theo job, checkout không giữ token, `npm ci`, không Bun) báo 26 lỗi trên `origin/main`, 0 lỗi trên nhánh này.
   - `package-lock.json`: 0 phiên bản đổi, 0 gói thêm hay bớt, chỉ 85 cờ `dev`; `npm ci` sạch; `npm audit --omit=dev` 0; build qua.
-  - Khóa ký: 23 test cho `scripts/lib/signing-key.mjs`; kiểm đột biến 3 lần (đường dẫn `..`, symlink, BOM) đều bị test bắt; chạy thử đầu cuối `keygen` và `worker-secrets` trên bản sao tạm của repo 17/17, không đầu ra nào chứa khóa, `licenseCrypto.ts` thật không đổi; các lệnh chuyển khóa ở mục 5 tài liệu quản lý khóa đã chạy thử nguyên văn bằng PowerShell 5.1 trên dữ liệu giả.
+  - Khóa ký: 23 test cho `scripts/lib/signing-key.mjs`; kiểm đột biến 3 lần (đường dẫn `..`, symlink, BOM) đều bị test bắt; chạy thử đầu cuối `keygen` và `worker-secrets` trên bản sao tạm của repo 18/18, không đầu ra nào chứa khóa, `licenseCrypto.ts` thật không đổi; các lệnh ở mục 5 tài liệu quản lý khóa (cách mặc định, phương án dự phòng, nối ống qua `node`) đã chạy thử nguyên văn bằng PowerShell 5.1 trên dữ liệu giả.
+  - Phát hiện khi chạy thử: trong PowerShell, nối ống vào `npm run` thì `npm.ps1` làm rơi dấu `--` (nhánh xử lý dữ liệu ống truyền thẳng `$args`), mọi cờ sau đó không tới được script. Với `worker-secrets`, việc này có thể khiến wrangler đọc khóa ký từ ống làm secret webhook. Đã chặn trong mã (stdin là ống mà thiếu `--key-only` thì dừng trước mọi bước nạp, có test) và tài liệu hướng dẫn nối ống bằng `node scripts/...`.
   - Lint, 104 test app, 45 test Worker, quét bí mật (diff đã stage và `dist/`) qua.
 - Chưa kiểm được trong phiên này: chạy `actionlint` và `zizmor` (môi trường không cho chạy tệp thực thi tải về); workflow mới chỉ được kiểm bằng bộ kiểm cấu trúc và đọc lại, GitHub sẽ kiểm thật ở lần chạy đầu sau khi gộp.
-- Tiếp theo: Phiên 2 (phiên deploy) gộp nhánh vào `main` và theo dõi `deploy` chạy xanh; founder làm ba việc ở mục "Việc của founder".
+- Cố vấn nghiệm thu ĐẠT (2026-11-19) và chốt hai điều, đã đưa vào nhánh: (1) mặc định khóa ký chỉ nằm trong trình quản lý mật khẩu, đưa vào script qua `--key-stdin`; `--key-file` là dự phòng (tài liệu quản lý khóa mục 5, runbook, lời nhắc sau `keygen init`); (2) lockfile cho GitHub Actions không làm đợt này, ghi vào [../roadmap/README.md](../roadmap/README.md) kèm điều kiện mở lại.
+- Tiếp theo: Phiên 2 (phiên deploy) gộp nhánh vào `main` và theo dõi `deploy`, `worker-tests` chạy xanh; founder làm ba việc ở mục "Việc của founder".
 
 ## Mục tiêu
 1. Workflow GitHub Actions chỉ chạy đúng mã đã được xem: mọi action ghim theo SHA commit, quyền token tối thiểu theo từng job, không còn công cụ thừa trong pipeline.
@@ -71,8 +73,9 @@ SHA lấy ngày 2026-11-19 bằng `gh api repos/<owner>/<repo>/commits/<tag>`, �
   3. Biến môi trường `STRIDE_ED25519_PRIVATE_KEY` (giữ như cũ).
   4. `.env.local`: chỉ để chuyển tiếp, mỗi lần dùng đều in cảnh báo nhắc chuyển khóa ra ngoài.
 - Tệp khóa phải nằm ngoài thư mục repo: script từ chối nếu đường dẫn (sau khi giải symlink) nằm trong repo. Tệp chứa một dòng base64, hoặc dòng `STRIDE_ED25519_PRIVATE_KEY=...` để chép nguyên dòng cũ.
-- `keygen init` ghi khóa mới ra `--out <tệp ngoài repo>` (không ghi đè nếu thiếu `--force`, quyền 600 trên hệ Unix), không còn ghi vào `.env.local`.
-- `worker-secrets` đọc khóa một lần, tự so với public key trong app ngay trong tiến trình, rồi chuyển cho `wrangler secret put` qua stdin. Không in giá trị khóa ở bất kỳ nhánh nào.
+- `keygen init` ghi khóa mới ra `--out <tệp ngoài repo>` (không ghi đè nếu thiếu `--force`, quyền 600 trên hệ Unix), không còn ghi vào `.env.local`; lời nhắc sau đó hướng dẫn chép khóa vào trình quản lý mật khẩu rồi xóa tệp.
+- Quyết định 2026-11-19 (Cố vấn chốt): mặc định khóa chỉ nằm trong trình quản lý mật khẩu, đưa vào script qua `--key-stdin`; `--key-file` là phương án dự phòng. Lý do: ký tay hiếm (Worker ký bằng secret của Cloudflare), càng ít bản sao càng an toàn, không phiên AI nào cần giữ khóa.
+- `worker-secrets` đọc khóa một lần, tự so với public key trong app ngay trong tiến trình, rồi chuyển cho `wrangler secret put` qua stdin. Không in giá trị khóa ở bất kỳ nhánh nào. Bước nạp secret webhook chỉ chạy khi stdin là bàn phím; stdin là ống mà thiếu `--key-only` thì dừng ngay từ đầu.
 - Test `scripts/lib/signing-key.test.mjs` dùng khóa tạm và thư mục tạm, không đọc `.env.local` thật.
 
 ### 7. Tài liệu
@@ -81,7 +84,7 @@ Cập nhật `docs/06-security-privacy/02-secrets-and-key-management.md` (thêm 
 Phát hiện ghi lại cho D02, không sửa ở đây: chạy tay `desktop-release.yml` từ `main` thì `tagName` lấy `github.ref_name` nên bản phát hành mang tag `main`.
 
 ## Việc của founder
-1. **Chuyển khóa ra khỏi repo** (máy founder, không qua chat): tạo tệp ngoài repo hoặc mục trong trình quản lý mật khẩu như hướng dẫn ở `02-secrets-and-key-management.md` mục 5; chạy `npm run keygen -- check --key-file <tệp>` thấy "Khớp"; rồi xóa dòng `STRIDE_ED25519_PRIVATE_KEY` khỏi `.env.local`.
+1. **Chuyển khóa ra khỏi `.env.local`** (máy founder, không qua chat), theo `02-secrets-and-key-management.md` mục 5: chắc chắn trình quản lý mật khẩu có bản sao khóa; `npm run keygen -- check --key-stdin` rồi dán khóa, thấy "Khớp"; xóa dòng `STRIDE_ED25519_PRIVATE_KEY` khỏi `.env.local` bằng lệnh có sẵn; `npm run keygen -- check` báo "Chưa có khóa riêng" là đúng. Từ đây khóa chỉ nằm trong trình quản lý mật khẩu.
 2. **Sau khi nhánh này đã gộp `main` và `deploy` chạy xanh**, bật yêu cầu ghim SHA (bật sớm hơn thì workflow cũ trên `main` sẽ bị chặn). Trường API là `sha_pinning_required` (tài liệu REST "Set GitHub Actions permissions for a repository"; `enabled` là trường bắt buộc), hoặc tùy chọn tương ứng ở Settings → Actions → General:
    ```bash
    gh api -X PUT repos/NexusPulseTech/stride-tasks/actions/permissions -F enabled=true -f allowed_actions=all -F sha_pinning_required=true

@@ -70,5 +70,5 @@ docs/
 
 - Khóa localStorage: `SOLO_CORE_TASKS_V4`, `SOLO_CORE_STREAK_V4`, `SOLO_MUTED_V1`, `SOLO_REMINDER_V1`, `SOLO_CHECKLIST_ACTIVITY_LOG_V1`, `SOLO_COMPLETED_LOGS_V2`, `STRIDE_AUTO_BACKUP_DATA` (và các khóa `STRIDE_*_V1` khác), xem [04-architecture/05-data-model-and-storage.md](./04-architecture/05-data-model-and-storage.md).
 - Tauri identifier `com.phucnguyen.stridetasks`; alias `@` → `./src`; cài đặt bằng `npm install --legacy-peer-deps`.
-- Khóa bí mật `STRIDE_ED25519_PRIVATE_KEY` **chỉ** nằm trong trình quản lý mật khẩu, một tệp ngoài thư mục repo trên máy founder và Worker secret; không nằm trong repo hay `.env.local`; repo là **public** (xem [06-security-privacy/02-secrets-and-key-management.md](./06-security-privacy/02-secrets-and-key-management.md)).
+- Khóa bí mật `STRIDE_ED25519_PRIVATE_KEY` **chỉ** nằm trong trình quản lý mật khẩu (đưa vào script qua `--key-stdin`) và Worker secret; tệp ngoài repo chỉ là dự phòng tạm; không nằm trong repo hay `.env.local`; repo là **public** (xem [06-security-privacy/02-secrets-and-key-management.md](./06-security-privacy/02-secrets-and-key-management.md)).
 - `.aistudio/` không bao giờ được commit; `cloudflare-worker/wrangler.toml` (chứa ID thật) được gitignore.

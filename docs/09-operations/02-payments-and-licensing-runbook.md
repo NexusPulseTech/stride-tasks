@@ -16,7 +16,7 @@
 1. **Products** → tạo "Stride Tasks PRO Lifetime": thanh toán một lần **$19** (toàn cầu); tạo thêm bản **$9.95** (thị trường mới nổi).
 2. **Checkout Links** → mỗi sản phẩm một link; **Success URL**: `https://tasks-api.nexuspulsetech.xyz/checkout/success?checkout_id={CHECKOUT_ID}` (Worker đổi `checkout_id` thành link kích hoạt, A04c); **Return URL**: `https://tasks.nexuspulsetech.xyz/`; tắt **Allow discount codes**.
 3. **Settings → Webhooks → Add endpoint**: URL `https://tasks-api.nexuspulsetech.xyz/webhooks/polar`, định dạng Raw, **API version = bản Current** (2026-10 tính tới 2026-10-31; không chọn bản Next vì cấu trúc có thể đổi bất kỳ lúc nào), chỉ chọn `order.paid` và `order.refunded`, lưu rồi sao chép secret.
-4. Founder tự nạp secret (không dán vào chat) bằng một lệnh ở thư mục gốc repo: `npm run worker:secrets`. Script đọc khóa ký theo thứ tự ở mục 5 của tài liệu quản lý khóa (thường là tệp ngoài repo do `STRIDE_ED25519_PRIVATE_KEY_FILE` trỏ tới), tự kiểm khớp app, nạp khóa mà không in ra, rồi để wrangler hỏi secret webhook. Khóa nối từ trình quản lý mật khẩu qua `--key-stdin` thì chạy kèm `--key-only`. Chỉ nạp lại secret webhook: `npm run worker:secrets -- --webhook-only`. Script in danh sách tên secret ở cuối (không có giá trị). Account ID lấy từ `cloudflare-worker/wrangler.toml` (đã gitignore).
+4. Founder tự nạp secret (không dán vào chat) bằng một lệnh ở thư mục gốc repo: `npm run worker:secrets`. Script đọc khóa ký theo thứ tự ở mục 5 của tài liệu quản lý khóa, tự kiểm khớp app, nạp khóa mà không in ra, rồi để wrangler hỏi secret webhook. Mặc định khóa chỉ nằm trong trình quản lý mật khẩu: chạy `npm run worker:secrets -- --key-only --key-stdin` (dán khóa khi được hỏi), rồi nạp secret webhook ở lượt riêng bằng `--webhook-only`. Nối ống khóa từ trình quản lý mật khẩu thì gọi thẳng `node scripts/worker-secrets.mjs --key-only --key-stdin`, vì `npm run` trong PowerShell làm rơi các cờ khi có dữ liệu ống. Chỉ nạp lại secret webhook: `npm run worker:secrets -- --webhook-only`. Script in danh sách tên secret ở cuối (không có giá trị). Account ID lấy từ `cloudflare-worker/wrangler.toml` (đã gitignore).
 5. Thử sandbox ở máy cục bộ: tạo `.env.development.local` (bị gitignore, build production không đọc) với `VITE_ENABLE_PAYWALL=true`, `VITE_POLAR_CHECKOUT_URL` và `VITE_POLAR_CHECKOUT_URL_EMERGING` (link sandbox), `VITE_LICENSE_CLAIM_URL=http://localhost:3000/__worker`, `VITE_SYNC_API_URL=http://localhost:3000/__worker`. Dev server chuyển `/__worker` tới Worker production nên không cần mở CORS cho localhost. Chạy `npm run dev`, mua bằng thẻ test của Polar, kiểm tra PRO được kích hoạt và hoàn tiền thu hồi được.
 6. **Benefit "Custom"** tên "Stride Tasks PRO lifetime license" gắn vào cả hai sản phẩm (tạo 2026-11-10 qua API): ghi chú Markdown hiện ở trang xác nhận của Polar, email biên lai và cổng khách hàng, nói rõ PRO tự kích hoạt và cách xin lại link qua support@ kèm số đơn. Sửa nội dung ở Products, Benefits.
 7. **Thông báo của Polar** (Settings, Notifications): đang bật email đơn mới và cảnh báo phòng tranh chấp (chargeback prevention); giữ nguyên để biết ngay khi có đơn hay rủi ro.
@@ -31,16 +31,16 @@ cd cloudflare-worker
 npx wrangler d1 execute stride-sync --remote --command "SELECT record_key, record FROM orders WHERE record LIKE '%<id đơn Polar>%'"
 ```
 
-Lấy `token` trong cột `record`, kiểm tra `npm run keygen -- verify <token>`, rồi gửi link kích hoạt. Đối chiếu email người hỏi với email trên đơn ở Polar (Sales) trước khi gửi. Không có bản ghi (webhook lỗi) thì ký mới với đúng ID đơn. Lệnh `issue` đọc khóa ký giống `worker:secrets` (tệp ngoài repo qua `STRIDE_ED25519_PRIVATE_KEY_FILE`, hoặc thêm `--key-file <tệp>` hay `--key-stdin`):
+Lấy `token` trong cột `record`, kiểm tra `npm run keygen -- verify <token>`, rồi gửi link kích hoạt. Đối chiếu email người hỏi với email trên đơn ở Polar (Sales) trước khi gửi. Không có bản ghi (webhook lỗi) thì ký mới với đúng ID đơn. Lệnh `issue` cần khóa ký: thêm `--key-stdin` rồi dán khóa từ trình quản lý mật khẩu khi được hỏi (dự phòng: `--key-file <tệp ngoài repo>`):
 
 ```bash
-npm run keygen -- issue --id PL-<id đơn Polar> --region global-us --out PL.stride-license.json     # giá vùng: --region emerging-ppp
+npm run keygen -- issue --id PL-<id đơn Polar> --region global-us --out PL.stride-license.json --key-stdin     # giá vùng: --region emerging-ppp
 ```
 
 Kênh VietQR:
 
 ```bash
-npm run keygen -- issue --id VN-STRXXXXXX --region vn-ppp --out STRXXXXXX.stride-license.json   # giá, nhãn lấy từ preset giá sáng lập; khách trả giá khác thì thêm --price, --label
+npm run keygen -- issue --id VN-STRXXXXXX --region vn-ppp --out STRXXXXXX.stride-license.json --key-stdin   # giá, nhãn lấy từ preset giá sáng lập; khách trả giá khác thì thêm --price, --label
 npm run keygen -- verify <token>     # kiểm tra trước khi gửi
 ```
 

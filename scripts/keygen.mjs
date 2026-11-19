@@ -132,10 +132,12 @@ async function cmdInit(flags) {
   console.log(`  • Private key: ghi vào ${keyFile} (ngoài repo), KHÔNG in ra màn hình.`);
   console.log(`  • Public key : ${pub}  → đã nhúng vào src/utils/licenseCrypto.ts`);
   console.log('\n  Việc cần làm ngay:');
-  console.log('  1. Sao lưu tệp khóa vào trình quản lý mật khẩu (mất private key = không phát hành thêm được bản quyền).');
-  console.log(`  2. Trỏ script tới tệp: đặt ${ENV_KEY_FILE}=${keyFile} (biến môi trường, hoặc một dòng trong .env.local).`);
-  console.log('  3. Nạp vào Cloudflare Worker: npm run worker:secrets -- --key-only');
-  console.log('  4. Build và deploy lại app để public key mới có hiệu lực.\n');
+  console.log('  1. Chép khóa trong tệp vào trình quản lý mật khẩu (mất private key = không phát hành thêm được bản quyền).');
+  console.log(`  2. Nạp vào Cloudflare Worker: npm run worker:secrets -- --key-only --key-file "${keyFile}"`);
+  console.log('  3. Build và deploy lại app để public key mới có hiệu lực.');
+  console.log('  4. Xóa tệp khóa: mặc định khóa chỉ nằm trong trình quản lý mật khẩu, khi cần ký thì dùng --key-stdin.');
+  console.log(`     Dự phòng (ký nhiều lần liền nhau): giữ tệp và đặt ${ENV_KEY_FILE}=${keyFile}, xong việc thì xóa.`);
+  console.log(`     Xem ${KEY_DOC}\n`);
 }
 
 async function cmdIssue(flags) {
