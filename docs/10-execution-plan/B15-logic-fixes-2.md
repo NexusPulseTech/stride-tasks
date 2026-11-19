@@ -75,9 +75,15 @@ Mỗi lỗi một commit, hoàn tác được từng commit. Nhánh tách từ `
 - Test: `src/features/tasks/utils/__tests__/rolloverNotice.test.ts` (EN và VI, 1 và 3 việc). Trên logic cũ (chép nguyên văn vào hàm): 1 đỏ (EN), 1 xanh (VI). Sau khi sửa: 2 xanh; test bộ chữ (cùng khóa, cùng biến ở EN và VI) vẫn xanh.
 - Kiểm trên preview (trang có đồng hồ chỉnh được): bấm vòng tròn "Plan your day", đẩy đồng hồ sang 7:30 hôm sau và quay lại tab → "Refreshed 1 recurring task for today."
 
+### Thanh Undo nằm ngoài vùng `aria-modal`
+- Nguyên nhân: `UndoSnackbar` luôn gắn vào `document.body`. Khi đang mở hộp thoại `aria-modal="true"` (ô báo cáo mở ngay sau Shutdown Ritual, hay Daily Focus khi bấm Done ở F10), trình đọc màn hình coi phần ngoài hộp thoại là không dùng được, nên không tới được nút Undo.
+- Sửa: hàm `undoSnackbarHost` (`components/feedback/undoSnackbarHost.ts`) chọn hộp thoại `aria-modal` trên cùng (z-index cao nhất, bằng nhau thì hộp mở sau), không có thì `body`. `UndoSnackbar` gắn vào đó và theo dõi DOM (MutationObserver, chỉ khi thanh đang hiện) để đổi chỗ khi hộp thoại mở hoặc đóng; thêm `role="status"` và `aria-live="polite"` để thông báo được đọc lên. Sự kiện bấm trong portal đi theo cây React nên không đóng nhầm hộp thoại.
+- Test: `src/components/feedback/__tests__/undoSnackbarHost.test.ts` (không có hộp thoại, ô báo cáo trên Daily Focus, chỉ Daily Focus). Trên logic cũ (luôn trả `body`): 2 đỏ, 1 xanh. Sau khi sửa: 3 xanh.
+- Kiểm trên preview: bấm Shutdown Ritual thật; đo trong trang mỗi 300 ms: lúc đầu thanh ở `body` (chưa có hộp thoại), khi ô báo cáo mở thì thanh chuyển vào hộp thoại "Markdown report". Cây truy cập (snapshot) có nút "Undo the last action (Ctrl+Z)" trong hộp thoại; lúc làm B12 cây này không có nút. Phép thử điểm chạm ở tâm nút trả đúng nút, khung nút đứng yên qua 2 khung hình, `visibility` và `pointer-events` bình thường. Bấm Done trong Daily Focus: vùng `status` với nút Undo nằm trong hộp thoại Daily Focus. Công cụ bấm của DevTools báo hết giờ chờ với nút Undo và cả với một nút menu bình thường trên cùng tab ("Delete task"), nên phần bấm được kiểm bằng phép thử điểm chạm và bằng Ctrl+Z (đã kiểm ở F05 của B12 và F10), không bằng cú bấm chuột của công cụ.
+
 ## Trạng thái và bước tiếp theo
-- Xong: F09, F10, F11, chuỗi việc con nhiều tầng, chữ số nhiều.
-- Tiếp theo: Undo sau Shutdown Ritual.
+- Xong: F09, F10, F11, chuỗi việc con nhiều tầng, chữ số nhiều, Undo trong hộp thoại.
+- Tiếp theo: bàn giao Stride Phiên 2 (gộp sau B12) và báo Cố vấn.
 
 ## Tham chiếu
 - [B12](./B12-logic-fixes.md)
