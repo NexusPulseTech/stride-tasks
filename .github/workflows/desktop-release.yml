@@ -5,43 +5,50 @@ name: Desktop Release
 on:
   workflow_dispatch:
 
-permissions:
-  contents: write
+# Mặc định không cấp quyền nào; chỉ job dựng bản được ghi để tạo release (B10).
+# Action ghim theo SHA commit đầy đủ, chú thích là tag tương ứng; Dependabot nâng cả hai.
+permissions: {}
 
 jobs:
   build-tauri:
     runs-on: windows-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
           cache: npm
 
+      # Action này không có tag phiên bản: ghim commit đầu nhánh stable, và khi gọi bằng SHA
+      # thì phải khai báo toolchain (action chỉ tự đọc toolchain từ tên ref như @stable).
       - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@39008827e6b4319a349e9a42dfc90579dd25f1ca # stable, 2026-11-15
+        with:
+          toolchain: stable
 
       - name: Install frontend dependencies
-        run: npm install --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
 
       - name: Build web app
         run: npm run build
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
+      # tauriScript khai báo rõ để luôn dùng Tauri CLI cài bằng npm ci (devDependencies),
+      # không phụ thuộc việc action dò lockfile của trình quản lý gói nào.
       - name: Build Tauri desktop app
-        uses: tauri-apps/tauri-action@v0
+        uses: tauri-apps/tauri-action@84b9d35b5fc46c1e45415bdb6144030364f7ebc5 # v0.6.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           projectPath: .
+          tauriScript: npx tauri
           tagName: ${{ github.ref_name || format('desktop-v{0}', github.run_number) }}
           releaseName: "Stride Tasks ${{ github.ref_name || format('desktop-v{0}', github.run_number) }}"
           releaseBody: |

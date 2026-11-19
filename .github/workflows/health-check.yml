@@ -8,8 +8,8 @@ on:
     - cron: '17 */6 * * *'
   workflow_dispatch:
 
-permissions:
-  contents: read
+# Job chỉ gọi curl tới production, không đọc repo: không cần quyền nào của GITHUB_TOKEN (B10).
+permissions: {}
 
 env:
   APP: https://tasks.nexuspulsetech.xyz
