@@ -493,6 +493,7 @@ export const en: Translations = {
     projectDeleted: 'Deleted project "{name}"',
     projectRenamed: 'Project renamed!',
     recurringRolledOver: 'Refreshed {count} recurring tasks for today.',
+    recurringRolledOverOne: 'Refreshed {count} recurring task for today.',
     recurringDoneToday: 'Recurring task done for today ({streak}-day streak). It resets automatically tomorrow.',
     recurrenceSet: 'Repeat set: {rule}',
     recurrenceOff: 'Repeat turned off',

@@ -496,6 +496,7 @@ export interface Translations {
     projectRenamed: string;
     // Lặp lại, lịch hẹn, hoãn, quỹ thời gian
     recurringRolledOver: string;
+    recurringRolledOverOne: string;
     recurringDoneToday: string;
     recurrenceSet: string;
     recurrenceOff: string;

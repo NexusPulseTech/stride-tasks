@@ -493,6 +493,7 @@ export const vi: Translations = {
     projectDeleted: 'Đã xóa dự án "{name}"',
     projectRenamed: 'Đã đổi tên dự án!',
     recurringRolledOver: 'Đã tự động làm mới {count} việc lặp lại cho ngày hôm nay.',
+    recurringRolledOverOne: 'Đã tự động làm mới {count} việc lặp lại cho ngày hôm nay.',
     recurringDoneToday: 'Đã xong việc lặp lại hôm nay (chuỗi {streak} ngày). Ngày mai sẽ tự động làm mới.',
     recurrenceSet: 'Đã đặt lặp lại: {rule}',
     recurrenceOff: 'Đã tắt lặp lại',

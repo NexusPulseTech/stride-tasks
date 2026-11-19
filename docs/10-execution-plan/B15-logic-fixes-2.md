@@ -69,9 +69,15 @@ Mỗi lỗi một commit, hoàn tác được từng commit. Nhánh tách từ `
 - Test: 3 ca mới trong `taskTransitions.test.ts`. Trước khi sửa: 2 đỏ (tích bước cuối, đổi bước cuối sang Done bằng ô trạng thái), 1 xanh (bỏ tích, vì trước đó chưa từng được cộng). Sau khi sửa: 3 xanh, 66 test của tasks xanh.
 - Kiểm trên preview (thêm trước khi app chạy việc con lặp lại "Morning routine" chuỗi 2, làm lần cuối hôm qua, có 2 bước con "Stretch" đã xong và "Plan the day" chưa xong, trong "Launch a personal website"): mở việc con, bấm ô tích thật của "Plan the day" → "Morning routine" tự xong, chuỗi 3, ngày 2026-11-20. Bấm lại để bỏ tích → chuỗi 2, ngày 2026-11-19.
 
+### Câu "Refreshed 1 recurring tasks" sai số ít, số nhiều
+- Nguyên nhân: thông báo làm mới việc lặp lại chỉ có một dạng số nhiều.
+- Sửa: thêm khóa `toast.recurringRolledOverOne` (EN "Refreshed {count} recurring task for today.", VI giữ câu như dạng nhiều vì tiếng Việt không đổi theo số), theo mẫu có sẵn `hiddenCompletedCount` và `hiddenCompletedCountOne`. Hàm `rolloverNotice` (`utils/rolloverNotice.ts`) chọn dạng bằng `pluralize`; `useTaskCRUD` dùng hàm này.
+- Test: `src/features/tasks/utils/__tests__/rolloverNotice.test.ts` (EN và VI, 1 và 3 việc). Trên logic cũ (chép nguyên văn vào hàm): 1 đỏ (EN), 1 xanh (VI). Sau khi sửa: 2 xanh; test bộ chữ (cùng khóa, cùng biến ở EN và VI) vẫn xanh.
+- Kiểm trên preview (trang có đồng hồ chỉnh được): bấm vòng tròn "Plan your day", đẩy đồng hồ sang 7:30 hôm sau và quay lại tab → "Refreshed 1 recurring task for today."
+
 ## Trạng thái và bước tiếp theo
-- Xong: F09, F10, F11, chuỗi việc con nhiều tầng.
-- Tiếp theo: chữ số nhiều, Undo sau Shutdown Ritual.
+- Xong: F09, F10, F11, chuỗi việc con nhiều tầng, chữ số nhiều.
+- Tiếp theo: Undo sau Shutdown Ritual.
 
 ## Tham chiếu
 - [B12](./B12-logic-fixes.md)
