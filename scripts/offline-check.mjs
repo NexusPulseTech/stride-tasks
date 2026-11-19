@@ -226,10 +226,19 @@ async function offlinePhase(profile) {
   }
 }
 
+// Chrome trên Windows đặt file Cache Storage sâu thêm 139 ký tự dưới thư mục hồ sơ (đo ngày 2026-11-19, Chrome 157):
+// hồ sơ từ 127 ký tự trở lên làm đường dẫn vượt MAX_PATH (259 ký tự), Cache Storage báo "Entry already exists" hoặc
+// "Unexpected internal error" và SW cài lỗi dù app không lỗi (B11). Dừng sớm để không báo động giả.
+const CACHE_STORAGE_DEPTH = 139;
+const WINDOWS_MAX_PATH = 259;
+
 const profile = mkdtempSync(join(tmpdir(), 'stride-offline-'));
 const watchdog = setTimeout(() => { console.error(`\nLỖI: quá ${OVERALL_TIMEOUT_MS / 1000} giây`); process.exit(1); }, OVERALL_TIMEOUT_MS);
 let ok = false;
 try {
+  if (process.platform === 'win32' && profile.length + CACHE_STORAGE_DEPTH > WINDOWS_MAX_PATH) {
+    fail(`Đường dẫn hồ sơ tạm quá dài (${profile.length} ký tự, tối đa ${WINDOWS_MAX_PATH - CACHE_STORAGE_DEPTH}): Cache Storage của Chrome sẽ vượt MAX_PATH và kết quả kiểm sai. Đặt biến TEMP về thư mục ngắn hơn rồi chạy lại.`, profile);
+  }
   console.log(`Kiểm ngoại tuyến: ${TARGET.href}`);
   await onlinePhase(profile);
   await offlinePhase(profile);

@@ -13,7 +13,7 @@
      curl -s -o /dev/null -w "%{http_code} $p\n" "$B$p?cb=$RANDOM"; done
    ```
 4. Quét bundle production tìm mảnh khóa riêng (script quét bí mật, tự động hóa ở B03).
-5. Kiểm ngoại tuyến thật (B11): `npm run check:offline`. Đạt khi service worker activated, app mở được và gõ được việc khi cắt mạng. Job `offline` trong `health-check.yml` chạy lại kiểm này mỗi 6 giờ. Trước khi gộp có thể kiểm bản build local: `npm run build`, `npx vite preview --port 4317 --strictPort`, rồi `npm run check:offline -- http://127.0.0.1:4317/`.
+5. Kiểm ngoại tuyến thật (B11): `npm run check:offline`. Đạt khi service worker activated, app mở được và gõ được việc khi cắt mạng. Job `offline` trong `health-check.yml` tự chạy ngay sau deploy và mỗi 6 giờ; trượt ngay sau deploy thường là `sw.js` cũ ở biên Cloudflare (mục 1c). Trước khi gộp có thể kiểm bản build local: `npm run build`, `npx vite preview --port 4317 --strictPort`, rồi `npm run check:offline -- http://127.0.0.1:4317/`.
 6. **Rollback**: `git revert <commit>` → push `main` (Service Worker `autoUpdate` sẽ kéo bản mới ở lần mở tiếp theo).
 
 ## 1a. Báo công cụ tìm kiếm khi thêm hoặc sửa trang (IndexNow)
@@ -29,7 +29,7 @@ HTTP 200 hoặc 202 là đạt. Một lần gửi tới `api.indexnow.org` đư�
 
 ## 1a-bis. Kiểm tra sống tự động
 
-Workflow `Production health check` (`.github/workflows/health-check.yml`) chạy mỗi 6 giờ: app có thẻ CSP và script chống nhúng, header bảo mật ở edge, trang đích, trang pháp lý, sitemap, service worker, và Worker trả đúng 400/403/204/404. Chỉ dùng curl, không tạo đơn hay phiên checkout. Bước lỗi thì GitHub gửi email cho người sửa workflow gần nhất; chạy tay bằng `gh workflow run "Production health check"`. GitHub tự tắt lịch sau 60 ngày repo không có commit.
+Workflow `Production health check` (`.github/workflows/health-check.yml`) chạy mỗi 6 giờ và ngay sau mỗi lần deploy thành công. Job `offline` (B11) mở app bằng Chrome, chờ service worker activated, cắt mạng thật rồi gõ một việc (`npm run check:offline`). Job `check`: app có thẻ CSP và script chống nhúng, header bảo mật ở edge, trang đích, trang pháp lý, sitemap, service worker, và Worker trả đúng 400/403/204/404. Chỉ dùng curl, không tạo đơn hay phiên checkout. Bước lỗi thì GitHub gửi email cho người sửa workflow gần nhất; chạy tay bằng `gh workflow run "Production health check"`. GitHub tự tắt lịch sau 60 ngày repo không có commit.
 
 ## 1b. Header bảo mật (Cloudflare)
 
@@ -53,6 +53,17 @@ Header CSP ở đây chỉ có `frame-ancestors`. Trình duyệt áp dụng đ�
 Kiểm tra sau khi bật: `curl -sI https://tasks.nexuspulsetech.xyz/ | grep -iE "frame|content-security|nosniff|strict-transport"`.
 
 Trạng thái: **đã bật 2026-11-10** (founder duyệt), rule tên "Security headers: tasks.nexuspulsetech.xyz", là rule duy nhất trong mục Response Header Transform Rules của zone. Kiểm chứng: curl thấy đủ 6 header trên `/`, `/en/` và `/sw.js`, host `tasks-api` không bị ảnh hưởng; trang lạ nhúng `/en/` bị Chrome chặn với lỗi `frame-ancestors 'none'`; app vẫn tải CSS, service worker và manifest bình thường với `nosniff`, 0 vi phạm CSP.
+
+## 1c. Không cache `sw.js` ở biên Cloudflare (B11)
+
+Cloudflare mặc định cache file `.js` ở biên. Sau deploy, biên còn giữ `sw.js` cũ trỏ tới chunk đã bị xóa (404) nên khách mở app lần đầu trong khoảng đó không cài được service worker, mất chế độ ngoại tuyến (đo được khoảng 11 phút sau deploy A17). Cách sửa: Cache Rule bỏ qua cache cho đúng `/sw.js`. Đây là cài đặt tài khoản, **founder tự làm**; các bước theo tài liệu chính thức nằm ở [B11](../10-execution-plan/B11-sw-install-resilience-and-offline-check.md), mục "Cách sửa gốc lỗi 1":
+
+- Vị trí: zone `nexuspulsetech.xyz`, trang **Cache Rules**, **Create rule**, **Custom filter expression**.
+- Biểu thức: `(http.host eq "tasks.nexuspulsetech.xyz" and http.request.uri.path eq "/sw.js")`.
+- **Cache eligibility**: **Bypass cache**, rồi **Deploy**; purge `https://tasks.nexuspulsetech.xyz/sw.js` một lần (**Custom Purge**, theo **URL**).
+- Kiểm: `curl -sI https://tasks.nexuspulsetech.xyz/sw.js` không còn `cf-cache-status: HIT`; job `offline` chạy ngay sau lần deploy kế tiếp đạt.
+
+Trạng thái: **chưa bật** (chờ founder, 2026-11-19).
 
 ## 2. Worker (`stride-license`)
 
