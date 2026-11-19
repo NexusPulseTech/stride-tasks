@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Project, Task, RecurrenceType } from '../../../types';
+import { Project, Task, RecurrenceType, StatusDefinition } from '../../../types';
 import { STORAGE_KEY } from '../../../constants';
 import { triggerHaptic, truncateText } from '../../../utils';
 import { useTranslationRef, formatMessage } from '../../../i18n';
 import { parsePastedTasks, parsePastedHierarchy } from '../utils/batchParser';
 import { buildSmartTask, summarizeSmartTask } from '../utils/smartTaskParser';
-import { cascadeSubtaskCompleted, updateSubtaskStatusInTree, determineTaskStatusFromSubtasks } from '../utils/subtaskTree';
+import { changeSubtaskStatusTransition, changeTaskStatusTransition, toggleTaskDoneTransition } from '../utils/taskTransitions';
+import { startDayWatcher } from '../utils/dayWatcher';
+import { planShutdownRitual, undoShutdownRitual } from '../utils/shutdownRitual';
 import { exportProjectToMarkdown } from '../utils/formatters';
 import { isDoneStatus } from '../utils/statusCategory';
 import { stampProjectsUpdatedAt } from '../utils/updatedAtStamp';
@@ -20,7 +22,6 @@ import {
   subscribeCrossTabSync,
 } from '../../../utils/persistentStorage';
 import {
-  getTodayDateString,
   processDailyRecurrenceRollover,
   manuallyResetRecurringTask,
   manuallyResetRecurringSubTask,
@@ -76,16 +77,25 @@ export function useTaskCRUD({
     showToastRef.current = showToast;
   }, [showToast]);
 
-  // 1. Tự động kiểm tra làm mới việc lặp lại khi sang ngày mới (Auto-Rollover) - chạy 1 lần khi khởi động
+  const projectsRef = useRef(projects);
+  projectsRef.current = projects;
+
+  // 1. Tự động làm mới việc lặp lại khi sang ngày mới (Auto-Rollover): lúc khởi động, lúc qua nửa đêm khi app đang mở
+  // và khi quay lại tab (B12 F03). Số việc được làm mới tính trước, ngoài hàm cập nhật state (B12 F04); áp cả thay đổi
+  // chỉ ngắt chuỗi (B12 F02), rollover giữ nguyên tham chiếu khi không có gì đổi.
   useEffect(() => {
-    setProjects((current) => {
-      const { updatedProjects, resetCount } = processDailyRecurrenceRollover(current);
+    const runRollover = () => {
+      const { resetCount } = processDailyRecurrenceRollover(projectsRef.current);
+      setProjects((current) => {
+        const { updatedProjects } = processDailyRecurrenceRollover(current);
+        return updatedProjects.every((p, i) => p === current[i]) ? current : updatedProjects;
+      });
       if (resetCount > 0) {
         showToastRef.current?.(formatMessage(tRef.current.toast.recurringRolledOver, { count: resetCount }));
-        return updatedProjects;
       }
-      return current;
-    });
+    };
+    runRollover();
+    return startDayWatcher(runRollover);
   }, []);
 
   // 2. Khởi tạo bảo vệ: Yêu cầu Persistent Storage & kiểm tra phục hồi sâu từ IndexedDB (chỉ khi LocalStorage bị xóa sạch bởi trình duyệt)
@@ -273,42 +283,24 @@ export function useTaskCRUD({
 
   const toggleTaskDone = (projId: string, taskId: string, isChecked: boolean) => {
     triggerHaptic();
-    const nextStatus: 'done' | 'todo' = isChecked ? 'done' : 'todo';
-    const todayStr = getTodayDateString();
-
-    let completedRecurring = false;
-    let newStreak = 0;
+    const targetProject = projects.find((item) => item.id === projId);
+    const targetTask = targetProject?.tasks.find((item) => item.id === taskId);
+    // B12 F04: chuỗi cho thông báo tính trước, không đọc biến được gán bên trong hàm cập nhật state
+    const preview = targetTask ? toggleTaskDoneTransition(targetTask, isChecked) : undefined;
+    const completedRecurring = Boolean(isChecked && targetTask && preview && preview.lastCompletedDate !== targetTask.lastCompletedDate);
 
     setProjects((prev) =>
       prev.map((p) => p.id !== projId ? p : {
         ...p,
-        tasks: p.tasks.map((t) => {
-          if (t.id !== taskId) return t;
-          const isRecurring = Boolean(t.recurrence);
-          if (isChecked && isRecurring) {
-            completedRecurring = true;
-            newStreak = (t.recurrenceStreak || 0) + 1;
-          }
-          return {
-            ...t,
-            status: nextStatus,
-            completedAt: isChecked ? (t.completedAt || new Date().toISOString()) : undefined,
-            snoozeUntil: isChecked ? undefined : t.snoozeUntil,
-            lastCompletedDate: isChecked && isRecurring ? todayStr : t.lastCompletedDate,
-            recurrenceStreak: isChecked && isRecurring ? newStreak : t.recurrenceStreak,
-            subtasks: isChecked ? t.subtasks.map((s) => cascadeSubtaskCompleted(s, true)) : t.subtasks,
-          };
-        }),
+        tasks: p.tasks.map((t) => (t.id !== taskId ? t : toggleTaskDoneTransition(t, isChecked))),
       })
     );
-    const targetProject = projects.find((item) => item.id === projId);
-    const targetTask = targetProject?.tasks.find((item) => item.id === taskId);
 
     if (isChecked) {
       checkProjectCompletion(projId, taskId);
       onTaskDone?.(true, targetTask ? { ...targetTask, status: 'done' } : undefined, targetProject);
       if (completedRecurring) {
-        showToast(formatMessage(tRef.current.toast.recurringDoneToday, { streak: newStreak }));
+        showToast(formatMessage(tRef.current.toast.recurringDoneToday, { streak: preview?.recurrenceStreak || 0 }));
       }
     } else {
       onTaskDone?.(false, targetTask, targetProject);
@@ -375,30 +367,7 @@ export function useTaskCRUD({
           ? p
           : {
               ...p,
-              tasks: p.tasks.map((t) => {
-                if (t.id !== taskId) return t;
-
-                let nextSubs = t.subtasks;
-                if (isDoneCategory) {
-                  // Khi chuyển sang Đã xong: Hoàn thành toàn bộ các bước con
-                  nextSubs = t.subtasks.map((s) => cascadeSubtaskCompleted(s, true));
-                } else if (status === 'todo') {
-                  // Khi chuyển về Chờ: Đưa tất cả bước con về chưa hoàn thành
-                  nextSubs = t.subtasks.map((s) => cascadeSubtaskCompleted(s, false));
-                } else if (t.status === 'done' && !isDoneCategory) {
-                  // Đang từ Đã xong chuyển sang Đang làm/Duyệt/Nghẽn/Custom:
-                  // Mở lại các việc con để không bị tự động bọt khí ép ngược về done
-                  nextSubs = t.subtasks.map((s) => cascadeSubtaskCompleted(s, false));
-                }
-
-                return {
-                  ...t,
-                  status,
-                  completedAt: isDoneCategory ? t.completedAt || new Date().toISOString() : undefined,
-                  snoozeUntil: isDoneCategory ? undefined : t.snoozeUntil,
-                  subtasks: nextSubs,
-                };
-              }),
+              tasks: p.tasks.map((t) => (t.id !== taskId ? t : changeTaskStatusTransition(t, status, isDoneCategory))),
             }
       )
     );
@@ -427,21 +396,7 @@ export function useTaskCRUD({
         if (p.id !== projId) return p;
         return {
           ...p,
-          tasks: p.tasks.map((t) => {
-            if (t.id !== taskId) return t;
-            const updatedSubs = updateSubtaskStatusInTree(t.subtasks, subId, status, isDoneCategory);
-            const nextTaskStatus = determineTaskStatusFromSubtasks(
-              t.status === 'done' || isDoneCategory ? (t.status === 'done' ? 'done' : 'doing') : t.status,
-              updatedSubs
-            );
-            return {
-              ...t,
-              status: nextTaskStatus,
-              subtasks: updatedSubs,
-              completedAt: nextTaskStatus === 'done' ? t.completedAt || new Date().toISOString() : undefined,
-              snoozeUntil: nextTaskStatus === 'done' ? undefined : t.snoozeUntil,
-            };
-          }),
+          tasks: p.tasks.map((t) => (t.id !== taskId ? t : changeSubtaskStatusTransition(t, subId, status, isDoneCategory))),
         };
       })
     );
@@ -585,34 +540,24 @@ export function useTaskCRUD({
   );
 
   // Nghi thức Chốt Ca Cuối Ngày (Sunsama Daily Shutdown Ritual): Dời các việc đang dở sang ngày mai & chống kiệt sức
-  const executeDailyShutdownRitual = useCallback(() => {
-    triggerHaptic();
-    const tomorrowMorning = new Date();
-    tomorrowMorning.setDate(tomorrowMorning.getDate() + 1);
-    tomorrowMorning.setHours(9, 0, 0, 0);
-    const tomorrowIso = tomorrowMorning.toISOString();
-
-    let movedCount = 0;
-    setProjects((prev) =>
-      prev.map((p) => ({
-        ...p,
-        tasks: p.tasks.map((t) => {
-          if (t.status === 'doing' || t.status === 'review') {
-            movedCount += 1;
-            return {
-              ...t,
-              status: 'todo',
-              reminderAt: t.reminderAt || tomorrowIso,
-            };
-          }
-          return t;
-        }),
-      }))
-    );
-
-    showToast(movedCount > 0 ? formatMessage(tRef.current.toast.shutdownMoved, { count: movedCount }) : tRef.current.toast.shutdownClean);
-    return movedCount;
-  }, [showToast]);
+  // B12 F04, F05: tính kết quả trên dữ liệu hiện tại trước khi cập nhật, theo nhóm trạng thái, dời cả nhắc đã quá hạn,
+  // và cho Hoàn tác (chỉ trả lại các việc đã dời)
+  const executeDailyShutdownRitual = useCallback(
+    (statuses: StatusDefinition[] = []) => {
+      triggerHaptic();
+      const plan = planShutdownRitual(projectsRef.current, statuses);
+      if (plan.movedCount === 0) {
+        showToast(tRef.current.toast.shutdownClean);
+        return 0;
+      }
+      setProjects((prev) => planShutdownRitual(prev, statuses).projects);
+      triggerUndoableAction(formatMessage(tRef.current.toast.shutdownMoved, { count: plan.movedCount }), () => {
+        setProjects((prev) => undoShutdownRitual(prev, plan.before));
+      });
+      return plan.movedCount;
+    },
+    [showToast, triggerUndoableAction]
+  );
 
   return {
     projects,

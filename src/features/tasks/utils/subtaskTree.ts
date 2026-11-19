@@ -1,4 +1,5 @@
 import { SubTask, Task } from '../../../types';
+import { markRecurringDone, unmarkRecurringDone } from './recurringHelper';
 
 /**
  * UTILITIES & ALGORITHMS FOR RECURSIVE HIERARCHICAL SUBTASKS
@@ -63,18 +64,20 @@ export function getTaskSubtaskStats(task: Task) {
  * Thác đổ (Cascade down): Đặt trạng thái completed cho toàn bộ cây con bên dưới
  */
 export function cascadeSubtaskCompleted(sub: SubTask, completed: boolean): SubTask {
-  const todayStr = new Date().toISOString().slice(0, 10);
-  return {
+  const next: SubTask = {
     ...sub,
     completed,
     status: completed ? 'done' : 'todo',
     snoozeUntil: completed ? undefined : sub.snoozeUntil,
-    lastCompletedDate: completed && sub.recurrence ? todayStr : sub.lastCompletedDate,
-    recurrenceStreak: completed && sub.recurrence ? (sub.recurrenceStreak || 0) + 1 : sub.recurrenceStreak,
     subtasks: sub.subtasks
       ? sub.subtasks.map((child) => cascadeSubtaskCompleted(child, completed))
       : undefined,
   };
+  // B12 F01: chỉ ghi nhận khi việc con vừa chuyển sang xong (trước đây ghi lại mỗi lần thác đổ, và lấy ngày theo UTC)
+  if (completed && !sub.completed) return markRecurringDone(next);
+  // B12 F02: bỏ tích thì trả chuỗi về trước lần làm xong đó
+  if (!completed && sub.completed) return unmarkRecurringDone(next);
+  return next;
 }
 
 /**
@@ -307,15 +310,19 @@ export function updateSubtaskStatusInTree(
 ): SubTask[] {
   return subtasks.map((item) => {
     if (item.id === subId) {
-      const updatedItem = {
+      const updatedItem: SubTask = {
         ...item,
         status: newStatus,
         completed: isDoneCategory,
         snoozeUntil: isDoneCategory ? undefined : item.snoozeUntil,
+        subtasks:
+          isDoneCategory && item.subtasks
+            ? item.subtasks.map((child) => cascadeSubtaskCompleted(child, true))
+            : item.subtasks,
       };
-      if (isDoneCategory && item.subtasks) {
-        return cascadeSubtaskCompleted(updatedItem, true);
-      }
+      // B12 F01: việc con lặp lại đổi sang nhóm done bằng ô trạng thái cũng được ghi nhận; F02: rời nhóm done thì trả chuỗi
+      if (isDoneCategory && !item.completed) return markRecurringDone(updatedItem);
+      if (!isDoneCategory && item.completed) return unmarkRecurringDone(updatedItem);
       return updatedItem;
     }
     if (item.subtasks && item.subtasks.length > 0) {

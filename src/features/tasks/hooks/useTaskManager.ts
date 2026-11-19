@@ -967,7 +967,7 @@ export function useTaskManager() {
     openAnkiModal: openAnkiModalForTask,
     addTaskFocusedMinutes: crud.addTaskFocusedMinutes,
     setTaskEstimatedMinutes: crud.setTaskEstimatedMinutes,
-    executeDailyShutdownRitual: crud.executeDailyShutdownRitual,
+    executeDailyShutdownRitual: () => crud.executeDailyShutdownRitual(statusManager.statuses),
     handleQuickAddTaskToColumn: (projectId: string, title: string, status: string) => {
       const trimmed = title.trim();
       if (!trimmed) return;

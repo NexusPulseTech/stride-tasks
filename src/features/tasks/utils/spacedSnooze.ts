@@ -28,6 +28,52 @@ export interface ActionableItem {
   isPinned?: boolean;
   reminderAt?: string;
   deadline?: string;
+  wakeAt?: string;               // Lúc việc quay lại Due Today (hết hoãn hoặc tới ngày hẹn); chỉ có ở tab Snoozed
+  pinSource?: 'subtask' | 'task'; // Bước con được ghim do chính nó hay do việc cha (nút ghim gỡ đúng chỗ)
+}
+
+/**
+ * Thời điểm đến hạn sớm nhất (giờ nhắc hoặc hạn chót) theo giờ máy. Hạn chót chỉ có ngày thì tính tới cuối ngày đó.
+ */
+export function getDueTime(item: Pick<ActionableItem, 'reminderAt' | 'deadline'>): number | null {
+  const times: number[] = [];
+  if (item.reminderAt) {
+    const t = new Date(item.reminderAt).getTime();
+    if (!isNaN(t)) times.push(t);
+  }
+  if (item.deadline) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(item.deadline);
+    const t = m
+      ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 23, 59, 59, 999).getTime()
+      : new Date(item.deadline).getTime();
+    if (!isNaN(t)) times.push(t);
+  }
+  return times.length > 0 ? Math.min(...times) : null;
+}
+
+/**
+ * Lúc việc quay lại Due Today: hết thời gian hoãn, và tới đầu ngày của giờ nhắc/hạn chót nếu ngày đó còn ở tương lai.
+ * Trả null khi việc đang thuộc Due Today (B12 F06: trước đây việc hẹn ngày mai hay năm sau vẫn đứng đầu Due Today).
+ * Việc đã ghim (kể cả bằng "1 · Remind Now") thì người dùng muốn thấy ngay, nên ngày hẹn ở tương lai không giấu nó.
+ */
+export function getWakeTime(
+  item: Pick<ActionableItem, 'snoozeUntil' | 'reminderAt' | 'deadline' | 'isPinned'>,
+  now: number = Date.now()
+): number | null {
+  let wake = 0;
+  if (item.snoozeUntil) {
+    const t = new Date(item.snoozeUntil).getTime();
+    if (!isNaN(t) && t > now) wake = t;
+  }
+  const due = getDueTime(item);
+  const endOfToday = new Date(now);
+  endOfToday.setHours(23, 59, 59, 999);
+  if (!item.isPinned && due !== null && due > endOfToday.getTime()) {
+    const startOfDueDay = new Date(due);
+    startOfDueDay.setHours(0, 0, 0, 0);
+    wake = Math.max(wake, startOfDueDay.getTime());
+  }
+  return wake > now ? wake : null;
 }
 
 /**
@@ -76,10 +122,14 @@ export function resolveActionableItemForTask(
     return null;
   }
 
-  // Nếu task có subtasks
-  if (task.subtasks && task.subtasks.length > 0) {
+  // Nếu task có subtasks. B12 F07: việc cha đang hoãn thì cả việc đi theo việc cha (mục ở tab Snoozed là việc cha,
+  // để "Remind Now" gỡ đúng lần hoãn đó); việc cha đang ghim thì bước con cũng được xếp như việc ghim.
+  const parentSnoozed = isCurrentlySnoozed(task.snoozeUntil);
+  if (!parentSnoozed && task.subtasks && task.subtasks.length > 0) {
     const leaf = findFirstActionableLeafSubtask(task.subtasks);
     if (leaf) {
+      const pinSource: ActionableItem['pinSource'] = leaf.subtask.isPinned ? 'subtask' : task.isPinned ? 'task' : undefined;
+      const levels = [leaf.subtask.snoozeLevel, task.snoozeLevel].filter((n): n is number => typeof n === 'number');
       return {
         id: leaf.subtask.id,
         title: leaf.subtask.title,
@@ -93,16 +143,17 @@ export function resolveActionableItemForTask(
         parentPath: [task.title, ...leaf.parentChain.map((p) => p.title)],
         depth: leaf.depth + 1,
         snoozeUntil: leaf.subtask.snoozeUntil,
-        snoozeLevel: leaf.subtask.snoozeLevel,
+        snoozeLevel: levels.length > 0 ? Math.max(...levels) : undefined,
         status: leaf.subtask.status || 'todo',
-        isPinned: leaf.subtask.isPinned,
+        isPinned: Boolean(pinSource),
+        pinSource,
         reminderAt: task.reminderAt,
         deadline: task.deadline,
       };
     }
   }
 
-  // Nếu không có subtasks hoặc tất cả subtasks đã xong -> chính task này là hành động
+  // Không có subtasks, tất cả subtasks đã xong, hoặc việc cha đang hoãn -> chính task này là hành động
   return {
     id: task.id,
     title: task.title,
@@ -378,8 +429,8 @@ export function calculateSnoozeTarget(days: number): string {
 /**
  * Lọc hàng đợi công việc cần tập trung hôm nay (Daily Focus Queue)
  * - Lọc ra toàn bộ uncompleted items (lá con sâu nhất được ưu tiên theo GTD)
- * - Loại bỏ các việc đang bị snooze trong tương lai
- * - Sắp xếp theo độ ưu tiên: Ghim > Đến hẹn/Quá hạn > Đang làm > Việc con sâu nhất
+ * - Loại bỏ các việc đang bị snooze và việc hẹn sang ngày sau (chúng nằm ở tab Snoozed)
+ * - Sắp xếp theo độ ưu tiên: Ghim > Đến hẹn hôm nay/Quá hạn (sớm nhất trước) > Đang làm > Việc con sâu nhất
  */
 export function getDailyFocusQueue(
   projects: Project[],
@@ -397,13 +448,9 @@ export function getDailyFocusQueue(
     }
   }
 
-  // Tách nhóm: Nhóm đang active (không bị hoãn hoặc hoãn đã hết hạn)
+  // Nhóm đang active: không bị hoãn (hoặc hoãn đã hết) và không hẹn sang ngày sau
   const now = Date.now();
-  const activeItems = allActionables.filter((item) => {
-    if (!item.snoozeUntil) return true;
-    const time = new Date(item.snoozeUntil).getTime();
-    return isNaN(time) || time <= now;
-  });
+  const activeItems = allActionables.filter((item) => getWakeTime(item, now) === null);
 
   // Sắp xếp ưu tiên:
   activeItems.sort((a, b) => {
@@ -411,11 +458,12 @@ export function getDailyFocusQueue(
     if (a.isPinned && !b.isPinned) return -1;
     if (!a.isPinned && b.isPinned) return 1;
 
-    // 2. Việc có lịch hẹn hôm nay/quá hạn
-    const aDue = a.reminderAt || a.deadline;
-    const bDue = b.reminderAt || b.deadline;
-    if (aDue && !bDue) return -1;
-    if (!aDue && bDue) return 1;
+    // 2. Việc đến hạn hôm nay hoặc quá hạn (việc hẹn ngày sau đã bị lọc ra), sớm nhất trước
+    const aDue = getDueTime(a);
+    const bDue = getDueTime(b);
+    if (aDue !== null && bDue === null) return -1;
+    if (aDue === null && bDue !== null) return 1;
+    if (aDue !== null && bDue !== null && aDue !== bDue) return aDue - bDue;
 
     // 3. Trạng thái đang làm (doing)
     const aDoing = isDoingStatus(a.status, statuses);
@@ -431,7 +479,7 @@ export function getDailyFocusQueue(
 }
 
 /**
- * Lọc danh sách các việc đang trong thời gian hoãn đếm ngược Anki (snoozeUntil > now)
+ * Việc đang hoãn (snoozeUntil > now) và việc hẹn sang ngày sau, sắp theo lúc quay lại Due Today
  */
 export function getSnoozedItemsQueue(
   projects: Project[],
@@ -448,18 +496,15 @@ export function getSnoozedItemsQueue(
     }
   }
 
+  // Việc đang hoãn và việc hẹn sang ngày sau, kèm lúc quay lại Due Today để đếm ngược
   const now = Date.now();
-  const snoozedItems = allActionables.filter((item) => {
-    if (!item.snoozeUntil) return false;
-    const time = new Date(item.snoozeUntil).getTime();
-    return !isNaN(time) && time > now;
-  });
+  const snoozedItems: ActionableItem[] = [];
+  for (const item of allActionables) {
+    const wake = getWakeTime(item, now);
+    if (wake !== null) snoozedItems.push({ ...item, wakeAt: new Date(wake).toISOString() });
+  }
 
-  snoozedItems.sort((a, b) => {
-    const tA = new Date(a.snoozeUntil!).getTime();
-    const tB = new Date(b.snoozeUntil!).getTime();
-    return tA - tB;
-  });
+  snoozedItems.sort((a, b) => new Date(a.wakeAt!).getTime() - new Date(b.wakeAt!).getTime());
 
   return snoozedItems;
 }

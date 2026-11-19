@@ -22,7 +22,7 @@ import {
   formatSnoozeCountdown,
 } from '../utils/spacedSnooze';
 import { Project } from '../../../types';
-import { isDoneStatus } from '../utils/statusCategory';
+import { computeWorkloadBudget } from '../utils/workloadBudget';
 import { useLanguage } from '../../../i18n';
 import { triggerHaptic } from '../../../utils';
 
@@ -32,6 +32,8 @@ export interface DailyFocusModalProps {
   items: ActionableItem[];
   snoozedItems?: ActionableItem[];
   projects?: Project[];
+  /** Phút tập trung của hôm nay trong nhật ký tập trung */
+  focusTodayMinutes?: number;
   onToggleTaskDone: (projectId: string, taskId: string, completed: boolean) => void;
   onToggleSubTask: (projectId: string, taskId: string, subId: string, completed: boolean) => void;
   onTogglePinTask: (projectId: string, taskId: string) => void;
@@ -57,6 +59,7 @@ export function DailyFocusModal({
   items,
   snoozedItems = [],
   projects = [],
+  focusTodayMinutes = 0,
   onToggleTaskDone,
   onToggleSubTask,
   onTogglePinTask,
@@ -196,24 +199,12 @@ export function DailyFocusModal({
 
           {/* Sunsama / Akiflow Workload Capacity & Burnout Guardrail Bar */}
           {(() => {
-            let totalEstimatedMins = 0;
-            let totalFocusedMins = 0;
-            let activeDoingCount = 0;
-            let unestimatedCount = 0;
-            projects.forEach((p) => {
-              p.tasks.forEach((t) => {
-                totalFocusedMins += t.focusedMinutes || 0;
-                if (!isDoneStatus(t.status)) {
-                  // Chỉ cộng ước tính thật (đồng nhất với Thống kê & Báo cáo); việc chưa ước tính được đếm riêng
-                  if (t.estimatedMinutes) totalEstimatedMins += t.estimatedMinutes;
-                  else unestimatedCount += 1;
-                  if (t.status === 'doing' || t.status === 'review') {
-                    activeDoingCount += 1;
-                  }
-                }
-              });
-            });
-            const isOverloaded = totalEstimatedMins > 360; // > 6 hours realistic deep work cap
+            // B12 F08: tải của hôm nay (việc trong Due Today) và phút Focus của hôm nay
+            const budget = computeWorkloadBudget(projects, items, focusTodayMinutes);
+            const totalEstimatedMins = budget.estimatedMinutes;
+            const totalFocusedMins = budget.focusedMinutes;
+            const unestimatedCount = budget.unestimatedCount;
+            const isOverloaded = budget.isOverloaded;
             const estHours = Math.floor(totalEstimatedMins / 60);
             const estRemMins = totalEstimatedMins % 60;
 
@@ -259,7 +250,7 @@ export function DailyFocusModal({
                     type="button"
                     onClick={() => {
                       onExecuteShutdownRitual();
-                      if (onOpenMarkdownReport && activeDoingCount >= 0) {
+                      if (onOpenMarkdownReport) {
                         onClose();
                         onOpenMarkdownReport();
                       }
@@ -345,7 +336,7 @@ export function DailyFocusModal({
             currentList.map((item, index) => {
               const currentLevel = Math.max(1, item.snoozeLevel || 1);
               const ankiOptions = getAnkiSrs3Options(currentLevel);
-              const countdown = formatSnoozeCountdown(item.snoozeUntil, language);
+              const countdown = formatSnoozeCountdown(item.wakeAt ?? item.snoozeUntil, language);
               const isReviewedNowInSession = reviewedNowKeys.has(getItemKey(item));
 
               const handleMarkDone = () => {
@@ -359,7 +350,8 @@ export function DailyFocusModal({
 
               const handleTogglePin = () => {
                 triggerHaptic();
-                if (item.isSubtask && item.subtaskId) {
+                // Bước con được ghim nhờ việc cha thì gỡ ghim ở việc cha (B12 F07)
+                if (item.isSubtask && item.subtaskId && item.pinSource !== 'task') {
                   onTogglePinSubTask(item.projectId, item.taskId, item.subtaskId);
                 } else {
                   onTogglePinTask(item.projectId, item.taskId);
