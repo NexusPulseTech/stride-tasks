@@ -221,3 +221,39 @@ describe('F02: chuỗi ngày cộng tối đa 1 lần mỗi chu kỳ, bỏ lỡ 
     expect(b.subtasks[0].lastCompletedDate).toBe('2026-11-18');
   });
 });
+
+describe('B15: việc con nhiều tầng tự chuyển sang xong được tính vào chuỗi', () => {
+  // "Habits" có việc con lặp lại "Morning routine" gồm 2 bước con; tích bước cuối thì "Morning routine" tự xong
+  const routine = (patch: Partial<SubTask> = {}): SubTask =>
+    sub({
+      id: 'r',
+      title: 'Morning routine',
+      recurrence: 'daily',
+      recurrenceStreak: 2,
+      lastCompletedDate: '2026-11-18',
+      subtasks: [sub({ id: 'r1', completed: true, status: 'done' }), sub({ id: 'r2' })],
+      ...patch,
+    });
+  const habits = (): Task => ({ id: 't9', title: 'Habits', status: 'doing', subtasks: [routine(), sub({ id: 'x' })] });
+
+  it('tích bước con cuối cùng: việc con lặp lại tự xong và được cộng chuỗi', () => {
+    const next = toggleSubtaskTransition(habits(), 'r2', true).subtasks[0];
+    expect(next.completed).toBe(true);
+    expect(next.lastCompletedDate).toBe(DAY1_KEY);
+    expect(next.recurrenceStreak).toBe(3);
+  });
+
+  it('bỏ tích lại thì trả chuỗi như trước', () => {
+    const done = toggleSubtaskTransition(habits(), 'r2', true);
+    const undone = toggleSubtaskTransition(done, 'r2', false).subtasks[0];
+    expect(undone.completed).toBe(false);
+    expect(undone.recurrenceStreak).toBe(2);
+    expect(undone.lastCompletedDate).toBe('2026-11-18');
+  });
+
+  it('đổi bước con cuối sang Done bằng ô trạng thái cũng được tính', () => {
+    const next = changeSubtaskStatusTransition(habits(), 'r2', 'done', true).subtasks[0];
+    expect(next.completed).toBe(true);
+    expect(next.recurrenceStreak).toBe(3);
+  });
+});

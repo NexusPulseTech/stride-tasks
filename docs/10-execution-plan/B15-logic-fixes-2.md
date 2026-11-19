@@ -63,9 +63,15 @@ Mỗi lỗi một commit, hoàn tác được từng commit. Nhánh tách từ `
 - Test: `src/features/tasks/utils/__tests__/snoozeGrowthLabel.test.ts` (không file mã nguồn nào viết cứng "×" kèm số; nhãn dùng chung khớp hệ số và có trong lựa chọn thứ hai). Trước khi sửa: 2 đỏ (2 file viết cứng, chưa có hằng số xuất ra). Sau khi sửa: 2 xanh.
 - Kiểm trên preview: mở "Smart schedule / reminder" của một việc → lựa chọn 2 ghi "Good (×2.2)", không còn "×2.3".
 
+### Chuỗi của việc con nhiều tầng tự chuyển sang xong
+- Nguyên nhân: khi mọi con của một việc con đã xong, `subtaskTree.ts` chỉ đặt `completed: true` cho việc con đó (bọt khí nổi) ở 4 chỗ (tích, thêm, xóa, đổi trạng thái), không qua `markRecurringDone`, nên việc con lặp lại không được cộng chuỗi và không có ngày làm xong để làm mới hôm sau.
+- Sửa: hàm `withBubbledCompletion` dùng chung cho mọi chỗ bọt khí nổi: vừa chuyển sang xong thì ghi nhận chuỗi, vừa rời trạng thái xong thì trả chuỗi (`unmarkRecurringDone`), như khi tích tay.
+- Test: 3 ca mới trong `taskTransitions.test.ts`. Trước khi sửa: 2 đỏ (tích bước cuối, đổi bước cuối sang Done bằng ô trạng thái), 1 xanh (bỏ tích, vì trước đó chưa từng được cộng). Sau khi sửa: 3 xanh, 66 test của tasks xanh.
+- Kiểm trên preview (thêm trước khi app chạy việc con lặp lại "Morning routine" chuỗi 2, làm lần cuối hôm qua, có 2 bước con "Stretch" đã xong và "Plan the day" chưa xong, trong "Launch a personal website"): mở việc con, bấm ô tích thật của "Plan the day" → "Morning routine" tự xong, chuỗi 3, ngày 2026-11-20. Bấm lại để bỏ tích → chuỗi 2, ngày 2026-11-19.
+
 ## Trạng thái và bước tiếp theo
-- Xong: F09, F10, F11.
-- Tiếp theo: chuỗi việc con nhiều tầng, chữ số nhiều, Undo sau Shutdown Ritual.
+- Xong: F09, F10, F11, chuỗi việc con nhiều tầng.
+- Tiếp theo: chữ số nhiều, Undo sau Shutdown Ritual.
 
 ## Tham chiếu
 - [B12](./B12-logic-fixes.md)
