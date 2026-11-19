@@ -1,13 +1,17 @@
 # CI/CD & môi trường
 
-> **Thuộc**: 07-engineering · **Trạng thái**: Reviewed (hiện tại) / Draft (mục tiêu) · **Cập nhật**: 2026-10-30
+> **Thuộc**: 07-engineering · **Trạng thái**: Reviewed (hiện tại) / Draft (mục tiêu) · **Cập nhật**: 2026-11-19 (B10)
 
 ## 1. Hiện trạng
 
+Mọi action ghim theo SHA commit đầy đủ kèm chú thích phiên bản; cấp workflow `permissions: {}`, mỗi job tự khai báo quyền tối thiểu; checkout không giữ token (`persist-credentials: false`). Dependabot nâng action hằng tuần (`.github/dependabot.yml`). Xem [B10](../10-execution-plan/B10-supply-chain-and-signing-key.md).
+
 | Workflow | Kích hoạt | Nội dung | Vấn đề |
 | :--- | :--- | :--- | :--- |
-| `deploy.yml` | push `main` | checkout@v7, setup-node@v7 (Node 22), `npm install --legacy-peer-deps`, `npm run lint` (tsc), build, Pages (configure@v6, upload-artifact@v5, deploy@v5) | Không test; `npm install` thay vì `npm ci`; không kiểm ngân sách bundle |
-| `desktop-release.yml` | tag `v*` | Windows: actions@v4, Rust stable, build web, `setup-bun@v2` với **`bun-version: latest`**, `tauri-action@v0`, `includeUpdaterJson: true` | Action cũ (cảnh báo Node 20); bun không ghim; **chưa ký số**; updater JSON nhưng app chưa có plugin updater; release cuối là v2.1.0 với file tên 1.0.6 |
+| `deploy.yml` | push `main` | checkout v7.0.1, setup-node v7.1.0 (Node 22), `npm ci --legacy-peer-deps`, `npm run lint` (tsc), `npm test`, build, Pages (configure-pages v6.0.0, upload-pages-artifact v5.0.0, deploy-pages v5.0.1); quyền `contents: read`, `pages: write`, `id-token: write` | Chưa có workflow `ci` riêng chặn PR; không kiểm ngân sách bundle (B03) |
+| `desktop-release.yml` | chạy tay (`workflow_dispatch`) | Windows: checkout v7.0.1, setup-node v7.1.0, `rust-toolchain` (commit nhánh `stable`, `toolchain: stable`), `npm ci --legacy-peer-deps`, build web, `tauri-action` v0.6.2 với `tauriScript: npx tauri`, `includeUpdaterJson: true`; chỉ job này có `contents: write` | **Chưa ký số**; updater JSON nhưng app chưa có plugin updater; chạy tay từ `main` thì `tagName` lấy `github.ref_name` thành tag `main` (sửa cùng D02); release cuối là v2.1.0 với file tên 1.0.6 |
+| `worker-tests.yml` | push/PR chạm `cloudflare-worker/**` | checkout, setup-node, `npm ci`, test Worker (Miniflare); quyền `contents: read` | Không deploy Worker (B07) |
+| `health-check.yml` | mỗi 6 giờ, chạy tay | Chỉ `curl` tới production (app, header, trang tĩnh, Worker); không quyền token nào | Lịch tự tắt sau 60 ngày repo không có commit |
 | Worker | - | **Deploy tay** bằng `wrangler@4.153.0` | Không test, không staging, phụ thuộc máy founder |
 
 ## 2. Pipeline mục tiêu
@@ -46,9 +50,10 @@ flowchart LR
 
 ## 4. Chuỗi cung ứng (supply chain)
 
-- `npm ci` + lockfile commit; một lockfile duy nhất (bỏ `bun.lock`).
-- **Dependabot** cho `npm` và `github-actions` (hằng tuần, gộp nhóm minor/patch).
-- Ghim action theo major đã kiểm tra (tối thiểu), mức cao hơn: ghim theo commit SHA.
+- `npm ci` + lockfile commit; một lockfile duy nhất. **Đã làm ở B10** (bỏ `bun.lock` thừa từ mẫu ban đầu).
+- **Dependabot** cho `github-actions`: **đã làm ở B10** (hằng tuần, gộp một nhóm, `cooldown` 7 ngày). Hệ `npm` còn lại cho B03.
+- Ghim action theo commit SHA đầy đủ: **đã làm ở B10**. Founder bật thêm yêu cầu ghim SHA ở cài đặt repo (`sha_pinning_required`) sau khi B10 lên `main`. Đánh đổi: Dependabot không báo lỗ hổng cho action ghim SHA, nên lịch nâng hằng tuần là thứ giữ action luôn mới.
+- Phụ thuộc chỉ dùng lúc build (`vite`, plugin Vite, Tailwind) nằm ở `devDependencies` (B10); `npm audit --omit=dev` phải luôn 0.
 - Công cụ chạy bằng `npx` phải ghim phiên bản cụ thể, ưu tiên bản phát hành ≥ 2 tuần (như `wrangler@4.153.0`, `@redocly/cli@2.64.1`).
 - Bật **CodeQL** (miễn phí cho repo public) và **secret scanning + push protection**.
 - Node: khai báo `.nvmrc` và `engines` để local và CI cùng phiên bản LTS (máy founder đang chạy Node 25, CI chạy Node 22 → lệch).

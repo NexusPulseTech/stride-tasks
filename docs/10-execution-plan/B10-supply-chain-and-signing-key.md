@@ -11,9 +11,13 @@
 
 ## Trạng thái và bước tiếp theo
 Cập nhật 2026-11-19, nhánh `fix/supply-chain` (worktree `stride-wt-supply`, chưa push, không deploy).
-- Đã xong và đã kiểm: bước 1 đến 5 (workflow ghim SHA, quyền theo job, Dependabot, `npm ci`, phụ thuộc build sang dev). Module khóa `scripts/lib/signing-key.mjs` có 20 test, kiểm đột biến 3 lần (đường dẫn `..`, symlink, BOM) đều bị test bắt. `keygen.mjs` đã dùng module.
-- Đang làm: `worker-secrets.mjs` dùng chung module; chạy thử đầu cuối hai script trên bản sao tạm của repo (không đụng `licenseCrypto.ts` thật); cập nhật tài liệu bước 7.
-- Tiếp theo: lint, test, test Worker, build, quét bí mật; commit; báo phiên deploy (Phiên 2) và Cố vấn kèm mã commit và việc của founder.
+- Xong cả 7 bước, đã kiểm:
+  - Workflow: bộ kiểm cấu trúc (ghim SHA kèm chú thích, quyền theo job, checkout không giữ token, `npm ci`, không Bun) báo 26 lỗi trên `origin/main`, 0 lỗi trên nhánh này.
+  - `package-lock.json`: 0 phiên bản đổi, 0 gói thêm hay bớt, chỉ 85 cờ `dev`; `npm ci` sạch; `npm audit --omit=dev` 0; build qua.
+  - Khóa ký: 23 test cho `scripts/lib/signing-key.mjs`; kiểm đột biến 3 lần (đường dẫn `..`, symlink, BOM) đều bị test bắt; chạy thử đầu cuối `keygen` và `worker-secrets` trên bản sao tạm của repo 17/17, không đầu ra nào chứa khóa, `licenseCrypto.ts` thật không đổi; các lệnh chuyển khóa ở mục 5 tài liệu quản lý khóa đã chạy thử nguyên văn bằng PowerShell 5.1 trên dữ liệu giả.
+  - Lint, 104 test app, 45 test Worker, quét bí mật (diff đã stage và `dist/`) qua.
+- Chưa kiểm được trong phiên này: chạy `actionlint` và `zizmor` (môi trường không cho chạy tệp thực thi tải về); workflow mới chỉ được kiểm bằng bộ kiểm cấu trúc và đọc lại, GitHub sẽ kiểm thật ở lần chạy đầu sau khi gộp.
+- Tiếp theo: Phiên 2 (phiên deploy) gộp nhánh vào `main` và theo dõi `deploy` chạy xanh; founder làm ba việc ở mục "Việc của founder".
 
 ## Mục tiêu
 1. Workflow GitHub Actions chỉ chạy đúng mã đã được xem: mọi action ghim theo SHA commit, quyền token tối thiểu theo từng job, không còn công cụ thừa trong pipeline.
@@ -72,7 +76,9 @@ SHA lấy ngày 2026-11-19 bằng `gh api repos/<owner>/<repo>/commits/<tag>`, �
 - Test `scripts/lib/signing-key.test.mjs` dùng khóa tạm và thư mục tạm, không đọc `.env.local` thật.
 
 ### 7. Tài liệu
-Cập nhật `docs/06-security-privacy/02-secrets-and-key-management.md`, `docs/09-operations/02-payments-and-licensing-runbook.md`, `docs/07-engineering/03-ci-cd-and-environments.md`, `docs/README.md`, `cloudflare-worker/README.md`, ghi chú ở B03.
+Cập nhật `docs/06-security-privacy/02-secrets-and-key-management.md` (thêm mục 5: thứ tự nguồn khóa và các lệnh PowerShell chuyển khóa ra khỏi repo), `docs/09-operations/02-payments-and-licensing-runbook.md`, `docs/07-engineering/03-ci-cd-and-environments.md` (bảng workflow vốn đã cũ: nay ghi đúng `deploy` có chạy test, desktop chạy tay), `docs/README.md`, `cloudflare-worker/README.md`, ghi chú ở B03.
+
+Phát hiện ghi lại cho D02, không sửa ở đây: chạy tay `desktop-release.yml` từ `main` thì `tagName` lấy `github.ref_name` nên bản phát hành mang tag `main`.
 
 ## Việc của founder
 1. **Chuyển khóa ra khỏi repo** (máy founder, không qua chat): tạo tệp ngoài repo hoặc mục trong trình quản lý mật khẩu như hướng dẫn ở `02-secrets-and-key-management.md` mục 5; chạy `npm run keygen -- check --key-file <tệp>` thấy "Khớp"; rồi xóa dòng `STRIDE_ED25519_PRIVATE_KEY` khỏi `.env.local`.
@@ -98,5 +104,6 @@ Cập nhật `docs/06-security-privacy/02-secrets-and-key-management.md`, `docs/
 - [x] `npm ci --legacy-peer-deps` sạch; lint, test app, test Worker, build và quét bí mật qua.
 - [x] Test nguồn khóa (stdin, tệp ngoài repo, từ chối tệp trong repo, biến môi trường, `.env.local` kèm cảnh báo) qua với khóa tạm.
 - [ ] `deploy.yml` chạy xanh sau khi gộp `main`.
+- [ ] Chạy `actionlint` và `zizmor` trên `.github/workflows` (máy founder hoặc trong workflow `ci` của B03).
 - [ ] Desktop Release chạy thử bằng "Run workflow" (cùng D02).
 - [ ] Founder: chuyển khóa ra ngoài repo, bật yêu cầu ghim SHA, tạo ruleset `main`.
