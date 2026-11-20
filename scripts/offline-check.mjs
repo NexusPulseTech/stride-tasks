@@ -250,6 +250,14 @@ try {
 } finally {
   clearTimeout(watchdog);
   if (process.env.OFFLINE_CHECK_KEEP === '1') console.log(`Giữ hồ sơ tạm: ${profile}`);
-  else rmSync(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 });
+  else {
+    // Chrome trên runner CI có thể còn ghi vào hồ sơ sau khi đã đóng (ENOTEMPTY, 2026-11-20). Dọn dẹp lỗi không làm
+    // kết quả kiểm sai, nên chỉ cảnh báo: thư mục tạm của hệ điều hành sẽ được dọn sau.
+    try {
+      rmSync(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 });
+    } catch (err) {
+      console.warn(`Cảnh báo: chưa xóa được hồ sơ tạm ${profile} (${err.code || err.message}); kết quả kiểm không bị ảnh hưởng.`);
+    }
+  }
 }
 process.exit(ok ? 0 : 1);
