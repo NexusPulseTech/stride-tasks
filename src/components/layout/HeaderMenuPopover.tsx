@@ -38,6 +38,7 @@ export interface HeaderMenuPopoverProps {
   isMuted: boolean;
   onToggleMute: () => void;
   reminderEnabled: boolean;
+  reminderChannel?: 'system' | 'in-app';
   onToggleReminder: () => void;
   viewPreferences: ViewPreferences;
   onToggleZenMode: () => void;
@@ -66,6 +67,7 @@ export function HeaderMenuPopover({
   isMuted,
   onToggleMute,
   reminderEnabled,
+  reminderChannel = 'system',
   onToggleReminder,
   viewPreferences,
   onToggleZenMode,
@@ -285,7 +287,8 @@ export function HeaderMenuPopover({
                   : 'text-slate-400'
               }`}
             >
-              {reminderEnabled ? 'ON' : 'OFF'}
+              {/* B14: không ghi "ON" trơn khi thông báo hệ thống không chạy, chỉ còn nhắc trong app */}
+              {reminderEnabled ? (reminderChannel === 'system' ? 'ON' : t.header.reminderInApp) : 'OFF'}
             </span>
           </button>
 

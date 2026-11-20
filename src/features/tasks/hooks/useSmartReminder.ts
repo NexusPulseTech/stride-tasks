@@ -3,8 +3,14 @@ import { Project } from '../../../types';
 import { playChime } from '../../../utils';
 import { useTranslationRef, formatMessage } from '../../../i18n';
 import { isSampleTemplate } from '../../../utils/persistentStorage';
+import { showSystemNotification, type SystemNotificationResult } from '../../../utils/systemNotification';
+import { resolveReminderEnable, nextReminderChannel, type ReminderChannel } from '../utils/reminderChannel';
 
 export type ReminderIntervalMinutes = 15 | 30 | 60;
+export type { ReminderChannel };
+
+const notificationPermissionGranted = () =>
+  typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted';
 
 const REMINDER_KEY = 'stride_tasks_reminder_enabled';
 const REMINDER_INTERVAL_KEY = 'stride_tasks_reminder_interval';
@@ -54,6 +60,21 @@ export function useSmartReminder({ projects, isMuted, showToast }: UseSmartRemin
   const showToastRef = useRef(showToast);
   showToastRef.current = showToast;
 
+  // Lạc quan khi quyền đã cấp; lần gửi đầu tiên thất bại sẽ chuyển sang 'in-app' và báo người dùng
+  const [channel, setChannel] = useState<ReminderChannel>(() => (notificationPermissionGranted() ? 'system' : 'in-app'));
+  const channelRef = useRef(channel);
+  channelRef.current = channel;
+
+  /** Gửi thông báo hệ thống và cập nhật kênh theo kết quả thật; không bao giờ nuốt lỗi im lặng */
+  const notifySystem = useCallback(async (title: string, body: string) => {
+    const result = await showSystemNotification(title, { body, icon: '/icon-192.png' });
+    const next = nextReminderChannel(channelRef.current, result);
+    // Đang tưởng là hệ thống mà gửi lỗi: nói cho người dùng một lần, không lặp ở mỗi chu kỳ
+    if (next.warnUser) showToastRef.current(tRef.current.toast.systemNotifyFailed);
+    channelRef.current = next.channel;
+    setChannel(next.channel);
+  }, []);
+
   const updateInterval = useCallback((mins: ReminderIntervalMinutes) => {
     setIntervalMinutes(mins);
     try {
@@ -82,13 +103,11 @@ export function useSmartReminder({ projects, isMuted, showToast }: UseSmartRemin
           notifiedReminderIdsRef.current.add(key);
           playChime(isMutedRef.current);
 
-          if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
-            try {
-              new Notification(formatMessage(tRef.current.toast.scheduledNotificationTitle, { title: t.title }), {
-                body: formatMessage(tRef.current.toast.scheduledNotificationBody, { project: p.name }),
-                icon: '/icon-192.png',
-              });
-            } catch (e) {}
+          if (notificationPermissionGranted()) {
+            void notifySystem(
+              formatMessage(tRef.current.toast.scheduledNotificationTitle, { title: t.title }),
+              formatMessage(tRef.current.toast.scheduledNotificationBody, { project: p.name })
+            );
           }
 
           setInAppBanner({
@@ -107,10 +126,11 @@ export function useSmartReminder({ projects, isMuted, showToast }: UseSmartRemin
         }
       }
     }
-  }, []);
+  }, [notifySystem]);
 
-  // 2. Nhắc nhở định kỳ tổng quát khi có việc chưa hoàn thành & không đang trong kỳ hoãn cấp số nhân
-  const triggerReminderCheck = useCallback(() => {
+  // 2. Nhắc nhở định kỳ tổng quát khi có việc chưa hoàn thành & không đang trong kỳ hoãn cấp số nhân.
+  // `systemNotification: false` khi vừa gửi thông báo xác nhận lúc bật, để không bắn hai thông báo cùng lúc.
+  const triggerReminderCheck = useCallback((opts?: { systemNotification?: boolean }) => {
     const currentProjects = projectsRef.current;
     const now = Date.now();
 
@@ -157,17 +177,15 @@ export function useSmartReminder({ projects, isMuted, showToast }: UseSmartRemin
 
     playChime(isMutedRef.current);
 
-    // Gửi Web Notification hệ thống (nếu được cấp quyền)
-    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
-      try {
-        new Notification(tRef.current.reminder.notificationTitle, {
-          body: formatMessage(tRef.current.reminder.notificationBody, {
-            count: activePendingList.length,
-            task: topTask.title.slice(0, 40),
-          }),
-          icon: '/icon-192.png',
-        });
-      } catch (e) {}
+    // Gửi thông báo hệ thống (nếu được cấp quyền); kết quả thật cập nhật kênh nhắc việc
+    if (opts?.systemNotification !== false && notificationPermissionGranted()) {
+      void notifySystem(
+        tRef.current.reminder.notificationTitle,
+        formatMessage(tRef.current.reminder.notificationBody, {
+          count: activePendingList.length,
+          task: topTask.title.slice(0, 40),
+        })
+      );
     }
 
     // Hiển thị In-App Banner tinh tế nếu tab đang active
@@ -183,31 +201,37 @@ export function useSmartReminder({ projects, isMuted, showToast }: UseSmartRemin
     bannerTimerRef.current = window.setTimeout(() => {
       setInAppBanner((prev) => (prev ? { ...prev, visible: false } : null));
     }, 10000);
-  }, []);
+  }, [notifySystem]);
 
   const toggleReminder = useCallback(async () => {
     if (!reminderEnabled) {
+      // Chỉ báo "đã bật nhắc định kỳ" khi một thông báo xác nhận thật sự hiện được (B14)
+      let permission: NotificationPermission | 'unsupported' | 'error' = 'unsupported';
+      let confirmation: SystemNotificationResult | undefined;
       if (typeof window !== 'undefined' && 'Notification' in window) {
         try {
-          const perm = await Notification.requestPermission();
-          if (perm === 'granted') {
-            setReminderEnabled(true);
-            try {
-              localStorage.setItem(REMINDER_KEY, 'true');
-            } catch (e) {}
-            showToastRef.current(tRef.current.toast.periodicReminderOn);
-            triggerReminderCheck();
-            return;
+          permission = await Notification.requestPermission();
+          if (permission === 'granted') {
+            confirmation = await showSystemNotification(tRef.current.reminder.notificationTitle, {
+              body: tRef.current.toast.periodicReminderOn,
+              icon: '/icon-192.png',
+            });
           }
-        } catch (e) {}
+        } catch (error) {
+          console.warn('[notify] Notification.requestPermission() failed', error);
+          permission = 'error';
+        }
       }
-      // Vẫn bật được nhắc nhở dạng In-App Banner nếu web notification bị chặn
+      // Vẫn bật được nhắc nhở dạng banner trong app nếu thông báo hệ thống bị chặn hoặc không hiện được
+      const outcome = resolveReminderEnable(permission, confirmation);
       setReminderEnabled(true);
+      channelRef.current = outcome.channel;
+      setChannel(outcome.channel);
       try {
         localStorage.setItem(REMINDER_KEY, 'true');
       } catch (e) {}
-      showToastRef.current(tRef.current.toast.inAppReminderOn);
-      triggerReminderCheck();
+      showToastRef.current(tRef.current.toast[outcome.toast]);
+      triggerReminderCheck({ systemNotification: false });
     } else {
       setReminderEnabled(false);
       try {
@@ -249,6 +273,7 @@ export function useSmartReminder({ projects, isMuted, showToast }: UseSmartRemin
 
   return {
     reminderEnabled,
+    channel,
     intervalMinutes,
     updateInterval,
     toggleReminder,

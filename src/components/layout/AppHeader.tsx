@@ -20,6 +20,8 @@ export interface AppHeaderProps {
   isFocusMode: boolean;
   onToggleFocusMode: () => void;
   reminderEnabled: boolean;
+  /** Kênh nhắc việc đang chạy thật (B14): 'in-app' khi thông báo hệ thống bị chặn hoặc không hiện được */
+  reminderChannel?: 'system' | 'in-app';
   onToggleReminder: () => void;
   showStats: boolean;
   onToggleStats: () => void;
@@ -53,6 +55,7 @@ export function AppHeader({
   isFocusMode,
   onToggleFocusMode,
   reminderEnabled,
+  reminderChannel,
   onToggleReminder,
   showStats,
   onToggleStats,
@@ -223,6 +226,7 @@ export function AppHeader({
             isMuted={isMuted}
             onToggleMute={onToggleMute}
             reminderEnabled={reminderEnabled}
+            reminderChannel={reminderChannel}
             onToggleReminder={onToggleReminder}
             viewPreferences={viewPreferences}
             onToggleZenMode={onToggleZenMode}

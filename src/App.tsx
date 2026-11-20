@@ -335,6 +335,7 @@ export default function App() {
         isFocusMode={manager.isFocusMode}
         onToggleFocusMode={() => manager.setIsFocusMode(!manager.isFocusMode)}
         reminderEnabled={manager.reminder.reminderEnabled}
+        reminderChannel={manager.reminder.channel}
         onToggleReminder={manager.reminder.toggleReminder}
         showStats={manager.showStats}
         onToggleStats={() => manager.setShowStats(!manager.showStats)}
