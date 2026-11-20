@@ -1,5 +1,6 @@
 import type { Project, StatusDefinition, SubTask, Task } from '../../../types';
 import { isDoingStatus } from './statusCategory';
+import { withFreshStamp } from './taskSnapshot';
 
 export interface ShutdownPlan {
   projects: Project[];
@@ -70,28 +71,6 @@ export function planShutdownRitual(projects: Project[], statuses: StatusDefiniti
   return { projects: next, movedCount, before };
 }
 
-/**
- * Bản cũ để khôi phục, bỏ `updatedAt` ở việc và ở việc con có trạng thái khác hiện tại, để lần khôi phục được đóng dấu
- * thời gian mới (bản mang dấu cũ sẽ thua bản đã dời khi đồng bộ giữa các thiết bị).
- */
-function restoreWithFreshStamp(original: Task, current: Task): Task {
-  const currentStatus = new Map<string, string | undefined>();
-  const collect = (subs: SubTask[] | undefined) =>
-    subs?.forEach((s) => {
-      currentStatus.set(s.id, s.status);
-      collect(s.subtasks);
-    });
-  collect(current.subtasks);
-  const fix = (subs: SubTask[] | undefined): SubTask[] | undefined =>
-    subs?.map((s) => {
-      const children = fix(s.subtasks);
-      const differs = currentStatus.has(s.id) && currentStatus.get(s.id) !== s.status;
-      if (!differs && children === s.subtasks) return s;
-      return { ...s, subtasks: children, ...(differs ? { updatedAt: undefined } : {}) };
-    });
-  return { ...original, updatedAt: undefined, subtasks: fix(original.subtasks) ?? [] };
-}
-
 /** Hoàn tác Shutdown Ritual: trả lại đúng các việc đã dời, giữ nguyên mọi việc khác (kể cả thay đổi làm sau đó) */
 export function undoShutdownRitual(projects: Project[], before: Map<string, Task>): Project[] {
   if (before.size === 0) return projects;
@@ -101,7 +80,7 @@ export function undoShutdownRitual(projects: Project[], before: Map<string, Task
       const original = before.get(`${p.id}/${t.id}`);
       if (!original) return t;
       changed = true;
-      return restoreWithFreshStamp(original, t);
+      return withFreshStamp(original, t);
     });
     return changed ? { ...p, tasks } : p;
   });

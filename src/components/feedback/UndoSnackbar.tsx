@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Undo2, X } from 'lucide-react';
 import { UndoAction } from '../../types';
 import { useLanguage } from '../../i18n';
+import { undoSnackbarHost } from './undoSnackbarHost';
 
 interface UndoSnackbarProps {
   undoState: UndoAction | null;
@@ -11,10 +12,26 @@ interface UndoSnackbarProps {
 
 export function UndoSnackbar({ undoState, onDismiss }: UndoSnackbarProps) {
   const { t } = useLanguage();
-  if (!undoState) return null;
+  // B15: gắn vào hộp thoại aria-modal trên cùng nếu đang mở, và đổi chỗ khi hộp thoại mở hoặc đóng lúc thanh đang hiện
+  const [host, setHost] = useState<Element | null>(null);
+  useEffect(() => {
+    if (!undoState || typeof document === 'undefined') return;
+    const update = () => setHost((prev) => {
+      const next = undoSnackbarHost(document);
+      return prev === next ? prev : next;
+    });
+    update();
+    const observer = new MutationObserver(update);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [undoState]);
+
+  if (!undoState || !host) return null;
 
   return createPortal(
     <div
+      role="status"
+      aria-live="polite"
       style={{ zIndex: 10020 }}
       className="fixed bottom-20 sm:bottom-5 left-3 right-3 sm:left-1/2 sm:-translate-x-1/2 sm:w-auto sm:min-w-[320px] sm:max-w-md z-[10020] animate-in fade-in slide-in-from-bottom-2 duration-150"
     >
@@ -53,6 +70,6 @@ export function UndoSnackbar({ undoState, onDismiss }: UndoSnackbarProps) {
         </div>
       </div>
     </div>,
-    document.body
+    host
   );
 }

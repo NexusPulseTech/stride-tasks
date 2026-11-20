@@ -485,6 +485,7 @@ export interface Translations {
     projectAllDone: string;
     taskRenamed: string;
     taskDeleted: string;
+    focusDoneUndo: string;
     taskCopied: string;
     checklistCopied: string;
     taskPinUpdated: string;
@@ -495,6 +496,7 @@ export interface Translations {
     projectRenamed: string;
     // Lặp lại, lịch hẹn, hoãn, quỹ thời gian
     recurringRolledOver: string;
+    recurringRolledOverOne: string;
     recurringDoneToday: string;
     recurrenceSet: string;
     recurrenceOff: string;

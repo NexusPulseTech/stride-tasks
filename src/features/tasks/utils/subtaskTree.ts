@@ -92,6 +92,17 @@ export function cascadeTaskAllSubtasks(task: Task, completed: boolean): Task {
 }
 
 /**
+ * Đặt cờ xong cho việc con có con theo kết quả bọt khí nổi. B15: việc con lặp lại tự chuyển sang xong (vì mọi con đã
+ * xong) được ghi nhận chuỗi, tự rời trạng thái xong thì trả chuỗi, như khi tích tay.
+ */
+function withBubbledCompletion(item: SubTask, allDone: boolean, subtasks: SubTask[]): SubTask {
+  const next: SubTask = { ...item, completed: allDone, subtasks };
+  if (allDone && !item.completed) return markRecurringDone(next);
+  if (!allDone && item.completed) return unmarkRecurringDone(next);
+  return next;
+}
+
+/**
  * Bọt khí nổi (Bubble up): Đệ quy cập nhật trạng thái completed dựa trên các con
  */
 function recalculateSubtaskNode(sub: SubTask): SubTask {
@@ -103,11 +114,7 @@ function recalculateSubtaskNode(sub: SubTask): SubTask {
   const allChildrenDone =
     updatedChildren.length > 0 && updatedChildren.every((c) => c.completed);
 
-  return {
-    ...sub,
-    completed: allChildrenDone,
-    subtasks: updatedChildren,
-  };
+  return withBubbledCompletion(sub, allChildrenDone, updatedChildren);
 }
 
 /**
@@ -135,11 +142,7 @@ export function toggleSubtaskInTree(
           // Bubble up: Tính lại trạng thái của item cha dựa trên các con
           const allDone =
             nextChildren.length > 0 && nextChildren.every((c) => c.completed);
-          return {
-            ...item,
-            completed: allDone,
-            subtasks: nextChildren,
-          };
+          return withBubbledCompletion(item, allDone, nextChildren);
         }
       }
 
@@ -181,11 +184,7 @@ export function addNestedSubtask(
         const updatedChildren = traverse(item.subtasks);
         const allDone =
           updatedChildren.length > 0 && updatedChildren.every((c) => c.completed);
-        return {
-          ...item,
-          completed: allDone,
-          subtasks: updatedChildren,
-        };
+        return withBubbledCompletion(item, allDone, updatedChildren);
       }
 
       return item;
@@ -217,11 +216,7 @@ export function deleteNestedSubtask(
         const nextChildren = traverse(item.subtasks);
         const allDone =
           nextChildren.length > 0 ? nextChildren.every((c) => c.completed) : item.completed;
-        filtered.push({
-          ...item,
-          completed: allDone,
-          subtasks: nextChildren,
-        });
+        filtered.push(withBubbledCompletion(item, allDone, nextChildren));
       } else {
         filtered.push(item);
       }
@@ -328,11 +323,7 @@ export function updateSubtaskStatusInTree(
     if (item.subtasks && item.subtasks.length > 0) {
       const updatedChildren = updateSubtaskStatusInTree(item.subtasks, subId, newStatus, isDoneCategory);
       const allDone = updatedChildren.length > 0 && updatedChildren.every((c) => c.completed);
-      return {
-        ...item,
-        completed: allDone,
-        subtasks: updatedChildren,
-      };
+      return withBubbledCompletion(item, allDone, updatedChildren);
     }
     return item;
   });

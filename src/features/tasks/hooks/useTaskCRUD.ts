@@ -8,6 +8,7 @@ import { buildSmartTask, summarizeSmartTask } from '../utils/smartTaskParser';
 import { changeSubtaskStatusTransition, changeTaskStatusTransition, toggleTaskDoneTransition } from '../utils/taskTransitions';
 import { startDayWatcher } from '../utils/dayWatcher';
 import { planShutdownRitual, undoShutdownRitual } from '../utils/shutdownRitual';
+import { rolloverNotice } from '../utils/rolloverNotice';
 import { exportProjectToMarkdown } from '../utils/formatters';
 import { isDoneStatus } from '../utils/statusCategory';
 import { stampProjectsUpdatedAt } from '../utils/updatedAtStamp';
@@ -91,7 +92,7 @@ export function useTaskCRUD({
         return updatedProjects.every((p, i) => p === current[i]) ? current : updatedProjects;
       });
       if (resetCount > 0) {
-        showToastRef.current?.(formatMessage(tRef.current.toast.recurringRolledOver, { count: resetCount }));
+        showToastRef.current?.(rolloverNotice(tRef.current.toast, resetCount));
       }
     };
     runRollover();

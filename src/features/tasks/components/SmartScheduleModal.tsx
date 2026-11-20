@@ -28,6 +28,7 @@ import {
   getAnkiSrs3Options,
   calculateSnoozeTarget,
   formatSnoozeCountdown,
+  SNOOZE_GROWTH_LABEL,
 } from '../utils/spacedSnooze';
 import { useLanguage } from '../../../i18n';
 import { triggerHaptic } from '../../../utils';
@@ -343,7 +344,7 @@ export function SmartScheduleModal({
                     </div>
                   </button>
 
-                  {/* Option 2: Good (Exponential x2.3) */}
+                  {/* Option 2: Good (hệ số SNOOZE_GROWTH_LABEL) */}
                   <button
                     type="button"
                     onClick={() => handleChooseAnkiOption(ankiOptions[1])}
@@ -361,7 +362,7 @@ export function SmartScheduleModal({
                       {language === 'vi' ? ankiOptions[1].intervalTagVi : ankiOptions[1].intervalTagEn}
                     </div>
                     <div className="text-[9.5px] text-blue-700/80 dark:text-blue-300/80 truncate">
-                      {language === 'vi' ? 'Chuẩn cấp số nhân' : 'Good (×2.3)'}
+                      {language === 'vi' ? 'Chuẩn cấp số nhân' : `Good (${SNOOZE_GROWTH_LABEL})`}
                     </div>
                   </button>
 

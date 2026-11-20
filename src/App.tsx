@@ -818,6 +818,7 @@ export default function App() {
         focusTodayMinutes={focusLog.summary.todayMinutes}
         onToggleTaskDone={manager.toggleTaskDone}
         onToggleSubTask={manager.toggleSubTask}
+        onMarkDone={manager.completeFocusItemWithUndo}
         onTogglePinTask={(projId, taskId) => {
           manager.togglePinTask(projId, taskId, { stopPropagation: () => {} } as any);
         }}
